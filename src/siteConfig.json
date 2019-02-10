@@ -1,0 +1,20 @@
+{
+  "theme": "fullstackwolfpack",
+  "name": "Fullstack Wolfpack",
+  "email": "mark@markmcdermott.io",
+  "url": "fullstackwolfpack.com",
+  "rssUUID": "{RSS-UUID}",
+  "description": "test site description",
+  "twitter": "twitter name",
+  "currentYear": "2019",
+  "lessonsNav": [
+    {
+      "name": "Big O",
+      "slug": "big-o"
+    },
+    {
+      "name": "Data Structures",
+      "slug": "data-structures"
+    }
+  ]
+}

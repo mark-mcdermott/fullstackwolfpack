@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title lang="en"></title>
+    <meta name="description" content="test site description">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link href="/style.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+
+    <header>
+        <a href="/">Fullstack Wolfpack</a>
+        <nav>
+            <ul>
+              <li><a href="/">Home</a></li>
+              <li><a href="/about.html">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <nav class="lessonsNav">
+      <ul>
+      
+        <li><a href="/lessons/big-o.html">Big O</a></li>
+      
+        <li><a href="/lessons/data-structures.html">Data Structures</a></li>
+      
+      </ul>
+    </nav>
+
+    <div class="content">
+        
+<article itemscope itemtype="http://schema.org/Article">
+    <h1 itemprop="name">Moved blog from Pico to a Gulp static generator</h1>
+    <time itemprop="datePublished" content="2/10/19" datetime="2/10/19">2/10/19</time>
+
+    
+
+    <div class="clear"></div>
+
+    <img itemprop="image" src="image">
+    <div class="clear"></div>
+
+    <p>Friday I built this blog in <a href="http://picocms.org/">Pico</a>, but then yesterday and today I rebuilt it using a <a href="https://github.com/antonfisher/static-blog-generator">static blog generator</a> built by Anton Fisher that I found on Github.  Pico uses markdown/Twig templates and compiles them to HTML on the server side in PHP when the page is called from a browser.  The Fisher static blog generator precompiles markdown/Nunjuck templates in Node to HTML in Gulp.  I figured I’d eliminate the server side load time, however fast it is, by preprocessing the templates to html. I’m not sure how fast PHP is compiling those Twig templates to HTML in Pico. It would be an interesting little performance benchmarking study to do at a later time.</p>
+<p>Besides eliminating the server side load time, I also want a local Gulp workflow where I could have total control over how the markdown was parsed. Because I plan on making a lot of flashcards with some kind of modified markdown, I want to be able to be able to modify the markdown syntax with little hacks.</p>
+
+</article>
+
+<div class="top-border-block share-buttons">
+    <b class="label">Share:</b>
+
+    <!-- twitter -->
+    <a href="https://twitter.com/share" class="twitter-share-button"
+       data-text="Moved blog from Pico to a Gulp static generator"
+       data-via="twitter name">
+        Tweet
+    </a>
+    <script>
+        !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';
+        if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';
+        fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
+    </script>
+    <!-- /twitter -->
+</div>
+
+<div class="top-border-block comments">
+    <b class="label">Comments:</b>
+    <div id="disqus_thread"></div>
+    <script>
+        if (window.location.hostname !== 'localhost') {
+            var disqus_config = function () {
+                this.page.url = 'https://antonfisher.comblog/moved-blog-from-pico-to-a-gulp-static-generator.html';
+                this.page.identifier = '2/10/19';
+            };
+            (function () {
+                var d = document, s = d.createElement('script');
+                s.src = '//antonfishercom.disqus.com/embed.js';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        }
+    </script>
+</div>
+
+    </div>
+
+    <footer>
+      <p>&copy;2019 Fullstack Wolfpack</p>
+    </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,37 @@
+{
+  "name": "static-blog-generator",
+  "version": "1.0.0",
+  "description": "static blog generator, gulp, nunjucks, markdown",
+  "main": "gulpfile.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:antonfisher/static-blog-generator.git"
+  },
+  "scripts": {
+    "start": "./node_modules/.bin/gulp",
+    "watch": "./node_modules/.bin/gulp --watch"
+  },
+  "engines": {
+    "node": "8.10"
+  },
+  "dependencies": {
+    "browser-sync": "2.23.6",
+    "gulp": "3.9.1",
+    "gulp-concat": "2.6.1",
+    "gulp-clean-css": "3.9.2",
+    "gulp-nunjucks-render": "2.2.2",
+    "gulp-rename": "1.2.2",
+    "gulp-sass": "3.1.0",
+    "highlight.js": "9.12.0",
+    "merge-stream": "1.0.1",
+    "normalize.css": "8.0.0",
+    "remarkable": "1.7.1",
+    "rimraf": "2.6.2"
+  },
+  "author": {
+    "name": "Anton Fisher",
+    "email": "a.fschr@gmail.com",
+    "url": "https://antonfisher.com"
+  },
+  "license": "MIT"
+}
