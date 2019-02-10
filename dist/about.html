@@ -2,44 +2,63 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title lang="en"></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title lang="en">Fullstack Wolfpack</title>
     <meta name="description" content="test site description">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
     <link href="/style.min.css" rel="stylesheet">
 </head>
-<body>
-<div class="container">
+<body >
 
-    <header>
-        <a href="/">Fullstack Wolfpack</a>
-        <nav>
-            <ul>
-              <li><a href="/">Home</a></li>
-              <li><a href="/about.html">About</a></li>
-            </ul>
-        </nav>
-    </header>
 
-    <nav class="lessonsNav">
-      <ul>
-      
-        <li><a href="/lessons/big-o.html">Big O</a></li>
-      
-        <li><a href="/lessons/data-structures.html">Data Structures</a></li>
-      
-      </ul>
+  <header>
+      <div class="container">
+          <a id="nav-toggle" title="Toggle Menu" role="button" aria-controls="nav" aria-expanded="false" tabindex="1">
+              <span class="icon-menu" aria-hidden="true"></span>
+              <span class="sr-only">Toggle Menu</span>
+          </a>
+          <h1>
+              <a href="/">Fullstack Wolfpack</a>
+          </h1>
+          <p class="tagline">Blog, tutorials and videos about full stack skills</p>
+          <nav class="site-nav" role="region" tabindex="-1">
+              <ul>
+                <li>
+                  <a href="/">Home</a>
+                </li>
+                <li class="active">
+                  <a href="/about.html">About</a>
+                </li>
+              </ul>
+          </nav>
+      </div>
+  </header>
+
+  <div class="container">
+
+    <nav class="lessons-nav">
+        <ul>
+        
+          <li><a href="/lessons/big-o.html">Big O</a></li>
+        
+          <li><a href="/lessons/data-structures.html">Data Structures</a></li>
+        
+        </ul>
     </nav>
 
     <div class="content">
-        
+      
 <p>I'm Mark McDermott, a web developer in Austin, Texas and a software engineering grad student at Texas State University. I have seven years front end web development experience. I've worked professionally with JavaScript, HTML, CSS, Sass, WordPress, MySQL, Git and Photoshop. In school I've studied C++, Python, Oracle and Bash. On my own, I've learned some Node, Mongo, Angular, Drupal, Django, Grunt and Bootstrap. I love hiking, running, electronic music and artichokes.</p>
 <p>Here at Fullstack Wolfpack, I blog about my learnings in day to day programming work. I also write lessons and tutorials on computer science topics. A long-term goal of mine here is to present for free essentially the same information that is taught in an undergraduate computer science program. I hope to host study aid materials to assist in learning the coursework, such as online flash cards, practice problems with answers and video lesons.</p>
-
+  
     </div>
 
+  </div>
+
     <footer>
-      <p>&copy;2019 Fullstack Wolfpack</p>
+      <div class="container">
+        <p>&copy;2019 <a href="http://markmcdermott.io">Mark McDermott</a></p>
+      </div>
     </footer>
-</div>
+
 </body>
 </html>

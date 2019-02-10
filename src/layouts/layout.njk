@@ -3,11 +3,11 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <title lang="en">Fullstack Wolfpack</title>
-    <meta name="description" content="test site description">
+    <title lang="en">{{config.sitename}}</title>
+    <meta name="description" content="{{post.metaDescription | default(config.description)}}">
     <link href="/style.min.css" rel="stylesheet">
 </head>
-<body >
+<body {% if pageType == 'home' %}id="blog-index"{% endif %}>
 
 
   <header>
@@ -17,15 +17,15 @@
               <span class="sr-only">Toggle Menu</span>
           </a>
           <h1>
-              <a href="/">Fullstack Wolfpack</a>
+              <a href="/">{{ config.sitename }}</a>
           </h1>
-          <p class="tagline">Blog, tutorials and videos about full stack skills</p>
+          <p class="tagline">{{ config.tagline }}</p>
           <nav class="site-nav" role="region" tabindex="-1">
               <ul>
-                <li>
+                <li{% if pageType == 'home' %} class="active"{% endif %}>
                   <a href="/">Home</a>
                 </li>
-                <li>
+                <li{% if pageType == 'about' %} class="active"{% endif %}>
                   <a href="/about.html">About</a>
                 </li>
               </ul>
@@ -37,37 +37,22 @@
 
     <nav class="lessons-nav">
         <ul>
-        
-          <li><a href="/lessons/big-o.html">Big O</a></li>
-        
-          <li><a href="/lessons/data-structures.html">Data Structures</a></li>
-        
+        {% for lesson in config.lessonsNav %}
+          <li><a href="/lessons/{{ lesson.slug }}.html">{{ lesson.name }}</a></li>
+        {% endfor %}
         </ul>
     </nav>
 
     <div class="content">
-      
-
-<h1>Data Structures Content</h1>
-<p>sdkfjksdjf
-sdfkljsdkjf</p>
-<p>sdjfklsdjlkfjl
-dsfjkljs</p>
-<h2>Subtitle 1</h2>
-<p>sdfsdfsdf</p>
-<h3>Subtitle 2</h3>
-<p>sdfsdfsdfdf
-sdfsdfsdf</p>
-
-
-  
+      {% block content %}{% endblock %}  
     </div>
 
   </div>
 
     <footer>
       <div class="container">
-        <p>&copy;2019 <a href="http://markmcdermott.io">Mark McDermott</a></p>
+        <p>&copy;{{config.currentYear}} <a href="http://markmcdermott.io">Mark McDermott</a>{% if pageType == 'home' %}
+          <br /><a href="https://github.com/mark-mcdermott/fullstackwolfpack">Built with Node</a> in < {{ filesizeKb }} kB{% endif %}</p>
       </div>
     </footer>
 

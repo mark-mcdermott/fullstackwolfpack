@@ -1,6 +1,8 @@
 {
   "theme": "fullstackwolfpack",
   "name": "Fullstack Wolfpack",
+  "sitename": "Fullstack Wolfpack",
+  "tagline": "Blog, tutorials and videos about full stack skills",
   "email": "mark@markmcdermott.io",
   "url": "fullstackwolfpack.com",
   "rssUUID": "{RSS-UUID}",

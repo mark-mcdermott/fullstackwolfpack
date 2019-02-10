@@ -2,36 +2,51 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title lang="en"></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title lang="en">Fullstack Wolfpack</title>
     <meta name="description" content="test site description">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
     <link href="/style.min.css" rel="stylesheet">
 </head>
-<body>
-<div class="container">
+<body >
 
-    <header>
-        <a href="/">Fullstack Wolfpack</a>
-        <nav>
-            <ul>
-              <li><a href="/">Home</a></li>
-              <li><a href="/about.html">About</a></li>
-            </ul>
-        </nav>
-    </header>
 
-    <nav class="lessonsNav">
-      <ul>
-      
-        <li><a href="/lessons/big-o.html">Big O</a></li>
-      
-        <li><a href="/lessons/data-structures.html">Data Structures</a></li>
-      
-      </ul>
+  <header>
+      <div class="container">
+          <a id="nav-toggle" title="Toggle Menu" role="button" aria-controls="nav" aria-expanded="false" tabindex="1">
+              <span class="icon-menu" aria-hidden="true"></span>
+              <span class="sr-only">Toggle Menu</span>
+          </a>
+          <h1>
+              <a href="/">Fullstack Wolfpack</a>
+          </h1>
+          <p class="tagline">Blog, tutorials and videos about full stack skills</p>
+          <nav class="site-nav" role="region" tabindex="-1">
+              <ul>
+                <li>
+                  <a href="/">Home</a>
+                </li>
+                <li>
+                  <a href="/about.html">About</a>
+                </li>
+              </ul>
+          </nav>
+      </div>
+  </header>
+
+  <div class="container">
+
+    <nav class="lessons-nav">
+        <ul>
+        
+          <li><a href="/lessons/big-o.html">Big O</a></li>
+        
+          <li><a href="/lessons/data-structures.html">Data Structures</a></li>
+        
+        </ul>
     </nav>
 
     <div class="content">
-        
+      
 <article itemscope itemtype="http://schema.org/Article">
     <h1 itemprop="name">Moved blog from Pico to a Gulp static generator</h1>
     <time itemprop="datePublished" content="2/10/19" datetime="2/10/19">2/10/19</time>
@@ -83,12 +98,16 @@
         }
     </script>
 </div>
-
+  
     </div>
 
+  </div>
+
     <footer>
-      <p>&copy;2019 Fullstack Wolfpack</p>
+      <div class="container">
+        <p>&copy;2019 <a href="http://markmcdermott.io">Mark McDermott</a></p>
+      </div>
     </footer>
-</div>
+
 </body>
 </html>

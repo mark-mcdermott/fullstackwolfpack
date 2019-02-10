@@ -11,7 +11,10 @@ var nunjucksRender = require('gulp-nunjucks-render');
 var fs = require('fs');
 var path = require('path');
 var rimraf = require('rimraf');
+var getFileSize = require('gulp-filesize');
 var reload = browserSync.reload;
+
+var runningIndexFilesize = 0;
 
 var markdown = new Remarkable({
     html: true,
@@ -347,12 +350,13 @@ gulp.task('renderer', function () {
       // from lessons array var, create /dist/lessons folder
       // dist/lessons contains files for each individual lesson
       lessons.map(function (lesson) {
-          gulp.src(themePath + '/page-templates/lesson.html')
+          gulp.src(themePath + '/page-templates/lesson.njk')
               .pipe(nunjucksRender({
                   data: {
                       title: lesson.title,
                       config: config,
-                      lesson: lesson
+                      lesson: lesson,
+                      pageType: 'page'
                   }
               }))
               .pipe(rename(lesson.filename))
@@ -369,12 +373,13 @@ gulp.task('renderer', function () {
     // from posts array var, create /dist/blog folder
     // dist/blog contains files for each individual post
     posts.map(function (post) {
-        gulp.src(themePath + '/page-templates/post.html')
+        gulp.src(themePath + '/page-templates/post.njk')
             .pipe(nunjucksRender({
                 data: {
                     title: post.title,
                     config: config,
-                    post: post
+                    post: post,
+                    pageType: 'page'
                 }
             }))
             .pipe(rename(post.filename))
@@ -398,13 +403,14 @@ gulp.task('renderer', function () {
             var tag = tagsMap[key];
 
             tags.push(tag);
-            gulp.src(themePath + '/page-templates/posts.html')
+            gulp.src(themePath + '/page-templates/home.html')
                 .pipe(nunjucksRender({
                     data: {
                         title: ('Tag: ' + tag.title),
                         posts: tag.posts,
                         config: config,
-                        tag: tag
+                        tag: tag,
+                        pageType: 'page'
                     }
                 }))
                 .pipe(rename('index.html'))
@@ -422,11 +428,12 @@ gulp.task('renderer', function () {
     // go through all files in that folder & output html pages for them
     // also change the html content in the about page to markdown,
     // parse that markdown & output html from it
-    gulp.src(themePath + '/page-templates/about.html')
+    gulp.src(themePath + '/page-templates/about.njk')
         .pipe(nunjucksRender({
             data: {
                 config: config,
-                title: 'About'
+                title: 'About',
+                pageType: 'about'
             }
         }))
         .pipe(rename('about.html'))
@@ -438,16 +445,52 @@ gulp.task('renderer', function () {
 
     // create the homepage (index.html)
     // uses posts array variable to add posts to homepage
-    return gulp.src(themePath + '/page-templates/posts.html')
+    // return gulp.src(themePath + '/page-templates/index.html')
+    gulp.src(themePath + '/page-templates/home.njk')
         .pipe(nunjucksRender({
             data: {
                 config: config,
-                posts: posts
+                posts: posts,
+                pageType: 'home',
+                filesizeKb: '?'
             }
         }))
         .pipe(rename('index.html'))
         .pipe(gulp.dest('../dist/'))
         .pipe(reload({stream: true}));
+
+
+
+      // add filesize to index footer
+      // https://techoverflow.net/2012/09/16/how-to-get-filesize-in-node-js/
+      function getFilesizeInKb(filename) {
+        var stats = fs.statSync(filename);
+        var fileSizeInBytes = stats.size;
+        var fileSizeInKb = fileSizeInBytes / 1000;
+        return fileSizeInKb;
+      }
+      var indexHtmlSize = getFilesizeInKb('../dist/index.html');
+      var indexStylesSize = getFilesizeInKb('../dist/style.min.css');
+
+      runningIndexFilesize = Math.ceil(runningIndexFilesize + indexHtmlSize + indexStylesSize);
+
+      // now that we have filesize, render index again & add it to footer
+      gulp.src(themePath + '/page-templates/home.njk')
+          .pipe(nunjucksRender({
+              data: {
+                  config: config,
+                  posts: posts,
+                  pageType: 'home',
+                  filesizeKb: runningIndexFilesize
+              }
+          }))
+          .pipe(rename('index.html'))
+          .pipe(gulp.dest('../dist/'))
+          .pipe(reload({stream: true}));
+
+
+
+
 
 
 

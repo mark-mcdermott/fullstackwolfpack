@@ -1,0 +1,11 @@
+{% extends "layout.njk" %}
+
+{% block content %}
+    {% for post in posts %}
+        <div class="post">
+          <h3><a href="{{ post.link }}">{{ post.title }}</a></h3>
+          <p class="date">{{ post.date }}</p>
+          {{ post.article }}
+        </div>
+    {% endfor %}
+{% endblock %}
