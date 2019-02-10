@@ -24,8 +24,11 @@ I used Fisher's Node, Nunjucks & markdown static-blog-generator because:
 I built this for me, but if you want to fire this up for whatever reason here's how:
 
 `git clone https://github.com/mark-mcdermott/fullstackwolfpack.git`
+
 `cd fullstackwolfpack/af-static-blog-generator`
+
 `npm install`
+
 `npm start`
 
 ### License
