@@ -7,27 +7,47 @@
     <meta name="description" content="test site description">
     <link href="/style.min.css" rel="stylesheet">
 </head>
-<body id="blog-index">
+<body >
 
+  <!--   Mobile nav from https://codepen.io/erikterwan/pen/EVzeRP -->
+  <nav class="mobile-nav" role="navigation">
+    <div id="menuToggle">
+      <!-- hidden checkbox, is used as click reciever for :checked -->
+      <input type="checkbox" />
+      <!-- spans for hamburger icon-->
+      <span></span><span></span><span></span>
+      <ul id="menu">
+        
+          <li class="active"><a href="/">Home</a></li>
+        
+          <li><a href="/about.html">About</a></li>
+        
+        <li class="mobile-nav-heading">Lessons
+          <ul>
+          
+            <li><a href="/lessons/big-o.html">Big O</a></li>
+          
+            <li><a href="/lessons/data-structures.html">Data Structures</a></li>
+          
+        </ul>
+        </li>
+      </ul>
+    </div>
+  </nav>
 
   <header>
       <div class="container">
-          <a id="nav-toggle" title="Toggle Menu" role="button" aria-controls="nav" aria-expanded="false" tabindex="1">
-              <span class="icon-menu" aria-hidden="true"></span>
-              <span class="sr-only">Toggle Menu</span>
-          </a>
           <h1>
               <a href="/">Fullstack Wolfpack</a>
           </h1>
           <p class="tagline">Blog, tutorials and videos about full stack skills</p>
           <nav class="site-nav" role="region" tabindex="-1">
               <ul>
-                <li class="active">
-                  <a href="/">Home</a>
-                </li>
-                <li>
-                  <a href="/about.html">About</a>
-                </li>
+                
+                  <li class="active"><a href="/">Home</a></li>
+                
+                  <li><a href="/about.html">About</a></li>
+                
               </ul>
           </nav>
       </div>
@@ -35,6 +55,7 @@
 
   <div class="container">
 
+    <h3 class="lessons-nav-header">Lessons</h3>
     <nav class="lessons-nav">
         <ul>
         
@@ -67,7 +88,7 @@
 
         </div>
     
-  
+
     </div>
 
   </div>
@@ -75,7 +96,7 @@
     <footer>
       <div class="container">
         <p>&copy;2019 <a href="http://markmcdermott.io">Mark McDermott</a>
-          <br /><a href="https://github.com/mark-mcdermott/fullstackwolfpack">Built with Node</a> in < 15 kB</p>
+          <br /><a href="https://github.com/mark-mcdermott/fullstackwolfpack">Built with Node</a> in < 17 kB</p>
       </div>
     </footer>
 

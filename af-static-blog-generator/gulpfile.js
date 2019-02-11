@@ -356,7 +356,7 @@ gulp.task('renderer', function () {
                       title: lesson.title,
                       config: config,
                       lesson: lesson,
-                      pageType: 'page'
+                      pageType: 'Page'
                   }
               }))
               .pipe(rename(lesson.filename))
@@ -379,7 +379,7 @@ gulp.task('renderer', function () {
                     title: post.title,
                     config: config,
                     post: post,
-                    pageType: 'page'
+                    pageType: 'Page'
                 }
             }))
             .pipe(rename(post.filename))
@@ -410,7 +410,7 @@ gulp.task('renderer', function () {
                         posts: tag.posts,
                         config: config,
                         tag: tag,
-                        pageType: 'page'
+                        pageType: 'Page'
                     }
                 }))
                 .pipe(rename('index.html'))
@@ -433,7 +433,7 @@ gulp.task('renderer', function () {
             data: {
                 config: config,
                 title: 'About',
-                pageType: 'about'
+                pageType: 'About'
             }
         }))
         .pipe(rename('about.html'))
@@ -451,7 +451,7 @@ gulp.task('renderer', function () {
             data: {
                 config: config,
                 posts: posts,
-                pageType: 'home',
+                pageType: 'Home',
                 filesizeKb: '?'
             }
         }))
@@ -480,7 +480,7 @@ gulp.task('renderer', function () {
               data: {
                   config: config,
                   posts: posts,
-                  pageType: 'home',
+                  pageType: 'Home',
                   filesizeKb: runningIndexFilesize
               }
           }))
@@ -509,7 +509,7 @@ gulp.task('default', ['css', 'renderer'], function () {
     });
 
     gulp.watch('../content/posts/*.md', ['renderer']);
-    gulp.watch([themePath + '/**/*.html', themePath + '/**/*.xml', themePath + '/*.html'], ['renderer']);
+    gulp.watch([themePath + '/**/*.njk', themePath + '/**/*.xml', themePath + '/*.njk'], ['renderer']);
     gulp.watch([themePath + '/scss/*.scss', './node_modules/normalize.css/normalize.css'], ['css']);
     gulp.watch(['**/*.html', '**/*.css', 'img/**/*'], {cwd: '../'}, reload);
 });

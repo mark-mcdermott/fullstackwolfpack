@@ -9,14 +9,24 @@
   "description": "test site description",
   "twitter": "twitter name",
   "currentYear": "2019",
+  "siteNav": [
+    {
+      "name": "Home",
+      "link": "/"
+    },
+    {
+      "name": "About",
+      "link": "/about.html"
+    }
+  ],
   "lessonsNav": [
     {
       "name": "Big O",
-      "slug": "big-o"
+      "link": "/lessons/big-o.html"
     },
     {
       "name": "Data Structures",
-      "slug": "data-structures"
+      "link": "/lessons/data-structures.html"
     }
   ]
 }

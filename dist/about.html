@@ -9,25 +9,45 @@
 </head>
 <body >
 
+  <!--   Mobile nav from https://codepen.io/erikterwan/pen/EVzeRP -->
+  <nav class="mobile-nav" role="navigation">
+    <div id="menuToggle">
+      <!-- hidden checkbox, is used as click reciever for :checked -->
+      <input type="checkbox" />
+      <!-- spans for hamburger icon-->
+      <span></span><span></span><span></span>
+      <ul id="menu">
+        
+          <li><a href="/">Home</a></li>
+        
+          <li class="active"><a href="/about.html">About</a></li>
+        
+        <li class="mobile-nav-heading">Lessons
+          <ul>
+          
+            <li><a href="/lessons/big-o.html">Big O</a></li>
+          
+            <li><a href="/lessons/data-structures.html">Data Structures</a></li>
+          
+        </ul>
+        </li>
+      </ul>
+    </div>
+  </nav>
 
   <header>
       <div class="container">
-          <a id="nav-toggle" title="Toggle Menu" role="button" aria-controls="nav" aria-expanded="false" tabindex="1">
-              <span class="icon-menu" aria-hidden="true"></span>
-              <span class="sr-only">Toggle Menu</span>
-          </a>
           <h1>
               <a href="/">Fullstack Wolfpack</a>
           </h1>
           <p class="tagline">Blog, tutorials and videos about full stack skills</p>
           <nav class="site-nav" role="region" tabindex="-1">
               <ul>
-                <li>
-                  <a href="/">Home</a>
-                </li>
-                <li class="active">
-                  <a href="/about.html">About</a>
-                </li>
+                
+                  <li><a href="/">Home</a></li>
+                
+                  <li class="active"><a href="/about.html">About</a></li>
+                
               </ul>
           </nav>
       </div>
@@ -35,6 +55,7 @@
 
   <div class="container">
 
+    <h3 class="lessons-nav-header">Lessons</h3>
     <nav class="lessons-nav">
         <ul>
         
@@ -49,7 +70,7 @@
       
 <p>I'm Mark McDermott, a web developer in Austin, Texas and a software engineering grad student at Texas State University. I have seven years front end web development experience. I've worked professionally with JavaScript, HTML, CSS, Sass, WordPress, MySQL, Git and Photoshop. In school I've studied C++, Python, Oracle and Bash. On my own, I've learned some Node, Mongo, Angular, Drupal, Django, Grunt and Bootstrap. I love hiking, running, electronic music and artichokes.</p>
 <p>Here at Fullstack Wolfpack, I blog about my learnings in day to day programming work. I also write lessons and tutorials on computer science topics. A long-term goal of mine here is to present for free essentially the same information that is taught in an undergraduate computer science program. I hope to host study aid materials to assist in learning the coursework, such as online flash cards, practice problems with answers and video lesons.</p>
-  
+
     </div>
 
   </div>

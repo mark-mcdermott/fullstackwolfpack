@@ -9,25 +9,39 @@
 </head>
 <body {% if pageType == 'home' %}id="blog-index"{% endif %}>
 
+  <!--   Mobile nav from https://codepen.io/erikterwan/pen/EVzeRP -->
+  <nav class="mobile-nav" role="navigation">
+    <div id="menuToggle">
+      <!-- hidden checkbox, is used as click reciever for :checked -->
+      <input type="checkbox" />
+      <!-- spans for hamburger icon-->
+      <span></span><span></span><span></span>
+      <ul id="menu">
+        {% for page in config.siteNav %}
+          <li{% if pageType == page.name %} class="active"{% endif %}><a href="{{ page.link }}">{{ page.name }}</a></li>
+        {% endfor %}
+        <li class="mobile-nav-heading">Lessons
+          <ul>
+          {% for lesson in config.lessonsNav %}
+            <li><a href="{{ lesson.link }}">{{ lesson.name }}</a></li>
+          {% endfor %}
+        </ul>
+        </li>
+      </ul>
+    </div>
+  </nav>
 
   <header>
       <div class="container">
-          <a id="nav-toggle" title="Toggle Menu" role="button" aria-controls="nav" aria-expanded="false" tabindex="1">
-              <span class="icon-menu" aria-hidden="true"></span>
-              <span class="sr-only">Toggle Menu</span>
-          </a>
           <h1>
               <a href="/">{{ config.sitename }}</a>
           </h1>
           <p class="tagline">{{ config.tagline }}</p>
           <nav class="site-nav" role="region" tabindex="-1">
               <ul>
-                <li{% if pageType == 'home' %} class="active"{% endif %}>
-                  <a href="/">Home</a>
-                </li>
-                <li{% if pageType == 'about' %} class="active"{% endif %}>
-                  <a href="/about.html">About</a>
-                </li>
+                {% for page in config.siteNav %}
+                  <li{% if pageType == page.name %} class="active"{% endif %}><a href="{{ page.link }}">{{ page.name }}</a></li>
+                {% endfor %}
               </ul>
           </nav>
       </div>
@@ -35,23 +49,24 @@
 
   <div class="container">
 
+    <h3 class="lessons-nav-header">Lessons</h3>
     <nav class="lessons-nav">
         <ul>
         {% for lesson in config.lessonsNav %}
-          <li><a href="/lessons/{{ lesson.slug }}.html">{{ lesson.name }}</a></li>
+          <li><a href="{{ lesson.link }}">{{ lesson.name }}</a></li>
         {% endfor %}
         </ul>
     </nav>
 
     <div class="content">
-      {% block content %}{% endblock %}  
+      {% block content %}{% endblock %}
     </div>
 
   </div>
 
     <footer>
       <div class="container">
-        <p>&copy;{{config.currentYear}} <a href="http://markmcdermott.io">Mark McDermott</a>{% if pageType == 'home' %}
+        <p>&copy;{{config.currentYear}} <a href="http://markmcdermott.io">Mark McDermott</a>{% if pageType == 'Home' %}
           <br /><a href="https://github.com/mark-mcdermott/fullstackwolfpack">Built with Node</a> in < {{ filesizeKb }} kB{% endif %}</p>
       </div>
     </footer>
