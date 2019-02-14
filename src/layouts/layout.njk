@@ -17,8 +17,10 @@
       <!-- spans for hamburger icon-->
       <span></span><span></span><span></span>
       <ul id="menu">
-        {% for page in config.siteNav %}
-          <li{% if pageType == page.name %} class="active"{% endif %}><a href="{{ page.link }}">{{ page.name }}</a></li>
+        {% for pageListItem in config.siteNav %}
+          <li{% if title == pageListItem.name %} class="active"{% endif %}>
+            <a href="{{ page.link }}">{{ page.name }}</a>
+          </li>
         {% endfor %}
         <li class="mobile-nav-heading">Lessons
           <ul>
@@ -37,10 +39,17 @@
               <a href="/">{{ config.sitename }}</a>
           </h1>
           <p class="tagline">{{ config.tagline }}</p>
+
+          <p>
+           title: {{ title }}
+          </p>
+
           <nav class="site-nav" role="region" tabindex="-1">
               <ul>
                 {% for page in config.siteNav %}
-                  <li{% if pageType == page.name %} class="active"{% endif %}><a href="{{ page.link }}">{{ page.name }}</a></li>
+                  <li{% if title == page.name %} class="active"{% endif %}>
+                  <a href="{{ page.link }}">{{ page.name }}</a>
+                </li>
                 {% endfor %}
               </ul>
           </nav>
@@ -49,11 +58,23 @@
 
   <div class="container">
 
-    <h3 class="lessons-nav-header">Lessons</h3>
+    <h3 class="lessons-nav-header">
+      {% if pageType == 'Flashcards' or page.title == 'Flashcards' %}
+      <a href="/flashcards.html">Flashcards</a>
+      {% else %}
+      <a href="/lessons.html">Lessons</a>
+      {% endif %}
+    </h3>
     <nav class="lessons-nav">
         <ul>
-        {% for lesson in config.lessonsNav %}
-          <li><a href="{{ lesson.link }}">{{ lesson.name }}</a></li>
+        {% for navPage in config.leftNav %}
+          <li>
+            {% if pageType == 'Flashcards' or page.title == 'Flashcards' %}
+            <a href="/flashcards/{{ navPage.link }}">{{ navPage.name }}</a>
+            {% else %}
+            <a href="/lessons/{{ navPage.link }}">{{ navPage.name }}</a>
+            {% endif %}
+          </li>
         {% endfor %}
         </ul>
     </nav>
@@ -70,6 +91,10 @@
           <br /><a href="https://github.com/mark-mcdermott/fullstackwolfpack">Built with Node</a> in < {{ filesizeKb }} kB{% endif %}</p>
       </div>
     </footer>
+
+    {% if pageType == 'Flashcards' %}
+    <script src="/flashcards.js"></script>
+    {% endif %}
 
 </body>
 </html>

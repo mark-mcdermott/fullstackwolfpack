@@ -34,5 +34,10 @@
     "email": "a.fschr@gmail.com",
     "url": "https://antonfisher.com"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.3.1",
+    "gulp-babel": "^8.0.0"
+  }
 }

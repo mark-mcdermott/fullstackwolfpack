@@ -15,18 +15,26 @@
       "link": "/"
     },
     {
+      "name": "Lessons",
+      "link": "/lessons.html"
+    },
+    {
+      "name": "Flashcards",
+      "link": "/flashcards.html"
+    },
+    {
       "name": "About",
       "link": "/about.html"
     }
   ],
-  "lessonsNav": [
+  "leftNav": [
     {
       "name": "Big O",
-      "link": "/lessons/big-o.html"
+      "link": "big-o.html"
     },
     {
       "name": "Data Structures",
-      "link": "/lessons/data-structures.html"
+      "link": "data-structures.html"
     }
   ]
 }

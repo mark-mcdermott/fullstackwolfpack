@@ -13,6 +13,7 @@ var path = require('path');
 var rimraf = require('rimraf');
 var getFileSize = require('gulp-filesize');
 var reload = browserSync.reload;
+var babel = require('gulp-babel');
 
 var runningIndexFilesize = 0;
 
@@ -57,6 +58,8 @@ try {
     console.warn('WARNING: no config file:', configFile);
 }
 
+var pagesSourcesPath = '../src/content/pages';
+var flashCardsSourcesPath = '../src/content/flashcards';
 var lessonsSourcesPath = '../src/content/lessons';
 var postsSourcesPath = '../src/content/blog';
 var themePath = ('../src');
@@ -114,6 +117,114 @@ gulp.task('renderer', function () {
 
 
 
+
+
+
+// *** PARSE PAGES STARTS ***
+
+    var pages = fs.readdirSync(pagesSourcesPath)
+        .reverse()
+        .map(function (fileName) {
+            var page;
+            var fileContent = fs.readFileSync(path.join(pagesSourcesPath, fileName), {encoding: 'utf8'});
+            var match = ((new RegExp('^({(\\n(?!}).*)*\\n})((.|\\s)*)', 'g')).exec(fileContent) || []);
+            var jsonHeader = match[1];
+            var pageBody = match[3];
+            if (!jsonHeader) {
+               console.warn('WARNING: no json header in:', fileName);
+               return null;
+            } else {
+               try {
+                   page = JSON.parse(jsonHeader);
+               } catch (e) {
+                    console.warn('WARNING: bad json header in:', fileName);
+                    return null;
+               }
+               var requiredParams = ['title', 'date', 'image'];
+               for (var i in requiredParams) {
+                   if (!page[requiredParams[i]]) {
+                       console.warn('WARNING: no "', requiredParams[i], '" json param in:', fileName);
+                       return null;
+                   }
+               }
+            }
+            if (!pageBody) {
+                console.warn('WARNING: no lesson in:', fileName);
+                return null;
+            }
+            page.body = markdown.render(pageBody);
+            page.filename = urlify(page.title) + '.html';
+            page.compileDest = 'dist/';
+            return page;
+        })
+        .filter(function (lesson) {
+            return (lesson !== null);
+        });
+
+    // *** PARSE PAGES ENDS ***
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // *** PARSE FLASHCARDS .FL FILE INTO .HTML ***
+    //
+    // src/content/flashcards/example.fl input file:
+    //
+    // Question 1
+    // @@
+    // Answer 1
+    // --
+    //
+    // ??
+    // Question 2
+    // @@
+    // Answer 2
+    // --
+    //
+    // dist/flashcards/example.html output file:
+    // ... (appropriate html header etc)
+    // <div class="set">
+    //   <div class="question">
+    //     Question 1
+    //   </div>
+    //   <div class="answer">
+    //     Answer 1
+    //   </div>
+    // </div>
+    // ... (appropriate html footer etc)
+
+
+    var flashcards = fs.readdirSync(flashCardsSourcesPath)
+      .reverse()
+      .map(function (fileName) {
+        var flashcardPage = {};
+        var fileContent = fs.readFileSync(path.join(flashCardsSourcesPath, fileName), {encoding: 'utf8'});
+        var htmlContent = fileContent.replace(/\n/g, ''); // remove blank lines
+        htmlContent = htmlContent.replace(/\?\?/g, '\n\t\t\t<div class="set hide">\n\t\t\t\t<div class="question">\n'); // replaces ?? with open divs
+        htmlContent = htmlContent.replace(/@@/g, '\n\t\t\t\t</div>\n\t\t\t\t<div class="answer hide">\n'); // replaces @@ with close div & open div class answer
+        htmlContent = htmlContent.replace(/--/g, '\n\t\t\t\t</div>\n\t\t\t</div>'); // replace -- with two close divs
+        flashcardPage.body = htmlContent;
+        var baseFilename = fileName.split('.')[0];
+        flashcardPage.filename = baseFilename + '.html';
+        flashcardPage.compileDest = 'dist/flashcards/';
+        return flashcardPage;
+      })
+      .filter(function (flashcardPage) {
+          return (flashcardPage !== null);
+      });
+
+    // *** PARSE FLASHCARDS ENDS ***
 
 
 
@@ -345,6 +456,23 @@ gulp.task('renderer', function () {
 
 
 
+        // from flashcards array var, create /dist/flashcards folder
+        // dist/flashcards contains files for each individual flashcard page
+        flashcards.map(function (flashcardPage) {
+            gulp.src(themePath + '/page-templates/flashcards.njk')
+                .pipe(nunjucksRender({
+                    data: {
+                        config: config,
+                        flashcardPage: flashcardPage,
+                        pageType: 'Flashcards'
+                    }
+                }))
+                .pipe(rename(flashcardPage.filename))
+                .pipe(gulp.dest(path.join('..', flashcardPage.compileDest)))
+                .pipe(reload({stream: true}));
+        });
+
+
 
 
       // from lessons array var, create /dist/lessons folder
@@ -356,11 +484,33 @@ gulp.task('renderer', function () {
                       title: lesson.title,
                       config: config,
                       lesson: lesson,
-                      pageType: 'Page'
+                      pageType: 'Lesson'
                   }
               }))
               .pipe(rename(lesson.filename))
               .pipe(gulp.dest(path.join('..', lesson.compileDest)))
+              .pipe(reload({stream: true}));
+      });
+
+
+
+
+
+
+
+      // from pages array var, outputs html files for each individual page
+      pages.map(function (page) {
+          gulp.src(themePath + '/page-templates/page.njk')
+              .pipe(nunjucksRender({
+                  data: {
+                      title: page.title,
+                      config: config,
+                      page: page,
+                      pageType: 'Page'
+                  }
+              }))
+              .pipe(rename(page.filename))
+              .pipe(gulp.dest(path.join('..', page.compileDest)))
               .pipe(reload({stream: true}));
       });
 
@@ -386,6 +536,33 @@ gulp.task('renderer', function () {
             .pipe(gulp.dest(path.join('..', post.compileDest)))
             .pipe(reload({stream: true}));
     });
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // output flashcard js file (from es6)
+
+    function handleBabelError (error) {
+        console.log(error.toString());
+        this.emit('end');
+    }
+
+    gulp.src('../src/js/flashcards.js')
+        .pipe(babel({
+            presets: ['@babel/env']
+        }))
+        .on('error', handleBabelError)
+        .pipe(gulp.dest('../dist/'))
+
 
 
 
@@ -421,24 +598,7 @@ gulp.task('renderer', function () {
 
 
 
-    // create the dist/about.html file
-    // this about page content is essentially hard-coded into the template
-    // which breaks separation of content from structure
-    // TODO: create a 'pages' folder in content and dynamically
-    // go through all files in that folder & output html pages for them
-    // also change the html content in the about page to markdown,
-    // parse that markdown & output html from it
-    gulp.src(themePath + '/page-templates/about.njk')
-        .pipe(nunjucksRender({
-            data: {
-                config: config,
-                title: 'About',
-                pageType: 'About'
-            }
-        }))
-        .pipe(rename('about.html'))
-        .pipe(gulp.dest('../dist/'))
-        .pipe(reload({stream: true}));
+
 
 
 
@@ -449,6 +609,7 @@ gulp.task('renderer', function () {
     gulp.src(themePath + '/page-templates/home.njk')
         .pipe(nunjucksRender({
             data: {
+                title: 'Home',
                 config: config,
                 posts: posts,
                 pageType: 'Home',
@@ -478,6 +639,7 @@ gulp.task('renderer', function () {
       gulp.src(themePath + '/page-templates/home.njk')
           .pipe(nunjucksRender({
               data: {
+                  title: 'Home',
                   config: config,
                   posts: posts,
                   pageType: 'Home',

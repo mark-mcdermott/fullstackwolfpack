@@ -568,6 +568,39 @@ input::-moz-focus-inner, button::-moz-focus-inner {
     // padding-left: 12em;
 }
 
+/*** TABS NAV ***/
+.tabs {
+  float: right;
+}
+
+.tabs ul {
+  float: right;
+}
+
+.tabs ul li {
+  float: left;
+  list-style: none;
+}
+
+.tabs ul li.tab-lesson {
+  padding: 0 12px 0 0;
+  border-right: 1px solid #333;
+}
+
+.tabs ul li.tab-flashcard {
+  padding: 0 0 0 9px;
+}
+
+.tabs ul li a {
+  padding: 2px;
+}
+
+.tabs ul li a.active {
+  border-bottom: 1px solid #333;
+}
+
+
+
 /*** PAGE ***/
 .content h1 {
     position: relative;
@@ -582,4 +615,38 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 
 .content p a:hover {
     color: #474747;
+}
+
+.flashcards {
+  min-height: 200px;
+}
+
+.flashcards .set.hide {
+  display: none;
+}
+
+.flashcards .set .question,
+.flashcards .set .answer {
+  display: inline-block;
+  padding: 20px;
+  width: 50%;
+  min-height: 150px;
+  cursor: pointer;
+  border: 1px solid #333;
+}
+
+.flashcards .set .question.hide,
+.flashcards .set .answer.hide {
+  display: none;
+}
+
+.flashcards .arrowRow {
+  width: 50%;
+  text-align: center;
+}
+
+.flashcards .arrowRow .arrow {
+  font-size: 2em;
+  font-weight: bold;
+  margin: 0 0.5em;
 }
