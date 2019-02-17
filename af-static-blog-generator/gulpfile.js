@@ -16,6 +16,7 @@ var reload = browserSync.reload;
 var babel = require('gulp-babel');
 
 var runningIndexFilesize = 0;
+var homePageTargetWordCount = 150;
 
 var markdown = new Remarkable({
     html: true,
@@ -61,7 +62,9 @@ try {
 var pagesSourcesPath = '../src/content/pages';
 var flashCardsSourcesPath = '../src/content/flashcards';
 var lessonsSourcesPath = '../src/content/lessons';
-var postsSourcesPath = '../src/content/blog';
+var postsSourcesPath = '../src/content/blog-posts';
+var blogImagesSourcesPath = '../src/content/blog-images';
+var blogPdfsSourcesPath = '../src/content/blog-pdfs';
 var themePath = ('../src');
 
 nunjucksRender.setDefaults({
@@ -272,7 +275,7 @@ gulp.task('renderer', function () {
                     console.warn('WARNING: bad json header in:', fileName);
                     return null;
                }
-               var requiredParams = ['title', 'date', 'image'];
+               var requiredParams = ['title', 'date'];
                for (var i in requiredParams) {
                    if (!lesson[requiredParams[i]]) {
                        console.warn('WARNING: no "', requiredParams[i], '" json param in:', fileName);
@@ -340,6 +343,11 @@ gulp.task('renderer', function () {
     var posts = fs.readdirSync(postsSourcesPath)
         .reverse()
         .map(function (fileName) {
+
+            if (fileName == '.DS_Store') {
+              return null;
+            }
+
             var post;
             var fileContent = fs.readFileSync(path.join(postsSourcesPath, fileName), {encoding: 'utf8'});
             var match = ((new RegExp('^({(\\n(?!}).*)*\\n})((.|\\s)*)', 'g')).exec(fileContent) || []);
@@ -357,7 +365,7 @@ gulp.task('renderer', function () {
                     return null;
                 }
 
-                var requiredParams = ['title', 'date', 'image'];
+                var requiredParams = ['title', 'date'];
                 for (var i in requiredParams) {
                     if (!post[requiredParams[i]]) {
                         console.warn('WARNING: no "', requiredParams[i], '" json param in:', fileName);
@@ -371,6 +379,7 @@ gulp.task('renderer', function () {
                 return null;
             }
 
+            post.wordCount = article.split(' ').length;
             post.article = markdown.render(article);
             post.datetimeISO = formatDate(post.date);
             post.dateArray = post.date.split('/');
@@ -399,12 +408,7 @@ gulp.task('renderer', function () {
             // post.uuid = post.link.replace(/\//g, '-').replace(/-$/, '');
             post.imagePreview = (post.imagePreview || post.image);
 
-            post.preview = post.article.replace(/[\s\S]*<!-- preview -->([\s\S]*)<!-- \/preview -->[\s\S]*/g, '$1');
-
-            post.previewIndexPade = post.preview.replace(
-                /([\s\S]*)<\/p> */g,
-                '$1&hellip; <a href="' + post.link + '">Read more</a></p>'
-            );
+            // post.preview = post.article.replace(/[\s\S]*<!-- preview -->([\s\S]*)<!-- \/preview -->[\s\S]*/g, '$1');
 
             // for google
             post.article = post.article.replace(
@@ -426,10 +430,23 @@ gulp.task('renderer', function () {
             });
 
             return post;
+
         })
         .filter(function (post) {
             return (post !== null);
         });
+
+    let homePagePosts = [];
+    let homePageWordCount = 0;
+    let postCounter = 0;
+
+    while (homePageWordCount < homePageTargetWordCount && postCounter < posts.length) {
+      if (posts[postCounter]['wordCount'] < homePageTargetWordCount) {
+        homePagePosts.push(posts[postCounter]);
+        homePageWordCount += posts[postCounter]['wordCount'];
+      }
+      postCounter++;
+    }
 
     // *** PARSE POSTS ENDS ***
 
@@ -463,6 +480,7 @@ gulp.task('renderer', function () {
                 .pipe(nunjucksRender({
                     data: {
                         config: config,
+                        slug: 'flashcard-page',
                         flashcardPage: flashcardPage,
                         pageType: 'Flashcards'
                     }
@@ -475,6 +493,38 @@ gulp.task('renderer', function () {
 
 
 
+        // copy blog images to dist folder
+        var imageDirs = fs.readdirSync(blogImagesSourcesPath);
+        imageDirs.map(function (imageDir) {
+          if (imageDir != '.DS_Store') {
+            var images = fs.readdirSync(blogImagesSourcesPath + '/' + imageDir);
+            images.map(function (image) {
+              gulp.src(blogImagesSourcesPath + '/' + imageDir + '/' + image)
+              .pipe(gulp.dest('../dist/images/'));
+            });
+          }
+        });
+
+
+
+
+
+        // copy blog pdfs to dist folder
+        var pdfDirs = fs.readdirSync(blogPdfsSourcesPath);
+        pdfDirs.map(function (pdfDir) {
+          if (pdfDir != '.DS_Store') {
+            var pdfs = fs.readdirSync(blogPdfsSourcesPath + '/' + pdfDir);
+            pdfs.map(function (pdf) {
+              gulp.src(blogPdfsSourcesPath + '/' + pdfDir + '/' + pdf)
+              .pipe(gulp.dest('../dist/pdfs/'));
+            });
+          }
+        });
+
+
+
+
+
       // from lessons array var, create /dist/lessons folder
       // dist/lessons contains files for each individual lesson
       lessons.map(function (lesson) {
@@ -482,6 +532,7 @@ gulp.task('renderer', function () {
               .pipe(nunjucksRender({
                   data: {
                       title: lesson.title,
+                      slug: 'lesson-pagef',
                       config: config,
                       lesson: lesson,
                       pageType: 'Lesson'
@@ -504,6 +555,7 @@ gulp.task('renderer', function () {
               .pipe(nunjucksRender({
                   data: {
                       title: page.title,
+                      slug: page.title.replace(/\s+/g, '-').toLowerCase(),
                       config: config,
                       page: page,
                       pageType: 'Page'
@@ -527,9 +579,10 @@ gulp.task('renderer', function () {
             .pipe(nunjucksRender({
                 data: {
                     title: post.title,
+                    slug: 'post-page',
                     config: config,
                     post: post,
-                    pageType: 'Page'
+                    pageType: 'Post'
                 }
             }))
             .pipe(rename(post.filename))
@@ -584,6 +637,7 @@ gulp.task('renderer', function () {
                 .pipe(nunjucksRender({
                     data: {
                         title: ('Tag: ' + tag.title),
+                        slug: tag.title.replace(/\s+/g, '-').toLowerCase(),
                         posts: tag.posts,
                         config: config,
                         tag: tag,
@@ -600,6 +654,26 @@ gulp.task('renderer', function () {
 
 
 
+    // create the blog page (has blog excerptsß)
+    // uses posts array variable to add posts to homepage
+    // return gulp.src(themePath + '/page-templates/index.html')
+    gulp.src(themePath + '/page-templates/blog.njk')
+        .pipe(nunjucksRender({
+            data: {
+                title: 'Blog',
+                slug: 'blog',
+                config: config,
+                posts: posts,
+                pageType: 'Blog',
+                filesizeKb: '?'
+            }
+        }))
+        .pipe(rename('blog.html'))
+        .pipe(gulp.dest('../dist/'))
+        .pipe(reload({stream: true}));
+
+
+
 
 
 
@@ -610,8 +684,9 @@ gulp.task('renderer', function () {
         .pipe(nunjucksRender({
             data: {
                 title: 'Home',
+                slug: 'home',
                 config: config,
-                posts: posts,
+                posts: homePagePosts,
                 pageType: 'Home',
                 filesizeKb: '?'
             }
@@ -640,8 +715,9 @@ gulp.task('renderer', function () {
           .pipe(nunjucksRender({
               data: {
                   title: 'Home',
+                  slug: 'home',
                   config: config,
-                  posts: posts,
+                  posts: homePagePosts,
                   pageType: 'Home',
                   filesizeKb: runningIndexFilesize
               }
