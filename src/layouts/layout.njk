@@ -18,17 +18,11 @@
       <!-- spans for hamburger icon-->
       <span></span><span></span><span></span>
       <ul id="menu">
-        {% for pageListItem in config.siteNav %}
-          <li{% if title == pageListItem.name %} class="active"{% endif %}>
-            <a href="{{ page.link }}">{{ page.name }}</a>
-          </li>
+        {% for page in config.siteNav %}
+          <li {% if page.name == 'Home' or page.name == 'About' %} class="hidable"{% endif %}>
+          <a {% if title == page.name %} class="active"{% endif %} href="{{ page.link }}">{{ page.name }}</a>
+        </li>
         {% endfor %}
-        <li class="mobile-nav-heading">Lessons
-          <ul>
-          {% for lesson in config.lessonsNav %}
-            <li><a href="{{ lesson.link }}">{{ lesson.name }}</a></li>
-          {% endfor %}
-        </ul>
         </li>
       </ul>
     </div>
@@ -50,8 +44,8 @@
           <nav class="site-nav" role="region" tabindex="-1">
               <ul>
                 {% for page in config.siteNav %}
-                  <li{% if title == page.name %} class="active"{% endif %}>
-                  <a href="{{ page.link }}">{{ page.name }}</a>
+                  <li {% if page.name == 'Home' or page.name == 'About' %} class="hidable"{% endif %}>
+                  <a {% if title == page.name %} class="active"{% endif %} href="{{ page.link }}">{{ page.name }}</a>
                 </li>
                 {% endfor %}
               </ul>
@@ -59,47 +53,52 @@
       </div>
   </header>
 
-  <div class="container">
 
-    <nav class="lessons-nav">
+  <main>
 
-      <p class="lessons-nav-header">
-        {% if pageType == 'Flashcards' or page.title == 'Flashcards' %}
-        <a href="/flashcards.html">Flashcards</a>
-        {% elif pageType == 'Home' or pageType == 'Flashcards' or page.title == 'Lessons' %}
-        <a href="/lessons.html">Lessons</a>
-        {% endif %}
-      </p>
-        <ul>
-        {% for navPage in config.leftNav %}
-          <li>
-            {% if pageType == 'Flashcards' or page.title == 'Flashcards' %}
-            <a href="/flashcards/{{ navPage.link }}">{{ navPage.name }}</a>
-            {% elif pageType == 'Home' or pageType == 'Lessons' or page.title == 'Lessons' %}
-            <a href="/lessons/{{ navPage.link }}">{{ navPage.name }}</a>
-            {% endif %}
-          </li>
-        {% endfor %}
-        </ul>
-
-    </nav>
-
-    <div class="content">
-      {% block content %}{% endblock %}
-    </div>
-
-  </div>
-
-    <footer>
       <div class="container">
-        <p>&copy;{{config.currentYear}} <a href="http://markmcdermott.io">Mark McDermott</a>{% if title == 'Home' %}
-          <br /><a href="https://github.com/mark-mcdermott/fullstackwolfpack">Built with Node</a> in < {{ filesizeKb }} kB{% endif %}</p>
-      </div>
-    </footer>
 
-    {% if pageType == 'Flashcards' %}
-    <script src="/flashcards.js"></script>
-    {% endif %}
+        <nav class="left-nav">
+
+          <p class="left-nav-header">
+            {% if pageType == 'Flashcards' or page.title == 'Flashcards' %}
+            <a href="/flashcards.html">Flashcards</a>
+            {% elif pageType == 'Home' or pageType == 'Flashcards' or page.title == 'Lessons' %}
+            <a href="/lessons.html">Lessons</a>
+            {% endif %}
+          </p>
+            <ul>
+            {% for navPage in config.leftNav %}
+              <li>
+                {% if pageType == 'Flashcards' or page.title == 'Flashcards' %}
+                <a href="/flashcards/{{ navPage.link }}">{{ navPage.name }}</a>
+                {% elif pageType == 'Home' or pageType == 'Lessons' or page.title == 'Lessons' %}
+                <a href="/lessons/{{ navPage.link }}">{{ navPage.name }}</a>
+                {% endif %}
+              </li>
+            {% endfor %}
+            </ul>
+
+        </nav>
+
+        <div class="content">
+          {% block content %}{% endblock %}
+        </div>
+
+      </div>
+
+    </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy;{{config.currentYear}} <a href="http://markmcdermott.io">Mark McDermott</a>{% if title == 'Home' %}
+        <br /><a href="https://github.com/mark-mcdermott/fullstackwolfpack">Built with Node</a> in < {{ filesizeKb }} kB{% endif %}</p>
+    </div>
+  </footer>
+
+  {% if pageType == 'Flashcards' %}
+  <script src="/flashcards.js"></script>
+  {% endif %}
 
 </body>
 </html>

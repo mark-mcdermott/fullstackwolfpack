@@ -35,8 +35,16 @@ html, body { height: 100%; }
 
 .content {
     float: left;
-    width: 40em;
+    max-width: 40em;
 }
+
+@media (max-width: 800px) {
+  .content,
+  div.container {
+    max-width: 100%;
+  }
+}
+
 
 .container {
     max-width: 60em;
@@ -55,12 +63,11 @@ html, body { height: 100%; }
 /*** BASIC LAYOUT: HEADER ***/
 
 header {
-  margin: 0 0 4em;
   background: #1c1c1c; /*#2EAE9B*/
 }
 
 header .container {
-  padding: 1.5em 0 0;
+  padding-top: 1.5em;
 }
 
 .site-title-wrapper {
@@ -113,11 +120,26 @@ header p.tagline {
     font-weight: bold;
 }
 
-.site-nav a, #nav-toggle { color: #fff; }
-.site-nav .active a { border-bottom: 1px solid #fff; }
-.site-nav .active a:hover { border-bottom: 1px solid #fff63a; }
+@media (max-width: 850px) {
+  .site-nav ul li.hidable {
+    display: none;
+  }
+}
+
+
+
+.site-nav a {
+  padding: 0 0 2px;
+  color: #fff;
+}
+.site-nav a.active { border-bottom: 1px solid #fff; }
+.site-nav a.active:hover { border-bottom: 1px solid #fff63a; }
 .site-nav a:hover, #nav-toggle:hover { color: #fff63a; }
-#nav-toggle { display: none; }
+
+#nav-toggle {
+  color: #fff;
+  display: none;
+}
 
 /* IE8 + IE9 clearfix */
 header > .container:after {
@@ -156,7 +178,7 @@ header > .container:after {
   width: 38px;
   height: 30px;
   position: absolute;
-  top: 26px;
+  top: 39px;
   left: 1.5em;
   cursor: pointer;
   opacity: 0; /* hide this */
@@ -172,7 +194,7 @@ header > .container:after {
   margin-bottom: 5px;
   position: relative;
   left: 1.5em;
-  top: 31px;
+  top: 43px;
   background: #cdcdcd;
   border-radius: 3px;
   z-index: 1;
@@ -276,32 +298,32 @@ header > .container:after {
 
 
 /*** BASIC LAYOUT: LEFT NAV ***/
-p.lessons-nav-header {
+p.left-nav-header {
   margin: 0;
   color: #2b2b2b;
   font-size: 1.3em;
   font-weight: bold;
 }
 
-.lessons-nav {
+.left-nav {
     float: left;
     width: 12em;
 }
 
-.lessons-nav ul {
+.left-nav ul {
     padding-left: 0;
 }
 
-.lessons-nav ul li {
+.left-nav ul li {
     list-style: none;
 }
 
-.lessons-nav ul li a {
+.left-nav ul li a {
     color: #434343;
     font-weight: bold;
 }
 
-.lessons-nav ul li  a:hover {
+.left-nav ul li  a:hover {
     color: #696969;
 }
 
@@ -315,7 +337,6 @@ p.lessons-nav-header {
 
 
 footer {
-    margin: 3em 0 0;
     background: #1c1c1c; /*#707070*/
     color: #C0C0C0;
 }
@@ -340,6 +361,13 @@ footer .social {
 
 /*** BASIC LAYOUT: EXTRA SMALL DEVICES ***/
 
+@media (max-width: 925px) {
+  .left-nav-header,
+  .left-nav {
+    display: none;
+  }
+}
+
 @media (max-width: 767px) {
     .content { padding: 2em 0 1em; }
 
@@ -347,17 +375,16 @@ footer .social {
       margin: 0 0 1.75em;
     }
 
-    header h1 {
+    header .site-title-wrapper {
         float: right;
         padding: 0.5em 0;
     }
 
+    .home header h2.tagline,
     header p.tagline {
-      display: none;
+        display: none;
     }
 
-    .lessons-nav-header,
-    .lessons-nav,
     .site-nav {
       display: none;
     }
@@ -386,6 +413,20 @@ footer .social {
     footer .social { padding: 0.5em 0 0.5em 1em; }
 }
 
+@media (max-width: 500px) {
+  .home header h1.site-title,
+  header p.site-title {
+    font-size: 1.5em;
+  }
+}
+
+@media (max-width: 400px) {
+  .home header h1.site-title,
+  header p.site-title {
+    font-size: 1.25em;
+  }
+}
+
 /*** TYPOGRAPHY ***/
 
 html { font-size: 16px; }
@@ -399,6 +440,7 @@ body {
     text-rendering: optimizeLegibility;
     font-kerning: normal;
     color: #444;
+    background: #1c1c1c;
 }
 
 p, td, th, li, dd {
@@ -519,6 +561,23 @@ blockquote {
     border-left: 0.5em solid #f5f5f5;
 }
 
+
+/*** VIDEOS ***/
+/* https://www.ostraining.com/blog/coding/responsive-videos/ */
+.videoWrapper {
+    overflow:hidden;
+    padding-bottom:56.25%;
+    position:relative;
+    height:0;
+}
+.videoWrapper iframe{
+    left:0;
+    top:0;
+    height:100%;
+    width:100%;
+    position:absolute;
+}
+
 /*** FORMS ***/
 
 label, fieldset legend { font-weight: bold; }
@@ -584,7 +643,7 @@ input::-moz-focus-inner, button::-moz-focus-inner {
   float: left;
   font-size: 1.4em;
   line-height: 1.2em;
-  width: 80%;
+  max-width: 80%;
 }
 
 .blog .content h2 a {
@@ -608,7 +667,7 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 .blog .content p {
   clear: left;
   float: left;
-  width: 80%;
+  max-width: 80%;
 }
 
 
@@ -651,6 +710,12 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 
 
 /*** PAGE ***/
+main {
+  padding: 2.5em 0 0;
+  background: #fff;
+  min-height: 30em;
+}
+
 .content h1 {
   margin: 0 0 0.5em;
   line-height: 1em;
