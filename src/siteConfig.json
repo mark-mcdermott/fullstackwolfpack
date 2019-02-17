@@ -15,6 +15,10 @@
       "link": "/"
     },
     {
+      "name": "Blog",
+      "link": "/blog.html"
+    },
+    {
       "name": "Lessons",
       "link": "/lessons.html"
     },

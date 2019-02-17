@@ -34,13 +34,15 @@ html, body { height: 100%; }
 // header, footer { flex: 0 0 auto; }
 
 .content {
-    padding: 0 0 4em 12em;
+    float: left;
+    width: 40em;
 }
 
 .container {
     max-width: 60em;
     padding: 0 2em;
     margin: 0 auto;
+    overflow: hidden;
 }
 
 
@@ -57,24 +59,47 @@ header {
   background: #1c1c1c; /*#2EAE9B*/
 }
 
-header h1 {
+header .container {
+  padding: 1.5em 0 0;
+}
+
+.site-title-wrapper {
+  float: left;
+}
+
+.home header h1.site-title,
+header p.site-title, {
     float: left;
     font-size: 2rem;
+    font-weight: bold;
     margin: 0;
-    padding: 1.5em 1em 0 0;
+    padding: 0 1em 0 0;
+    // padding: 1.5em 1em 0 0;
 }
-header p {
+
+.home header h1.site-title a,
+.home header h1.site-title a:hover,
+header p.site-title a,
+header p.site-title a:hover {
+   color: #fff63a;
+ }
+
+.home header h2.tagline,
+header p.tagline {
     float: left;
     font-size: 1rem;
     color: #fff;
+    font-weight: normal;
     clear: left;
     padding: 0 0 2em;
+    margin: 0;
 }
-header h1 a, header h1 a:hover { color: #fff63a; }
 
 .site-nav {
-    text-align: right;
-    padding: 3em 0;
+  margin: 1em 0 0;
+  display: inline-block;
+  float: right;
+  text-align: right;
 }
 .site-nav ul {
     list-style: none;
@@ -251,8 +276,11 @@ header > .container:after {
 
 
 /*** BASIC LAYOUT: LEFT NAV ***/
-h3.lessons-nav-header {
+p.lessons-nav-header {
   margin: 0;
+  color: #2b2b2b;
+  font-size: 1.3em;
+  font-weight: bold;
 }
 
 .lessons-nav {
@@ -287,6 +315,7 @@ h3.lessons-nav-header {
 
 
 footer {
+    margin: 3em 0 0;
     background: #1c1c1c; /*#707070*/
     color: #C0C0C0;
 }
@@ -373,7 +402,7 @@ body {
 }
 
 p, td, th, li, dd {
-    text-align: justify;
+    // text-align: justify;
     overflow-wrap: break-word;
     word-wrap: break-word;
 }
@@ -549,24 +578,40 @@ input::-moz-focus-inner, button::-moz-focus-inner {
     padding: 0;
 }
 
-/*** BLOG INDEX (HOME) ***/
-#blog-index .content h3 {
-    position: relative;
-    left: -1px; /* somehow the font makes the titles look slightly left indented */
-    margin-bottom: 0;
+/*** BLOG ***/
+.blog .content h2 {
+  margin: 0 0 0.2em;
+  float: left;
+  font-size: 1.4em;
+  line-height: 1.2em;
+  width: 80%;
 }
 
-#blog-index .content h3 a {
-    color: #434343;
+.blog .content h2 a {
+  color: #333;
 }
 
-#blog-index .content h3 a:hover {
-    color: #696969;
+.blog .content h2 a:hover {
+  color: #696969;
 }
 
-#blog-index .content {
-    // padding-left: 12em;
+.blog .content .date {
+  float: right;
+  display: inline-block;
+  text-align: right;
+  margin: 3px 0 0;
+  padding: 0 22px 0 0;
+  width: 20%;
+  clear: none;
 }
+
+.blog .content p {
+  clear: left;
+  float: left;
+  width: 80%;
+}
+
+
 
 /*** TABS NAV ***/
 .tabs {
@@ -601,10 +646,20 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 
 
 
+
+
+
+
 /*** PAGE ***/
 .content h1 {
+  margin: 0 0 0.5em;
+  line-height: 1em;
+}
+
+.content h2 {
     position: relative;
     left: -2px; /* somehow the font makes the titles look slightly left indented */
+    line-height: 1.2em;
 }
 
 .content p a {
@@ -615,6 +670,10 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 
 .content p a:hover {
     color: #474747;
+}
+
+.post {
+  margin: 0 0 5em;
 }
 
 .flashcards {

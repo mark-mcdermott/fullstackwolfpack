@@ -1,6 +1,0 @@
-1 add parsed flashcards html to flashcards pages
-
-2 write flashcard js so the flashcards work for the user
-
-3 fix the paths to the "tabs" at the top of the lessons/flashcards page
-  - this includes adding a path to the flashcard/lesson .md content files i think.

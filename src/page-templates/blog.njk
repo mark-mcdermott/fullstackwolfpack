@@ -1,0 +1,12 @@
+{% extends "layout.njk" %}
+
+{% block content %}
+    <h1>Blog</h1>
+    {% for post in posts %}
+        <div class="post-preview">
+          <h2><a href="{{ post.link }}">{{ post.title }}</a></h2>
+          <span class="date">{{ post.date }}</span>
+          <p>{{ post.preview }}</p>
+        </div>
+    {% endfor %}
+{% endblock %}

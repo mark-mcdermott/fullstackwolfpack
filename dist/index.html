@@ -7,7 +7,8 @@
     <meta name="description" content="test site description">
     <link href="/style.min.css" rel="stylesheet">
 </head>
-<body >
+
+<body class="home">
 
   <!--   Mobile nav from https://codepen.io/erikterwan/pen/EVzeRP -->
   <nav class="mobile-nav" role="navigation">
@@ -34,6 +35,10 @@
             <a href=""></a>
           </li>
         
+          <li>
+            <a href=""></a>
+          </li>
+        
         <li class="mobile-nav-heading">Lessons
           <ul>
           
@@ -45,20 +50,23 @@
 
   <header>
       <div class="container">
-          <h1>
-              <a href="/">Fullstack Wolfpack</a>
-          </h1>
-          <p class="tagline">Blog, tutorials and videos about full stack skills</p>
 
-          <p>
-           title: Home
-          </p>
+          <div class="site-title-wrapper">
+            
+              <h1 class="site-title"><a href="/">Fullstack Wolfpack</a></h1>
+              <h2 class="tagline">Blog, tutorials and videos about full stack skills</h2>
+            
+          </div>
 
           <nav class="site-nav" role="region" tabindex="-1">
               <ul>
                 
                   <li class="active">
                   <a href="/">Home</a>
+                </li>
+                
+                  <li>
+                  <a href="/blog.html">Blog</a>
                 </li>
                 
                   <li>
@@ -80,12 +88,13 @@
 
   <div class="container">
 
-    <h3 class="lessons-nav-header">
-      
-      <a href="/lessons.html">Lessons</a>
-      
-    </h3>
     <nav class="lessons-nav">
+
+      <p class="lessons-nav-header">
+        
+        <a href="/lessons.html">Lessons</a>
+        
+      </p>
         <ul>
         
           <li>
@@ -101,27 +110,30 @@
           </li>
         
         </ul>
+
     </nav>
 
     <div class="content">
       
     
         <div class="post">
-          <h3><a href="blog/moved-blog-from-pico-to-a-gulp-static-generator.html">Moved blog from Pico to a Gulp static generator</a></h3>
-          <p class="date">2/10/19</p>
-          <p>Friday I built this blog in <a href="http://picocms.org/">Pico</a>, but then yesterday and today I rebuilt it using a <a href="https://github.com/antonfisher/static-blog-generator">static blog generator</a> built by Anton Fisher that I found on Github.  Pico uses markdown/Twig templates and compiles them to HTML on the server side in PHP when the page is called from a browser.  The Fisher static blog generator precompiles markdown/Nunjuck templates in Node to HTML in Gulp.  I figured I’d eliminate the server side load time, however fast it is, by preprocessing the templates to html. I’m not sure how fast PHP is compiling those Twig templates to HTML in Pico. It would be an interesting little performance benchmarking study to do at a later time.</p>
-<p>Besides eliminating the server side load time, I also want a local Gulp workflow where I could have total control over how the markdown was parsed. Because I plan on making a lot of flashcards with some kind of modified markdown, I want to be able to be able to modify the markdown syntax with little hacks.</p>
+          <h2><a href="blog/software-engineering-when-it-absolutely-positively-has-to-be-done-right-the-first-time.html">Software engineering: when it absolutely, positively has to be done right the first time</a></h2>
+          <p class="date">2/13/19</p>
+
+          
+
+          <p>In my software engineering program, we talk a lot about mission critical projects.  Software needs to be really engineered and architected when in those cases when there can’t be any mistakes when the code first goes into production—the code for space rockets, the code for military applications. No one dies when Facebook goes down for a minute, but when there’s a divide by zero error in a manned rocket, results can be catastrophic.  It reminds me of that FedEx commercial—&quot;When it absolutely, positively&quot;, must be done right the first time.</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/YboNZ73BJRE" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
         </div>
     
         <div class="post">
-          <h3><a href="blog/obligatory-first-blog-post-titled-hello-world.html">Obligatory First Blog Post Titled "Hello World"</a></h3>
-          <p class="date">2/9/19</p>
-          <p>I once had a Computer Architecture professor who said if your first program in any programming language you’re learning isn’t the classic Hello World program, you’re destined to have lots of bad luck forever in learning the language.</p>
-<p>I’ve been meaning to make a programming blog for awhile. Sijin Joseph has a good chart that shows how mature a software developer you are and one of the landmarks is that you have your own blog and make posts with your findings and learnings. I used to maintain a javascript/html tutorial site with text posts and youtube vids and found it to be a great experience, but I’ve never found the time to do a regular programming blog until now.</p>
-<p>I’m in one of those transition points in my career—yesterday was my last day at Charles Schwab and I start a six month contract at Kasasa Monday. I’ve been studying up for those hard whiteboarding interviews with data structures and reversing binary trees and all that. A blog and tutorial site would be a good place for me to keep my thoughts and it might benefit others learning the same stuff.</p>
-<p>Doing the prerequisite classes for my Texas State Software Engineering masters, I found it surprisingly hard to find free resources that map out the entire computer science undergrad program online for free. There are tons of online tutorial sites now, but they are a little more generic than what I’m talking about. I feel like the CS undergrad curriculum is pretty standardized at this point (C++/Java, data structures, architecture, compilers, algorithms, etc). Textbooks are so expensive and sites like Khan Academy don’t really have a full CS program yet. Also sites like Khan Academy don’t really have all the assignments (even CS assignments are fairly standardized, I think) and never seem to have enough test problems to really know you grasp the material 100% and have it nailed down in your head. One of my long-term goals with this site is to offer the free, online equivalent to the material presented in an undergrad CS program. Or at least to approximate it.</p>
-<p>Why choose Pico for the CMS for this? Trying to keep it simple. I’ve never messed with Pico before, but WordPress sites load a little slower than necessary sometimes. I thought it would be nice to skip the database access time. Pico looks pretty slim and I can probably slim it down some more even.</p>
+          <h2><a href="blog/documentation-can-help-in-surprising-ways.html">Documentation can help in surprising ways</a></h2>
+          <p class="date">2/12/19</p>
+
+          
+
+          <p>I had the funny experience today of benefitting myself from onboarding documentation I’d written years earlier.  I started back at Kasasa, where I’d worked for four years, ending two years ago.  Trying to relearn the systems today, I opened up the onboarding documentation and part way through reading it, I realised I’d written it. I wrote it to help other new folks at the time, but it was a real lifesaver today. Goes to show how much documentation can really help!</p>
 
         </div>
     

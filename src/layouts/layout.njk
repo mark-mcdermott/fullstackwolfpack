@@ -7,7 +7,8 @@
     <meta name="description" content="{{post.metaDescription | default(config.description)}}">
     <link href="/style.min.css" rel="stylesheet">
 </head>
-<body {% if pageType == 'home' %}id="blog-index"{% endif %}>
+
+<body class="{% if pageType == 'Page' %}page{% else %}{{ slug | lower }}{% endif %}">
 
   <!--   Mobile nav from https://codepen.io/erikterwan/pen/EVzeRP -->
   <nav class="mobile-nav" role="navigation">
@@ -35,14 +36,16 @@
 
   <header>
       <div class="container">
-          <h1>
-              <a href="/">{{ config.sitename }}</a>
-          </h1>
-          <p class="tagline">{{ config.tagline }}</p>
 
-          <p>
-           title: {{ title }}
-          </p>
+          <div class="site-title-wrapper">
+            {% if title == 'Home' %}
+              <h1 class="site-title"><a href="/">{{ config.sitename }}</a></h1>
+              <h2 class="tagline">{{ config.tagline }}</h2>
+            {% else %}
+              <p class="site-title"><a href="/">{{ config.sitename }}</a></p>
+              <p class="tagline">{{ config.tagline }}</p>
+            {% endif %}
+          </div>
 
           <nav class="site-nav" role="region" tabindex="-1">
               <ul>
@@ -58,25 +61,27 @@
 
   <div class="container">
 
-    <h3 class="lessons-nav-header">
-      {% if pageType == 'Flashcards' or page.title == 'Flashcards' %}
-      <a href="/flashcards.html">Flashcards</a>
-      {% else %}
-      <a href="/lessons.html">Lessons</a>
-      {% endif %}
-    </h3>
     <nav class="lessons-nav">
+
+      <p class="lessons-nav-header">
+        {% if pageType == 'Flashcards' or page.title == 'Flashcards' %}
+        <a href="/flashcards.html">Flashcards</a>
+        {% elif pageType == 'Home' or pageType == 'Flashcards' or page.title == 'Lessons' %}
+        <a href="/lessons.html">Lessons</a>
+        {% endif %}
+      </p>
         <ul>
         {% for navPage in config.leftNav %}
           <li>
             {% if pageType == 'Flashcards' or page.title == 'Flashcards' %}
             <a href="/flashcards/{{ navPage.link }}">{{ navPage.name }}</a>
-            {% else %}
+            {% elif pageType == 'Home' or pageType == 'Lessons' or page.title == 'Lessons' %}
             <a href="/lessons/{{ navPage.link }}">{{ navPage.name }}</a>
             {% endif %}
           </li>
         {% endfor %}
         </ul>
+
     </nav>
 
     <div class="content">
@@ -87,7 +92,7 @@
 
     <footer>
       <div class="container">
-        <p>&copy;{{config.currentYear}} <a href="http://markmcdermott.io">Mark McDermott</a>{% if pageType == 'Home' %}
+        <p>&copy;{{config.currentYear}} <a href="http://markmcdermott.io">Mark McDermott</a>{% if title == 'Home' %}
           <br /><a href="https://github.com/mark-mcdermott/fullstackwolfpack">Built with Node</a> in < {{ filesizeKb }} kB{% endif %}</p>
       </div>
     </footer>

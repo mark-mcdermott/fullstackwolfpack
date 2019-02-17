@@ -7,7 +7,8 @@
     <meta name="description" content="test site description">
     <link href="/style.min.css" rel="stylesheet">
 </head>
-<body >
+
+<body class="lesson-pagef">
 
   <!--   Mobile nav from https://codepen.io/erikterwan/pen/EVzeRP -->
   <nav class="mobile-nav" role="navigation">
@@ -17,6 +18,10 @@
       <!-- spans for hamburger icon-->
       <span></span><span></span><span></span>
       <ul id="menu">
+        
+          <li>
+            <a href=""></a>
+          </li>
         
           <li>
             <a href=""></a>
@@ -45,20 +50,23 @@
 
   <header>
       <div class="container">
-          <h1>
-              <a href="/">Fullstack Wolfpack</a>
-          </h1>
-          <p class="tagline">Blog, tutorials and videos about full stack skills</p>
 
-          <p>
-           title: Big O
-          </p>
+          <div class="site-title-wrapper">
+            
+              <p class="site-title"><a href="/">Fullstack Wolfpack</a></p>
+              <p class="tagline">Blog, tutorials and videos about full stack skills</p>
+            
+          </div>
 
           <nav class="site-nav" role="region" tabindex="-1">
               <ul>
                 
                   <li>
                   <a href="/">Home</a>
+                </li>
+                
+                  <li>
+                  <a href="/blog.html">Blog</a>
                 </li>
                 
                   <li>
@@ -80,27 +88,23 @@
 
   <div class="container">
 
-    <h3 class="lessons-nav-header">
-      
-      <a href="/lessons.html">Lessons</a>
-      
-    </h3>
     <nav class="lessons-nav">
+
+      <p class="lessons-nav-header">
+        
+      </p>
         <ul>
         
           <li>
             
-            <a href="/lessons/big-o.html">Big O</a>
-            
           </li>
         
           <li>
             
-            <a href="/lessons/data-structures.html">Data Structures</a>
-            
           </li>
         
         </ul>
+
     </nav>
 
     <div class="content">
