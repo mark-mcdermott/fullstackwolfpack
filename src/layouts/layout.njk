@@ -8,7 +8,7 @@
     <link href="/style.min.css" rel="stylesheet">
 </head>
 
-<body class="{% if pageType == 'Page' %}page{% else %}{{ slug | lower }}{% endif %}">
+<body class="{{ slug | lower }}{% if pageType == 'Page' %} page{% endif %}">
 
   <!--   Mobile nav from https://codepen.io/erikterwan/pen/EVzeRP -->
   <nav class="mobile-nav" role="navigation">

@@ -638,12 +638,36 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 }
 
 /*** BLOG ***/
+.blog .left-nav,
+.about .left-nav,
+.post-page .left-nav {
+  display: none;
+}
+
+.blog .content,
+.about .content,
+.post-page .content {
+  padding: 0 0 4em;
+  max-width: inherit;
+}
+
+.blog .content h1 {
+  margin: 0 0 1em;
+}
+
+.blog .post-preview {
+  margin: 0.5em 0 0;
+  overflow: hidden;
+}
+
 .blog .content h2 {
   margin: 0 0 0.2em;
   float: left;
+  position: inherit;
   font-size: 1.4em;
   line-height: 1.2em;
   max-width: 80%;
+  clear: left;
 }
 
 .blog .content h2 a {
