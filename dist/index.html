@@ -88,7 +88,6 @@
       <div class="container">
 
         <nav class="left-nav">
-
           <p class="left-nav-header">
             
             <a href="/lessons.html">Lessons</a>
@@ -116,23 +115,20 @@
           
     
         <div class="post">
-          <h2><a href="blog/software-engineering-when-it-absolutely-positively-has-to-be-done-right-the-first-time.html">Software engineering: when it absolutely, positively has to be done right the first time</a></h2>
-          <p class="date">2/13/19</p>
+          <h2><a href="blog/how-to-transfer-files-to-and-from-amazon-ec2-with-scp.html">How to transfer files to and from Amazon EC2 with scp</a></h2>
+          <p class="date">2/14/19</p>
 
           
 
-          <p>In my software engineering program, we talk a lot about mission critical projects.  Software needs to be really engineered and architected when in those cases when there can’t be any mistakes when the code first goes into production—the code for space rockets, the code for military applications. No one dies when Facebook goes down for a minute, but when there’s a divide by zero error in a manned rocket, results can be catastrophic.  It reminds me of that FedEx commercial—&quot;When it absolutely, positively&quot;, must be done right the first time.</p>
-<div class="videoWrapper"><iframe width="560" height="315" src="https://www.youtube.com/embed/YboNZ73BJRE" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
-
-        </div>
-    
-        <div class="post">
-          <h2><a href="blog/documentation-can-help-in-surprising-ways.html">Documentation can help in surprising ways</a></h2>
-          <p class="date">2/12/19</p>
-
-          
-
-          <p>I had the funny experience today of benefitting myself from onboarding documentation I’d written years earlier.  I started back at Kasasa, where I’d worked for four years, ending two years ago.  Trying to relearn the systems today, I opened up the onboarding documentation and part way through reading it, I realised I’d written it. I wrote it to help other new folks at the time, but it was a real lifesaver today. Goes to show how much documentation can really help!</p>
+          <p>Transferring files through the terminal can be a real pain, compared to a drag and drop GUI like Filezilla.  But when you know the syntax, it gets a lot easier.  When you are uploading/downloading files to an amazon EC2 ubuntu box, you’ll need the pemfile location on your computer.</p>
+<h3>To upload from local computer to EC2</h3>
+<p><code>scp -i &lt;localpath&gt;/pemfile.pem &lt;localpath&gt;/localfile.zip ubuntu@&lt;ipaddress&gt;:&lt;remotepath&gt;/destinationfile.zip</code></p>
+<p>An example where the pemfile is locally stored in ~/pemfolder/, the local file to upload is myfile.zip and is on the desktop and the destination is the home folder of the EC2 instance and the public IP address of the EC2 instance is 216.3.128.12 would be:</p>
+<p><code>scp -i ~/pemfolder/pemfile.pem ~/Desktop/myfile.zip ubuntu@216.3.128.12:~/myfile.zip</code></p>
+<h3>To download from EC2 instance to local computer</h3>
+<p><code>scp -i &lt;localpath&gt;/pemfile.pem ubuntu@&lt;ipaddress&gt;:&lt;remotepath&gt;/destinationfile.zip &lt;localpath&gt;/localfile.zip</code></p>
+<p>An example where the pemfile is locally stored in ~/pemfolder/, the remote public ip address is 216.3.128.12, the file to download is myfile.zip and is in the home folder of the EC instance and the local for the file is on your desktop would be:</p>
+<p><code>scp -i ~/pemfolder/pemfile.pem ubuntu@216.3.128.12:~/myfile.zip ~/Desktop/myfile.zip</code></p>
 
         </div>
     

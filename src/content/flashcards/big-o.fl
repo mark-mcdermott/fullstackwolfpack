@@ -1,41 +1,57 @@
+{
+  "title": "Big O"
+}
+
 ??
-Question 1
+how much time and space would this code take
+```int sun(int n) {
+  if (n <= 0) {
+    return 0;
+  }
+  return n + sum(n-1);
+}~~~
 @@
-Answer 1
+O(n) time & O(n) space
 --
 
 ??
-Question 2
+what is O(1) called
 @@
-Answer 2
+bounded time
 --
 
 ??
-Question 3
+what is O(log n) called
 @@
-Answer 3
+logarithmic time
 --
 
 ??
-Question 4
+what is O(n) called
 @@
-Answer 4
+linear time
 --
 
 ??
-Question 5
+what is O(n log n ) called
 @@
-Answer 5
+n log n time
 --
 
 ??
-Question 6
+what is O(n²) called
 @@
-Answer 6
+quadratic time
 --
 
 ??
-Question 7
+what is O(n³) called
 @@
-Answer 7
+cubic time
+--
+
+??
+what is O(2ⁿ) called
+@@
+exponential time
 --

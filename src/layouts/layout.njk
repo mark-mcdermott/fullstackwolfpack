@@ -59,11 +59,10 @@
       <div class="container">
 
         <nav class="left-nav">
-
           <p class="left-nav-header">
             {% if pageType == 'Flashcards' or page.title == 'Flashcards' %}
             <a href="/flashcards.html">Flashcards</a>
-            {% elif pageType == 'Home' or pageType == 'Flashcards' or page.title == 'Lessons' %}
+            {% elif pageType == 'Home' or pageType == 'Lesson' or page.title == 'Lessons' %}
             <a href="/lessons.html">Lessons</a>
             {% endif %}
           </p>
@@ -72,7 +71,7 @@
               <li>
                 {% if pageType == 'Flashcards' or page.title == 'Flashcards' %}
                 <a href="/flashcards/{{ navPage.link }}">{{ navPage.name }}</a>
-                {% elif pageType == 'Home' or pageType == 'Lessons' or page.title == 'Lessons' %}
+                {% elif pageType == 'Home' or pageType == 'Lesson' or page.title == 'Lessons' %}
                 <a href="/lessons/{{ navPage.link }}">{{ navPage.name }}</a>
                 {% endif %}
               </li>

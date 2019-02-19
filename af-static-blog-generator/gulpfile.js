@@ -213,10 +213,22 @@ gulp.task('renderer', function () {
       .map(function (fileName) {
         var flashcardPage = {};
         var fileContent = fs.readFileSync(path.join(flashCardsSourcesPath, fileName), {encoding: 'utf8'});
-        var htmlContent = fileContent.replace(/\n/g, ''); // remove blank lines
+        var match = ((new RegExp('^({(\\n(?!}).*)*\\n})((.|\\s)*)', 'g')).exec(fileContent) || []);
+        var jsonHeader = match[1];
+        flashcardHeader = JSON.parse(jsonHeader);
+        fileContent = match[3];
+        var htmlContent = fileContent.replace(/\n```/, '<br>```');
+        htmlContent = htmlContent.replace(/```/, '<pre><code>');
+        htmlContent = htmlContent.replace(/~~~/, '</code></pre>');
+        htmlContent = htmlContent.replace(/``/, '<code>');
+        htmlContent = htmlContent.replace(/~~/, '</code>');
+        htmlContent = htmlContent.replace(/\^\^(.*)\^\^/, "<sup>$1</sup>");
+        htmlContent = htmlContent.replace(/vv(.*)vv/, "<sub>$1</sub>");
+        // htmlContent = htmlContent.replace(/\n/g, ''); // remove blank lines
         htmlContent = htmlContent.replace(/\?\?/g, '\n\t\t\t<div class="set hide">\n\t\t\t\t<div class="question">\n'); // replaces ?? with open divs
         htmlContent = htmlContent.replace(/@@/g, '\n\t\t\t\t</div>\n\t\t\t\t<div class="answer hide">\n'); // replaces @@ with close div & open div class answer
         htmlContent = htmlContent.replace(/--/g, '\n\t\t\t\t</div>\n\t\t\t</div>'); // replace -- with two close divs
+        flashcardPage.title = flashcardHeader.title;
         flashcardPage.body = htmlContent;
         var baseFilename = fileName.split('.')[0];
         flashcardPage.filename = baseFilename + '.html';
@@ -441,7 +453,7 @@ gulp.task('renderer', function () {
     let postCounter = 0;
 
     while (homePageWordCount < homePageTargetWordCount && postCounter < posts.length) {
-      if (posts[postCounter]['wordCount'] < homePageTargetWordCount) {
+      if (postCounter == 0 || posts[postCounter]['wordCount'] < homePageTargetWordCount) {
         homePagePosts.push(posts[postCounter]);
         homePageWordCount += posts[postCounter]['wordCount'];
       }
@@ -476,12 +488,14 @@ gulp.task('renderer', function () {
         // from flashcards array var, create /dist/flashcards folder
         // dist/flashcards contains files for each individual flashcard page
         flashcards.map(function (flashcardPage) {
+          console.log(flashcardPage.filename)
             gulp.src(themePath + '/page-templates/flashcards.njk')
                 .pipe(nunjucksRender({
                     data: {
                         config: config,
                         slug: 'flashcard-page',
                         flashcardPage: flashcardPage,
+                        title: flashcardPage.title,
                         pageType: 'Flashcards'
                     }
                 }))
@@ -532,7 +546,7 @@ gulp.task('renderer', function () {
               .pipe(nunjucksRender({
                   data: {
                       title: lesson.title,
-                      slug: 'lesson-pagef',
+                      slug: 'lesson-page',
                       config: config,
                       lesson: lesson,
                       pageType: 'Lesson'

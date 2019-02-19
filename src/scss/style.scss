@@ -735,7 +735,7 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 
 /*** PAGE ***/
 main {
-  padding: 2.5em 0 0;
+  padding: 2.5em 0 4em;
   background: #fff;
   min-height: 30em;
 }
@@ -765,8 +765,13 @@ main {
   margin: 0 0 5em;
 }
 
-.flashcards {
+.flashcard-page .content {
+  width: 45em;
+}
+
+main .flashcards {
   min-height: 200px;
+  float: left;
 }
 
 .flashcards .set.hide {
@@ -777,10 +782,22 @@ main {
 .flashcards .set .answer {
   display: inline-block;
   padding: 20px;
-  width: 50%;
+  // width: 50%;
+  min-width: 20em;
   min-height: 150px;
   cursor: pointer;
   border: 1px solid #333;
+}
+
+@media (max-width: 450px) {
+  .flashcards {
+    float: none;
+  }
+  .flashcards .set .question,
+  .flashcards .set .answer {
+    width: 100%;
+    min-width: inherit;
+  }
 }
 
 .flashcards .set .question.hide,
@@ -789,7 +806,6 @@ main {
 }
 
 .flashcards .arrowRow {
-  width: 50%;
   text-align: center;
 }
 

@@ -4,13 +4,14 @@
 <nav class="tabs">
   <ul>
     <li class="tab-lesson">
-      <a class="active" href="#">{{ lesson.title }} Lesson</a>
+      <a class="active" href="/lessons/{{ lesson.filename }}">{{ lesson.title }} Lesson</a>
     </li>
     <li class="tab-flashcard">
-      <a href="/#">{{ lesson.title }} Flashcards</a>
+      <a href="/flashcards/{{ lesson.filename }}">{{ lesson.title }} Flashcards</a>
     </li>
   </ul>
 </nav>
 
+<h1>{{ lesson.title }}</h1>
 {{ lesson.body }}
 {% endblock %}
