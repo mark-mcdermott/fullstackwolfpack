@@ -11,6 +11,9 @@ let flashcards = document.getElementsByClassName('set');
 let numCards = flashcards.length;
 let curCard = 0;
 
+let arrowPrev;
+let arrowNext;
+
 
 // helper - get previous card
 let getPrevIndex = function (current) {
@@ -49,6 +52,59 @@ let showNextCard = function(curCard, nextCard) {
 
 
 
+// helper functions
+function hideAllButFirst() {
+  for (let i=0; i<flashcards.length; i++) {
+    let question = flashcards[i].querySelectorAll('.question')[0];
+    let answer = flashcards[i].querySelectorAll('.answer')[0];
+    if (i == 0) {
+      question.classList.remove('hide');
+    } else {
+      flashcards[i].classList.add('hide');
+    }
+    answer.classList.add('hide');
+  }
+}
+
+function addArrows() {
+  let arrowRow = '<div class="arrowRow"><a class="arrow arrow-left" href="#">&larr;</a><a class="arrow arrow-right" href="#">&rarr;</a></div>';
+  flashcardWrapper.insertAdjacentHTML('beforeend', arrowRow);
+  arrowPrev = document.getElementsByClassName('arrow-left')[0];
+  arrowNext = document.getElementsByClassName('arrow-right')[0];
+}
+
+/*
+TODO:
+this currently makes the front/back of a card the same width/height
+because it's jarring if the card changes size when its flipped.
+but it would be nice to make the whole set the same size as the largest
+card, with the exception of oversized cards.
+*/
+function setCardDimensions() {
+  for (let set of flashcards) {
+    set.classList.remove('hide');
+    let question = set.querySelectorAll('.question')[0];
+    let answer = set.querySelectorAll('.answer')[0];
+    question.classList.remove('hide');
+    answer.classList.remove('hide');
+    let questionWidth = question.clientWidth;
+    let questionHeight = question.clientHeight;
+    let answerWidth = answer.clientWidth;
+    let answerHeight = answer.clientHieght;
+    let largerWidth = (questionWidth > answerWidth) ? questionWidth : answerWidth;
+    let largerHeight = (questionHeight > answerHeight) ? questionHeight : answerHeight;
+    question.style.width = largerWidth + 'px';
+    question.style.height = largerHeight + 'px';
+    answer.style.width = largerWidth + 'px';
+    answer.style.height = largerHeight + 'px';
+  }
+}
+
+
+
+
+
+
 // flip card
 let flipCard = function(set) {
   let question = set.querySelectorAll('.question')[0];
@@ -59,14 +115,16 @@ let flipCard = function(set) {
 
 
 
+
+
+
 // SETUP FLASHCARDS
-// hide all but first
-flashcards[curCard].classList.remove('hide');
-// add left/right arrows
-let arrowRow = '<div class="arrowRow"><a class="arrow arrow-left" href="#">&larr;</a><a class="arrow arrow-right" href="#">&rarr;</a></div>';
-flashcardWrapper.insertAdjacentHTML('beforeend', arrowRow);
-let arrowPrev = document.getElementsByClassName('arrow-left')[0];
-let arrowNext = document.getElementsByClassName('arrow-right')[0];
+setCardDimensions();
+hideAllButFirst();
+addArrows();
+
+
+
 
 
 // add event listeners
