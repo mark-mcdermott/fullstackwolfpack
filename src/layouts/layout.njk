@@ -63,16 +63,16 @@
             {% if pageType == 'Flashcards' or page.title == 'Flashcards' %}
             <a href="/flashcards.html">Flashcards</a>
             {% elif pageType == 'Home' or pageType == 'Lesson' or page.title == 'Lessons' %}
-            <a href="/lessons.html">Lessons</a>
+            <a href="/lessons.html">Lessons</a> 
             {% endif %}
           </p>
             <ul>
             {% for navPage in leftNav.leftNav %}
               <li>
                 {% if pageType == 'Flashcards' or page.title == 'Flashcards' %}
-                <a href="/flashcards/{{ navPage.link }}">{{ navPage.name }}</a>
+                <a href="/flashcards{{ navPage.link }}">{{ navPage.name }}</a>
                 {% elif pageType == 'Home' or pageType == 'Lesson' or page.title == 'Lessons' %}
-                <a href="/lessons/{{ navPage.link }}">{{ navPage.name }}</a>
+                <a href="/lessons{{ navPage.link }}">{{ navPage.name }}</a>
                 {% endif %}
               </li>
             {% endfor %}

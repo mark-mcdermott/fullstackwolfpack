@@ -141,7 +141,7 @@ fs.readdir(lessonsSourcesPath, function(err, filesAndDirs) {
     // if file and not dir, get filename & title
     if (fileOrDir.includes('md')) {
       let file = fileOrDir;
-      let path = '/lessons';
+      let path = '';
       let isLastFile = (i == filesAndDirs.length - 1) ? true : false;
       let isSubFile = false;
       let jsonForFile =  getFileJsonString(file, path, isLastFile, isSubFile);
@@ -153,7 +153,7 @@ fs.readdir(lessonsSourcesPath, function(err, filesAndDirs) {
       var fileArr = fs.readdirSync(lessonsSourcesPath + '/' + dir);
       for (let i=0; i<fileArr.length; i++) {
         let file = fileArr[i];
-        let path = '/lessons/' + dir;
+        let path = '/' + dir;
         let isLastFile = false;
         let isSubFile = true;
         let jsonForFile =  getFileJsonString(file, path, isLastFile, isSubFile);

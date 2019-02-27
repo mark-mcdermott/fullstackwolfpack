@@ -2,15 +2,15 @@
 	"leftNav": [
 		{
 			"name": "Big O",
-			"link": "/lessons/big-o.html"
+			"link": "/big-o.html"
 		},
 		{
 			"name": "&nbsp;&nbsp;Arrays",
-			"link": "/lessons/data-structures/arrays.html"
+			"link": "/data-structures/arrays.html"
 		},
 		{
 			"name": "Data Structures",
-			"link": "/lessons/data-structures.html"
+			"link": "/data-structures.html"
 		}
 	]
 }
