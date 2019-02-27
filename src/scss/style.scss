@@ -769,6 +769,11 @@ main {
   width: 45em;
 }
 
+.lesson-page h1,
+.flashcard-page h1 {
+  margin: 1.3em 0 0.5em;
+}
+
 main .flashcards {
   min-height: 200px;
   float: left;
@@ -782,7 +787,6 @@ main .flashcards {
 .flashcards .set .answer {
   display: inline-block;
   padding: 20px;
-  // width: 50%;
   min-width: 20em;
   min-height: 150px;
   cursor: pointer;

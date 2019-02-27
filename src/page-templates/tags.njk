@@ -1,12 +1,11 @@
 {% extends "layout.njk" %}
 
 {% block content %}
-    <h2>Tags</h2>
-
-    {% if tags.length %}
+    <h2>{{ tag }}</h2>
+    {% if posts.length %}
         <ul class="tags">
-        {% for tag in tags %}
-            <li><span class="count">{{tag.posts|length}} &times;</span> <a href="{{tag.link}}">{{tag.title}}</a></li>
+        {% for post in posts %}
+          <li><a href="{{ post.link }}">{{post.title}}</a></li>
         {% endfor %}
         </ul>
     {% else %}

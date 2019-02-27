@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <title lang="en">{{config.sitename}}</title>
-    <meta name="description" content="{{post.metaDescription | default(config.description)}}">
+    <title lang="en">{{siteConfig.sitename}}</title>
+    <meta name="description" content="{{post.metaDescription | default(siteConfig.description)}}">
     <link href="/style.min.css" rel="stylesheet">
 </head>
 
@@ -18,7 +18,7 @@
       <!-- spans for hamburger icon-->
       <span></span><span></span><span></span>
       <ul id="menu">
-        {% for page in config.siteNav %}
+        {% for page in siteConfig.siteNav %}
           <li {% if page.name == 'Home' or page.name == 'About' %} class="hidable"{% endif %}>
           <a {% if title == page.name %} class="active"{% endif %} href="{{ page.link }}">{{ page.name }}</a>
         </li>
@@ -33,17 +33,17 @@
 
           <div class="site-title-wrapper">
             {% if title == 'Home' %}
-              <h1 class="site-title"><a href="/">{{ config.sitename }}</a></h1>
-              <h2 class="tagline">{{ config.tagline }}</h2>
+              <h1 class="site-title"><a href="/">{{ siteConfig.sitename }}</a></h1>
+              <h2 class="tagline">{{ siteConfig.tagline }}</h2>
             {% else %}
-              <p class="site-title"><a href="/">{{ config.sitename }}</a></p>
-              <p class="tagline">{{ config.tagline }}</p>
+              <p class="site-title"><a href="/">{{ siteConfig.sitename }}</a></p>
+              <p class="tagline">{{ siteConfig.tagline }}</p>
             {% endif %}
           </div>
 
           <nav class="site-nav" role="region" tabindex="-1">
               <ul>
-                {% for page in config.siteNav %}
+                {% for page in siteConfig.siteNav %}
                   <li {% if page.name == 'Home' or page.name == 'About' %} class="hidable"{% endif %}>
                   <a {% if title == page.name %} class="active"{% endif %} href="{{ page.link }}">{{ page.name }}</a>
                 </li>
@@ -67,7 +67,7 @@
             {% endif %}
           </p>
             <ul>
-            {% for navPage in config.leftNav %}
+            {% for navPage in leftNav.leftNav %}
               <li>
                 {% if pageType == 'Flashcards' or page.title == 'Flashcards' %}
                 <a href="/flashcards/{{ navPage.link }}">{{ navPage.name }}</a>
@@ -90,7 +90,7 @@
 
   <footer>
     <div class="container">
-      <p>&copy;{{config.currentYear}} <a href="http://markmcdermott.io">Mark McDermott</a>{% if title == 'Home' %}
+      <p>&copy;{{siteConfig.currentYear}} <a href="http://markmcdermott.io">Mark McDermott</a>{% if title == 'Home' %}
         <br /><a href="https://github.com/mark-mcdermott/fullstackwolfpack">Built with Node</a> in < {{ filesizeKb }} kB{% endif %}</p>
     </div>
   </footer>

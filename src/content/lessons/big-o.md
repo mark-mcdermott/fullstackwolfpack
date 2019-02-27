@@ -39,4 +39,4 @@ In computer science, O(x<sup>4</sup>) means, "the algorithm grows asymptotically
 
 Big O Notation is occasionally accompanied by two other, similar notations&mdash; big Ω and big θ. Big Ω is known as "big omega" and big θ is known as "big theta".  Just as Big O the upper bound for an algorithm (that is, it will grow at that rate or slower), big Ω is the lower bound. So Big Ω means the algorithm will grow at that rate or faster.  Big θ is a comibination of big O and big Ω, so big θ gives both the upper and lower bound. So big θ gives a tight range in which the algorithm won't grow faster than upper bound and also won't grow slower than the lower bound.
 
-[1] Wikipedia.org, 'Big O notation', 2019. [Online]. Available: https://en.wikipedia.org/wiki/Big_O_notation. [Accessed: 17-Feb-2019].
+[1] Wikipedia.org, "Big O notation", 2019. [Online]. Available: https://en.wikipedia.org/wiki/Big_O_notation. [Accessed: 17-Feb-2019].

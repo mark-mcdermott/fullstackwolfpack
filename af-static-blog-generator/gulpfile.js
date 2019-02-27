@@ -14,6 +14,7 @@ var rimraf = require('rimraf');
 var getFileSize = require('gulp-filesize');
 var reload = browserSync.reload;
 var babel = require('gulp-babel');
+var recursive = require("recursive-readdir");
 
 var runningIndexFilesize = 0;
 var homePageTargetWordCount = 150;
@@ -43,22 +44,23 @@ var markdown = new Remarkable({
     }
 });
 
-var configFile = '../src/siteConfig.json';
-var config = {
-    "theme": "default",
-    "name": "{NAME}",
-    "email": "{EMAIL}",
-    "url": "https://{SITE}.com",
-    "rssUUID": "{RSS-UUID}",
-    "description": "{DESCRIPTION}"
-};
+var siteConfigFile = '../src/siteConfig.json';
+var leftNavConfigFile = '../src/leftNavConfig.json';
+
 
 try {
-    config = JSON.parse(fs.readFileSync(configFile, {encoding: 'utf8'}));
+    siteConfigFile = JSON.parse(fs.readFileSync(siteConfigFile, {encoding: 'utf8'}));
 } catch (e) {
-    console.warn('WARNING: no config file:', configFile);
+    console.warn('WARNING: no config file:', siteConfigFile);
 }
 
+try {
+    leftNavConfigFile = JSON.parse(fs.readFileSync(leftNavConfigFile, {encoding: 'utf8'}));
+} catch (e) {
+    console.warn('WARNING: no config file:', leftNavConfigFile);
+}
+
+var srcSourcesPath = '../src';
 var pagesSourcesPath = '../src/content/pages';
 var flashCardsSourcesPath = '../src/content/flashcards';
 var lessonsSourcesPath = '../src/content/lessons';
@@ -74,6 +76,108 @@ nunjucksRender.setDefaults({
         autoescape: false
     }
 });
+
+
+
+
+// ---------------------------------------------
+// generate lessons.json by crawling lessons dir
+// ---------------------------------------------
+
+let jsonStringBeg = "{\n\t\"leftNav\": [\n";
+let jsonStringMid = "";
+let jsonStringEnd = "\n\t]\n}";
+
+function getSlugFromMdFile(file) {
+  return file.split('.md')[0];
+}
+
+function getLinkFromSlug(path, slug) {
+  return path + '/' + slug + '.html';
+}
+
+function getTitleFromSlug(slug) {
+  let title = '';
+  for (let word of slug.split('-')) {
+    title += ' ' + word.charAt(0).toUpperCase() + word.slice(1);
+  }
+  title = title.slice(1);
+  return title;
+}
+
+function getFileJsonString(file, path, isLastFile, isSubFile) {
+  let fileJson = '';
+  let slug = getSlugFromMdFile(file);
+  let title = getTitleFromSlug(slug);
+  let link = getLinkFromSlug(path, slug);
+  fileJson += "\t\t{\n";
+  fileJson += "\t\t\t\"name\": \"";
+  if (isSubFile) fileJson += "&nbsp;&nbsp;";
+  fileJson += title + "\",\n";
+  fileJson += "\t\t\t\"link\": \"" + link + "\"";
+  fileJson += "\n\t\t}";
+  if (!isLastFile) fileJson += ",\n";
+  return fileJson;
+}
+
+function getFullJsonString(stringBeg, stringMid, stringEnd) {
+  let jsonStringFull = "";
+  jsonStringFull += stringBeg;
+  jsonStringFull += stringMid;
+  jsonStringFull += stringEnd;
+  return jsonStringFull;
+}
+
+// crawl lessons dir
+fs.readdir(lessonsSourcesPath, function(err, filesAndDirs) {
+  for (let i=0; i<filesAndDirs.length; i++) {
+
+    // console.log(filesAndDirs);
+    // TODO make a function here that sorts this filesAndDirs the way I need it
+    // currently, the left nav is all in the wrong order
+
+    let fileOrDir = filesAndDirs[i];
+
+    // if file and not dir, get filename & title
+    if (fileOrDir.includes('md')) {
+      let file = fileOrDir;
+      let path = '/lessons';
+      let isLastFile = (i == filesAndDirs.length - 1) ? true : false;
+      let isSubFile = false;
+      let jsonForFile =  getFileJsonString(file, path, isLastFile, isSubFile);
+      jsonStringMid += jsonForFile;
+
+    // if dir and not file
+    } else {
+      let dir = fileOrDir;
+      var fileArr = fs.readdirSync(lessonsSourcesPath + '/' + dir);
+      for (let i=0; i<fileArr.length; i++) {
+        let file = fileArr[i];
+        let path = '/lessons/' + dir;
+        let isLastFile = false;
+        let isSubFile = true;
+        let jsonForFile =  getFileJsonString(file, path, isLastFile, isSubFile);
+        jsonStringMid += jsonForFile;
+      }
+    }
+  }
+
+  let jsonFileString = getFullJsonString(jsonStringBeg, jsonStringMid, jsonStringEnd);
+  let fileName = 'leftNavConfig.json';
+  let filePath = srcSourcesPath + '/' + fileName;
+  fs.writeFile(filePath, jsonFileString, function(err) {
+    if(err) {
+        return console.log(err);
+    }
+  });
+});
+
+
+
+
+
+
+
 
 gulp.task('css', function () {
     var scssStream = gulp.src(themePath + '/scss/**/*.scss')
@@ -269,48 +373,87 @@ gulp.task('renderer', function () {
     // tags: [] },
 
 
-    var lessons = fs.readdirSync(lessonsSourcesPath)
-        .reverse()
-        .map(function (fileName) {
-            var lesson;
-            var fileContent = fs.readFileSync(path.join(lessonsSourcesPath, fileName), {encoding: 'utf8'});
-            var match = ((new RegExp('^({(\\n(?!}).*)*\\n})((.|\\s)*)', 'g')).exec(fileContent) || []);
-            var jsonHeader = match[1];
-            var lessonBody = match[3];
-            if (!jsonHeader) {
-               console.warn('WARNING: no json header in:', fileName);
-               return null;
-            } else {
-               try {
-                   lesson = JSON.parse(jsonHeader);
-               } catch (e) {
-                    console.warn('WARNING: bad json header in:', fileName);
-                    return null;
-               }
-               var requiredParams = ['title', 'date'];
-               for (var i in requiredParams) {
-                   if (!lesson[requiredParams[i]]) {
-                       console.warn('WARNING: no "', requiredParams[i], '" json param in:', fileName);
-                       return null;
-                   }
-               }
-            }
-            if (!lessonBody) {
-                console.warn('WARNING: no lesson in:', fileName);
-                return null;
-            }
-            lesson.body = markdown.render(lessonBody);
-            // lesson.datetimeISO = formatDate(lesson.date);
-            lesson.filename = urlify(lesson.title) + '.html';
-            // lesson.link = 'lessons/' + lesson.filename;
-            lesson.compileDest = 'dist/lessons/';
-            return lesson;
-        })
-        .filter(function (lesson) {
-            return (lesson !== null);
-        });
 
-    // *** PARSE LESSONS ENDS ***
+
+            var lessons = [];
+            recursive(lessonsSourcesPath, function (err, lessonsArr) {
+              for (let lessonFile of lessonsArr) {
+                var fileContent = fs.readFileSync(lessonFile, {encoding: 'utf8'});
+                var match = ((new RegExp('^({(\\n(?!}).*)*\\n})((.|\\s)*)', 'g')).exec(fileContent) || []);
+                var jsonHeader = match[1];
+                var lessonBody = match[3];
+                if (!jsonHeader) {
+                   console.warn('WARNING: no json header in:', fileName);
+                   return null;
+                } else {
+                   try {
+                       lesson = JSON.parse(jsonHeader);
+                   } catch (e) {
+                        console.warn('WARNING: bad json header in:', fileName);
+                        return null;
+                   }
+                   var requiredParams = ['title', 'date'];
+                   for (var i in requiredParams) {
+                       if (!lesson[requiredParams[i]]) {
+                           console.warn('WARNING: no "', requiredParams[i], '" json param in:', fileName);
+                           return null;
+                       }
+                   }
+                }
+
+                if (!lessonBody) {
+                    console.warn('WARNING: no lesson in:', fileName);
+                    return null;
+                }
+
+                lesson.body = markdown.render(lessonBody);
+                lesson.datetimeISO = formatDate(lesson.date);
+                lesson.path = lessonFile.split('../src/content/lessons/')[1];
+                let splitPath = lesson.path.split('/');
+                let oldFilename = splitPath[splitPath.length - 1];
+                lesson.filename = splitPath[splitPath.length - 1].split('.md')[0] + '.html';
+                if (splitPath.length == 1) {
+                  lesson.path = '';
+                } else {
+                  lesson.path = lesson.path.split(oldFilename)[0];
+                }
+                lesson.link = 'lessons/' + lesson.filename;
+                lesson.compileDest = 'dist/lessons/' + lesson.path;
+
+                // from lessons array var, create /dist/lessons folder
+                // dist/lessons contains files for each individual lesson
+
+                gulp.src(themePath + '/page-templates/lesson.njk')
+                    .pipe(nunjucksRender({
+                        data: {
+                            title: lesson.title,
+                            slug: 'lesson-page',
+                            siteConfig: siteConfigFile,
+                            leftNav: leftNavConfigFile,
+                            lesson: lesson,
+                            pageType: 'Lesson'
+                        }
+                    }))
+                    .pipe(rename(lesson.filename))
+                    .pipe(gulp.dest(path.join('..', lesson.compileDest)))
+                    .pipe(reload({stream: true}));
+
+              }
+            }, function() {
+              console.log('hi!');
+              // console.log(lessons);
+            });
+
+            // *** PARSE LESSONS ENDS ***
+
+
+
+
+
+
+
+
+
 
 
 
@@ -431,7 +574,7 @@ gulp.task('renderer', function () {
             post.tags = (post.tags ? post.tags.split(',') : []).map(function (tag) {
                 var obj = {
                     title: tag,
-                    link: ('/tags/' + urlify(tag) + '/')
+                    link: ('/tags/' + urlify(tag) + '.html')
                 };
 
                 tagsMap[tag] = (tagsMap[tag] || obj);
@@ -488,11 +631,12 @@ gulp.task('renderer', function () {
         // from flashcards array var, create /dist/flashcards folder
         // dist/flashcards contains files for each individual flashcard page
         flashcards.map(function (flashcardPage) {
-          console.log(flashcardPage.filename)
+          // console.log(flashcardPage.filename)
             gulp.src(themePath + '/page-templates/flashcards.njk')
                 .pipe(nunjucksRender({
                     data: {
-                        config: config,
+                        siteConfig: siteConfigFile,
+                        leftNav: leftNavConfigFile,
                         slug: 'flashcard-page',
                         flashcardPage: flashcardPage,
                         title: flashcardPage.title,
@@ -539,23 +683,7 @@ gulp.task('renderer', function () {
 
 
 
-      // from lessons array var, create /dist/lessons folder
-      // dist/lessons contains files for each individual lesson
-      lessons.map(function (lesson) {
-          gulp.src(themePath + '/page-templates/lesson.njk')
-              .pipe(nunjucksRender({
-                  data: {
-                      title: lesson.title,
-                      slug: 'lesson-page',
-                      config: config,
-                      lesson: lesson,
-                      pageType: 'Lesson'
-                  }
-              }))
-              .pipe(rename(lesson.filename))
-              .pipe(gulp.dest(path.join('..', lesson.compileDest)))
-              .pipe(reload({stream: true}));
-      });
+
 
 
 
@@ -570,7 +698,8 @@ gulp.task('renderer', function () {
                   data: {
                       title: page.title,
                       slug: page.title.replace(/\s+/g, '-').toLowerCase(),
-                      config: config,
+                      siteConfig: siteConfigFile,
+                      leftNav: leftNavConfigFile,
                       page: page,
                       pageType: 'Page'
                   }
@@ -594,7 +723,8 @@ gulp.task('renderer', function () {
                 data: {
                     title: post.title,
                     slug: 'post-page',
-                    config: config,
+                    siteConfig: siteConfigFile,
+                    leftNav: leftNavConfigFile,
                     post: post,
                     pageType: 'Post'
                 }
@@ -639,30 +769,40 @@ gulp.task('renderer', function () {
 
 
     // tag stuff
-    // i've ignored this for now, excluded from mvp
     // TODO: add tags & sitemap stuff back in (use AF's github repo as guide)
     var tags = [];
-    for (var key in tagsMap) {
+    for (let key in tagsMap) {
         if (tagsMap.hasOwnProperty(key)) {
             var tag = tagsMap[key];
-
             tags.push(tag);
-            gulp.src(themePath + '/page-templates/home.html')
-                .pipe(nunjucksRender({
-                    data: {
-                        title: ('Tag: ' + tag.title),
-                        slug: tag.title.replace(/\s+/g, '-').toLowerCase(),
-                        posts: tag.posts,
-                        config: config,
-                        tag: tag,
-                        pageType: 'Page'
-                    }
-                }))
-                .pipe(rename('index.html'))
-                .pipe(gulp.dest(path.join('..', tag.link)))
-                .pipe(reload({stream: true}));
         }
     }
+    tags.sort(function(a, b) {
+      var textA = a.title.toUpperCase();
+      var textB = b.title.toUpperCase();
+      return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+    });
+    tags.map(function (tag) {
+      tag.slug = tag.title.toLowerCase();
+      tag.slug = tag.slug.replace(' ','-');
+        gulp.src(themePath + '/page-templates/tags.njk')
+            .pipe(nunjucksRender({
+                data: {
+                    tag: tag.title,
+                    link: tag.link,
+                    posts: tag.posts
+                }
+            }))
+            .pipe(rename(tag.slug + '.html'))
+            .pipe(gulp.dest('../dist/tags/'))
+            .pipe(reload({stream: true}));
+            return tag;
+    });
+
+
+
+
+
 
 
 
@@ -676,7 +816,8 @@ gulp.task('renderer', function () {
             data: {
                 title: 'Blog',
                 slug: 'blog',
-                config: config,
+                siteConfig: siteConfigFile,
+                leftNav: leftNavConfigFile,
                 posts: posts,
                 pageType: 'Blog',
                 filesizeKb: '?'
@@ -699,7 +840,8 @@ gulp.task('renderer', function () {
             data: {
                 title: 'Home',
                 slug: 'home',
-                config: config,
+                siteConfig: siteConfigFile,
+                leftNav: leftNavConfigFile,
                 posts: homePagePosts,
                 pageType: 'Home',
                 filesizeKb: '?'
@@ -730,7 +872,8 @@ gulp.task('renderer', function () {
               data: {
                   title: 'Home',
                   slug: 'home',
-                  config: config,
+                  siteConfig: siteConfigFile,
+                  leftNav: leftNavConfigFile,
                   posts: homePagePosts,
                   pageType: 'Home',
                   filesizeKb: runningIndexFilesize

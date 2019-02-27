@@ -30,15 +30,5 @@
       "name": "About",
       "link": "/about.html"
     }
-  ],
-  "leftNav": [
-    {
-      "name": "Big O",
-      "link": "big-o.html"
-    },
-    {
-      "name": "Data Structures",
-      "link": "data-structures.html"
-    }
   ]
 }

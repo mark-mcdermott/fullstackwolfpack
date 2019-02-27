@@ -5,11 +5,14 @@
         <div class="post">
           <h2><a href="{{ post.link }}">{{ post.title }}</a></h2>
           <p class="date">{{ post.date }}</p>
-
+          <p class="tags">
+            {% for tag in post.tags %}
+              <a href="{{ tag.link }}">{{ tag.title }}</a>
+            {% endfor %}
+          </p>
           {% if post.imagePreview %}
             <img class="blog-thumbnail" src="images/{{ post.imagePreview }}">
           {% endif %}
-
           {{ post.article }}
         </div>
     {% endfor %}
