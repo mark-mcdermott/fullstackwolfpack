@@ -1,36 +1,24 @@
-import { Button } from '@/components/ui/button'
+import { Dashboard } from '@/components/dashboard'
+import { RequireAuth } from '@/components/require-auth'
 
 function App() {
   return (
-    <main className="flex min-h-svh flex-col items-center justify-center gap-8 px-6 text-center">
+    <main className="flex min-h-svh flex-col items-center justify-center gap-10 px-6 py-16 text-center">
       <div className="flex flex-col items-center gap-4">
         <span className="rounded-full border px-3 py-1 text-xs font-medium text-muted-foreground">
-          ZENCATS · cross-platform
+          ZENCATS · passwordless
         </span>
         <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
           Fullstack Wolfpack
         </h1>
         <p className="max-w-md text-balance text-muted-foreground">
-          Vite + React, Drizzle on Neon, passkey auth, with Capacitor and Tauri
-          shells — scaffolded and ready to build on.
+          Passkey sign-in with a TOTP fallback — no passwords. Built on Vite,
+          Drizzle on Neon, with Capacitor and Tauri shells.
         </p>
       </div>
-      <div className="flex flex-wrap items-center justify-center gap-3">
-        <Button size="lg">Get started</Button>
-        <Button
-          size="lg"
-          variant="outline"
-          render={
-            <a
-              href="https://fullstackwolfpack.com"
-              target="_blank"
-              rel="noreferrer"
-            />
-          }
-        >
-          Learn more
-        </Button>
-      </div>
+      <RequireAuth>
+        <Dashboard />
+      </RequireAuth>
     </main>
   )
 }
