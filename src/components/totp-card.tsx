@@ -1,27 +1,16 @@
 import { useState } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
+import { api } from '@/api-client'
+import type { TotpSetup } from '@/core/schemas'
 import { useAuth } from '@/hooks/auth-context'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
-type Setup = { uri: string; secret: string }
-
-async function post<T>(url: string, body?: unknown): Promise<T> {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: body ? { 'content-type': 'application/json' } : undefined,
-    body: body ? JSON.stringify(body) : undefined,
-  })
-  const data = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(data.error ?? `Request failed (${res.status})`)
-  return data as T
-}
-
 // Authenticator-app enrollment: the TOTP fallback for a lost passkey.
 export function TotpCard() {
   const { user, refresh } = useAuth()
-  const [setup, setSetup] = useState<Setup | null>(null)
+  const [setup, setSetup] = useState<TotpSetup | null>(null)
   const [token, setToken] = useState('')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -54,7 +43,7 @@ export function TotpCard() {
             disabled={pending}
             onClick={() =>
               void run(async () => {
-                await post('/api/auth/totp/disable')
+                await api.totp.disable()
                 await refresh()
               })
             }
@@ -81,7 +70,7 @@ export function TotpCard() {
           disabled={pending}
           onClick={() =>
             void run(async () => {
-              setSetup(await post<Setup>('/api/auth/totp/setup'))
+              setSetup(await api.totp.setup())
             })
           }
         >
@@ -113,7 +102,7 @@ export function TotpCard() {
             disabled={pending || token.length < 6}
             onClick={() =>
               void run(async () => {
-                await post('/api/auth/totp/enable', { token })
+                await api.totp.enable(token)
                 await refresh()
                 setSetup(null)
                 setToken('')
