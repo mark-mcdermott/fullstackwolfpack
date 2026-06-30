@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { api } from '@/api-client'
 import { useAuth } from '@/hooks/auth-context'
 import { TotpCard } from '@/components/totp-card'
 import { Button } from '@/components/ui/button'
@@ -11,22 +12,17 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 
-type ProtectedData = { message: string; memberSince: string }
-
 export function Dashboard() {
   const { user, logout } = useAuth()
-  const [data, setData] = useState<ProtectedData | null>(null)
+  const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     let active = true
-    fetch('/api/protected')
-      .then(async (res) => {
-        if (!res.ok) throw new Error('Session rejected by the server')
-        return (await res.json()) as ProtectedData
-      })
+    api
+      .getProtected()
       .then((d) => {
-        if (active) setData(d)
+        if (active) setMessage(d.message)
       })
       .catch((e: Error) => {
         if (active) setError(e.message)
@@ -53,8 +49,8 @@ export function Dashboard() {
           <p className="mb-1 text-xs font-medium tracking-wide text-muted-foreground uppercase">
             Response from /api/protected
           </p>
-          {data ? (
-            <p className="text-sm">{data.message}</p>
+          {message ? (
+            <p className="text-sm">{message}</p>
           ) : error ? (
             <p className="text-sm text-destructive">{error}</p>
           ) : (
