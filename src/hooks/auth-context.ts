@@ -1,10 +1,13 @@
 import { createContext, useContext } from 'react'
+import type { Role, Tier } from '@/core/access'
 
 export type AuthUser = {
   id: string
   email: string
   displayName: string
   totpEnabled: boolean
+  role: Role
+  tier: Tier
 }
 
 export type AuthContextValue = {

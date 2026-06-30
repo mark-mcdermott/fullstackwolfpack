@@ -1,3 +1,6 @@
+CREATE TYPE "public"."subscription_status" AS ENUM('active', 'canceled', 'past_due');--> statement-breakpoint
+CREATE TYPE "public"."user_role" AS ENUM('user', 'admin');--> statement-breakpoint
+CREATE TYPE "public"."user_tier" AS ENUM('free', 'pro');--> statement-breakpoint
 CREATE TYPE "public"."topic_category" AS ENUM('frontend', 'backend', 'devops', 'databases', 'tools', 'ai_data');--> statement-breakpoint
 CREATE TYPE "public"."topic_status" AS ENUM('active', 'coming_soon');--> statement-breakpoint
 CREATE TYPE "public"."course_source" AS ENUM('ai', 'builtin', 'imported');--> statement-breakpoint
@@ -19,10 +22,24 @@ CREATE TABLE "credentials" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "subscriptions" (
+	"id" text PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" text NOT NULL,
+	"tier" "user_tier" DEFAULT 'pro' NOT NULL,
+	"status" "subscription_status" DEFAULT 'active' NOT NULL,
+	"provider" text DEFAULT 'stripe' NOT NULL,
+	"stripe_customer_id" text,
+	"stripe_subscription_id" text,
+	"current_period_end" timestamp with time zone,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "users" (
 	"id" text PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"email" text NOT NULL,
 	"display_name" text NOT NULL,
+	"role" "user_role" DEFAULT 'user' NOT NULL,
+	"tier" "user_tier" DEFAULT 'free' NOT NULL,
 	"username" text,
 	"bio" text,
 	"avatar_url" text,
@@ -282,6 +299,7 @@ CREATE TABLE "xp_events" (
 );
 --> statement-breakpoint
 ALTER TABLE "credentials" ADD CONSTRAINT "credentials_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "subscriptions" ADD CONSTRAINT "subscriptions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "blog_post_tags" ADD CONSTRAINT "blog_post_tags_post_id_blog_posts_id_fk" FOREIGN KEY ("post_id") REFERENCES "public"."blog_posts"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "blog_post_tags" ADD CONSTRAINT "blog_post_tags_tag_id_blog_tags_id_fk" FOREIGN KEY ("tag_id") REFERENCES "public"."blog_tags"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "blog_posts" ADD CONSTRAINT "blog_posts_author_id_users_id_fk" FOREIGN KEY ("author_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
