@@ -78,12 +78,6 @@ export type AchievementsView = z.infer<typeof achievementsViewSchema>
 
 // ---- Endpoint payloads ----
 
-export const summarySchema = z.object({
-  user: userSummarySchema,
-  stats: statsSchema,
-})
-export type Summary = z.infer<typeof summarySchema>
-
 export const dashboardSchema = z.object({
   user: userSummarySchema,
   stats: statsSchema,
@@ -96,6 +90,12 @@ export type Dashboard = z.infer<typeof dashboardSchema>
 
 export const topicsViewSchema = z.object({ topics: z.array(topicProgressSchema) })
 export type TopicsView = z.infer<typeof topicsViewSchema>
+
+export const statsViewSchema = z.object({
+  stats: statsSchema,
+  topics: z.array(topicProgressSchema),
+})
+export type StatsView = z.infer<typeof statsViewSchema>
 
 export const progressViewSchema = z.object({
   stats: statsSchema,
