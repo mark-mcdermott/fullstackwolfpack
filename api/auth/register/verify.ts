@@ -3,23 +3,22 @@ import {
   type RegistrationResponseJSON,
 } from '@simplewebauthn/server'
 import { eq } from 'drizzle-orm'
+import { passkeyVerifyRequest } from '../../../src/core/schemas'
 import { db } from '../../../src/db'
 import { credentials, users, webauthnChallenges } from '../../../src/db/schema'
 import { origin, rpID } from '../../../src/lib/auth'
-import { json, readJson } from '../../_lib/http'
+import { json } from '../../_lib/http'
 import { createSessionCookie } from '../../_lib/session'
 import { publicUser } from '../../_lib/user'
+import { parseBody } from '../../_lib/validate'
 
 // Step 2 of registration: verify the signed attestation, store the public key,
 // and start a session.
 export async function POST(req: Request): Promise<Response> {
-  const { email, response } = await readJson<{
-    email?: string
-    response?: RegistrationResponseJSON
-  }>(req)
-  if (!email || !response) {
-    return json({ error: 'email and response are required' }, { status: 400 })
-  }
+  const parsed = await parseBody(passkeyVerifyRequest, req)
+  if (!parsed.ok) return parsed.response
+  const { email } = parsed.data
+  const response = parsed.data.response as RegistrationResponseJSON
 
   const challenge = await db.query.webauthnChallenges.findFirst({
     where: eq(webauthnChallenges.key, email),

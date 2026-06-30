@@ -18,6 +18,23 @@ export const publicUserSchema = z.object({
 })
 export type PublicUser = z.infer<typeof publicUserSchema>
 
+// Request DTOs — the server validates these on the way in. The WebAuthn
+// `response` is left as unknown here; @simplewebauthn validates its structure.
+export const registerOptionsRequest = z.object({
+  email: emailSchema,
+  displayName: displayNameSchema,
+})
+export const loginOptionsRequest = z.object({ email: emailSchema })
+export const passkeyVerifyRequest = z.object({
+  email: emailSchema,
+  response: z.unknown(),
+})
+export const recoverRequest = z.object({
+  email: emailSchema,
+  token: totpTokenSchema,
+})
+export const totpEnableRequest = z.object({ token: totpTokenSchema })
+
 // Response DTOs — the client parses these so a bad payload fails loudly.
 export const authResultSchema = z.object({
   verified: z.boolean(),
