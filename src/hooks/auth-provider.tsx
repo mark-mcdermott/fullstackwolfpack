@@ -72,14 +72,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(user)
   }, [])
 
+  // TOTP recovery: a code from the authenticator app stands in for the passkey.
+  const recover = useCallback(async (email: string, token: string) => {
+    const { user } = await postJson<{ user: AuthUser }>(
+      '/api/auth/totp/recover',
+      { email, token },
+    )
+    setUser(user)
+  }, [])
+
   const logout = useCallback(async () => {
     await fetch('/api/auth/logout', { method: 'POST' })
     setUser(null)
   }, [])
 
   const value = useMemo(
-    () => ({ user, loading, register, login, logout, refresh }),
-    [user, loading, register, login, logout, refresh],
+    () => ({ user, loading, register, login, recover, logout, refresh }),
+    [user, loading, register, login, recover, logout, refresh],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

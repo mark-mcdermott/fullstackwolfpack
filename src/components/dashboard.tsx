@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/auth-context'
+import { TotpCard } from '@/components/totp-card'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -60,6 +61,7 @@ export function Dashboard() {
             <p className="text-sm text-muted-foreground">Loading…</p>
           )}
         </div>
+        <TotpCard />
       </CardContent>
       <CardFooter>
         <Button

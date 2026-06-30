@@ -10,12 +10,14 @@ Full cross-platform stack: Vite + React 19 + TS, Tailwind v4 + shadcn-ui, Drizzl
 
 - `api/` — serverless functions (Vercel-style; Web `Request`/`Response` handlers).
   - `auth/register/{options,verify}.ts`, `auth/login/{options,verify}.ts` — the two WebAuthn ceremonies.
+  - `auth/totp/{setup,enable,disable,recover}.ts` — TOTP enrollment (authed) + recovery (unauthed).
   - `auth/me.ts` (current session), `auth/logout.ts`.
+  - `protected.ts` — example session-gated endpoint (the real server-side boundary).
   - `_lib/` — `http.ts` (json helpers), `session.ts` (JWT cookie via jose), `user.ts` (public-user mapping). Files prefixed `_` are not routed.
 - `src/db/` — Drizzle client (`index.ts`, server-only) and schema (`schema/auth.ts`: users, credentials, webauthn challenges).
 - `src/lib/auth.ts` — WebAuthn relying-party config + TOTP helpers (server-side).
-- `src/hooks/use-auth.ts` — client hook: `register` / `login` / `logout` / current `user` (via `@simplewebauthn/browser`).
-- `src/components/auth-card.tsx` — passkey sign-in / register UI.
+- `src/hooks/auth-context.ts` + `auth-provider.tsx` — `AuthProvider` + `useAuth` (`user`/`register`/`login`/`recover`/`logout`/`refresh`).
+- `src/components/` — `auth-card.tsx` (sign-in / register / recover), `require-auth.tsx` (route guard), `dashboard.tsx` (protected view), `totp-card.tsx` (authenticator enrollment).
 - `src/components/ui/` — shadcn components (`base-nova` style, base-ui primitives).
 - `dev-api.ts` — Vite dev plugin that serves `api/` under `npm run dev` (Node↔Web adapter), so passkeys work locally without `vercel dev`.
 - `drizzle.config.ts` — drizzle-kit config (reads `DATABASE_URL`).
@@ -24,7 +26,9 @@ Full cross-platform stack: Vite + React 19 + TS, Tailwind v4 + shadcn-ui, Drizzl
 
 ## Auth flow
 
-Passkeys (WebAuthn) are primary; TOTP (`src/lib/auth.ts`) is the no-password fallback. Each ceremony is a two-step handshake: `options` mints a challenge (stored in `webauthn_challenges`, keyed by email), `verify` checks the signed response and issues a session JWT in an httpOnly cookie. `RP_ID` is the bare domain (`localhost` in dev), `RP_ORIGIN` the full origin. Login is email-first (usernameless/discoverable is a possible enhancement). `requireUserVerification` is `false` for dev — tighten for production.
+Passkeys (WebAuthn) are primary; TOTP is the no-password fallback. Each ceremony is a two-step handshake: `options` mints a challenge (stored in `webauthn_challenges`, keyed by email), `verify` checks the signed response and issues a session JWT in an httpOnly cookie. `RP_ID` is the bare domain (`localhost` in dev), `RP_ORIGIN` the full origin. Login is email-first (usernameless/discoverable is a possible enhancement). `requireUserVerification` is `false` for dev — tighten for production.
+
+Routes are gated client-side by `RequireAuth` (UX) and server-side by the session cookie (`getSessionUserId`) on each protected endpoint (the real boundary). TOTP: an authed user enrolls via `totp/setup` (QR) → `totp/enable` (confirm a code); if they later lose their passkey, `totp/recover` (email + code) mints a session. The TOTP secret is stored plaintext for now — encrypt at rest in production, and rate-limit `login`/`recover`.
 
 ## Scripts
 
@@ -39,7 +43,7 @@ Pieces that need accounts or interactive/native steps — not done by the scaffo
 
 - [ ] **Neon DB** — create a Neon project, `cp .env.example .env`, set `DATABASE_URL` (and the same in the Vercel project env). Then `npm run db:push` to create the tables. Auth needs a real DB to run end-to-end.
 - [ ] **AUTH_SECRET** — set a strong `AUTH_SECRET` in `.env` (`openssl rand -base64 32`); dev falls back to an insecure default, production must not.
-- [x] **Auth flows** — passkey register/login endpoints, session cookies, the `useAuth` hook, and the sign-in UI are built and run locally via `npm run dev`. Remaining: set `RP_ID`/`RP_ORIGIN` per environment, and consider TOTP enrollment/recovery UI + tightening `requireUserVerification` for production.
+- [x] **Auth flows** — passkey register/login, session cookies, a protected route (`RequireAuth` + `/api/protected`), and TOTP enrollment/recovery UI are built and run locally via `npm run dev`. Remaining for production: set `RP_ID`/`RP_ORIGIN` per environment, set `requireUserVerification: true`, encrypt the TOTP secret at rest, and rate-limit `login`/`recover`.
 - [ ] **Capacitor native platforms** — `npm run build` first, then `npx cap add ios` / `npx cap add android`, then `npx cap sync`. iOS needs Xcode; Android needs Android Studio + SDK.
 - [ ] **Tauri desktop** — `npm run tauri dev` (first run compiles Rust deps). Replace placeholder icons via `npm run tauri icon <path-to-1024px.png>`.
 - [ ] **Vercel** — link the project; `@vercel/analytics` only reports once deployed on Vercel.
