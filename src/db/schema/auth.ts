@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm'
 import {
   bigint,
   boolean,
+  integer,
   pgTable,
   text,
   timestamp,
@@ -15,6 +16,16 @@ export const users = pgTable('users', {
     .default(sql`gen_random_uuid()`),
   email: text('email').notNull().unique(),
   displayName: text('display_name').notNull(),
+  // Profile (Settings → Profile).
+  username: text('username').unique(),
+  bio: text('bio'),
+  avatarUrl: text('avatar_url'),
+  timezone: text('timezone'),
+  // Cached gamification totals — source of truth is xp_events / daily_activity.
+  xp: integer('xp').notNull().default(0),
+  level: integer('level').notNull().default(1),
+  currentStreak: integer('current_streak').notNull().default(0),
+  bestStreak: integer('best_streak').notNull().default(0),
   // TOTP fallback secret (encrypt at rest in production).
   totpSecret: text('totp_secret'),
   totpEnabled: boolean('totp_enabled').notNull().default(false),

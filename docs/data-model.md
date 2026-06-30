@@ -113,21 +113,20 @@ The flexible spine that supports both v1 (AI-generated, per-user) and later (sha
 
 ---
 
-## Open decisions
+## Decisions (resolved 2026-06-30)
 
-**DECISION A — Lesson ownership (biggest one).** Are lessons global/shared or per-user AI-generated? → *Recommend:* model `courses.ownerUserId` nullable + `source` enum so both coexist. v1 only creates `source:'ai'` courses owned by the user; the shared-curriculum path slots in later with no schema change.
+- **A — Lessons:** **both via `courses`** (`ownerUserId` nullable + `source` enum). v1 creates per-user `source:'ai'` courses; shared/imported curricula slot in later with no migration.
+- **B — API key:** **encrypted server-side** → `provider_credentials` table. Ciphertext + iv only; encrypted at rest (app-layer AES-GCM with a key from env), never returned to the client. Enables server-side generation without the user present.
+- **C — Generation timing:** generate-ahead into `lessons`/`lesson_segments`; `courses.status: generating → ready`.
+- **D — Quizzes:** **MCQ + short answer.** `quiz_questions.type ∈ {mcq, short_answer}`; `quiz_attempts` store `answerText` + `isCorrect` + `aiFeedback` (short-answer graded by an AI call).
+- **E — Blog:** **DB-backed CMS** → `posts` / `categories` / `tags` / `post_tags`, author via `users`.
+- **F — Skills radar:** keep a `user_skills` table but treat values as derivable for v1 (populate from topic/quiz data; hand-tuning optional).
+- **G — Games / "hours played":** v1 tracks play time via `sessions.playMinutes` only. `roms` / `game_sessions` / `savestates` / `supported_games` deferred to v2.
 
-**DECISION B — OpenAI API key storage.** The user supplies their own key. → *Recommend (v1):* **don't persist it server-side.** Hold it client-side (secure storage) and proxy generation through the server without storing it. Avoids encrypting/owning a secret. If we later want server-side background generation, add an encrypted `provider_credentials` table then.
-
-**DECISION C — Generation timing.** Your description says generate the whole set up front and serve prebuilt chunks. → *Implied:* AI output is persisted into `lessons`/`lesson_segments` at enroll time (`courses.status: generating → ready`). Content tables are needed regardless of the key decision.
-
-**DECISION D — Quiz model (v1).** → *Recommend:* keep it to `mcq` only — `quiz_questions` + `quiz_attempts` as above. v2 adds free-text (AI-graded), code challenges, spaced repetition.
-
-**DECISION E — Blog.** The blog mock is marketing content. → *Recommend (v1):* MDX / content-collection, **no DB tables**. Add `posts`/`categories`/`tags` only if you want a dynamic CMS.
-
-**DECISION F — Skills radar.** → *Recommend:* derive from topic/quiz data for v1 (or seed), defer a dedicated `user_skills` table unless you want hand-tuned values.
-
-**DECISION G — Games / "hours played".** v1 has no game integration (manual pause). → *Recommend:* track play time only via `sessions.playMinutes` for now; defer `roms`, `game_sessions`, `savestates`, `supported_games` to v2.
+### Resulting additions
+- `provider_credentials` (encrypted key store) — see Settings domain.
+- `quiz_questions` carries both MCQ and short-answer; `quiz_attempts` hold free-text + AI feedback.
+- Blog domain (`posts`, `categories`, `tags`, `post_tags`).
 
 ---
 
