@@ -1,15 +1,9 @@
-import type { Role, Tier } from '../../src/core/access'
+import type { PublicUser } from '../../src/core/schemas'
 import type { User } from '../../src/db/schema'
 
-// Never leak the TOTP secret or internal columns to the client.
-export type PublicUser = {
-  id: string
-  email: string
-  displayName: string
-  totpEnabled: boolean
-  role: Role
-  tier: Tier
-}
+// Shared with the client via src/core/schemas — one definition of the user
+// shape. Never leak the TOTP secret or internal columns.
+export type { PublicUser }
 
 export function publicUser(u: User): PublicUser {
   return {

@@ -2,11 +2,8 @@ import { render, screen } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { MemoryRouter } from 'react-router'
 import { describe, expect, it } from 'vitest'
-import {
-  AuthContext,
-  type AuthContextValue,
-  type AuthUser,
-} from '@/hooks/auth-context'
+import { AuthContext, type AuthContextValue } from '@/hooks/auth-context'
+import type { PublicUser } from '@/core/schemas'
 import { AchievementsPage } from '@/pages/app/achievements'
 import { DashboardPage } from '@/pages/app/dashboard'
 import { SettingsPage } from '@/pages/app/settings'
@@ -16,7 +13,7 @@ import { Blog } from '@/pages/public/blog'
 import { Home } from '@/pages/public/home'
 import { Pricing } from '@/pages/public/pricing'
 
-const adminUser: AuthUser = {
+const adminUser: PublicUser = {
   id: 'u1',
   email: 'mark@x.com',
   displayName: 'Mark',
@@ -25,7 +22,7 @@ const adminUser: AuthUser = {
   tier: 'pro',
 }
 
-function auth(user: AuthUser | null): AuthContextValue {
+function auth(user: PublicUser | null): AuthContextValue {
   return {
     user,
     loading: false,
@@ -37,7 +34,7 @@ function auth(user: AuthUser | null): AuthContextValue {
   }
 }
 
-function renderPage(ui: ReactNode, user: AuthUser | null = adminUser) {
+function renderPage(ui: ReactNode, user: PublicUser | null = adminUser) {
   return render(
     <AuthContext.Provider value={auth(user)}>
       <MemoryRouter>{ui}</MemoryRouter>

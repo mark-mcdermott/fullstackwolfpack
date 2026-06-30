@@ -5,7 +5,3 @@ export function json(data: unknown, init?: ResponseInit): Response {
   headers.set('content-type', 'application/json')
   return new Response(JSON.stringify(data), { ...init, headers })
 }
-
-export async function readJson<T>(req: Request): Promise<T> {
-  return (await req.json()) as T
-}

@@ -1,14 +1,11 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { describe, expect, it } from 'vitest'
-import {
-  AuthContext,
-  type AuthContextValue,
-  type AuthUser,
-} from '@/hooks/auth-context'
+import { AuthContext, type AuthContextValue } from '@/hooks/auth-context'
+import type { PublicUser } from '@/core/schemas'
 import { RequireAuth, RequireRole } from './guards'
 
-function ctx(user: AuthUser | null): AuthContextValue {
+function ctx(user: PublicUser | null): AuthContextValue {
   return {
     user,
     loading: false,
@@ -20,7 +17,7 @@ function ctx(user: AuthUser | null): AuthContextValue {
   }
 }
 
-const freeUser: AuthUser = {
+const freeUser: PublicUser = {
   id: 'u1',
   email: 'a@b.com',
   displayName: 'A',
@@ -28,7 +25,7 @@ const freeUser: AuthUser = {
   role: 'user',
   tier: 'free',
 }
-const admin: AuthUser = { ...freeUser, role: 'admin' }
+const admin: PublicUser = { ...freeUser, role: 'admin' }
 
 function renderGuards(path: string, value: AuthContextValue) {
   return render(

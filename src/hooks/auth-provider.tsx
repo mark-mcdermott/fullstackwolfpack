@@ -5,84 +5,40 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import {
-  startAuthentication,
-  startRegistration,
-  type PublicKeyCredentialCreationOptionsJSON,
-  type PublicKeyCredentialRequestOptionsJSON,
-} from '@simplewebauthn/browser'
-import { AuthContext, type AuthUser } from './auth-context'
+import { api } from '@/api-client'
+import type { PublicUser } from '@/core/schemas'
+import { AuthContext } from './auth-context'
 
-async function postJson<T>(url: string, body: unknown): Promise<T> {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(body),
-  })
-  const data = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(data.error ?? `Request failed (${res.status})`)
-  return data as T
-}
-
+// Thin state shell over the shared api-client. All transport + WebAuthn
+// ceremony logic lives in the api-client behind adapters — this just holds
+// React state and re-renders.
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null)
+  const [user, setUser] = useState<PublicUser | null>(null)
   const [loading, setLoading] = useState(true)
 
   const refresh = useCallback(async () => {
-    try {
-      const res = await fetch('/api/auth/me')
-      const data = await res.json()
-      setUser(res.ok ? data.user : null)
-    } catch {
-      setUser(null)
-    } finally {
-      setLoading(false)
-    }
+    setUser(await api.auth.me())
+    setLoading(false)
   }, [])
 
   useEffect(() => {
     void refresh()
   }, [refresh])
 
-  // Registration ceremony: get options → prompt for a passkey → verify.
   const register = useCallback(async (email: string, displayName: string) => {
-    const optionsJSON = await postJson<PublicKeyCredentialCreationOptionsJSON>(
-      '/api/auth/register/options',
-      { email, displayName },
-    )
-    const response = await startRegistration({ optionsJSON })
-    const { user } = await postJson<{ user: AuthUser }>(
-      '/api/auth/register/verify',
-      { email, response },
-    )
-    setUser(user)
+    setUser(await api.auth.register(email, displayName))
   }, [])
 
-  // Authentication ceremony: get options → sign challenge → verify.
   const login = useCallback(async (email: string) => {
-    const optionsJSON = await postJson<PublicKeyCredentialRequestOptionsJSON>(
-      '/api/auth/login/options',
-      { email },
-    )
-    const response = await startAuthentication({ optionsJSON })
-    const { user } = await postJson<{ user: AuthUser }>(
-      '/api/auth/login/verify',
-      { email, response },
-    )
-    setUser(user)
+    setUser(await api.auth.login(email))
   }, [])
 
-  // TOTP recovery: a code from the authenticator app stands in for the passkey.
   const recover = useCallback(async (email: string, token: string) => {
-    const { user } = await postJson<{ user: AuthUser }>(
-      '/api/auth/totp/recover',
-      { email, token },
-    )
-    setUser(user)
+    setUser(await api.auth.recover(email, token))
   }, [])
 
   const logout = useCallback(async () => {
-    await fetch('/api/auth/logout', { method: 'POST' })
+    await api.auth.logout()
     setUser(null)
   }, [])
 
