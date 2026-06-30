@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { useAuth } from '@/hooks/use-auth'
+import { useAuth } from '@/hooks/auth-context'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label'
 type Mode = 'login' | 'register'
 
 export function AuthCard() {
-  const { user, loading, register, login, logout } = useAuth()
+  const { register, login } = useAuth()
   const [mode, setMode] = useState<Mode>('login')
   const [email, setEmail] = useState('')
   const [displayName, setDisplayName] = useState('')
@@ -34,38 +34,6 @@ export function AuthCard() {
     } finally {
       setPending(false)
     }
-  }
-
-  if (loading) {
-    return (
-      <Card className="w-full max-w-sm">
-        <CardContent className="py-10 text-center text-sm text-muted-foreground">
-          Loading…
-        </CardContent>
-      </Card>
-    )
-  }
-
-  if (user) {
-    return (
-      <Card className="w-full max-w-sm text-left">
-        <CardHeader>
-          <CardTitle>Signed in</CardTitle>
-          <CardDescription>
-            {user.displayName} · {user.email}
-          </CardDescription>
-        </CardHeader>
-        <CardFooter>
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={() => void logout()}
-          >
-            Sign out
-          </Button>
-        </CardFooter>
-      </Card>
-    )
   }
 
   return (

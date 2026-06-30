@@ -1,12 +1,17 @@
-import { useCallback, useEffect, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react'
 import {
   startAuthentication,
   startRegistration,
   type PublicKeyCredentialCreationOptionsJSON,
   type PublicKeyCredentialRequestOptionsJSON,
 } from '@simplewebauthn/browser'
-
-export type AuthUser = { id: string; email: string; displayName: string }
+import { AuthContext, type AuthUser } from './auth-context'
 
 async function postJson<T>(url: string, body: unknown): Promise<T> {
   const res = await fetch(url, {
@@ -19,7 +24,7 @@ async function postJson<T>(url: string, body: unknown): Promise<T> {
   return data as T
 }
 
-export function useAuth() {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -72,5 +77,10 @@ export function useAuth() {
     setUser(null)
   }, [])
 
-  return { user, loading, register, login, logout }
+  const value = useMemo(
+    () => ({ user, loading, register, login, logout, refresh }),
+    [user, loading, register, login, logout, refresh],
+  )
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

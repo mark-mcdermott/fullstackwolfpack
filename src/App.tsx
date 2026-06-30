@@ -1,4 +1,5 @@
-import { AuthCard } from '@/components/auth-card'
+import { Dashboard } from '@/components/dashboard'
+import { RequireAuth } from '@/components/require-auth'
 
 function App() {
   return (
@@ -15,7 +16,9 @@ function App() {
           Drizzle on Neon, with Capacitor and Tauri shells.
         </p>
       </div>
-      <AuthCard />
+      <RequireAuth>
+        <Dashboard />
+      </RequireAuth>
     </main>
   )
 }
