@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { ROLES, TIERS } from './access'
 
 // The shared contract — pure zod, no DOM, no Node. Imported by every surface
 // (web/Capacitor/Tauri/...) AND by the server functions in `api/`, so the
@@ -15,6 +16,8 @@ export const publicUserSchema = z.object({
   email: emailSchema,
   displayName: displayNameSchema,
   totpEnabled: z.boolean(),
+  role: z.enum(ROLES),
+  tier: z.enum(TIERS),
 })
 export type PublicUser = z.infer<typeof publicUserSchema>
 

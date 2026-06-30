@@ -1,25 +1,65 @@
-import { Dashboard } from '@/components/dashboard'
-import { RequireAuth } from '@/components/require-auth'
+import { Route, Routes } from 'react-router'
+import { AppLayout } from '@/components/layout/app-layout'
+import { RequireAuth, RequireRole } from '@/components/layout/guards'
+import { MarketingLayout } from '@/components/layout/marketing-layout'
+import { AchievementsPage } from '@/pages/app/achievements'
+import { BadgesPage } from '@/pages/app/badges'
+import { DashboardPage } from '@/pages/app/dashboard'
+import { ProgressPage } from '@/pages/app/progress'
+import { SessionsPage } from '@/pages/app/sessions'
+import { SettingsPage } from '@/pages/app/settings'
+import { StatsPage } from '@/pages/app/stats'
+import { TopicsPage } from '@/pages/app/topics'
+import { AdminUsersPage } from '@/pages/admin/users'
+import { AuthPage } from '@/pages/auth-page'
+import { NotFound } from '@/pages/not-found'
+import { About } from '@/pages/public/about'
+import { Blog } from '@/pages/public/blog'
+import { Features } from '@/pages/public/features'
+import { Home } from '@/pages/public/home'
+import { HowItWorks } from '@/pages/public/how-it-works'
+import { Pricing } from '@/pages/public/pricing'
 
 function App() {
   return (
-    <main className="flex min-h-svh flex-col items-center justify-center gap-10 px-6 py-16 text-center">
-      <div className="flex flex-col items-center gap-4">
-        <span className="rounded-full border px-3 py-1 text-xs font-medium text-muted-foreground">
-          ZENCATS · passwordless
-        </span>
-        <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-          Fullstack Wolfpack
-        </h1>
-        <p className="max-w-md text-balance text-muted-foreground">
-          Passkey sign-in with a TOTP fallback — no passwords. Built on Vite,
-          Drizzle on Neon, with Capacitor and Tauri shells.
-        </p>
-      </div>
-      <RequireAuth>
-        <Dashboard />
-      </RequireAuth>
-    </main>
+    <Routes>
+      {/* Public */}
+      <Route element={<MarketingLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/how-it-works" element={<HowItWorks />} />
+        <Route path="/features" element={<Features />} />
+        <Route path="/pricing" element={<Pricing />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/blog" element={<Blog />} />
+      </Route>
+
+      {/* Auth */}
+      <Route path="/login" element={<AuthPage />} />
+      <Route path="/signup" element={<AuthPage />} />
+
+      {/* Private */}
+      <Route element={<RequireAuth />}>
+        <Route element={<AppLayout />}>
+          <Route path="/app" element={<DashboardPage />} />
+          <Route path="/app/sessions" element={<SessionsPage />} />
+          <Route path="/app/topics" element={<TopicsPage />} />
+          <Route path="/app/progress" element={<ProgressPage />} />
+          <Route path="/app/stats" element={<StatsPage />} />
+          <Route path="/app/achievements" element={<AchievementsPage />} />
+          <Route path="/app/badges" element={<BadgesPage />} />
+          <Route path="/app/settings" element={<SettingsPage />} />
+        </Route>
+
+        {/* Admin */}
+        <Route element={<RequireRole ability="admin.access" />}>
+          <Route element={<AppLayout />}>
+            <Route path="/admin" element={<AdminUsersPage />} />
+          </Route>
+        </Route>
+      </Route>
+
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   )
 }
 

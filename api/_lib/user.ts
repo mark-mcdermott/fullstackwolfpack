@@ -11,5 +11,7 @@ export function publicUser(u: User): PublicUser {
     email: u.email,
     displayName: u.displayName,
     totpEnabled: u.totpEnabled,
+    role: u.role,
+    tier: u.tier,
   }
 }
