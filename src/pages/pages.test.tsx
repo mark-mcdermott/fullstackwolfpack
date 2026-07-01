@@ -59,6 +59,20 @@ vi.mock('@/api-client', () => ({
     courses: {
       enroll: async () => ({ courseId: 'course-1' }),
     },
+    admin: {
+      users: async () => [
+        {
+          id: 'u1',
+          email: 'grace@example.com',
+          displayName: 'Grace Hopper',
+          role: 'user',
+          tier: 'free',
+          xp: 0,
+          level: 1,
+        },
+      ],
+      updateUser: async () => {},
+    },
   },
 }))
 import { AchievementsPage } from '@/pages/app/achievements'
@@ -139,8 +153,8 @@ describe('app pages render', () => {
     renderPage(<SettingsPage />)
     expect(screen.getByText(/billing/i)).toBeInTheDocument()
   })
-  it('admin lists users', () => {
+  it('admin lists users', async () => {
     renderPage(<AdminUsersPage />)
-    expect(screen.getByText('Grace Hopper')).toBeInTheDocument()
+    expect(await screen.findByText('Grace Hopper')).toBeInTheDocument()
   })
 })

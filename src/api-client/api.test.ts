@@ -81,6 +81,22 @@ describe('api.data', () => {
     expect(await api.data.series()).toEqual(series)
   })
 
+  it('lists admin users and posts an update', async () => {
+    const u = {
+      id: 'u1',
+      email: 'a@b.com',
+      displayName: 'A',
+      role: 'admin',
+      tier: 'pro',
+      xp: 0,
+      level: 1,
+    }
+    const { api, calls } = withRoutes({ '/api/me/admin-users': { users: [u] } })
+    expect(await api.admin.users()).toEqual([u])
+    await api.admin.updateUser('u1', { role: 'user' })
+    expect(calls.filter((c) => c === '/api/me/admin-users').length).toBe(2)
+  })
+
   it('throws on a malformed payload instead of leaking it through', async () => {
     const { api } = withRoutes({ '/api/me/summary': { displayName: 'Mark' } })
     await expect(api.data.summary()).rejects.toThrow()

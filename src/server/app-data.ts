@@ -2,6 +2,7 @@ import { and, count, desc, eq, gte, sql, sum } from 'drizzle-orm'
 import type {
   AchievementsView,
   ActivityItem,
+  AdminUser,
   RecentLesson,
   Series,
   Skill,
@@ -9,6 +10,7 @@ import type {
   TopicProgress,
   UserSummary,
 } from '../core/app-data'
+import type { Role, Tier } from '../core/access'
 import { bucketAchievements, levelProgress } from '../core/progress'
 import { bucketByDay, cumulative, ratioByDay } from '../core/series'
 import { db } from '../db'
@@ -305,4 +307,29 @@ export async function getSeries(userId: string): Promise<Series> {
     minutesByDay,
     accuracyByDay: ratioByDay(correct, total),
   }
+}
+
+// ---- Admin (caller must gate on admin.access) ----
+
+export async function getAdminUsers(): Promise<AdminUser[]> {
+  return db
+    .select({
+      id: users.id,
+      email: users.email,
+      displayName: users.displayName,
+      role: users.role,
+      tier: users.tier,
+      xp: users.xp,
+      level: users.level,
+    })
+    .from(users)
+    .orderBy(desc(users.createdAt))
+}
+
+export async function updateUserAccess(
+  userId: string,
+  patch: { role?: Role; tier?: Tier },
+): Promise<void> {
+  if (patch.role === undefined && patch.tier === undefined) return
+  await db.update(users).set(patch).where(eq(users.id, userId))
 }
