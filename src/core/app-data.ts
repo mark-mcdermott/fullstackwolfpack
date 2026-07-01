@@ -122,6 +122,19 @@ export const seriesSchema = z.object({
 })
 export type Series = z.infer<typeof seriesSchema>
 
+// Admin users table (admin-gated).
+export const adminUserSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  displayName: z.string(),
+  role: z.string(),
+  tier: z.string(),
+  xp: z.number().int(),
+  level: z.number().int(),
+})
+export type AdminUser = z.infer<typeof adminUserSchema>
+export const adminUsersSchema = z.object({ users: z.array(adminUserSchema) })
+
 export const progressViewSchema = z.object({
   stats: statsSchema,
   topics: z.array(topicProgressSchema),

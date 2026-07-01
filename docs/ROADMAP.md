@@ -49,12 +49,12 @@ _Status: `[x]` shipped · `[~]` partial/stubbed · `[ ]` not started._
 - `[ ]` **Vercel** — link the project (`@vercel/analytics` only reports once deployed).
 
 ### Loose ends
-- `[ ]` **Real seed course content.** `topics`/`achievements`/`levels` are seeded, but `courses`/`lessons` only exist once generated per-user. Consider a small built-in course so new users see content pre-generation.
-- `[x]` **Real time-series charts** (PR #16). Live XP-over-time on Progress and accuracy + minutes trends on Stats, fed from `xp_events` / `quiz_attempts` / `daily_activity` via `getSeries` + the pure `core/series` bucketing. `src/components/charts.tsx` exports two tiny dependency-free primitives — `Sparkline` (SVG line) and `Bars` (CSS bars), each taking a `number[]`. They originally rendered **hardcoded/fake** data on the dashboards; that fake data was removed in #5, leaving the components **unused but intentionally retained** (they're generic and reusable). The task: feed them **real** series from `daily_activity` / `xp_events` history (XP over time, weekly activity, accuracy trend) once that history accrues — not delete them.
+- `[x]` **Real seed course content** (PR #18). A shared built-in "Git & GitHub" course (`ownerUserId = null`, fixed ids → idempotent seed) so new users can Start Learning immediately — no OpenAI key needed. Add more in `src/db/seed-content.ts`.
+- `[x]` **Real time-series charts** (PR #16). Live XP-over-time on Progress and accuracy + minutes trends on Stats, fed from `xp_events` / `quiz_attempts` / `daily_activity` via `getSeries` + the pure `core/series` bucketing. `src/components/charts.tsx` exports two tiny dependency-free primitives — `Sparkline` (SVG line) and `Bars` (CSS bars), each taking a `number[]`.
 - `[~]` **Deeper per-page mock parity.** The FW-01 visual pass (PR #15) covered the theme, chrome (sidebar / logo / favicon / dark toggle), and the landing / 404 / sign-in art; the **dashboard hero** now carries the wolf-sun (PR #20). Remaining: richer stat panels and the footer "system feed" can move closer to the mocks incrementally.
 - `[x]` **Theme toggle on mobile app views** (PR #17) — added to the app header, shown on mobile only (desktop keeps the sidebar toggle).
 - `[~]` **`auth_rate_limits` housekeeping.** Opportunistic prune of stale rows is in (#12); a scheduled/TTL sweep is a possible future refinement (no cron today — see the function cap below).
-- `[ ]` **Admin + blog.** `pages/admin/users.tsx` and the public blog are thin; no real admin actions / CMS.
+- `[~]` **Admin + blog** (admin: PR #19). The admin Users page now lists real users and persists role/tier via an admin-gated `admin-users` action (folded into `[action].ts`; server-side `can(user, 'admin.access')` gate). The public blog is still a thin stub — no CMS yet.
 - `[ ]` **Short-answer accuracy in stats.** Once AI grading lands (Phase 3), fold short-answer results into the accuracy metrics.
 
 ---

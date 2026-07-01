@@ -17,6 +17,7 @@ import {
 import type { Difficulty } from '@/core/generation'
 import {
   achievementsViewSchema,
+  adminUsersSchema,
   courseOutlineSchema,
   dashboardSchema,
   progressViewSchema,
@@ -25,6 +26,7 @@ import {
   topicsViewSchema,
   userSummarySchema,
   type AchievementsView,
+  type AdminUser,
   type CourseOutline,
   type Dashboard,
   type ProgressView,
@@ -233,7 +235,24 @@ export function createApi({ http, passkeys }: Adapters) {
     },
   }
 
-  return { auth, totp, getProtected, data, integrations, courses }
+  // Admin-only (server enforces admin.access; this just reads/writes).
+  const admin = {
+    async users(): Promise<AdminUser[]> {
+      return adminUsersSchema.parse(await http.request('/api/me/admin-users'))
+        .users
+    },
+    async updateUser(
+      userId: string,
+      patch: { role?: 'user' | 'admin'; tier?: 'free' | 'pro' },
+    ): Promise<void> {
+      await http.request('/api/me/admin-users', {
+        method: 'POST',
+        body: JSON.stringify({ userId, ...patch }),
+      })
+    },
+  }
+
+  return { auth, totp, getProtected, data, integrations, courses, admin }
 }
 
 export type Api = ReturnType<typeof createApi>
