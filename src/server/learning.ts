@@ -1,4 +1,5 @@
-import { and, desc, eq, inArray, sql, sum } from 'drizzle-orm'
+import { and, desc, eq, inArray, isNull, or, sql, sum } from 'drizzle-orm'
+import type { CourseOutline } from '../core/app-data'
 import {
   gradeMcqAnswer,
   lessonScore,
@@ -120,6 +121,66 @@ export async function getLessonView(lessonId: string): Promise<LessonView | null
     title: head.title,
     estMinutes: head.estMinutes,
     segments,
+  }
+}
+
+// ---- Read: a topic's generated course + this user's per-lesson progress ----
+
+export async function getCourseOutline(
+  userId: string,
+  topicSlug: string,
+): Promise<CourseOutline | null> {
+  // The user's own AI course for the topic, else a shared/built-in one.
+  const [course] = await db
+    .select({ id: courses.id, status: courses.status })
+    .from(courses)
+    .innerJoin(topics, eq(topics.id, courses.topicId))
+    .where(
+      and(
+        eq(topics.slug, topicSlug),
+        or(eq(courses.ownerUserId, userId), isNull(courses.ownerUserId)),
+      ),
+    )
+    .orderBy(desc(courses.createdAt))
+    .limit(1)
+  if (!course) return null
+
+  const rows = await db
+    .select({
+      lessonId: lessons.id,
+      title: lessons.title,
+      orderIndex: lessons.orderIndex,
+      estMinutes: lessons.estMinutes,
+      status: userLessonProgress.status,
+    })
+    .from(lessons)
+    .leftJoin(
+      userLessonProgress,
+      and(
+        eq(userLessonProgress.lessonId, lessons.id),
+        eq(userLessonProgress.userId, userId),
+      ),
+    )
+    .where(eq(lessons.courseId, course.id))
+    .orderBy(lessons.orderIndex)
+
+  const lessonList = rows.map((r) => ({
+    lessonId: r.lessonId,
+    title: r.title,
+    orderIndex: r.orderIndex,
+    estMinutes: r.estMinutes,
+    status: r.status ?? 'not_started',
+  }))
+  // Resume at the first unfinished lesson; if all done, the first (for review).
+  const next =
+    lessonList.find((l) => l.status !== 'completed') ?? lessonList[0]
+
+  return {
+    courseId: course.id,
+    topicSlug,
+    status: course.status,
+    lessons: lessonList,
+    nextLessonId: next?.lessonId ?? null,
   }
 }
 

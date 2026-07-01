@@ -1,5 +1,6 @@
 import { Search } from 'lucide-react'
 import { useState } from 'react'
+import { useNavigate } from 'react-router'
 import { api } from '@/api-client'
 import { AsyncView, EmptyState } from '@/components/layout/async-view'
 import { PageHeading, Panel, ProgressMeter } from '@/components/ui-kit'
@@ -21,20 +22,40 @@ const TABS: [string, string | null][] = [
 const DIFFICULTIES: readonly string[] = ['beginner', 'intermediate', 'advanced']
 
 function TopicCard({ topic }: { topic: TopicProgress }) {
-  const [status, setStatus] = useState<'idle' | 'generating' | 'done'>('idle')
+  const navigate = useNavigate()
+  const hasCourse = topic.lessonsTotal > 0
+  const [busy, setBusy] = useState<null | 'generating' | 'opening'>(null)
   const [error, setError] = useState<string | null>(null)
 
+  // Resolve the topic's course and jump to the next unfinished lesson.
+  async function openCourse() {
+    const outline = await api.data.course(topic.slug)
+    if (!outline.nextLessonId) throw new Error('This course has no lessons yet.')
+    navigate(`/app/learn/${outline.nextLessonId}`)
+  }
+
+  async function start() {
+    setBusy('opening')
+    setError(null)
+    try {
+      await openCourse()
+    } catch (e) {
+      setBusy(null)
+      setError(e instanceof Error ? e.message : 'Could not open the course')
+    }
+  }
+
   async function generate() {
-    setStatus('generating')
+    setBusy('generating')
     setError(null)
     const difficulty: Difficulty = DIFFICULTIES.includes(topic.difficulty)
       ? (topic.difficulty as Difficulty)
       : 'beginner'
     try {
       await api.courses.enroll(topic.slug, difficulty)
-      setStatus('done')
+      await openCourse() // drop the learner straight into the fresh course
     } catch (e) {
-      setStatus('idle')
+      setBusy(null)
       setError(e instanceof Error ? e.message : 'Generation failed')
     }
   }
@@ -55,18 +76,29 @@ function TopicCard({ topic }: { topic: TopicProgress }) {
           {topic.lessonsCompleted} / {topic.lessonsTotal} lessons
         </span>
       </div>
-      <button
-        type="button"
-        onClick={generate}
-        disabled={status !== 'idle'}
-        className="mt-1 border border-border py-2 font-mono text-[10px] tracking-widest uppercase hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {status === 'generating'
-          ? 'Generating…'
-          : status === 'done'
-            ? 'Course ready ✓'
-            : 'Generate course →'}
-      </button>
+      {hasCourse ? (
+        <button
+          type="button"
+          onClick={start}
+          disabled={busy !== null}
+          className="mt-1 bg-primary py-2 font-mono text-[10px] tracking-widest text-primary-foreground uppercase hover:bg-primary/80 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {busy === 'opening'
+            ? 'Opening…'
+            : topic.lessonsCompleted > 0
+              ? 'Continue learning →'
+              : 'Start learning →'}
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={generate}
+          disabled={busy !== null}
+          className="mt-1 border border-border py-2 font-mono text-[10px] tracking-widest uppercase hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {busy === 'generating' ? 'Generating…' : 'Generate course →'}
+        </button>
+      )}
       {error && (
         <p className="font-mono text-[10px] text-destructive">{error}</p>
       )}

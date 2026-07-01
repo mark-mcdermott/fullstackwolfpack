@@ -37,6 +37,7 @@ export const topicProgressSchema = z.object({
 export type TopicProgress = z.infer<typeof topicProgressSchema>
 
 export const recentLessonSchema = z.object({
+  lessonId: z.string().nullable(), // null only for legacy rows; drives deep-links
   title: z.string(),
   topic: z.string(),
   minutes: z.number().int(),
@@ -44,6 +45,23 @@ export const recentLessonSchema = z.object({
   status: z.string(),
 })
 export type RecentLesson = z.infer<typeof recentLessonSchema>
+
+// A generated course for a topic, with per-lesson progress for the current user.
+export const courseLessonSchema = z.object({
+  lessonId: z.string(),
+  title: z.string(),
+  orderIndex: z.number().int(),
+  estMinutes: z.number().int(),
+  status: z.string(),
+})
+export const courseOutlineSchema = z.object({
+  courseId: z.string(),
+  topicSlug: z.string(),
+  status: z.string(),
+  lessons: z.array(courseLessonSchema),
+  nextLessonId: z.string().nullable(), // first not-completed lesson (or first, for review)
+})
+export type CourseOutline = z.infer<typeof courseOutlineSchema>
 
 export const activityItemSchema = z.object({
   title: z.string(),
