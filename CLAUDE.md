@@ -14,11 +14,13 @@ Full cross-platform stack: Vite + React 19 + TS, Tailwind v4 + shadcn-ui, Drizzl
   - `auth/me.ts` (current session), `auth/logout.ts`.
   - `protected.ts` — example session-gated endpoint (the real server-side boundary).
   - `me/{summary,dashboard,topics,stats,progress,achievements}.ts` — session-gated read endpoints for the logged-in app (feed the dashboard/topics/progress/stats/achievements/badges pages).
-  - `_lib/` — `http.ts` (json helpers), `session.ts` (JWT cookie via jose), `user.ts` (public-user mapping). Files prefixed `_` are not routed.
+  - `me/openai-key.ts` (GET status / POST save — the key is write-only, encrypted at rest) and `me/enroll.ts` (POST: enroll a topic → generate its AI course).
+  - `_lib/` — `http.ts` (json helpers), `session.ts` (JWT cookie via jose), `user.ts` (public-user mapping), `validate.ts` (`parseBody` → 400 on bad input). Files prefixed `_` are not routed.
 - `src/db/` — Drizzle client (`index.ts`, server-only) and schema (`schema/auth.ts`: users, credentials, webauthn challenges).
 - `src/core/app-data.ts` — zod DTOs for the logged-in app; `src/core/progress.ts` — pure level/achievement/relative-time helpers (unit-tested).
 - `src/server/app-data.ts` — server-only Drizzle reads behind the `/api/me/*` endpoints (composes the core mappers; explicit joins, no `with:`).
-- `src/api-client/` — surface-agnostic client; `api.data.*` fetches the `/api/me/*` reads (validated against core schemas). `src/hooks/use-async.ts` drives page loading/error state; `src/components/layout/async-view.tsx` renders it.
+- `src/server/{enroll,course-store,openai-generator,crypto,provider-credentials}.ts` — the AI generation seam: `enrollAndGenerate` decrypts the user's OpenAI key (`provider-credentials` + AES-256-GCM `crypto`) and runs the `src/core/generation.ts` pipeline into Drizzle.
+- `src/api-client/` — surface-agnostic client; `api.data.*` fetches the `/api/me/*` reads, `api.integrations.*` manages the OpenAI key, `api.courses.enroll` triggers generation (all validated against core schemas). `src/hooks/use-async.ts` drives page loading/error state; `src/components/layout/async-view.tsx` renders it.
 - `src/pages/` — public (`public/`), logged-in app (`app/`), and admin (`admin/`) pages; the `app/` pages read live data via `api.data.*` (Sessions is a static preview until the live-session runtime lands).
 - `src/lib/auth.ts` — WebAuthn relying-party config + TOTP helpers (server-side).
 - `src/hooks/auth-context.ts` + `auth-provider.tsx` — `AuthProvider` + `useAuth` (`user`/`register`/`login`/`recover`/`logout`/`refresh`).
