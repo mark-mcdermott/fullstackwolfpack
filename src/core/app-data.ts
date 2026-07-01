@@ -88,7 +88,6 @@ export const dashboardSchema = z.object({
 export type Dashboard = z.infer<typeof dashboardSchema>
 
 export const topicsViewSchema = z.object({ topics: z.array(topicProgressSchema) })
-export type TopicsView = z.infer<typeof topicsViewSchema>
 
 export const statsViewSchema = z.object({
   stats: statsSchema,
