@@ -49,6 +49,13 @@ import {
   type ReviewQueue,
   type ReviewResult,
 } from '@/core/review-view'
+import {
+  tutorReplySchema,
+  type TutorMessage,
+  type TutorMode,
+  type TutorReply,
+} from '@/core/tutor'
+import { adaptiveStateSchema, type AdaptiveState } from '@/core/adaptive'
 import type { Adapters } from './types'
 
 // Surface-agnostic API. Construct it once with a surface's adapters
@@ -172,14 +179,30 @@ export function createApi({ http, passkeys }: Adapters) {
     },
     async answer(
       questionId: string,
-      selectedIndex: number,
+      input: { selectedIndex?: number; answerText?: string },
     ): Promise<AnswerFeedback> {
       return answerFeedbackSchema.parse(
         await http.request('/api/me/answer', {
           method: 'POST',
-          body: JSON.stringify({ questionId, selectedIndex }),
+          body: JSON.stringify({ questionId, ...input }),
         }),
       )
+    },
+    async tutor(
+      segmentId: string,
+      messages: TutorMessage[],
+      mode: TutorMode,
+    ): Promise<TutorReply> {
+      return tutorReplySchema.parse(
+        await http.request('/api/me/tutor', {
+          method: 'POST',
+          body: JSON.stringify({ segmentId, messages, mode }),
+        }),
+      )
+    },
+    async adaptive(topicSlug?: string): Promise<AdaptiveState> {
+      const q = topicSlug ? `?topic=${encodeURIComponent(topicSlug)}` : ''
+      return adaptiveStateSchema.parse(await http.request(`/api/me/adaptive${q}`))
     },
     async completeLesson(lessonId: string): Promise<LessonCompletion> {
       return lessonCompletionSchema.parse(
@@ -214,6 +237,17 @@ export function createApi({ http, passkeys }: Adapters) {
     async saveOpenAiKey(apiKey: string): Promise<KeyStatus> {
       return keyStatusSchema.parse(
         await http.request('/api/me/openai-key', {
+          method: 'POST',
+          body: JSON.stringify({ apiKey }),
+        }),
+      )
+    },
+    async anthropicKeyStatus(): Promise<KeyStatus> {
+      return keyStatusSchema.parse(await http.request('/api/me/anthropic-key'))
+    },
+    async saveAnthropicKey(apiKey: string): Promise<KeyStatus> {
+      return keyStatusSchema.parse(
+        await http.request('/api/me/anthropic-key', {
           method: 'POST',
           body: JSON.stringify({ apiKey }),
         }),

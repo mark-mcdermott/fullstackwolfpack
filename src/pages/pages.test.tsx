@@ -55,6 +55,8 @@ vi.mock('@/api-client', () => ({
     integrations: {
       keyStatus: async () => ({ hasKey: false }),
       saveOpenAiKey: async () => ({ hasKey: true }),
+      anthropicKeyStatus: async () => ({ hasKey: false }),
+      saveAnthropicKey: async () => ({ hasKey: true }),
     },
     courses: {
       enroll: async () => ({ courseId: 'course-1' }),

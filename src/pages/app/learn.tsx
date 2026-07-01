@@ -1,17 +1,21 @@
-import { ArrowLeft, ArrowRight, RotateCcw, Trophy } from 'lucide-react'
+import { ArrowLeft, ArrowRight, RotateCcw, TrendingDown, TrendingUp, Trophy } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { api } from '@/api-client'
+import { CodeExercise } from '@/components/learn/code-exercise'
 import { LessonMarkdown } from '@/components/learn/lesson-markdown'
 import { QuizSegment } from '@/components/learn/quiz-segment'
+import { TutorPanel } from '@/components/learn/tutor-panel'
 import { AsyncView } from '@/components/layout/async-view'
 import { Panel, Pill, ProgressMeter, SectionLabel } from '@/components/ui-kit'
+import { can } from '@/core/access'
 import { lessonScore, xpForLesson } from '@/core/learning'
 import type {
   AnswerFeedback,
   LessonCompletion,
   LessonView,
 } from '@/core/lesson-view'
+import { useAuth } from '@/hooks/auth-context'
 import { useAsync } from '@/hooks/use-async'
 import { cn } from '@/lib/utils'
 
@@ -27,6 +31,8 @@ export function LearnPage() {
 }
 
 function LessonPlayer({ lesson }: { lesson: LessonView }) {
+  const { user } = useAuth()
+  const canTutor = user ? can(user, 'feature.ai_tutor') : false
   const [index, setIndex] = useState(0)
   const [correctById, setCorrectById] = useState<Record<string, boolean>>({})
   const [quizXp, setQuizXp] = useState(0)
@@ -116,16 +122,17 @@ function LessonPlayer({ lesson }: { lesson: LessonView }) {
           </Pill>
         </div>
         <LessonMarkdown>{segment.markdown}</LessonMarkdown>
+        {segment.exercise && <CodeExercise exercise={segment.exercise} />}
         {segment.questions.length > 0 && (
           <QuizSegment
             questions={segment.questions}
-            onGrade={(questionId, selectedIndex) =>
-              api.data.answer(questionId, selectedIndex)
-            }
+            onGrade={(questionId, input) => api.data.answer(questionId, input)}
             onAnswered={recordAnswer}
           />
         )}
       </Panel>
+
+      <TutorPanel key={segment.id} segmentId={segment.id} canUse={canTutor} />
 
       <div className="flex items-center justify-between">
         <button
@@ -175,6 +182,8 @@ function CompletionPanel({
           <Stat value={`+${completion.xp}`} label="XP earned" />
         </div>
 
+        <NextDifficulty />
+
         <div className="mt-4 flex items-center gap-3">
           <button
             type="button"
@@ -191,6 +200,31 @@ function CompletionPanel({
           </Link>
         </div>
       </Panel>
+    </div>
+  )
+}
+
+// Adaptive-difficulty nudge shown after finishing a lesson: recent accuracy drives
+// a recommended difficulty for what to study next (core/adaptive.ts §5.4).
+function NextDifficulty() {
+  const state = useAsync(() => api.data.adaptive())
+  const data = state.data
+  // Only nudge when the recommendation actually moves the learner to a different
+  // level — a clamped step (already at the floor/ceiling) is a no-op, not advice.
+  if (!data || data.attempts < 4 || data.recommendedDifficulty === data.currentDifficulty) {
+    return null
+  }
+  const Icon = data.direction === 'up' ? TrendingUp : TrendingDown
+  return (
+    <div className="mt-4 flex items-center gap-2 border border-border px-4 py-3">
+      <Icon className="size-4 shrink-0 text-primary" />
+      <p className="text-left text-xs text-muted-foreground">
+        {data.reason} Try a{' '}
+        <span className="font-bold text-foreground uppercase">
+          {data.recommendedDifficulty}
+        </span>{' '}
+        course next.
+      </p>
     </div>
   )
 }

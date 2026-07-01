@@ -123,7 +123,10 @@ export async function gradeSampleAnswer(
 ): Promise<AnswerFeedback> {
   const key = ANSWER_KEY[questionId]
   if (!key) {
-    return { questionId, correct: false, correctIndex: null, explanation: null, xp: 0 }
+    return {
+      questionId, correct: false, correctIndex: null,
+      explanation: null, feedback: null, score: null, xp: 0,
+    }
   }
   const { correct, xp } = gradeMcqAnswer(key.correctIndex, selectedIndex)
   return {
@@ -131,6 +134,8 @@ export async function gradeSampleAnswer(
     correct,
     correctIndex: key.correctIndex,
     explanation: key.explanation,
+    feedback: null,
+    score: null,
     xp,
   }
 }

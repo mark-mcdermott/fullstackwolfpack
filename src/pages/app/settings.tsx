@@ -2,6 +2,7 @@ import { Check, Lock } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { api } from '@/api-client'
+import { AnthropicKeyPanel } from '@/components/settings/anthropic-key-panel'
 import { ControlsPanel } from '@/components/controls/controls-panel'
 import { PageHeading, Panel, SectionLabel } from '@/components/ui-kit'
 import { Input } from '@/components/ui/input'
@@ -127,6 +128,9 @@ export function SettingsPage() {
 
         {/* Integrations — OpenAI key (encrypted server-side) */}
         <OpenAiKeyPanel />
+
+        {/* AI tutor & grading — Anthropic (Claude) key (encrypted server-side) */}
+        <AnthropicKeyPanel />
 
         {/* Arcade controls — keyboard + gamepad remapping (device-local) */}
         <ControlsPanel />
