@@ -1,6 +1,6 @@
 import process from 'node:process'
 import { and, eq } from 'drizzle-orm'
-import { runGeneration, type EnrollInput } from '@/core/generation'
+import { runGeneration, type EnrollInput } from '../core/generation'
 import { db } from '../db'
 import { providerCredentials } from '../db/schema'
 import { drizzleCourseStore } from './course-store'

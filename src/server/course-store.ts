@@ -3,7 +3,7 @@ import type {
   CourseStore,
   EnrollInput,
   GeneratedLesson,
-} from '@/core/generation'
+} from '../core/generation'
 import { db } from '../db'
 import { courses, lessons, lessonSegments, quizQuestions } from '../db/schema'
 

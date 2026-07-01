@@ -51,3 +51,25 @@ export const totpSetupSchema = z.object({ uri: z.string(), secret: z.string() })
 export type TotpSetup = z.infer<typeof totpSetupSchema>
 
 export const protectedResultSchema = z.object({ message: z.string() })
+
+// Integrations — the user's OpenAI key. Sent once to be encrypted server-side;
+// never returned. `keyStatus` only ever reports whether one is on file.
+export const openAiKeyRequest = z.object({
+  apiKey: z
+    .string()
+    .trim()
+    .regex(
+      /^sk-[A-Za-z0-9_-]{20,}$/,
+      'Enter a valid OpenAI key (starts with sk-).',
+    ),
+})
+export const keyStatusSchema = z.object({ hasKey: z.boolean() })
+export type KeyStatus = z.infer<typeof keyStatusSchema>
+
+// Enroll in a topic → generate an AI course for it.
+export const enrollRequest = z.object({
+  topicSlug: z.string().min(1),
+  difficulty: z.enum(['beginner', 'intermediate', 'advanced']),
+})
+export const enrollResultSchema = z.object({ courseId: z.string() })
+export type EnrollResult = z.infer<typeof enrollResultSchema>
