@@ -2,20 +2,38 @@ import {
   CheckCircle2,
   Circle,
   FileText,
+  Flame,
   LogOut,
   Pause,
   SkipForward,
+  Target,
   TrendingUp,
+  Zap,
 } from 'lucide-react'
 import { Panel, ProgressMeter, SectionLabel, StatTile } from '@/components/ui-kit'
-import { Flame, Target, Zap } from 'lucide-react'
-import { sampleSessionPlan } from '@/lib/sample-data'
 import { cn } from '@/lib/utils'
+
+// Static preview of the live-session player. The interactive runtime (timer,
+// real lesson content, controls) arrives with the AI generation feature; until
+// then this page previews the intended experience.
+const PREVIEW_PLAN = [
+  { n: 1, title: 'Intro to Generics', minutes: 2, done: true, active: true },
+  { n: 2, title: 'Generic Functions', minutes: 6, done: false },
+  { n: 3, title: 'Generic Types', minutes: 6, done: false },
+  { n: 4, title: 'Constraints', minutes: 6, done: false },
+  { n: 5, title: 'Keyof & typeof', minutes: 6, done: false },
+  { n: 6, title: 'Practical Exercise', minutes: 10, done: false },
+  { n: 7, title: 'Challenge', minutes: 10, done: false },
+  { n: 8, title: 'Wrap Up', minutes: 4, done: false },
+]
 
 export function SessionsPage() {
   return (
     <div className="flex flex-col gap-5">
-      {/* Active session header */}
+      <p className="border border-dashed border-border px-4 py-2 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
+        Preview · the live session runtime arrives with AI-generated lessons
+      </p>
+
       <div className="grid gap-5 lg:grid-cols-[1fr_auto]">
         <Panel>
           <SectionLabel>Active session</SectionLabel>
@@ -45,7 +63,6 @@ export function SessionsPage() {
         </Panel>
       </div>
 
-      {/* Session stats */}
       <Panel>
         <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
           <StatTile icon={Target} value="82" label="Focus score" sub="Good focus" />
@@ -55,7 +72,6 @@ export function SessionsPage() {
         </div>
       </Panel>
 
-      {/* Lesson + plan */}
       <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
         <Panel>
           <SectionLabel>Lesson</SectionLabel>
@@ -78,7 +94,7 @@ export function SessionsPage() {
         <Panel>
           <SectionLabel>Session plan</SectionLabel>
           <ol className="mt-4 flex flex-col gap-3">
-            {sampleSessionPlan.map((s) => (
+            {PREVIEW_PLAN.map((s) => (
               <li key={s.n} className="flex items-center gap-3">
                 {s.done ? (
                   <CheckCircle2 className="size-4 text-primary" />

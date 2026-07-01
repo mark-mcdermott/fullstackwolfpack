@@ -10,6 +10,20 @@ import {
   type PublicUser,
   type TotpSetup,
 } from '@/core/schemas'
+import {
+  achievementsViewSchema,
+  dashboardSchema,
+  progressViewSchema,
+  statsViewSchema,
+  topicsViewSchema,
+  userSummarySchema,
+  type AchievementsView,
+  type Dashboard,
+  type ProgressView,
+  type StatsView,
+  type TopicProgress,
+  type UserSummary,
+} from '@/core/app-data'
 import type { Adapters } from './types'
 
 // Surface-agnostic API. Construct it once with a surface's adapters
@@ -93,7 +107,32 @@ export function createApi({ http, passkeys }: Adapters) {
     return protectedResultSchema.parse(await http.request('/api/protected'))
   }
 
-  return { auth, totp, getProtected }
+  // The logged-in app's data reads. Each parses the response against the shared
+  // core schema, so a malformed payload throws instead of leaking through.
+  const data = {
+    async summary(): Promise<UserSummary> {
+      return userSummarySchema.parse(await http.request('/api/me/summary'))
+    },
+    async dashboard(): Promise<Dashboard> {
+      return dashboardSchema.parse(await http.request('/api/me/dashboard'))
+    },
+    async topics(): Promise<TopicProgress[]> {
+      return topicsViewSchema.parse(await http.request('/api/me/topics')).topics
+    },
+    async stats(): Promise<StatsView> {
+      return statsViewSchema.parse(await http.request('/api/me/stats'))
+    },
+    async progress(): Promise<ProgressView> {
+      return progressViewSchema.parse(await http.request('/api/me/progress'))
+    },
+    async achievements(): Promise<AchievementsView> {
+      return achievementsViewSchema.parse(
+        await http.request('/api/me/achievements'),
+      )
+    },
+  }
+
+  return { auth, totp, getProtected, data }
 }
 
 export type Api = ReturnType<typeof createApi>

@@ -13,8 +13,13 @@ Full cross-platform stack: Vite + React 19 + TS, Tailwind v4 + shadcn-ui, Drizzl
   - `auth/totp/{setup,enable,disable,recover}.ts` — TOTP enrollment (authed) + recovery (unauthed).
   - `auth/me.ts` (current session), `auth/logout.ts`.
   - `protected.ts` — example session-gated endpoint (the real server-side boundary).
+  - `me/{summary,dashboard,topics,stats,progress,achievements}.ts` — session-gated read endpoints for the logged-in app (feed the dashboard/topics/progress/stats/achievements/badges pages).
   - `_lib/` — `http.ts` (json helpers), `session.ts` (JWT cookie via jose), `user.ts` (public-user mapping). Files prefixed `_` are not routed.
 - `src/db/` — Drizzle client (`index.ts`, server-only) and schema (`schema/auth.ts`: users, credentials, webauthn challenges).
+- `src/core/app-data.ts` — zod DTOs for the logged-in app; `src/core/progress.ts` — pure level/achievement/relative-time helpers (unit-tested).
+- `src/server/app-data.ts` — server-only Drizzle reads behind the `/api/me/*` endpoints (composes the core mappers; explicit joins, no `with:`).
+- `src/api-client/` — surface-agnostic client; `api.data.*` fetches the `/api/me/*` reads (validated against core schemas). `src/hooks/use-async.ts` drives page loading/error state; `src/components/layout/async-view.tsx` renders it.
+- `src/pages/` — public (`public/`), logged-in app (`app/`), and admin (`admin/`) pages; the `app/` pages read live data via `api.data.*` (Sessions is a static preview until the live-session runtime lands).
 - `src/lib/auth.ts` — WebAuthn relying-party config + TOTP helpers (server-side).
 - `src/hooks/auth-context.ts` + `auth-provider.tsx` — `AuthProvider` + `useAuth` (`user`/`register`/`login`/`recover`/`logout`/`refresh`).
 - `src/components/` — `auth-card.tsx` (sign-in / register / recover), `require-auth.tsx` (route guard), `dashboard.tsx` (protected view), `totp-card.tsx` (authenticator enrollment).
