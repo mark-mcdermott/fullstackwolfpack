@@ -49,7 +49,7 @@ export function SessionsPage() {
     <div>
       <PageHeading
         label="Sessions"
-        title="Continue learning"
+        title="Sessions"
         subtitle="Short lessons, one at a time — pick up right where you left off."
       />
       <AsyncView state={state}>
