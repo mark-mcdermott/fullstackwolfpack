@@ -8,6 +8,7 @@ import { BadgesPage } from '@/pages/app/badges'
 import { DashboardPage } from '@/pages/app/dashboard'
 import { LearnPage } from '@/pages/app/learn'
 import { ProgressPage } from '@/pages/app/progress'
+import { ReviewPage } from '@/pages/app/review'
 import { SessionsPage } from '@/pages/app/sessions'
 import { SettingsPage } from '@/pages/app/settings'
 import { StatsPage } from '@/pages/app/stats'
@@ -47,6 +48,7 @@ function App() {
           <Route path="/app/arcade" element={<ArcadePage />} />
           <Route path="/app/topics" element={<TopicsPage />} />
           <Route path="/app/learn/:lessonId" element={<LearnPage />} />
+          <Route path="/app/review" element={<ReviewPage />} />
           <Route path="/app/progress" element={<ProgressPage />} />
           <Route path="/app/stats" element={<StatsPage />} />
           <Route path="/app/achievements" element={<AchievementsPage />} />
