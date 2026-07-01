@@ -28,6 +28,7 @@ import {
   users,
   xpEvents,
 } from '../db/schema'
+import { seedReviewCard } from './review'
 
 // Server-only writes + reads for the learning loop. Thin Drizzle that composes the
 // pure, unit-tested math in core/learning.ts — the only place `db` is touched for the
@@ -161,6 +162,8 @@ export async function submitAnswer(
     refId: questionId,
     description: correct ? 'Correct answer' : 'Quiz attempt',
   })
+  // First answer schedules the question's first spaced-repetition review.
+  await seedReviewCard(userId, questionId, correct)
 
   return {
     questionId,
