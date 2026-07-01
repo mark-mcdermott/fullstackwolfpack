@@ -2,6 +2,7 @@ import { Check, Lock } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { api } from '@/api-client'
+import { ControlsPanel } from '@/components/controls/controls-panel'
 import { PageHeading, Panel, SectionLabel } from '@/components/ui-kit'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -126,6 +127,9 @@ export function SettingsPage() {
 
         {/* Integrations — OpenAI key (encrypted server-side) */}
         <OpenAiKeyPanel />
+
+        {/* Arcade controls — keyboard + gamepad remapping (device-local) */}
+        <ControlsPanel />
 
         {/* Billing — subscription stub */}
         <Panel>

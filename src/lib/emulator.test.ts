@@ -35,4 +35,24 @@ describe('launchRom adapter', () => {
     expect(resume).toHaveBeenCalledOnce()
     expect(exit).toHaveBeenCalledOnce()
   })
+
+  it('omits retroarchConfig when not provided', async () => {
+    const { launchRom } = await import('./emulator')
+    const file = new File([new Uint8Array([1])], 'x.nes')
+    await launchRom({ core: 'fceumm', rom: file, canvas: document.createElement('canvas') })
+    expect(launch.mock.calls[0][0]).not.toHaveProperty('retroarchConfig')
+  })
+
+  it('forwards retroarchConfig overrides for input remapping', async () => {
+    const { launchRom } = await import('./emulator')
+    const file = new File([new Uint8Array([1])], 'x.nes')
+    const retroarchConfig = { input_player1_a: 'l', input_player1_a_btn: '3' }
+    await launchRom({
+      core: 'fceumm',
+      rom: file,
+      canvas: document.createElement('canvas'),
+      retroarchConfig,
+    })
+    expect(launch.mock.calls[0][0].retroarchConfig).toEqual(retroarchConfig)
+  })
 })
