@@ -7,16 +7,21 @@ import { loginOptionsRequest } from '../../../src/core/schemas'
 import { db } from '../../../src/db'
 import { credentials, users, webauthnChallenges } from '../../../src/db/schema'
 import { rpID } from '../../../src/lib/auth'
-import { json } from '../../_lib/http'
+import { checkRateLimit } from '../../../src/server/rate-limit'
+import { json, tooManyRequests } from '../../_lib/http'
 import { parseBody } from '../../_lib/validate'
 
 const CHALLENGE_TTL_MS = 5 * 60_000
+const LOGIN_LIMIT = { limit: 10, windowMs: 15 * 60_000 }
 
 // Step 1 of login: hand the browser a challenge + the user's known credentials.
 export async function POST(req: Request): Promise<Response> {
   const parsed = await parseBody(loginOptionsRequest, req)
   if (!parsed.ok) return parsed.response
   const { email } = parsed.data
+
+  const rl = await checkRateLimit(`login:${email.toLowerCase()}`, LOGIN_LIMIT)
+  if (!rl.allowed) return tooManyRequests(rl.retryAfterMs)
 
   const user = await db.query.users.findFirst({ where: eq(users.email, email) })
   if (!user) return json({ error: 'no account for that email' }, { status: 404 })

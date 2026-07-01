@@ -6,7 +6,7 @@ import { eq } from 'drizzle-orm'
 import { passkeyVerifyRequest } from '../../../src/core/schemas'
 import { db } from '../../../src/db'
 import { credentials, users, webauthnChallenges } from '../../../src/db/schema'
-import { origin, rpID } from '../../../src/lib/auth'
+import { origin, requireUserVerification, rpID } from '../../../src/lib/auth'
 import { json } from '../../_lib/http'
 import { createSessionCookie } from '../../_lib/session'
 import { publicUser } from '../../_lib/user'
@@ -37,7 +37,7 @@ export async function POST(req: Request): Promise<Response> {
       expectedChallenge: challenge.challenge,
       expectedOrigin: origin,
       expectedRPID: rpID,
-      requireUserVerification: false,
+      requireUserVerification,
     })
   } catch (err) {
     return json({ error: (err as Error).message }, { status: 400 })
