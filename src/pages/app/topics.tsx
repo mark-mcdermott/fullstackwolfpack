@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { api } from '@/api-client'
 import { AsyncView, EmptyState } from '@/components/layout/async-view'
 import { PageHeading, Panel, ProgressMeter } from '@/components/ui-kit'
+import type { TopicProgress } from '@/core/app-data'
+import type { Difficulty } from '@/core/generation'
 import { useAsync } from '@/hooks/use-async'
 import { cn } from '@/lib/utils'
 
@@ -15,6 +17,62 @@ const TABS: [string, string | null][] = [
   ['Tools', 'tools'],
   ['AI & Data', 'ai_data'],
 ]
+
+const DIFFICULTIES: readonly string[] = ['beginner', 'intermediate', 'advanced']
+
+function TopicCard({ topic }: { topic: TopicProgress }) {
+  const [status, setStatus] = useState<'idle' | 'generating' | 'done'>('idle')
+  const [error, setError] = useState<string | null>(null)
+
+  async function generate() {
+    setStatus('generating')
+    setError(null)
+    const difficulty: Difficulty = DIFFICULTIES.includes(topic.difficulty)
+      ? (topic.difficulty as Difficulty)
+      : 'beginner'
+    try {
+      await api.courses.enroll(topic.slug, difficulty)
+      setStatus('done')
+    } catch (e) {
+      setStatus('idle')
+      setError(e instanceof Error ? e.message : 'Generation failed')
+    }
+  }
+
+  return (
+    <Panel className="flex flex-col gap-3">
+      <div className="flex items-start justify-between">
+        <div className="flex size-10 items-center justify-center border border-border font-mono text-xs font-bold">
+          {topic.name.slice(0, 2).toUpperCase()}
+        </div>
+        <span className="font-mono text-xs">{topic.pct}%</span>
+      </div>
+      <h3 className="text-lg font-bold uppercase">{topic.name}</h3>
+      <ProgressMeter value={topic.pct} />
+      <div className="flex justify-between font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
+        <span>{topic.difficulty}</span>
+        <span>
+          {topic.lessonsCompleted} / {topic.lessonsTotal} lessons
+        </span>
+      </div>
+      <button
+        type="button"
+        onClick={generate}
+        disabled={status !== 'idle'}
+        className="mt-1 border border-border py-2 font-mono text-[10px] tracking-widest uppercase hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {status === 'generating'
+          ? 'Generating…'
+          : status === 'done'
+            ? 'Course ready ✓'
+            : 'Generate course →'}
+      </button>
+      {error && (
+        <p className="font-mono text-[10px] text-destructive">{error}</p>
+      )}
+    </Panel>
+  )
+}
 
 export function TopicsPage() {
   const [tab, setTab] = useState<string | null>(null)
@@ -67,22 +125,7 @@ export function TopicsPage() {
           return (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {topics.map((t) => (
-                <Panel key={t.slug} className="flex flex-col gap-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex size-10 items-center justify-center border border-border font-mono text-xs font-bold">
-                      {t.name.slice(0, 2).toUpperCase()}
-                    </div>
-                    <span className="font-mono text-xs">{t.pct}%</span>
-                  </div>
-                  <h3 className="text-lg font-bold uppercase">{t.name}</h3>
-                  <ProgressMeter value={t.pct} />
-                  <div className="flex justify-between font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
-                    <span>{t.difficulty}</span>
-                    <span>
-                      {t.lessonsCompleted} / {t.lessonsTotal} lessons
-                    </span>
-                  </div>
-                </Panel>
+                <TopicCard key={t.slug} topic={t} />
               ))}
             </div>
           )

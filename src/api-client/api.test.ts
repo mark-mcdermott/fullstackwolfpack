@@ -60,3 +60,24 @@ describe('api.data', () => {
     await expect(api.data.summary()).rejects.toThrow()
   })
 })
+
+describe('api.integrations + api.courses', () => {
+  it('reports OpenAI key status', async () => {
+    const { api, calls } = withRoutes({ '/api/me/openai-key': { hasKey: true } })
+    expect(await api.integrations.keyStatus()).toEqual({ hasKey: true })
+    expect(calls).toContain('/api/me/openai-key')
+  })
+
+  it('saves a key and returns the new status', async () => {
+    const { api } = withRoutes({ '/api/me/openai-key': { hasKey: true } })
+    expect(await api.integrations.saveOpenAiKey('sk-test')).toEqual({ hasKey: true })
+  })
+
+  it('enrolls a topic and returns the course id', async () => {
+    const { api, calls } = withRoutes({ '/api/me/enroll': { courseId: 'course-1' } })
+    expect(await api.courses.enroll('react', 'beginner')).toEqual({
+      courseId: 'course-1',
+    })
+    expect(calls).toContain('/api/me/enroll')
+  })
+})

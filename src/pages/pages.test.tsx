@@ -52,6 +52,13 @@ vi.mock('@/api-client', () => ({
         locked: [],
       }),
     },
+    integrations: {
+      keyStatus: async () => ({ hasKey: false }),
+      saveOpenAiKey: async () => ({ hasKey: true }),
+    },
+    courses: {
+      enroll: async () => ({ courseId: 'course-1' }),
+    },
   },
 }))
 import { AchievementsPage } from '@/pages/app/achievements'

@@ -4,7 +4,7 @@ import {
   type GeneratedCourse,
   type GenerationInput,
   type LessonGenerator,
-} from '@/core/generation'
+} from '../core/generation'
 
 type FetchLike = typeof fetch
 
