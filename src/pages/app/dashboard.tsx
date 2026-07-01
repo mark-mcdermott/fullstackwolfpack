@@ -4,6 +4,7 @@ import { api } from '@/api-client'
 import { AsyncView } from '@/components/layout/async-view'
 import { RecentLessons } from '@/components/learn/recent-lessons'
 import { Panel, ProgressMeter, SectionLabel, StatTile } from '@/components/ui-kit'
+import { WolfSun } from '@/components/wolf-sun'
 import { useAsync } from '@/hooks/use-async'
 import { cn } from '@/lib/utils'
 
@@ -19,20 +20,26 @@ export function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <Panel className="flex flex-col gap-4 p-8">
-        <SectionLabel>Overview</SectionLabel>
-        <h1 className="max-w-2xl text-4xl leading-[0.95] font-bold tracking-tight uppercase sm:text-6xl">
-          You're building something <span className="text-primary">powerful.</span>
-        </h1>
-        <p className="font-mono text-sm text-muted-foreground">
-          Every session makes you stronger.
-        </p>
-        <Link
-          to="/app/topics"
-          className="mt-2 inline-flex w-fit items-center gap-2 bg-primary px-5 py-3 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
-        >
-          Start learning <ArrowRight className="size-4" />
-        </Link>
+      <Panel className="p-8">
+        <div className="flex items-center justify-between gap-6">
+          <div className="flex flex-col gap-4">
+            <SectionLabel>Overview</SectionLabel>
+            <h1 className="max-w-2xl text-4xl leading-[0.95] font-bold tracking-tight uppercase sm:text-6xl">
+              You're building something{' '}
+              <span className="text-primary">powerful.</span>
+            </h1>
+            <p className="font-mono text-sm text-muted-foreground">
+              Every session makes you stronger.
+            </p>
+            <Link
+              to="/app/topics"
+              className="mt-2 inline-flex w-fit items-center gap-2 bg-primary px-5 py-3 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+            >
+              Start learning <ArrowRight className="size-4" />
+            </Link>
+          </div>
+          <WolfSun className="hidden size-56 shrink-0 md:block" />
+        </div>
       </Panel>
 
       <AsyncView state={state}>
