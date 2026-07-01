@@ -1,5 +1,6 @@
 import { BookOpen, CheckCircle2, Clock, Flame, Trophy } from 'lucide-react'
 import { api } from '@/api-client'
+import { ChartPanel } from '@/components/chart-panel'
 import { AsyncView } from '@/components/layout/async-view'
 import {
   PageHeading,
@@ -12,6 +13,7 @@ import { useAsync } from '@/hooks/use-async'
 
 export function StatsPage() {
   const state = useAsync(() => api.data.stats())
+  const series = useAsync(() => api.data.series())
 
   return (
     <div>
@@ -66,6 +68,24 @@ export function StatsPage() {
           </>
         )}
       </AsyncView>
+      <div className="mt-5">
+        <AsyncView state={series}>
+          {(s) => (
+            <div className="grid gap-5 lg:grid-cols-2">
+              <ChartPanel
+                label="Accuracy over time"
+                data={s.accuracyByDay}
+                suffix="%"
+              />
+              <ChartPanel
+                label="Minutes learned"
+                data={s.minutesByDay}
+                kind="bars"
+              />
+            </div>
+          )}
+        </AsyncView>
+      </div>
     </div>
   )
 }

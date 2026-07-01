@@ -1,14 +1,16 @@
-import { and, count, desc, eq, sql, sum } from 'drizzle-orm'
+import { and, count, desc, eq, gte, sql, sum } from 'drizzle-orm'
 import type {
   AchievementsView,
   ActivityItem,
   RecentLesson,
+  Series,
   Skill,
   Stats,
   TopicProgress,
   UserSummary,
 } from '../core/app-data'
 import { bucketAchievements, levelProgress } from '../core/progress'
+import { bucketByDay, cumulative, ratioByDay } from '../core/series'
 import { db } from '../db'
 import {
   achievements,
@@ -249,4 +251,58 @@ export async function getAchievementsView(
     })),
     userRows,
   )
+}
+
+const SERIES_DAYS = 14
+
+// Trailing daily series for the trend charts: cumulative XP, minutes learned,
+// and quiz accuracy. Buckets raw rows with the pure core/series helpers.
+export async function getSeries(userId: string): Promise<Series> {
+  const now = new Date()
+  const since = new Date(now.getTime() - SERIES_DAYS * 86_400_000)
+  const sinceDate = since.toISOString().slice(0, 10)
+
+  const [xpRows, quizRows, activityRows] = await Promise.all([
+    db
+      .select({ at: xpEvents.createdAt, value: xpEvents.xp })
+      .from(xpEvents)
+      .where(and(eq(xpEvents.userId, userId), gte(xpEvents.createdAt, since))),
+    db
+      .select({ at: quizAttempts.createdAt, correct: quizAttempts.isCorrect })
+      .from(quizAttempts)
+      .where(
+        and(eq(quizAttempts.userId, userId), gte(quizAttempts.createdAt, since)),
+      ),
+    db
+      .select({ date: dailyActivity.date, minutes: dailyActivity.minutesLearned })
+      .from(dailyActivity)
+      .where(
+        and(eq(dailyActivity.userId, userId), gte(dailyActivity.date, sinceDate)),
+      ),
+  ])
+
+  const xpByDay = bucketByDay(xpRows, SERIES_DAYS, now)
+  const correct = bucketByDay(
+    quizRows.map((r) => ({ at: r.at, value: r.correct ? 1 : 0 })),
+    SERIES_DAYS,
+    now,
+  )
+  const total = bucketByDay(
+    quizRows.map((r) => ({ at: r.at, value: 1 })),
+    SERIES_DAYS,
+    now,
+  )
+  // date-only rows → anchor at midday so local-day bucketing doesn't shift.
+  const minutesByDay = bucketByDay(
+    activityRows.map((r) => ({ at: `${r.date}T12:00:00`, value: r.minutes })),
+    SERIES_DAYS,
+    now,
+  )
+
+  return {
+    days: SERIES_DAYS,
+    xpCumulative: cumulative(xpByDay),
+    minutesByDay,
+    accuracyByDay: ratioByDay(correct, total),
+  }
 }
