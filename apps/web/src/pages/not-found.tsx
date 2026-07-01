@@ -34,7 +34,7 @@ export function NotFound() {
             </Link>
           </div>
         </div>
-        <WolfSun className="mx-auto size-64 md:size-80" />
+        <WolfSun variant="rear" className="mx-auto size-64 md:size-80" />
       </div>
     </div>
   )
