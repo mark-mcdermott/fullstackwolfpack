@@ -42,6 +42,7 @@ import { getDueReviews, gradeReview } from '../../src/server/review'
 import { json } from '../_lib/http'
 import { getSessionUserId } from '../_lib/session'
 import { parseBody } from '../_lib/validate'
+import { devBecome } from '../_lib/dev-users'
 
 // All /api/me/* routes are served by this one function (Vercel counts each
 // file as a Serverless Function; the Hobby plan caps at 12). It dispatches on
@@ -156,6 +157,10 @@ export async function GET(req: Request): Promise<Response> {
 }
 
 export async function POST(req: Request): Promise<Response> {
+  // Dev Mode role switcher (off unless VITE_ENABLE_DEV_MODE=1). Unauthenticated
+  // — it mints the session — so it runs before the auth gate below.
+  if (action(req) === 'become') return devBecome(req)
+
   const userId = await getSessionUserId(req)
   if (!userId) return json({ error: 'unauthorized' }, { status: 401 })
 

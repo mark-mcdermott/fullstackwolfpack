@@ -74,7 +74,7 @@ describe('DevModeSwitcher', () => {
 
     await waitFor(() => expect(refresh).toHaveBeenCalledTimes(1))
     expect(fetchMock).toHaveBeenCalledWith(
-      '/api/dev/become',
+      '/api/me/become',
       expect.objectContaining({
         method: 'POST',
         credentials: 'include',
