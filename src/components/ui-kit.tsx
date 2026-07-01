@@ -136,15 +136,44 @@ export function PageHeading({
   )
 }
 
+// The brand wolf mark (branding/logo-small.svg), drawn as a currentColor mask
+// so it recolors with the surrounding text — crisp at any size and correct on
+// light or dark backgrounds. Callers set the height; width follows the aspect.
+const wolfMask = {
+  maskImage: 'url(/wolf-mark.svg)',
+  WebkitMaskImage: 'url(/wolf-mark.svg)',
+  maskRepeat: 'no-repeat',
+  WebkitMaskRepeat: 'no-repeat',
+  maskPosition: 'center',
+  WebkitMaskPosition: 'center',
+  maskSize: 'contain',
+  WebkitMaskSize: 'contain',
+} as const
+
+export function WolfMark({ className }: { className?: string }) {
+  return (
+    <span
+      role="img"
+      aria-label="Fullstack Wolfpack"
+      className={cn('inline-block aspect-[139/162] bg-current', className)}
+      style={wolfMask}
+    />
+  )
+}
+
+// Horizontal lockup — wolf mark + name. Used in headers/footers.
 export function Logo({ className }: { className?: string }) {
   return (
-    <div className={cn('flex flex-col', className)}>
-      <span className="font-mono text-sm font-bold tracking-tight">
-        FULLSTACK WOLFPACK
-      </span>
-      <span className="font-mono text-xs tracking-widest text-primary">
-        ウルフパック
-      </span>
+    <div className={cn('flex items-center gap-2.5', className)}>
+      <WolfMark className="h-9" />
+      <div className="flex flex-col leading-none">
+        <span className="font-mono text-sm font-bold tracking-tight">
+          FULLSTACK WOLFPACK
+        </span>
+        <span className="mt-0.5 font-mono text-xs tracking-widest text-primary">
+          ウルフパック
+        </span>
+      </div>
     </div>
   )
 }
