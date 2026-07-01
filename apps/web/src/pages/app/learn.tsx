@@ -176,7 +176,7 @@ function CompletionPanel({
         <SectionLabel>Lesson complete</SectionLabel>
         <h1 className="text-3xl font-bold tracking-tight uppercase">{lesson.title}</h1>
 
-        <div className="mt-2 grid grid-cols-3 gap-8">
+        <div className="mt-2 grid grid-cols-3 gap-4 sm:gap-8">
           <Stat value={`${completion.score}%`} label="Score" />
           <Stat value={`${completion.correct}/${completion.total}`} label="Correct" />
           <Stat value={`+${completion.xp}`} label="XP earned" />
