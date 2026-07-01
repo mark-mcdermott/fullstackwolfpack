@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
   answerFeedbackSchema,
+  answerRequestSchema,
+  completeRequestSchema,
+  lessonCompletionSchema,
   lessonViewSchema,
   parseLessonView,
   questionViewSchema,
@@ -91,5 +94,35 @@ describe('answerFeedbackSchema', () => {
       xp: 2,
     })
     expect(fb.correctIndex).toBeNull()
+  })
+})
+
+describe('learning-loop request/response DTOs', () => {
+  it('accepts a valid answer request', () => {
+    expect(answerRequestSchema.parse({ questionId: 'q1', selectedIndex: 0 })).toEqual({
+      questionId: 'q1',
+      selectedIndex: 0,
+    })
+  })
+
+  it('rejects a negative selected index', () => {
+    expect(() =>
+      answerRequestSchema.parse({ questionId: 'q1', selectedIndex: -1 }),
+    ).toThrow()
+  })
+
+  it('requires a lessonId to complete', () => {
+    expect(completeRequestSchema.parse({ lessonId: 'l1' }).lessonId).toBe('l1')
+    expect(() => completeRequestSchema.parse({})).toThrow()
+  })
+
+  it('accepts a lesson completion result', () => {
+    const c = lessonCompletionSchema.parse({
+      score: 80,
+      correct: 4,
+      total: 5,
+      xp: 65,
+    })
+    expect(c.score).toBe(80)
   })
 })

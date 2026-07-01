@@ -55,3 +55,24 @@ export type AnswerFeedback = z.infer<typeof answerFeedbackSchema>
 export function parseLessonView(raw: unknown): LessonView {
   return lessonViewSchema.parse(raw)
 }
+
+// ---- Request / response DTOs for the learning loop ----
+
+// POST /api/me/answer
+export const answerRequestSchema = z.object({
+  questionId: z.string(),
+  selectedIndex: z.number().int().nonnegative(),
+})
+export type AnswerRequest = z.infer<typeof answerRequestSchema>
+
+// POST /api/me/complete
+export const completeRequestSchema = z.object({ lessonId: z.string() })
+
+// What `complete` returns — the server's authoritative result for the lesson.
+export const lessonCompletionSchema = z.object({
+  score: z.number().int(), // 0–100
+  correct: z.number().int(),
+  total: z.number().int(),
+  xp: z.number().int(), // XP granted for finishing (completion bonus + any streak day)
+})
+export type LessonCompletion = z.infer<typeof lessonCompletionSchema>

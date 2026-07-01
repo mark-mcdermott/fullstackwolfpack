@@ -1,26 +1,26 @@
 import { ArrowLeft, ArrowRight, RotateCcw, Trophy } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router'
+import { api } from '@/api-client'
 import { LessonMarkdown } from '@/components/learn/lesson-markdown'
 import { QuizSegment } from '@/components/learn/quiz-segment'
 import { AsyncView } from '@/components/layout/async-view'
 import { Panel, Pill, ProgressMeter, SectionLabel } from '@/components/ui-kit'
 import { lessonScore, xpForLesson } from '@/core/learning'
-import type { AnswerFeedback, LessonView } from '@/core/lesson-view'
+import type {
+  AnswerFeedback,
+  LessonCompletion,
+  LessonView,
+} from '@/core/lesson-view'
 import { useAsync } from '@/hooks/use-async'
-import { gradeSampleAnswer, loadSampleLesson } from '@/lib/sample-lesson'
 import { cn } from '@/lib/utils'
 
 // The lesson player: steps through a lesson's segments one at a time (bite-sized, for
-// studying between gaming sessions), grades quiz questions inline, and tallies a score
-// + XP on completion.
-//
-// It renders against a fixture (loadSampleLesson / gradeSampleAnswer) until the
-// `lesson`/`answer` actions on api/me/[action].ts land — swapping to `api.data.lesson`
-// / `api.data.gradeAnswer` is then a one-line change, since the shapes already match.
+// studying between gaming sessions), grades quiz answers inline via the server, and
+// shows the server's authoritative score + XP on completion.
 export function LearnPage() {
-  const { lessonId = 'demo' } = useParams()
-  const state = useAsync(() => loadSampleLesson(lessonId))
+  const { lessonId = '' } = useParams()
+  const state = useAsync(() => api.data.lesson(lessonId))
   return (
     <AsyncView state={state}>{(lesson) => <LessonPlayer lesson={lesson} />}</AsyncView>
   )
@@ -28,9 +28,10 @@ export function LearnPage() {
 
 function LessonPlayer({ lesson }: { lesson: LessonView }) {
   const [index, setIndex] = useState(0)
-  const [done, setDone] = useState(false)
   const [correctById, setCorrectById] = useState<Record<string, boolean>>({})
   const [quizXp, setQuizXp] = useState(0)
+  const [completion, setCompletion] = useState<LessonCompletion | null>(null)
+  const [completing, setCompleting] = useState(false)
 
   const totalQuestions = useMemo(
     () => lesson.segments.reduce((n, s) => n + s.questions.length, 0),
@@ -44,23 +45,36 @@ function LessonPlayer({ lesson }: { lesson: LessonView }) {
     setQuizXp((xp) => xp + fb.xp)
   }
 
-  if (done) {
-    const correct = Object.values(correctById).filter(Boolean).length
-    const score = lessonScore(correct, totalQuestions)
+  async function finish() {
+    if (completing) return
+    setCompleting(true)
+    try {
+      setCompletion(await api.data.completeLesson(lesson.lessonId))
+    } catch {
+      // Fallback so the learner still sees a result if the write fails.
+      const correct = Object.values(correctById).filter(Boolean).length
+      const score = lessonScore(correct, totalQuestions)
+      setCompletion({
+        score,
+        correct,
+        total: totalQuestions,
+        xp: quizXp + xpForLesson(score),
+      })
+    } finally {
+      setCompleting(false)
+    }
+  }
+
+  function restart() {
+    setIndex(0)
+    setCorrectById({})
+    setQuizXp(0)
+    setCompletion(null)
+  }
+
+  if (completion) {
     return (
-      <CompletionPanel
-        lesson={lesson}
-        score={score}
-        correct={correct}
-        total={totalQuestions}
-        xp={quizXp + xpForLesson(score)}
-        onRestart={() => {
-          setIndex(0)
-          setDone(false)
-          setCorrectById({})
-          setQuizXp(0)
-        }}
-      />
+      <CompletionPanel lesson={lesson} completion={completion} onRestart={restart} />
     )
   }
 
@@ -105,7 +119,9 @@ function LessonPlayer({ lesson }: { lesson: LessonView }) {
         {segment.questions.length > 0 && (
           <QuizSegment
             questions={segment.questions}
-            onGrade={gradeSampleAnswer}
+            onGrade={(questionId, selectedIndex) =>
+              api.data.answer(questionId, selectedIndex)
+            }
             onAnswered={recordAnswer}
           />
         )}
@@ -122,10 +138,12 @@ function LessonPlayer({ lesson }: { lesson: LessonView }) {
         </button>
         <button
           type="button"
-          onClick={() => (isLast ? setDone(true) : setIndex((i) => i + 1))}
-          className="inline-flex items-center gap-2 bg-primary px-5 py-2 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+          onClick={() => (isLast ? finish() : setIndex((i) => i + 1))}
+          disabled={completing}
+          className="inline-flex items-center gap-2 bg-primary px-5 py-2 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80 disabled:opacity-50"
         >
-          {isLast ? 'Complete lesson' : 'Next'} <ArrowRight className="size-4" />
+          {isLast ? (completing ? 'Saving…' : 'Complete lesson') : 'Next'}
+          <ArrowRight className="size-4" />
         </button>
       </div>
     </div>
@@ -134,20 +152,14 @@ function LessonPlayer({ lesson }: { lesson: LessonView }) {
 
 function CompletionPanel({
   lesson,
-  score,
-  correct,
-  total,
-  xp,
+  completion,
   onRestart,
 }: {
   lesson: LessonView
-  score: number
-  correct: number
-  total: number
-  xp: number
+  completion: LessonCompletion
   onRestart: () => void
 }) {
-  const mastered = score >= 90
+  const mastered = completion.score >= 90
   return (
     <div className="mx-auto flex max-w-3xl flex-col">
       <Panel className="flex flex-col items-center gap-4 py-12 text-center">
@@ -158,9 +170,9 @@ function CompletionPanel({
         <h1 className="text-3xl font-bold tracking-tight uppercase">{lesson.title}</h1>
 
         <div className="mt-2 grid grid-cols-3 gap-8">
-          <Stat value={`${score}%`} label="Score" />
-          <Stat value={`${correct}/${total}`} label="Correct" />
-          <Stat value={`+${xp}`} label="XP earned" />
+          <Stat value={`${completion.score}%`} label="Score" />
+          <Stat value={`${completion.correct}/${completion.total}`} label="Correct" />
+          <Stat value={`+${completion.xp}`} label="XP earned" />
         </div>
 
         <div className="mt-4 flex items-center gap-3">
