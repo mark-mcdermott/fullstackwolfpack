@@ -1,6 +1,7 @@
 import { Brain, Gamepad2, GraduationCap, Timer, Trophy, Zap } from 'lucide-react'
 import { Link } from 'react-router'
 import { Panel, Pill, SectionLabel } from '@/components/ui-kit'
+import { WolfSun } from '@/components/wolf-sun'
 import { PLANS } from '@/core/pricing'
 
 const STEPS = [
@@ -19,27 +20,35 @@ export function Home() {
   return (
     <div>
       <section className="mx-auto max-w-6xl px-6 py-20">
-        <Pill>Turn screen time into skills</Pill>
-        <h1 className="mt-6 max-w-3xl text-5xl leading-[0.95] font-bold tracking-tight uppercase sm:text-7xl">
-          You're building something <span className="text-primary">powerful.</span>
-        </h1>
-        <p className="mt-6 max-w-xl font-mono text-sm text-muted-foreground">
-          Fullstack Wolfpack pauses your game and slips in a short lesson on the
-          tech you want to learn. Every session makes you stronger.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link
-            to="/signup"
-            className="bg-primary px-5 py-3 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
-          >
-            Start learning →
-          </Link>
-          <Link
-            to="/how-it-works"
-            className="border border-border px-5 py-3 font-mono text-xs tracking-widest uppercase hover:bg-muted"
-          >
-            How it works
-          </Link>
+        <div className="grid items-center gap-12 lg:grid-cols-2">
+          <div>
+            <Pill>AI-powered learning platform</Pill>
+            <h1 className="mt-6 text-5xl leading-[0.95] font-bold tracking-tight uppercase sm:text-7xl">
+              Learn. Play. <span className="text-primary">Level up.</span>
+            </h1>
+            <p className="mt-6 max-w-md font-mono text-sm text-muted-foreground">
+              Fullstack Wolfpack pauses your game and slips in a short lesson on
+              the tech you want to learn. Turn screen time into real-world skills.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                to="/signup"
+                className="bg-primary px-5 py-3 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+              >
+                Start learning →
+              </Link>
+              <Link
+                to="/how-it-works"
+                className="border border-border px-5 py-3 font-mono text-xs tracking-widest uppercase hover:bg-muted"
+              >
+                How it works
+              </Link>
+            </div>
+            <p className="mt-6 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
+              30 min play // 10 min learn
+            </p>
+          </div>
+          <WolfSun className="mx-auto size-72 sm:size-80 lg:size-96" />
         </div>
       </section>
 
