@@ -12,8 +12,11 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <AuthProvider>
         <App />
-        {/* Dev-only role switcher; tree-shaken out of production builds. */}
-        {import.meta.env.DEV && <DevModeSwitcher />}
+        {/* Dev Mode role switcher. Shows in local dev, or in a build where
+            VITE_ENABLE_DEV_MODE=1 (opt-in). Tree-shaken out otherwise. */}
+        {(import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEV_MODE === '1') && (
+          <DevModeSwitcher />
+        )}
       </AuthProvider>
     </BrowserRouter>
     <Analytics />

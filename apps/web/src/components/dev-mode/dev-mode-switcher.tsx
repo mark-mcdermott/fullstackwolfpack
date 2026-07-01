@@ -1,6 +1,6 @@
-// Dev-only role switcher — a floating 4-position control, top-right on every
+// Dev Mode role switcher — a floating 4-position control, top-right on every
 // page, that flips between logged-out and three seeded test users. Mounted in
-// main.tsx behind `import.meta.env.DEV`, so it never renders in production.
+// main.tsx in local dev, or in a deploy where VITE_ENABLE_DEV_MODE=1 (opt-in).
 // Deleted-later feature.
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
@@ -27,7 +27,7 @@ export function DevModeSwitcher() {
         // "off" is regular mode: drop the dev session entirely.
         await logout()
       } else {
-        const res = await fetch('/api/dev/become', {
+        const res = await fetch('/api/me/become', {
           method: 'POST',
           credentials: 'include',
           headers: { 'content-type': 'application/json' },
