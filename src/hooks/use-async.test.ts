@@ -4,7 +4,7 @@ import { useAsync } from './use-async'
 
 describe('useAsync', () => {
   it('starts loading, then resolves to data', async () => {
-    const { result } = renderHook(() => useAsync(() => Promise.resolve(42), []))
+    const { result } = renderHook(() => useAsync(() => Promise.resolve(42)))
     expect(result.current.loading).toBe(true)
     expect(result.current.data).toBeNull()
 
@@ -15,7 +15,7 @@ describe('useAsync', () => {
 
   it('captures an error message and clears loading', async () => {
     const { result } = renderHook(() =>
-      useAsync(() => Promise.reject(new Error('boom')), []),
+      useAsync(() => Promise.reject(new Error('boom'))),
     )
     await waitFor(() => expect(result.current.error).toBe('boom'))
     expect(result.current.data).toBeNull()

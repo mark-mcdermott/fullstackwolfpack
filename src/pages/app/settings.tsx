@@ -1,6 +1,7 @@
 import { Check, Lock } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
+import { api } from '@/api-client'
 import { PageHeading, Panel, SectionLabel } from '@/components/ui-kit'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -8,6 +9,79 @@ import { PRO_FEATURES, can, isPaid } from '@/core/access'
 import { planFor } from '@/core/pricing'
 import { useAuth } from '@/hooks/auth-context'
 import { cn } from '@/lib/utils'
+
+// Add / replace the user's OpenAI key. The key is write-only: we only ever learn
+// whether one is on file, never read it back.
+function OpenAiKeyPanel() {
+  const [hasKey, setHasKey] = useState<boolean | null>(null)
+  const [apiKey, setApiKey] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [justSaved, setJustSaved] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    api.integrations
+      .keyStatus()
+      .then((s) => active && setHasKey(s.hasKey))
+      .catch(() => active && setHasKey(false))
+    return () => {
+      active = false
+    }
+  }, [])
+
+  async function save() {
+    setSaving(true)
+    setError(null)
+    setJustSaved(false)
+    try {
+      const status = await api.integrations.saveOpenAiKey(apiKey)
+      setHasKey(status.hasKey)
+      setApiKey('')
+      setJustSaved(true)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not save key')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Panel>
+      <SectionLabel>Integrations</SectionLabel>
+      <p className="mt-2 font-mono text-xs text-muted-foreground">
+        Add your OpenAI key to generate lessons. It's encrypted at rest and
+        never shown again.
+      </p>
+      {hasKey && !justSaved && (
+        <p className="mt-3 flex items-center gap-2 font-mono text-[10px] tracking-widest text-primary uppercase">
+          <Check className="size-3.5" /> Key on file
+        </p>
+      )}
+      <div className="mt-4 flex flex-col gap-2">
+        <Label htmlFor="openai">OpenAI API key</Label>
+        <Input
+          id="openai"
+          type="password"
+          placeholder={hasKey ? '•••• enter a new key to replace' : 'sk-...'}
+          value={apiKey}
+          onChange={(e) => setApiKey(e.target.value)}
+        />
+      </div>
+      {error && (
+        <p className="mt-2 font-mono text-[10px] text-destructive">{error}</p>
+      )}
+      <button
+        type="button"
+        onClick={save}
+        disabled={saving || apiKey.trim() === ''}
+        className="mt-4 bg-primary px-4 py-2 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        {saving ? 'Saving…' : justSaved ? 'Saved ✓' : 'Save key'}
+      </button>
+    </Panel>
+  )
+}
 
 const FEATURE_LABELS: Record<string, string> = {
   smart_intervals: 'Smart pause intervals',
@@ -20,7 +94,6 @@ export function SettingsPage() {
   const { user } = useAuth()
   const tier = user?.tier ?? 'free'
   const plan = planFor(tier)
-  const [keySaved, setKeySaved] = useState(false)
 
   return (
     <div>
@@ -52,24 +125,7 @@ export function SettingsPage() {
         </Panel>
 
         {/* Integrations — OpenAI key (encrypted server-side) */}
-        <Panel>
-          <SectionLabel>Integrations</SectionLabel>
-          <p className="mt-2 font-mono text-xs text-muted-foreground">
-            Add your OpenAI key to generate lessons. It's encrypted at rest and
-            never shown again.
-          </p>
-          <div className="mt-4 flex flex-col gap-2">
-            <Label htmlFor="openai">OpenAI API key</Label>
-            <Input id="openai" type="password" placeholder="sk-..." />
-          </div>
-          <button
-            type="button"
-            onClick={() => setKeySaved(true)}
-            className="mt-4 bg-primary px-4 py-2 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
-          >
-            {keySaved ? 'Saved ✓' : 'Save key'}
-          </button>
-        </Panel>
+        <OpenAiKeyPanel />
 
         {/* Billing — subscription stub */}
         <Panel>

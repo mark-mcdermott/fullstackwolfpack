@@ -4,12 +4,17 @@ import type {
 } from '@simplewebauthn/browser'
 import {
   authResultSchema,
+  enrollResultSchema,
+  keyStatusSchema,
   meResultSchema,
   protectedResultSchema,
   totpSetupSchema,
+  type EnrollResult,
+  type KeyStatus,
   type PublicUser,
   type TotpSetup,
 } from '@/core/schemas'
+import type { Difficulty } from '@/core/generation'
 import {
   achievementsViewSchema,
   dashboardSchema,
@@ -132,7 +137,37 @@ export function createApi({ http, passkeys }: Adapters) {
     },
   }
 
-  return { auth, totp, getProtected, data }
+  // OpenAI key management. The key is write-only from the client's view —
+  // status only ever reports whether one is on file.
+  const integrations = {
+    async keyStatus(): Promise<KeyStatus> {
+      return keyStatusSchema.parse(await http.request('/api/me/openai-key'))
+    },
+    async saveOpenAiKey(apiKey: string): Promise<KeyStatus> {
+      return keyStatusSchema.parse(
+        await http.request('/api/me/openai-key', {
+          method: 'POST',
+          body: JSON.stringify({ apiKey }),
+        }),
+      )
+    },
+  }
+
+  const courses = {
+    async enroll(
+      topicSlug: string,
+      difficulty: Difficulty,
+    ): Promise<EnrollResult> {
+      return enrollResultSchema.parse(
+        await http.request('/api/me/enroll', {
+          method: 'POST',
+          body: JSON.stringify({ topicSlug, difficulty }),
+        }),
+      )
+    },
+  }
+
+  return { auth, totp, getProtected, data, integrations, courses }
 }
 
 export type Api = ReturnType<typeof createApi>

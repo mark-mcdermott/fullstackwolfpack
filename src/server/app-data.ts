@@ -52,42 +52,41 @@ export async function getUserSummary(userId: string): Promise<UserSummary> {
 }
 
 export async function getStats(userId: string): Promise<Stats> {
-  const [user] = await db
-    .select({
-      xp: users.xp,
-      streak: users.currentStreak,
-      best: users.bestStreak,
-    })
-    .from(users)
-    .where(eq(users.id, userId))
-  if (!user) throw new Error('user not found')
-
-  const [session] = await db
-    .select({
-      sessions: count(),
-      play: sum(sessions.playMinutes),
-      learn: sum(sessions.learnMinutes),
-    })
-    .from(sessions)
-    .where(eq(sessions.userId, userId))
-
-  const [lessonsDone] = await db
-    .select({ n: count() })
-    .from(userLessonProgress)
-    .where(
-      and(
-        eq(userLessonProgress.userId, userId),
-        eq(userLessonProgress.status, 'completed'),
+  const [[user], [session], [lessonsDone], [quiz]] = await Promise.all([
+    db
+      .select({
+        xp: users.xp,
+        streak: users.currentStreak,
+        best: users.bestStreak,
+      })
+      .from(users)
+      .where(eq(users.id, userId)),
+    db
+      .select({
+        sessions: count(),
+        play: sum(sessions.playMinutes),
+        learn: sum(sessions.learnMinutes),
+      })
+      .from(sessions)
+      .where(eq(sessions.userId, userId)),
+    db
+      .select({ n: count() })
+      .from(userLessonProgress)
+      .where(
+        and(
+          eq(userLessonProgress.userId, userId),
+          eq(userLessonProgress.status, 'completed'),
+        ),
       ),
-    )
-
-  const [quiz] = await db
-    .select({
-      total: count(),
-      correct: sum(sql`case when ${quizAttempts.isCorrect} then 1 else 0 end`),
-    })
-    .from(quizAttempts)
-    .where(eq(quizAttempts.userId, userId))
+    db
+      .select({
+        total: count(),
+        correct: sum(sql`case when ${quizAttempts.isCorrect} then 1 else 0 end`),
+      })
+      .from(quizAttempts)
+      .where(eq(quizAttempts.userId, userId)),
+  ])
+  if (!user) throw new Error('user not found')
 
   const quizTotal = num(quiz?.total)
 
@@ -148,8 +147,8 @@ export async function getActivity(userId: string): Promise<{
   skills: Skill[]
   weekActivity: string[]
 }> {
-  const recentLessons = (
-    await db
+  const [recentRows, activityRows, skillRows, days] = await Promise.all([
+    db
       .select({
         title: lessons.title,
         topic: topics.name,
@@ -163,17 +162,8 @@ export async function getActivity(userId: string): Promise<{
       .innerJoin(topics, eq(topics.id, courses.topicId))
       .where(eq(userLessonProgress.userId, userId))
       .orderBy(desc(userLessonProgress.completedAt))
-      .limit(6)
-  ).map((r) => ({
-    title: r.title,
-    topic: r.topic,
-    minutes: r.minutes,
-    score: r.score,
-    status: r.status,
-  }))
-
-  const activity = (
-    await db
+      .limit(6),
+    db
       .select({
         title: xpEvents.description,
         topic: xpEvents.refType,
@@ -183,29 +173,35 @@ export async function getActivity(userId: string): Promise<{
       .from(xpEvents)
       .where(eq(xpEvents.userId, userId))
       .orderBy(desc(xpEvents.createdAt))
-      .limit(6)
-  ).map((r) => ({
-    title: r.title ?? 'XP earned',
-    topic: r.topic ?? '',
-    at: r.at.toISOString(),
-    xp: r.xp,
-  }))
-
-  const skills = (
-    await db
+      .limit(6),
+    db
       .select({ key: userSkills.skillKey, value: userSkills.score })
       .from(userSkills)
-      .where(eq(userSkills.userId, userId))
-  ).map((r) => ({ key: r.key, value: r.value }))
+      .where(eq(userSkills.userId, userId)),
+    db
+      .select({ status: dailyActivity.status })
+      .from(dailyActivity)
+      .where(eq(dailyActivity.userId, userId))
+      .orderBy(dailyActivity.date),
+  ])
 
-  const days = await db
-    .select({ status: dailyActivity.status })
-    .from(dailyActivity)
-    .where(eq(dailyActivity.userId, userId))
-    .orderBy(dailyActivity.date)
-  const weekActivity = days.slice(-28).map((d) => d.status)
-
-  return { recentLessons, activity, skills, weekActivity }
+  return {
+    recentLessons: recentRows.map((r) => ({
+      title: r.title,
+      topic: r.topic,
+      minutes: r.minutes,
+      score: r.score,
+      status: r.status,
+    })),
+    activity: activityRows.map((r) => ({
+      title: r.title ?? 'XP earned',
+      topic: r.topic ?? '',
+      at: r.at.toISOString(),
+      xp: r.xp,
+    })),
+    skills: skillRows.map((r) => ({ key: r.key, value: r.value })),
+    weekActivity: days.slice(-28).map((d) => d.status),
+  }
 }
 
 export async function getAchievementsView(

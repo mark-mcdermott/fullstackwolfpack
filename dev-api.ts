@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { existsSync } from 'node:fs'
+import { existsSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 import type { Plugin, ViteDevServer } from 'vite'
 
@@ -15,8 +15,17 @@ export function devApi(): Plugin {
         if (!url.startsWith('/api/')) return next()
 
         const route = url.split('?')[0]
-        const file = path.join(server.config.root, `${route}.ts`)
-        if (!existsSync(file)) return next()
+        let file = path.join(server.config.root, `${route}.ts`)
+        if (!existsSync(file)) {
+          // Fall back to a dynamic segment file (e.g. api/me/[action].ts),
+          // matching how Vercel routes `[param].ts` in production.
+          const dir = path.dirname(file)
+          const dynamic = existsSync(dir)
+            ? readdirSync(dir).find((f) => /^\[.+\]\.ts$/.test(f))
+            : undefined
+          if (!dynamic) return next()
+          file = path.join(dir, dynamic)
+        }
 
         try {
           const mod = await server.ssrLoadModule(file)
