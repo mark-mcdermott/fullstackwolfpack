@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { AuthContext, type AuthContextValue } from '@/hooks/auth-context'
 import type { PublicUser } from '@/core/schemas'
 import { AchievementsPage } from '@/pages/app/achievements'
+import { ArcadePage } from '@/pages/app/arcade'
 import { DashboardPage } from '@/pages/app/dashboard'
 import { SettingsPage } from '@/pages/app/settings'
 import { TopicsPage } from '@/pages/app/topics'
@@ -68,6 +69,10 @@ describe('app pages render', () => {
   it('topics', () => {
     renderPage(<TopicsPage />)
     expect(screen.getByText('React')).toBeInTheDocument()
+  })
+  it('arcade shows the game gallery', () => {
+    renderPage(<ArcadePage />)
+    expect(screen.getByText('Add your ROM')).toBeInTheDocument()
   })
   it('achievements', () => {
     renderPage(<AchievementsPage />)
