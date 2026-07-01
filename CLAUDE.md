@@ -6,6 +6,17 @@ Config: Commit `conventional` · Automerge `off`
 
 Full cross-platform stack: Vite + React 19 + TS, Tailwind v4 + shadcn-ui, Drizzle ORM on Neon (edge Postgres), passkey/WebAuthn auth with TOTP fallback (no passwords), Zod validation, and Capacitor (mobile) + Tauri (desktop) shells.
 
+## Monorepo (npm workspaces)
+
+This is now a workspace monorepo. **The "## Layout" paths below are relative to `apps/web/`** (the app was moved wholesale; paths are otherwise unchanged).
+
+- `apps/web/` — the React SPA + `api/` serverless functions (everything the Layout section describes). Package `@fw/web`; runs from its own dir (`.env` lives here).
+- `apps/site/` — the **Astro** static public site (landing + content-collections blog). Package `@fw/site`; SSG, zero serverless functions; reuses the FW-01 look via `@fw/ui/theme.css` + the mock art in its `public/images/`.
+- `packages/ui/` — `@fw/ui`, the FW-01 design system (ui-kit / charts / wolf-sun / theme-toggle + `theme.css` tokens), registry-ready (`registry.json`) for copy-in. Consumed by `apps/web` via the `@fw/ui` alias (vite/vitest/tsconfig → `packages/ui/src`). See `docs/astro-migration-plan.md` + `CLEANROOM-V2-ROADMAP.md`.
+- Root scripts delegate to `@fw/web` (`npm run dev|build|test|db:*` all `-w @fw/web`); `npm run build -w @fw/site` builds the site.
+- **Deploy:** Vercel Root Directory must be `apps/web` for the app; the Astro site deploys from `apps/site` (root-served, app under `/app` — migration plan step 7). Not yet wired.
+- **Not yet done:** `packages/core` extraction (logic still in `apps/web/src/core`); the app still ships its own copy of the theme tokens (`apps/web/src/index.css`) pending de-dup onto `@fw/ui/theme.css`.
+
 ## Layout
 
 - `api/` — serverless functions (Vercel-style; Web `Request`/`Response` handlers).

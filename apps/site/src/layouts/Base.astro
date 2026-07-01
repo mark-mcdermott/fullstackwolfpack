@@ -1,0 +1,65 @@
+---
+import '../styles/global.css'
+
+interface Props {
+  title?: string
+  description?: string
+}
+
+const {
+  title = 'Fullstack Wolfpack',
+  description = 'Learn to code between gaming sessions.',
+} = Astro.props
+
+const nav = [
+  { href: '/', label: 'Home' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/app', label: 'Sign in' },
+]
+---
+
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.svg" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+  </head>
+  <body class="min-h-screen bg-background font-sans text-foreground antialiased">
+    <header
+      class="flex items-center justify-between border-b border-border px-5 py-4"
+    >
+      <a href="/" class="flex items-center gap-2">
+        <span
+          class="aspect-square h-6 bg-current"
+          style="mask:url(/wolf-mark.svg) center/contain no-repeat;-webkit-mask:url(/wolf-mark.svg) center/contain no-repeat"
+        ></span>
+        <span class="font-mono text-xs font-bold tracking-widest uppercase"
+          >Fullstack Wolfpack</span
+        >
+      </a>
+      <nav class="flex items-center gap-5 font-mono text-xs tracking-widest uppercase">
+        {
+          nav.map((n) => (
+            <a href={n.href} class="text-muted-foreground hover:text-foreground">
+              {n.label}
+            </a>
+          ))
+        }
+      </nav>
+    </header>
+
+    <main><slot /></main>
+
+    <footer
+      class="mt-20 border-t border-border px-5 py-8 font-mono text-[10px] tracking-widest text-muted-foreground uppercase"
+    >
+      <div class="flex items-center justify-between">
+        <span>Fullstack Wolfpack — FW-01</span>
+        <span class="text-primary">// LEARN BETWEEN SESSIONS</span>
+      </div>
+    </footer>
+  </body>
+</html>
