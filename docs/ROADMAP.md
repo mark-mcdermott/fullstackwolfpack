@@ -29,9 +29,9 @@ _Status: `[x]` shipped · `[~]` partial/stubbed · `[ ]` not started._
 ## What's left
 
 ### Learning / education — see `education-system.md` §7
-- `[ ]` **Phase 3 — AI tutor + AI grading.** Conversational tutor (`ai_tutor` Pro feature) + free-text (`short_answer`) grading. Today `submitAnswer` only grades MCQ; short-answer returns a zero-XP stub.
-- `[ ]` **Phase 4 — in-browser code exercises.** CodeMirror 6 + a Web-Worker test runner (JS/TS first).
-- `[ ]` **Adaptive difficulty** (education-system.md §5.4) — lightweight, net new.
+- `[x]` **Phase 3 — AI tutor + AI grading.** Grounded conversational tutor (`ai_tutor` Pro-gated, `components/learn/tutor-panel.tsx`) + free-text (`short_answer`) grading. Provider-agnostic seams (`core/{grader,tutor}` + `server/{grader,tutor,llm,provider}`): prefer a per-user Claude key → per-user OpenAI → env platform key; short-answer falls back to a pure keyword-overlap grade when no key is on file. Models per §5.5 (Haiku 4.5 grading, Sonnet 5 tutor).
+- `[x]` **Phase 4 — in-browser code exercises.** CodeMirror 6 editor + a Web-Worker test runner (`core/exercise.ts` pure engine, `workers/exercise-worker.ts`, `lib/run-exercise.ts`, `components/learn/code-exercise.tsx`); wired into the player for `code`/`practice` segments. JS-first (TS transpile is a later add).
+- `[x]` **Adaptive difficulty** (education-system.md §5.4) — `core/adaptive.ts` (85% setpoint, Elo, mastery gate) + `server/adaptive.ts` + a `GET /api/me/adaptive` action; surfaced as a "try X next" nudge on the completion panel. No LLM, no new tables.
 
 ### Monetization / tiers
 - `[~]` **Stripe billing.** `subscriptions` table, Pricing page, and the Settings billing panel exist as **schema/UI stubs** — no payment provider wired. Free/Pro tier gating (`core/access.ts`) is real; the checkout/webhook path is not.
@@ -55,7 +55,7 @@ _Status: `[x]` shipped · `[~]` partial/stubbed · `[ ]` not started._
 - `[x]` **Theme toggle on mobile app views** (PR #17) — added to the app header, shown on mobile only (desktop keeps the sidebar toggle).
 - `[~]` **`auth_rate_limits` housekeeping.** Opportunistic prune of stale rows is in (#12); a scheduled/TTL sweep is a possible future refinement (no cron today — see the function cap below).
 - `[~]` **Admin + blog** (admin: PR #19). The admin Users page now lists real users and persists role/tier via an admin-gated `admin-users` action (folded into `[action].ts`; server-side `can(user, 'admin.access')` gate). The public blog is still a thin stub — no CMS yet.
-- `[ ]` **Short-answer accuracy in stats.** Once AI grading lands (Phase 3), fold short-answer results into the accuracy metrics.
+- `[x]` **Short-answer accuracy in stats.** AI grading (Phase 3) records each short-answer as a `quiz_attempts` row (`isCorrect` + `aiFeedback`), so it folds into the existing accuracy metrics automatically.
 
 ---
 

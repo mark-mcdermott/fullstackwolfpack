@@ -4,6 +4,7 @@ import { db } from '../src/db'
 import {
   achievements,
   courses,
+  exercises,
   lessonSegments,
   lessons,
   levels,
@@ -92,13 +93,29 @@ async function main() {
             .values({
               id: q.id,
               segmentId: seg.id,
-              type: 'mcq',
+              type: q.type ?? 'mcq',
               prompt: q.prompt,
-              options: q.options,
-              correctIndex: q.correctIndex,
+              options: q.options ?? null,
+              correctIndex: q.correctIndex ?? null,
+              expectedAnswer: q.expectedAnswer ?? null,
               explanation: q.explanation,
             })
             .onConflictDoNothing({ target: quizQuestions.id })
+        }
+
+        if (seg.exercise) {
+          await db
+            .insert(exercises)
+            .values({
+              id: seg.exercise.id,
+              segmentId: seg.id,
+              prompt: seg.exercise.prompt,
+              starterCode: seg.exercise.starterCode,
+              tests: seg.exercise.tests,
+              solution: seg.exercise.solution,
+              hint: seg.exercise.hint,
+            })
+            .onConflictDoNothing({ target: exercises.id })
         }
       }
     }

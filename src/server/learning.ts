@@ -1,15 +1,18 @@
 import { and, desc, eq, inArray, isNull, or, sql, sum } from 'drizzle-orm'
 import type { CourseOutline } from '../core/app-data'
+import { parseExerciseTests } from '../core/exercise'
 import {
   gradeMcqAnswer,
   lessonScore,
   nextStreak,
   topicProgressPct,
   xpForLesson,
+  xpForQuiz,
   xpForStreakDay,
 } from '../core/learning'
 import type {
   AnswerFeedback,
+  ExerciseView,
   LessonCompletion,
   LessonView,
   QuestionView,
@@ -19,6 +22,7 @@ import { db } from '../db'
 import {
   courses,
   dailyActivity,
+  exercises,
   lessons,
   lessonSegments,
   quizAttempts,
@@ -29,6 +33,7 @@ import {
   users,
   xpEvents,
 } from '../db/schema'
+import { gradeAnswer } from './grader'
 import { seedReviewCard } from './review'
 
 // Server-only writes + reads for the learning loop. Thin Drizzle that composes the
@@ -106,6 +111,24 @@ export async function getLessonView(lessonId: string): Promise<LessonView | null
     bySegment.set(q.segmentId, list)
   }
 
+  // Code exercises for the player's in-browser runner (Phase 4). Tests run
+  // client-side by design, so they (and the revealable hint/solution) are included.
+  const exRows = await db
+    .select()
+    .from(exercises)
+    .where(inArray(exercises.segmentId, segIds))
+  const exBySegment = new Map<string, ExerciseView>()
+  for (const e of exRows) {
+    exBySegment.set(e.segmentId, {
+      id: e.id,
+      prompt: e.prompt,
+      starterCode: e.starterCode ?? '',
+      tests: parseExerciseTests(e.tests),
+      hint: e.hint ?? null,
+      solution: e.solution ?? null,
+    })
+  }
+
   const segments: SegmentView[] = segRows.map((s) => ({
     id: s.id,
     type: s.type,
@@ -113,6 +136,7 @@ export async function getLessonView(lessonId: string): Promise<LessonView | null
     markdown: (s.content as { markdown?: string } | null)?.markdown ?? '',
     estMinutes: s.estMinutes,
     questions: bySegment.get(s.id) ?? [],
+    exercise: exBySegment.get(s.id) ?? null,
   }))
 
   return {
@@ -185,53 +209,102 @@ export async function getCourseOutline(
   }
 }
 
-// ---- Write: grade a single answer ----
+// ---- Write: grade a single answer (MCQ or short-answer) ----
+
+export type AnswerInput = { selectedIndex?: number; answerText?: string }
 
 export async function submitAnswer(
   userId: string,
   questionId: string,
-  selectedIndex: number,
+  input: AnswerInput,
 ): Promise<AnswerFeedback | null> {
   const [q] = await db
     .select({
       type: quizQuestions.type,
+      prompt: quizQuestions.prompt,
       correctIndex: quizQuestions.correctIndex,
+      expectedAnswer: quizQuestions.expectedAnswer,
       explanation: quizQuestions.explanation,
     })
     .from(quizQuestions)
     .where(eq(quizQuestions.id, questionId))
   if (!q) return null
 
-  // Phase 1 grades MCQ; short-answer needs the AI grader (a later phase). Don't
-  // record an ungradable attempt (it would skew accuracy stats).
-  if (q.type !== 'mcq' || q.correctIndex === null) {
-    return { questionId, correct: false, correctIndex: null, explanation: null, xp: 0 }
+  return q.type === 'short_answer'
+    ? gradeShortAnswer(userId, questionId, q, input.answerText)
+    : gradeMcq(userId, questionId, q, input.selectedIndex)
+}
+
+type QuestionRow = {
+  correctIndex: number | null
+  expectedAnswer: string | null
+  explanation: string | null
+  prompt: string
+}
+
+async function gradeMcq(
+  userId: string,
+  questionId: string,
+  q: QuestionRow,
+  selectedIndex: number | undefined,
+): Promise<AnswerFeedback> {
+  // Ungradable (no key set, or no choice) → don't record an attempt (skews stats).
+  if (q.correctIndex === null || selectedIndex === undefined) {
+    return {
+      questionId, correct: false, correctIndex: null,
+      explanation: null, feedback: null, score: null, xp: 0,
+    }
   }
 
   const { correct, xp } = gradeMcqAnswer(q.correctIndex, selectedIndex)
-
-  await db.insert(quizAttempts).values({
-    userId,
-    questionId,
-    selectedIndex,
-    isCorrect: correct,
-  })
+  await db.insert(quizAttempts).values({ userId, questionId, selectedIndex, isCorrect: correct })
   await grantXp(userId, {
-    type: 'quiz',
-    xp,
-    refType: 'question',
-    refId: questionId,
+    type: 'quiz', xp, refType: 'question', refId: questionId,
     description: correct ? 'Correct answer' : 'Quiz attempt',
   })
-  // First answer schedules the question's first spaced-repetition review.
   await seedReviewCard(userId, questionId, correct)
 
   return {
-    questionId,
-    correct,
-    correctIndex: q.correctIndex,
-    explanation: q.explanation ?? null,
-    xp,
+    questionId, correct, correctIndex: q.correctIndex,
+    explanation: q.explanation ?? null, feedback: null, score: null, xp,
+  }
+}
+
+async function gradeShortAnswer(
+  userId: string,
+  questionId: string,
+  q: QuestionRow,
+  answerText: string | undefined,
+): Promise<AnswerFeedback> {
+  if (!answerText || q.expectedAnswer === null) {
+    return {
+      questionId, correct: false, correctIndex: null,
+      explanation: null,
+      feedback: q.expectedAnswer === null ? 'This question has no reference answer yet.' : null,
+      score: 0, xp: 0,
+    }
+  }
+
+  // AI (or heuristic-fallback) grade against the reference answer (§5.3).
+  const grade = await gradeAnswer(userId, {
+    prompt: q.prompt,
+    expectedAnswer: q.expectedAnswer,
+    learnerAnswer: answerText,
+  })
+  const xp = xpForQuiz(grade.correct)
+
+  await db.insert(quizAttempts).values({
+    userId, questionId, answerText, isCorrect: grade.correct, aiFeedback: grade.feedback,
+  })
+  await grantXp(userId, {
+    type: 'quiz', xp, refType: 'question', refId: questionId,
+    description: grade.correct ? 'Correct answer' : 'Quiz attempt',
+  })
+  await seedReviewCard(userId, questionId, grade.correct)
+
+  return {
+    questionId, correct: grade.correct, correctIndex: null,
+    explanation: q.explanation ?? null, feedback: grade.feedback, score: grade.score, xp,
   }
 }
 

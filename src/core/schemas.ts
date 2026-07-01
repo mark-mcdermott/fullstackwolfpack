@@ -66,6 +66,18 @@ export const openAiKeyRequest = z.object({
 export const keyStatusSchema = z.object({ hasKey: z.boolean() })
 export type KeyStatus = z.infer<typeof keyStatusSchema>
 
+// The user's Anthropic (Claude) key — powers the AI tutor + short-answer grading.
+// Same write-only handling as the OpenAI key; Anthropic keys start with `sk-ant-`.
+export const anthropicKeyRequest = z.object({
+  apiKey: z
+    .string()
+    .trim()
+    .regex(
+      /^sk-ant-[A-Za-z0-9_-]{20,}$/,
+      'Enter a valid Anthropic key (starts with sk-ant-).',
+    ),
+})
+
 // Enroll in a topic → generate an AI course for it.
 export const enrollRequest = z.object({
   topicSlug: z.string().min(1),

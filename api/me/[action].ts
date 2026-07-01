@@ -5,8 +5,10 @@ import {
 } from '../../src/core/lesson-view'
 import { can } from '../../src/core/access'
 import { reviewGradeRequestSchema } from '../../src/core/review-view'
+import { tutorRequestSchema } from '../../src/core/tutor'
 import {
   adminUpdateRequest,
+  anthropicKeyRequest,
   enrollRequest,
   openAiKeyRequest,
 } from '../../src/core/schemas'
@@ -27,12 +29,15 @@ import {
   hasOpenAiKey,
   saveOpenAiKey,
 } from '../../src/server/provider-credentials'
+import { hasProviderKey, saveProviderKey } from '../../src/server/provider'
 import {
   completeLesson,
   getCourseOutline,
   getLessonView,
   submitAnswer,
 } from '../../src/server/learning'
+import { getAdaptiveState } from '../../src/server/adaptive'
+import { runTutor } from '../../src/server/tutor'
 import { getDueReviews, gradeReview } from '../../src/server/review'
 import { json } from '../_lib/http'
 import { getSessionUserId } from '../_lib/session'
@@ -73,6 +78,14 @@ export async function GET(req: Request): Promise<Response> {
 
     case 'openai-key':
       return json({ hasKey: await hasOpenAiKey(userId) })
+
+    case 'anthropic-key':
+      return json({ hasKey: await hasProviderKey(userId, 'anthropic') })
+
+    case 'adaptive': {
+      const topic = new URL(req.url).searchParams.get('topic') ?? undefined
+      return json(await getAdaptiveState(userId, topic))
+    }
 
     case 'stats': {
       const [stats, topicsView] = await Promise.all([
@@ -154,6 +167,13 @@ export async function POST(req: Request): Promise<Response> {
       return json({ hasKey: true })
     }
 
+    case 'anthropic-key': {
+      const parsed = await parseBody(anthropicKeyRequest, req)
+      if (!parsed.ok) return parsed.response
+      await saveProviderKey(userId, 'anthropic', parsed.data.apiKey)
+      return json({ hasKey: true })
+    }
+
     case 'enroll': {
       const parsed = await parseBody(enrollRequest, req)
       if (!parsed.ok) return parsed.response
@@ -181,13 +201,31 @@ export async function POST(req: Request): Promise<Response> {
     case 'answer': {
       const parsed = await parseBody(answerRequestSchema, req)
       if (!parsed.ok) return parsed.response
-      const feedback = await submitAnswer(
-        userId,
-        parsed.data.questionId,
-        parsed.data.selectedIndex,
-      )
+      const feedback = await submitAnswer(userId, parsed.data.questionId, {
+        selectedIndex: parsed.data.selectedIndex,
+        answerText: parsed.data.answerText,
+      })
       if (!feedback) return json({ error: 'question not found' }, { status: 404 })
       return json(feedback)
+    }
+
+    case 'tutor': {
+      // Pro-gated: the AI tutor is a paid feature (the real server-side boundary).
+      const user = await db.query.users.findFirst({ where: eq(users.id, userId) })
+      if (!user || !can(user, 'feature.ai_tutor')) {
+        return json({ error: 'Upgrade to Pro to use the AI tutor.' }, { status: 403 })
+      }
+      const parsed = await parseBody(tutorRequestSchema, req)
+      if (!parsed.ok) return parsed.response
+      const result = await runTutor(userId, {
+        segmentId: parsed.data.segmentId,
+        messages: parsed.data.messages,
+        mode: parsed.data.mode,
+      })
+      if ('error' in result) {
+        return json({ error: result.error }, { status: result.status })
+      }
+      return json(result)
     }
 
     case 'complete': {
