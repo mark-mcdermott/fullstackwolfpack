@@ -33,9 +33,9 @@ Full cross-platform stack: Vite + React 19 + TS, Tailwind v4 + shadcn-ui, Drizzl
 
 ## Auth flow
 
-Passkeys (WebAuthn) are primary; TOTP is the no-password fallback. Each ceremony is a two-step handshake: `options` mints a challenge (stored in `webauthn_challenges`, keyed by email), `verify` checks the signed response and issues a session JWT in an httpOnly cookie. `RP_ID` is the bare domain (`localhost` in dev), `RP_ORIGIN` the full origin. Login is email-first (usernameless/discoverable is a possible enhancement). `requireUserVerification` is `false` for dev — tighten for production.
+Passkeys (WebAuthn) are primary; TOTP is the no-password fallback. Each ceremony is a two-step handshake: `options` mints a challenge (stored in `webauthn_challenges`, keyed by email), `verify` checks the signed response and issues a session JWT in an httpOnly cookie. `RP_ID` is the bare domain (`localhost` in dev), `RP_ORIGIN` the full origin. Login is email-first (usernameless/discoverable is a possible enhancement). `requireUserVerification` is env-driven — off in dev, on in production (override with `RP_REQUIRE_UV`). Auth **fails closed** in production (https `RP_ORIGIN`) if `RP_ID`/`AUTH_SECRET`/`ENCRYPTION_KEY` are still on dev defaults.
 
-Routes are gated client-side by `RequireAuth` (UX) and server-side by the session cookie (`getSessionUserId`) on each protected endpoint (the real boundary). TOTP: an authed user enrolls via `totp/setup` (QR) → `totp/enable` (confirm a code); if they later lose their passkey, `totp/recover` (email + code) mints a session. The TOTP secret is stored plaintext for now — encrypt at rest in production, and rate-limit `login`/`recover`.
+Routes are gated client-side by `RequireAuth` (UX) and server-side by the session cookie (`getSessionUserId`) on each protected endpoint (the real boundary). TOTP: an authed user enrolls via `totp/setup` (QR) → `totp/enable` (confirm a code); if they later lose their passkey, `totp/recover` (email + code) mints a session. The TOTP secret is **encrypted at rest** (AES-256-GCM via `crypto.ts` `seal`/`open`). `login`/`recover` are **rate-limited** — a DB-backed fixed-window counter (`auth_rate_limits`, `src/server/rate-limit.ts`); over the limit returns `429` + `Retry-After` (login 10/15m, recover 5/15m).
 
 ## Scripts
 
@@ -50,7 +50,7 @@ Pieces that need accounts or interactive/native steps — not done by the scaffo
 
 - [ ] **Neon DB** — create a Neon project, `cp .env.example .env`, set `DATABASE_URL` (and the same in the Vercel project env). Then `npm run db:push` to create the tables. Auth needs a real DB to run end-to-end.
 - [ ] **AUTH_SECRET** — set a strong `AUTH_SECRET` in `.env` (`openssl rand -base64 32`); dev falls back to an insecure default, production must not.
-- [x] **Auth flows** — passkey register/login, session cookies, a protected route (`RequireAuth` + `/api/protected`), and TOTP enrollment/recovery UI are built and run locally via `npm run dev`. Remaining for production: set `RP_ID`/`RP_ORIGIN` per environment, set `requireUserVerification: true`, encrypt the TOTP secret at rest, and rate-limit `login`/`recover`.
+- [x] **Auth flows + hardening** — passkey register/login, session cookies, a protected route (`RequireAuth` + `/api/protected`), TOTP enrollment/recovery, **encrypted TOTP secret at rest**, **env-driven `requireUserVerification`**, **rate-limited `login`/`recover`**, and a **fail-closed prod config guard** are all built. Remaining: set `RP_ID`/`RP_ORIGIN` (+ `AUTH_SECRET`/`ENCRYPTION_KEY`) in each deploy env — production refuses to start on dev defaults.
 - [ ] **Capacitor native platforms** — `npm run build` first, then `npx cap add ios` / `npx cap add android`, then `npx cap sync`. iOS needs Xcode; Android needs Android Studio + SDK.
 - [ ] **Tauri desktop** — `npm run tauri dev` (first run compiles Rust deps). Replace placeholder icons via `npm run tauri icon <path-to-1024px.png>`.
 - [ ] **Vercel** — link the project; `@vercel/analytics` only reports once deployed on Vercel.
