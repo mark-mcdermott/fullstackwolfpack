@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  Gamepad2,
   LayoutDashboard,
   Layers,
   LineChart,
@@ -18,6 +19,7 @@ import { cn } from '@/lib/utils'
 const NAV = [
   { to: '/app', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/app/sessions', label: 'Sessions', icon: Timer },
+  { to: '/app/arcade', label: 'Arcade', icon: Gamepad2 },
   { to: '/app/topics', label: 'Topics', icon: Layers },
   { to: '/app/progress', label: 'Progress', icon: BarChart3 },
   { to: '/app/stats', label: 'Stats', icon: LineChart },

@@ -3,6 +3,7 @@ import { AppLayout } from '@/components/layout/app-layout'
 import { RequireAuth, RequireRole } from '@/components/layout/guards'
 import { MarketingLayout } from '@/components/layout/marketing-layout'
 import { AchievementsPage } from '@/pages/app/achievements'
+import { ArcadePage } from '@/pages/app/arcade'
 import { BadgesPage } from '@/pages/app/badges'
 import { DashboardPage } from '@/pages/app/dashboard'
 import { ProgressPage } from '@/pages/app/progress'
@@ -42,6 +43,7 @@ function App() {
         <Route element={<AppLayout />}>
           <Route path="/app" element={<DashboardPage />} />
           <Route path="/app/sessions" element={<SessionsPage />} />
+          <Route path="/app/arcade" element={<ArcadePage />} />
           <Route path="/app/topics" element={<TopicsPage />} />
           <Route path="/app/progress" element={<ProgressPage />} />
           <Route path="/app/stats" element={<StatsPage />} />
