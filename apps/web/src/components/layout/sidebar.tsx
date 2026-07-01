@@ -1,44 +1,10 @@
-import {
-  BarChart3,
-  Gamepad2,
-  LayoutDashboard,
-  Layers,
-  LineChart,
-  LogOut,
-  Repeat,
-  Settings,
-  ShieldAlert,
-  ShieldCheck,
-  Timer,
-  Trophy,
-} from 'lucide-react'
+import { LogOut, ShieldAlert } from 'lucide-react'
 import { NavLink } from 'react-router'
-import { ThemeToggle } from '@fw/ui'
-import { Panel, WolfMark } from '@fw/ui'
+import { Panel, ThemeToggle, WolfMark } from '@fw/ui'
 import { can } from '@/core/access'
 import { useAuth } from '@/hooks/auth-context'
 import { cn } from '@/lib/utils'
-
-const NAV = [
-  { to: '/app', label: 'Dashboard', icon: LayoutDashboard, end: true },
-  { to: '/app/sessions', label: 'Sessions', icon: Timer },
-  { to: '/app/arcade', label: 'Arcade', icon: Gamepad2 },
-  { to: '/app/topics', label: 'Topics', icon: Layers },
-  { to: '/app/review', label: 'Review', icon: Repeat },
-  { to: '/app/progress', label: 'Progress', icon: BarChart3 },
-  { to: '/app/stats', label: 'Stats', icon: LineChart },
-  { to: '/app/achievements', label: 'Achievements', icon: Trophy },
-  { to: '/app/badges', label: 'Badges', icon: ShieldCheck },
-  { to: '/app/settings', label: 'Settings', icon: Settings },
-]
-
-const itemClass = ({ isActive }: { isActive: boolean }) =>
-  cn(
-    'flex items-center gap-3 px-3 py-2 font-mono text-sm tracking-wide uppercase transition-colors',
-    isActive
-      ? 'bg-primary text-primary-foreground'
-      : 'text-muted-foreground hover:text-foreground',
-  )
+import { NAV, navItemClass } from './nav'
 
 // A thin "barcode" strip — a decorative FW-01 flourish.
 function Barcode({ className }: { className?: string }) {
@@ -80,13 +46,13 @@ export function Sidebar() {
 
       <nav className="flex flex-col gap-1">
         {NAV.map((item) => (
-          <NavLink key={item.to} to={item.to} end={item.end} className={itemClass}>
+          <NavLink key={item.to} to={item.to} end={item.end} className={navItemClass}>
             <item.icon className="size-4" />
             {item.label}
           </NavLink>
         ))}
         {user && can(user, 'admin.access') && (
-          <NavLink to="/admin" className={itemClass}>
+          <NavLink to="/admin" className={navItemClass}>
             <ShieldAlert className="size-4" />
             Admin
           </NavLink>

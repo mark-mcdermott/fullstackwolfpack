@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
-// Minimal data-fetching state for the logged-in pages: run an async fn once on
-// mount, exposing loading / data / error. Stale results from an unmounted
-// component are ignored.
+// Minimal data-fetching state for the logged-in pages: run an async fn on mount,
+// exposing loading / data / error, plus `reload()` to re-run it (e.g. from a
+// retry button). Stale results from an unmounted component or a superseded
+// reload are ignored.
 
 export type AsyncState<T> = {
   data: T | null
@@ -10,17 +11,21 @@ export type AsyncState<T> = {
   error: string | null
 }
 
-export function useAsync<T>(fn: () => Promise<T>): AsyncState<T> {
+export function useAsync<T>(
+  fn: () => Promise<T>,
+): AsyncState<T> & { reload: () => void } {
   const [state, setState] = useState<AsyncState<T>>({
     data: null,
     loading: true,
     error: null,
   })
+  const [nonce, setNonce] = useState(0)
   const fnRef = useRef(fn)
   fnRef.current = fn
 
   useEffect(() => {
     let active = true
+    setState((s) => ({ ...s, loading: true, error: null }))
     fnRef
       .current()
       .then((data) => {
@@ -37,7 +42,9 @@ export function useAsync<T>(fn: () => Promise<T>): AsyncState<T> {
     return () => {
       active = false
     }
-  }, [])
+  }, [nonce])
 
-  return state
+  const reload = useCallback(() => setNonce((n) => n + 1), [])
+
+  return { ...state, reload }
 }

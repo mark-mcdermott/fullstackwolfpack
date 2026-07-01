@@ -19,13 +19,20 @@ const nav = [
 ---
 
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="/favicon.svg" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <script is:inline>
+      // Light by default; honor a saved dark choice (shared with the app on the
+      // same domain) before first paint to avoid a flash.
+      if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.classList.add('dark')
+      }
+    </script>
   </head>
   <body class="min-h-screen bg-background font-sans text-foreground antialiased">
     <header
