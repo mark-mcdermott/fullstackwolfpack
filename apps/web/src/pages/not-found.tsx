@@ -1,7 +1,7 @@
 import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router'
-import { SectionLabel } from '@/components/ui-kit'
-import { WolfSun } from '@/components/wolf-sun'
+import { SectionLabel } from '@fw/ui'
+import { WolfSun } from '@fw/ui'
 
 export function NotFound() {
   return (

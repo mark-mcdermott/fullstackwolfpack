@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { RomGallery } from '@/components/rom-gallery'
 import { RomPlayer } from '@/components/rom-player'
-import { PageHeading } from '@/components/ui-kit'
+import { PageHeading } from '@fw/ui'
 import type { PlayableRom } from '@/lib/rom-catalog'
 
 export function ArcadePage() {

@@ -1,5 +1,5 @@
-import { Bars, Sparkline } from '@/components/charts'
-import { Panel, SectionLabel } from '@/components/ui-kit'
+import { Bars, Sparkline } from '@fw/ui'
+import { Panel, SectionLabel } from '@fw/ui'
 
 // A titled chart card with an honest empty state. Feeds real series into the
 // FW-01 chart primitives.

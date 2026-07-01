@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils'
+import { cn } from './utils'
 
 // Lightweight SVG/CSS charts — enough to match the mock dashboards without a
 // charting dependency.

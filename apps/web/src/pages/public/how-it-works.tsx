@@ -1,5 +1,5 @@
 import { Gamepad2, GraduationCap, RefreshCw, Timer } from 'lucide-react'
-import { PageHeading, Panel } from '@/components/ui-kit'
+import { PageHeading, Panel } from '@fw/ui'
 
 const STEPS = [
   { icon: Gamepad2, title: 'Start a session', body: 'Pick a topic, set your play/learn split (e.g. 10 min play // 10 min learn), and start your game.' },

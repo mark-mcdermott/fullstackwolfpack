@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(import.meta.dirname, './src'),
+        '@fw/ui': path.resolve(import.meta.dirname, '../../packages/ui/src'),
       },
     },
   }

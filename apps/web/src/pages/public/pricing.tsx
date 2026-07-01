@@ -1,6 +1,6 @@
 import { Check } from 'lucide-react'
 import { Link } from 'react-router'
-import { PageHeading, Panel } from '@/components/ui-kit'
+import { PageHeading, Panel } from '@fw/ui'
 import { PLANS } from '@/core/pricing'
 import { cn } from '@/lib/utils'
 

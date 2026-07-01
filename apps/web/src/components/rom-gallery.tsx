@@ -1,6 +1,6 @@
 import { Play, Search, Upload } from 'lucide-react'
 import { useId, useMemo, useState } from 'react'
-import { Panel, Pill } from '@/components/ui-kit'
+import { Panel, Pill } from '@fw/ui'
 import {
   ACCEPTED_EXTENSIONS,
   type RomSystem,

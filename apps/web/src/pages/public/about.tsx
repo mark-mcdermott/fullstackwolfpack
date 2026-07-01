@@ -1,4 +1,4 @@
-import { PageHeading, Panel } from '@/components/ui-kit'
+import { PageHeading, Panel } from '@fw/ui'
 
 export function About() {
   return (

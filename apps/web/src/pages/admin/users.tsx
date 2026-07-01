@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { api } from '@/api-client'
 import { AsyncView } from '@/components/layout/async-view'
-import { PageHeading, Panel } from '@/components/ui-kit'
+import { PageHeading, Panel } from '@fw/ui'
 import type { AdminUser } from '@/core/app-data'
 import { useAsync } from '@/hooks/use-async'
 import { cn } from '@/lib/utils'

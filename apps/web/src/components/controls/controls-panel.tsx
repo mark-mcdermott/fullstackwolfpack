@@ -1,6 +1,6 @@
 import { Gamepad2, Keyboard, RotateCcw } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Panel, SectionLabel } from '@/components/ui-kit'
+import { Panel, SectionLabel } from '@fw/ui'
 import {
   BUTTON_META,
   DEFAULT_GAMEPAD_BINDS,

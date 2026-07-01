@@ -1,7 +1,7 @@
 import { ShieldCheck } from 'lucide-react'
 import { api } from '@/api-client'
 import { AsyncView, EmptyState } from '@/components/layout/async-view'
-import { PageHeading, Panel } from '@/components/ui-kit'
+import { PageHeading, Panel } from '@fw/ui'
 import { useAsync } from '@/hooks/use-async'
 
 export function BadgesPage() {

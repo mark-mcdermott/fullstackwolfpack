@@ -1,6 +1,6 @@
 import { Link, NavLink } from 'react-router'
-import { ThemeToggle } from '@/components/theme-toggle'
-import { Logo } from '@/components/ui-kit'
+import { ThemeToggle } from '@fw/ui'
+import { Logo } from '@fw/ui'
 import { cn } from '@/lib/utils'
 
 const LINKS: [string, string][] = [

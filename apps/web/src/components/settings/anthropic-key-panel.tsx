@@ -1,7 +1,7 @@
 import { Check } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { api } from '@/api-client'
-import { Panel, SectionLabel } from '@/components/ui-kit'
+import { Panel, SectionLabel } from '@fw/ui'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 

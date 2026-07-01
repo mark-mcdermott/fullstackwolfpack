@@ -1,0 +1,25 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "fw-01",
+  "homepage": "https://fullstackwolfpack.dev",
+  "items": [
+    {
+      "name": "fw-theme",
+      "type": "registry:theme",
+      "files": [{ "path": "src/theme.css", "type": "registry:file" }]
+    },
+    {
+      "name": "fw-kit",
+      "type": "registry:ui",
+      "registryDependencies": [],
+      "dependencies": ["clsx", "tailwind-merge", "lucide-react"],
+      "files": [
+        { "path": "src/ui-kit.tsx", "type": "registry:ui" },
+        { "path": "src/charts.tsx", "type": "registry:ui" },
+        { "path": "src/wolf-sun.tsx", "type": "registry:ui" },
+        { "path": "src/theme-toggle.tsx", "type": "registry:ui" },
+        { "path": "src/utils.ts", "type": "registry:lib" }
+      ]
+    }
+  ]
+}

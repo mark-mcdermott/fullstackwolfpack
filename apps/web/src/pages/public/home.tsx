@@ -1,7 +1,7 @@
 import { Brain, Gamepad2, GraduationCap, Timer, Trophy, Zap } from 'lucide-react'
 import { Link } from 'react-router'
-import { Panel, Pill, SectionLabel } from '@/components/ui-kit'
-import { WolfSun } from '@/components/wolf-sun'
+import { Panel, Pill, SectionLabel } from '@fw/ui'
+import { WolfSun } from '@fw/ui'
 import { PLANS } from '@/core/pricing'
 
 const STEPS = [

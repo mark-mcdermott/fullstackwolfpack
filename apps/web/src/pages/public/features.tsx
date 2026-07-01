@@ -1,5 +1,5 @@
 import { BarChart3, Brain, Gamepad2, Shield, Timer, Trophy } from 'lucide-react'
-import { PageHeading, Panel } from '@/components/ui-kit'
+import { PageHeading, Panel } from '@fw/ui'
 
 const FEATURES = [
   { icon: Brain, title: 'AI lesson generation', body: 'Bring your OpenAI key; we build a full course — lessons, segments, quizzes — per topic.' },

@@ -6,7 +6,7 @@ import {
   Panel,
   ProgressMeter,
   SectionLabel,
-} from '@/components/ui-kit'
+} from '@fw/ui'
 import { useAsync } from '@/hooks/use-async'
 
 function earnedDate(iso: string | null): string {

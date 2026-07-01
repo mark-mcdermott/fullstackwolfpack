@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Panel } from '@/components/ui-kit'
+import { Panel } from '@fw/ui'
 import type { AsyncState } from '@/hooks/use-async'
 
 export function Loading({ label = 'Loading' }: { label?: string }) {

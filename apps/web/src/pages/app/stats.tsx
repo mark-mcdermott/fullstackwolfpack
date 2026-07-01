@@ -8,7 +8,7 @@ import {
   ProgressMeter,
   SectionLabel,
   StatTile,
-} from '@/components/ui-kit'
+} from '@fw/ui'
 import { useAsync } from '@/hooks/use-async'
 
 export function StatsPage() {

@@ -1,4 +1,4 @@
-import { PageHeading, Panel, SectionLabel } from '@/components/ui-kit'
+import { PageHeading, Panel, SectionLabel } from '@fw/ui'
 
 const POSTS = [
   { title: 'Building Scalable Systems: Lessons from the Trenches', category: 'System Design', read: 7, excerpt: 'Practical strategies for designing systems that scale with your users and your team.', date: 'May 20, 2025' },

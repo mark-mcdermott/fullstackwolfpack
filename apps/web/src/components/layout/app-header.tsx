@@ -1,6 +1,6 @@
 import { api } from '@/api-client'
-import { ThemeToggle } from '@/components/theme-toggle'
-import { ProgressMeter } from '@/components/ui-kit'
+import { ThemeToggle } from '@fw/ui'
+import { ProgressMeter } from '@fw/ui'
 import { useAuth } from '@/hooks/auth-context'
 import { useAsync } from '@/hooks/use-async'
 

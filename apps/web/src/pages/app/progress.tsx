@@ -8,7 +8,7 @@ import {
   ProgressMeter,
   SectionLabel,
   StatTile,
-} from '@/components/ui-kit'
+} from '@fw/ui'
 import { relativeTime } from '@/core/progress'
 import { useAsync } from '@/hooks/use-async'
 

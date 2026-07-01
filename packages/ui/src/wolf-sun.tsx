@@ -1,5 +1,5 @@
-import { WolfMark } from '@/components/ui-kit'
-import { cn } from '@/lib/utils'
+import { WolfMark } from './ui-kit'
+import { cn } from './utils'
 
 // The signature hero motif from the mocks: the wolf mark against a red "sun",
 // with a couple of FW-01 crosshair flourishes. Parent sets the size.

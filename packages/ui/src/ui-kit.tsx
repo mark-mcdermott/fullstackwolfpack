@@ -1,6 +1,6 @@
 import type { ComponentProps, ReactNode } from 'react'
 import type { LucideIcon } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn } from './utils'
 
 // FW-01 design kit — the corner-bracket panels, section labels, stat tiles and
 // meters that give every screen the same "tactical HUD" look as the mocks.

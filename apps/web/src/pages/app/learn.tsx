@@ -7,7 +7,7 @@ import { LessonMarkdown } from '@/components/learn/lesson-markdown'
 import { QuizSegment } from '@/components/learn/quiz-segment'
 import { TutorPanel } from '@/components/learn/tutor-panel'
 import { AsyncView } from '@/components/layout/async-view'
-import { Panel, Pill, ProgressMeter, SectionLabel } from '@/components/ui-kit'
+import { Panel, Pill, ProgressMeter, SectionLabel } from '@fw/ui'
 import { can } from '@/core/access'
 import { lessonScore, xpForLesson } from '@/core/learning'
 import type {

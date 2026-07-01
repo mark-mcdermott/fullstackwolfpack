@@ -1,7 +1,7 @@
 import { Link, Navigate } from 'react-router'
 import { AuthCard } from '@/components/auth-card'
-import { Logo, SectionLabel } from '@/components/ui-kit'
-import { WolfSun } from '@/components/wolf-sun'
+import { Logo, SectionLabel } from '@fw/ui'
+import { WolfSun } from '@fw/ui'
 import { useAuth } from '@/hooks/auth-context'
 
 export function AuthPage() {

@@ -13,8 +13,8 @@ import {
   Trophy,
 } from 'lucide-react'
 import { NavLink } from 'react-router'
-import { ThemeToggle } from '@/components/theme-toggle'
-import { Panel, WolfMark } from '@/components/ui-kit'
+import { ThemeToggle } from '@fw/ui'
+import { Panel, WolfMark } from '@fw/ui'
 import { can } from '@/core/access'
 import { useAuth } from '@/hooks/auth-context'
 import { cn } from '@/lib/utils'
