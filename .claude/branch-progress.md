@@ -1,34 +1,28 @@
-# Aesthetics & UX punchlist
+# Aesthetics & UX punchlist — round 2
 
-Branch `fix/aesthetics-and-ux-punchlist` (worktree). Order agreed: **1 → 2 → 3 → 5**.
-Commit per item; one PR at the end. Favicon (4) is Mark's (Illustrator).
+Branch `fix/aesthetics-and-ux-punchlist-2` (main repo; another pane holds
+`worktrees/dev-mode` — don't touch it). Add items as we go; commit per item; one
+PR at the end. Round 1 (real art, light-default theme, Retry states, mobile nav)
+is merged (#28).
 
-Legend: `[ ]` todo · `[~]` in progress · `[x]` done
+Legend: `[ ]` todo · `[~]` in progress · `[x]` done · `[?]` needs Mark's call
 
-## Plan
+## Candidates (seed — reprioritize / add freely)
 
-- `[x]` **1 — Real wolf-sun art.** `wolf-sun.png` → landing, dashboard, sign-up,
-  log-in; `wolf-rear-and-sun.png` → 404. `WolfSun` now renders the real
-  transparent PNG with a `variant` (`sun` default / `rear` for 404).
-- `[x]` **2 — Theme consistency: light is the default.** Dropped the forced
-  `class="dark"` on the Astro site; added the same no-FOUC script the app uses
-  (light default, honor a saved `dark` on the shared domain). Both surfaces cohere.
-- `[x]` **3 — State polish.** Wired `reload()` through `useAsync` → `AsyncView`
-  so error states get a **Retry** button (no call-site churn); centered the
-  loading spinner. Applies to every page via the shared components. Empty-state
-  copy was already good — left as-is.
-- `[x]` **5 — Mobile responsiveness spot-check.** Fixed the real bug: the
-  sidebar (primary nav) is hidden < lg with **no replacement** → added a
-  hamburger **mobile drawer** (`mobile-nav.tsx`) reusing shared nav data
-  (`nav.ts`, extracted from the sidebar). Also: truncate the header greeting so
-  it can't overflow; tightened the lesson-complete stat grid gap on mobile.
-  Admin table already scrolls (`overflow-x-auto`). Deeper per-screen visual QA
-  can continue as new items.
+- `[x]` **Favicon** — clean single-wolf SVG (boilerplate stripped) wired into
+  `apps/web` + `apps/site`; `CREDITS.md` tracks source (❓ confirm), Vecteezy
+  asset archived in `credits/` (unused). Open: optional dark-tab adaptivity.
+- `[?]` **Deeper mock parity** (ROADMAP `[~]`): richer stat panels, the dashboard
+  "system feed" / footer flourishes, closer alignment to the mocks per screen.
+- `[?]` **Loading skeletons** — upgrade the plain spinner to lightweight skeleton
+  placeholders on the data-heavy pages (Dashboard/Stats/Progress).
+- `[?]` **Interaction-state audit** — consistent focus rings, hover, active, and
+  disabled states on buttons/links/inputs across the app.
 
-## Mark's items (add anytime)
+## Mark's items (add here)
 
 - …
 
 ## Done
 
-- 1 — real wolf-sun art (WolfSun → real PNG + `variant`; 404 uses `rear`).
+- …
