@@ -3,6 +3,7 @@ import {
   answerRequestSchema,
   completeRequestSchema,
 } from '../../src/core/lesson-view'
+import { reviewGradeRequestSchema } from '../../src/core/review-view'
 import { enrollRequest, openAiKeyRequest } from '../../src/core/schemas'
 import { db } from '../../src/db'
 import { topics } from '../../src/db/schema'
@@ -24,6 +25,7 @@ import {
   getLessonView,
   submitAnswer,
 } from '../../src/server/learning'
+import { getDueReviews, gradeReview } from '../../src/server/review'
 import { json } from '../_lib/http'
 import { getSessionUserId } from '../_lib/session'
 import { parseBody } from '../_lib/validate'
@@ -106,6 +108,9 @@ export async function GET(req: Request): Promise<Response> {
       return json(outline)
     }
 
+    case 'review':
+      return json(await getDueReviews(userId))
+
     default:
       return json({ error: 'not found' }, { status: 404 })
   }
@@ -164,6 +169,18 @@ export async function POST(req: Request): Promise<Response> {
       if (!parsed.ok) return parsed.response
       const result = await completeLesson(userId, parsed.data.lessonId)
       if (!result) return json({ error: 'lesson not found' }, { status: 404 })
+      return json(result)
+    }
+
+    case 'review': {
+      const parsed = await parseBody(reviewGradeRequestSchema, req)
+      if (!parsed.ok) return parsed.response
+      const result = await gradeReview(
+        userId,
+        parsed.data.cardId,
+        parsed.data.selectedIndex,
+      )
+      if (!result) return json({ error: 'review not found' }, { status: 404 })
       return json(result)
     }
 

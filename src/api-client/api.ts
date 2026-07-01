@@ -39,6 +39,12 @@ import {
   type LessonCompletion,
   type LessonView,
 } from '@/core/lesson-view'
+import {
+  reviewQueueSchema,
+  reviewResultSchema,
+  type ReviewQueue,
+  type ReviewResult,
+} from '@/core/review-view'
 import type { Adapters } from './types'
 
 // Surface-agnostic API. Construct it once with a surface's adapters
@@ -173,6 +179,20 @@ export function createApi({ http, passkeys }: Adapters) {
         await http.request('/api/me/complete', {
           method: 'POST',
           body: JSON.stringify({ lessonId }),
+        }),
+      )
+    },
+    async reviews(): Promise<ReviewQueue> {
+      return reviewQueueSchema.parse(await http.request('/api/me/review'))
+    },
+    async gradeReview(
+      cardId: string,
+      selectedIndex: number,
+    ): Promise<ReviewResult> {
+      return reviewResultSchema.parse(
+        await http.request('/api/me/review', {
+          method: 'POST',
+          body: JSON.stringify({ cardId, selectedIndex }),
         }),
       )
     },
