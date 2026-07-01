@@ -29,6 +29,14 @@ import {
   type TopicProgress,
   type UserSummary,
 } from '@/core/app-data'
+import {
+  answerFeedbackSchema,
+  lessonCompletionSchema,
+  lessonViewSchema,
+  type AnswerFeedback,
+  type LessonCompletion,
+  type LessonView,
+} from '@/core/lesson-view'
 import type { Adapters } from './types'
 
 // Surface-agnostic API. Construct it once with a surface's adapters
@@ -133,6 +141,30 @@ export function createApi({ http, passkeys }: Adapters) {
     async achievements(): Promise<AchievementsView> {
       return achievementsViewSchema.parse(
         await http.request('/api/me/achievements'),
+      )
+    },
+    async lesson(lessonId: string): Promise<LessonView> {
+      return lessonViewSchema.parse(
+        await http.request(`/api/me/lesson?id=${encodeURIComponent(lessonId)}`),
+      )
+    },
+    async answer(
+      questionId: string,
+      selectedIndex: number,
+    ): Promise<AnswerFeedback> {
+      return answerFeedbackSchema.parse(
+        await http.request('/api/me/answer', {
+          method: 'POST',
+          body: JSON.stringify({ questionId, selectedIndex }),
+        }),
+      )
+    },
+    async completeLesson(lessonId: string): Promise<LessonCompletion> {
+      return lessonCompletionSchema.parse(
+        await http.request('/api/me/complete', {
+          method: 'POST',
+          body: JSON.stringify({ lessonId }),
+        }),
       )
     },
   }

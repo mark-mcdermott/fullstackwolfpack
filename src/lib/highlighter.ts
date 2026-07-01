@@ -1,0 +1,81 @@
+import { createHighlighterCore, type HighlighterCore } from 'shiki/core'
+import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
+
+// A lazily-created, dependency-light syntax highlighter for lesson code blocks.
+//
+// It uses Shiki's **JavaScript regex engine** (not the WASM/Oniguruma one) so it runs
+// inside the Capacitor (WKWebView) and Tauri webviews without SharedArrayBuffer /
+// cross-origin isolation — which those surfaces can't provide. Only the grammars a
+// developer-learning app needs are bundled, and every grammar/theme is a dynamic
+// import, so nothing loads until the first code block mounts. See
+// docs/education-system.md §4.2.
+
+// Grammars we ship. Add a language here (and a dynamic import below) to support it.
+const LANGS = [
+  'typescript',
+  'tsx',
+  'javascript',
+  'jsx',
+  'json',
+  'bash',
+  'css',
+  'html',
+  'python',
+  'sql',
+  'markdown',
+] as const
+const LOADED = new Set<string>(LANGS)
+
+// Common fence aliases → the grammar we actually loaded.
+const ALIAS: Record<string, string> = {
+  ts: 'typescript',
+  js: 'javascript',
+  sh: 'bash',
+  shell: 'bash',
+  zsh: 'bash',
+  py: 'python',
+  md: 'markdown',
+}
+
+const THEME = 'github-dark'
+
+let singleton: Promise<HighlighterCore> | null = null
+
+function getHighlighter(): Promise<HighlighterCore> {
+  if (!singleton) {
+    singleton = createHighlighterCore({
+      // `forgiving` keeps a grammar the JS engine can't fully model from throwing —
+      // it degrades to a partial highlight instead of erroring.
+      engine: createJavaScriptRegexEngine({ forgiving: true }),
+      themes: [import('shiki/themes/github-dark.mjs')],
+      langs: [
+        import('shiki/langs/typescript.mjs'),
+        import('shiki/langs/tsx.mjs'),
+        import('shiki/langs/javascript.mjs'),
+        import('shiki/langs/jsx.mjs'),
+        import('shiki/langs/json.mjs'),
+        import('shiki/langs/bash.mjs'),
+        import('shiki/langs/css.mjs'),
+        import('shiki/langs/html.mjs'),
+        import('shiki/langs/python.mjs'),
+        import('shiki/langs/sql.mjs'),
+        import('shiki/langs/markdown.mjs'),
+      ],
+    })
+  }
+  return singleton
+}
+
+// Resolve a fence language to one we actually loaded (unknown → plain text, which
+// Shiki always supports without a grammar).
+function resolveLang(lang: string): string {
+  const l = (ALIAS[lang] ?? lang).toLowerCase()
+  return LOADED.has(l) ? l : 'text'
+}
+
+// Highlight code to a Shiki `<pre>` HTML string. The markup is produced entirely by
+// Shiki from tokenised, escaped source — safe to inject (see CodeBlock).
+export async function highlightToHtml(code: string, lang: string): Promise<string> {
+  const highlighter = await getHighlighter()
+  return highlighter.codeToHtml(code, { lang: resolveLang(lang), theme: THEME })
+}
