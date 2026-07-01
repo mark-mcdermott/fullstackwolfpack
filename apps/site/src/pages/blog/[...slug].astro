@@ -1,0 +1,50 @@
+---
+import { getCollection, render } from 'astro:content'
+import Base from '../../layouts/Base.astro'
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog')
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }))
+}
+
+const { post } = Astro.props
+const { Content } = await render(post)
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+---
+
+<Base title={`${post.data.title} — Fullstack Wolfpack`} description={post.data.description}>
+  <article class="mx-auto max-w-2xl px-5 py-16">
+    <a href="/blog" class="font-mono text-xs tracking-widest text-primary uppercase">
+      ← Blog
+    </a>
+    <h1 class="mt-4 text-4xl font-bold tracking-tight uppercase">
+      {post.data.title}
+    </h1>
+    <p class="mt-2 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
+      {fmt(post.data.date)}
+    </p>
+    {post.data.image && <img src={post.data.image} alt="" class="mt-8 w-full object-cover" />}
+    <div class="fw-prose mt-8 flex flex-col gap-4 text-sm leading-relaxed text-muted-foreground">
+      <Content />
+    </div>
+  </article>
+</Base>
+
+<style>
+  .fw-prose :global(h2) {
+    margin-top: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    color: var(--foreground);
+  }
+  .fw-prose :global(a) {
+    color: var(--primary);
+  }
+  .fw-prose :global(code) {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.85em;
+  }
+</style>

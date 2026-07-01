@@ -1,0 +1,91 @@
+---
+import Base from '../layouts/Base.astro'
+
+const features = [
+  {
+    label: '01',
+    title: 'Learn between sessions',
+    body: 'Short, focused lessons that slot into the gaps between gaming runs. Momentum without the grind.',
+  },
+  {
+    label: '02',
+    title: 'AI-generated courses',
+    body: 'Pick a topic, get a real course — lessons, quizzes, and code exercises generated on demand.',
+  },
+  {
+    label: '03',
+    title: 'Track the streak',
+    body: 'XP, levels, spaced-repetition review, and honest stats. See yourself getting stronger.',
+  },
+]
+---
+
+<Base>
+  <!-- Hero -->
+  <section
+    class="relative flex flex-col items-center gap-8 overflow-hidden px-5 py-20 md:flex-row md:justify-between md:py-28"
+  >
+    <div class="relative z-10 flex max-w-2xl flex-col gap-5">
+      <p class="font-mono text-xs tracking-widest text-primary uppercase">
+        // Fullstack Wolfpack
+      </p>
+      <h1
+        class="text-5xl leading-[0.95] font-bold tracking-tight uppercase sm:text-7xl"
+      >
+        Learn to code <span class="text-primary">between</span> gaming sessions.
+      </h1>
+      <p class="max-w-md font-mono text-sm text-muted-foreground">
+        A tactical learning system for developers. Real courses, real practice,
+        real momentum — built into the downtime you already have.
+      </p>
+      <div class="mt-2 flex flex-wrap gap-3">
+        <a
+          href="/app"
+          class="inline-flex items-center gap-2 bg-primary px-6 py-3 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+        >
+          Start learning →
+        </a>
+        <a
+          href="/blog"
+          class="inline-flex items-center gap-2 border border-border px-6 py-3 font-mono text-xs tracking-widest uppercase hover:bg-muted"
+        >
+          Read the blog
+        </a>
+      </div>
+    </div>
+    <img
+      src="/images/wolf-sun.png"
+      alt="Wolf and rising sun"
+      class="w-64 shrink-0 md:w-96"
+      loading="eager"
+    />
+  </section>
+
+  <!-- Features -->
+  <section class="grid gap-px border-y border-border bg-border md:grid-cols-3">
+    {
+      features.map((f) => (
+        <div class="flex flex-col gap-3 bg-background p-8">
+          <span class="font-mono text-xs tracking-widest text-primary">
+            {f.label}
+          </span>
+          <h2 class="text-lg font-bold tracking-tight uppercase">{f.title}</h2>
+          <p class="font-mono text-xs text-muted-foreground">{f.body}</p>
+        </div>
+      ))
+    }
+  </section>
+
+  <!-- CTA -->
+  <section class="flex flex-col items-center gap-5 px-5 py-20 text-center">
+    <h2 class="max-w-xl text-3xl font-bold tracking-tight uppercase sm:text-4xl">
+      Your next level is one session away.
+    </h2>
+    <a
+      href="/app"
+      class="inline-flex items-center gap-2 bg-primary px-6 py-3 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+    >
+      Create your account →
+    </a>
+  </section>
+</Base>
