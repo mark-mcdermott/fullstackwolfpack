@@ -157,14 +157,14 @@ list/overview screens.
 
 | # | Capability | State | Where it should live |
 |---|------------|-------|----------------------|
-| G1 | **Lesson player** — fetch a course/lesson, render segments, step through them | ❌ none | new `/app/learn/:lessonId` route + `/api/me/lesson/:id` + `data.lesson()` |
-| G2 | **Learning loop** — grade answer → record `quizAttempt` → award `xpEvent` → advance `userLessonProgress`/`userTopics` → update `dailyActivity`/streak → evaluate achievements | ❌ none | pure `core/learning.ts` (math) + `server/learning.ts` (writes) + `/api/me/answer`, `/api/me/lesson/:id/complete` |
-| G3 | **Spaced repetition / review** (`smart_intervals`) — schedule concept/question reviews, a review queue, a "due today" surface | ❌ none | pure `core/review.ts` (scheduler) + `reviews` table + `/api/me/review` |
-| G4 | **AI tutor** (`ai_tutor`) — grounded chat/hint/"explain differently" tied to the current segment | ❌ none | `core/tutor.ts` seam + `server/tutor.ts` + `/api/me/tutor` (streamed) |
+| G1 | **Lesson player** — fetch a course/lesson, render segments, step through them | ❌ none | new `/app/learn/:lessonId` route + a `lesson` action on `api/me/[action].ts` + `data.lesson()` |
+| G2 | **Learning loop** — grade answer → record `quizAttempt` → award `xpEvent` → advance `userLessonProgress`/`userTopics` → update `dailyActivity`/streak → evaluate achievements | ❌ none | pure `core/learning.ts` (math) + `server/learning.ts` (writes) + `answer`/`complete` actions on `api/me/[action].ts` |
+| G3 | **Spaced repetition / review** (`smart_intervals`) — schedule concept/question reviews, a review queue, a "due today" surface | ❌ none | pure `core/review.ts` (scheduler) + `reviews` table + a `review` action |
+| G4 | **AI tutor** (`ai_tutor`) — grounded chat/hint/"explain differently" tied to the current segment | ❌ none | `core/tutor.ts` seam + `server/tutor.ts` + a streamed `tutor` action |
 | G5 | **AI grading** of `short_answer` — LLM-as-judge vs `expectedAnswer` → `{correct, feedback}` → `quizAttempts.aiFeedback` | ❌ none | `core/grader.ts` seam + `server/grader.ts` |
 | G6 | **Code exercises** — editor + run hidden `tests` against user code → pass/fail | ❌ none | `code`/`practice` segment components + a sandbox (OSS, §4) |
 | G7 | **Markdown rendering** — segment bodies are markdown; nothing renders them | ❌ none | a renderer component (OSS, §4) |
-| G8 | **Enrollment UX** — "generate me a course on X" wired to `enroll.ts`, with the `generating→ready` lifecycle surfaced | ⚠️ backend exists, no UI | topic detail page + `/api/me/enroll` + poll/stream status |
+| G8 | **Enrollment UX** — "generate me a course on X" wired to `enroll.ts`, with the `generating→ready` lifecycle surfaced | ⚠️ backend exists (main built the `enroll` action), no UI | topic detail page + the existing `enroll` action + poll/stream status |
 
 G1, G2, G3 are the spine of the learning experience and are the highest-value,
 lowest-collision work for this pane. G4/G5 are the "AI tutorial" differentiators. G6/G7
@@ -500,13 +500,13 @@ src/server/
   tutor.ts       (NEW) Claude/OpenAI-backed Tutor
   grader.ts      (NEW) Claude/OpenAI-backed AnswerGrader
   anthropic-generator.ts (NEW, coordinate w/ main) Claude LessonGenerator
-api/me/
-  lesson/[id].ts        (NEW) fetch a lesson tree for the player
-  answer.ts             (NEW) submit an answer → grade → attempt + xp + feedback
-  lesson/[id]/complete  (NEW) complete a lesson → progress + xp + achievements + reviews
-  review.ts             (NEW) today's review queue + submit a review grade
-  tutor.ts              (NEW) streamed tutor endpoint
-  enroll.ts             (NEW) trigger generation (wraps server/enroll.ts)
+api/me/[action].ts  (EXTEND — one main-owned dynamic function; add `case`s, NOT new files)
+  ↳ lesson    fetch a lesson tree for the player      (lesson id via ?id=, not a path segment)
+  ↳ answer    submit an answer → grade → attempt + xp + feedback
+  ↳ complete  complete a lesson → progress + xp + achievements + reviews
+  ↳ review    GET the due queue / POST a review grade
+  ↳ tutor     streamed tutor endpoint (serverless functions can stream responses)
+  (enroll / openai-key already live here as actions — owned by main)
 src/pages/app/
   learn.tsx             (NEW) the lesson player (reading/quiz/code/practice segments)
 src/components/learn/
@@ -517,6 +517,13 @@ src/components/learn/
 Everything in `core/*` is pure and unit-tested (matching the repo's strong TDD
 convention). The server files are thin Drizzle glue. The seams keep the AI providers
 swappable and the whole thing testable with fakes.
+
+> **Why actions, not files (Vercel function cap).** Vercel's Hobby plan caps a deployment
+> at **12 serverless functions**, and *every file under `api/` is one function*. The repo
+> is already **at exactly 12** — commit `d0fbadc` collapsed the six `api/me/*` reads into
+> the single dynamic `api/me/[action].ts` precisely to fit under the cap. So each new
+> education endpoint must be a **new `case` inside that one file**, not a new `api/*.ts`
+> file — otherwise the build fails before it deploys. See §8.
 
 ---
 
@@ -532,12 +539,12 @@ Ordered by value and by *lowest collision* with the other panes.
   (react-markdown + Shiki). MCQ grading only (no AI needed yet). This alone turns the app
   from "dashboards over fixtures" into "you can actually take a lesson."
 - **Phase 2 — Review system (G3).** Promote `core/review.ts` from POC to wired feature:
-  `reviews` table, `/api/me/review`, a "due today" surface. Optionally swap SM-2 → FSRS.
-  Pro-gate `smart_intervals`.
+  `reviews` table, a `review` action on `api/me/[action].ts`, a "due today" surface.
+  Optionally swap SM-2 → FSRS (ts-fsrs). Pro-gate `smart_intervals`.
 - **Phase 3 — AI tutor + AI grading (G4, G5).** The differentiators. Tutor/grader seams
   + Claude implementations + structured outputs + prompt caching. Pro-gate `ai_tutor`.
-- **Phase 4 — Code exercises (G6).** Sandpack / Web-Worker test runner for `code`/
-  `practice` segments.
+- **Phase 4 — Code exercises (G6).** CodeMirror 6 + a Web-Worker test runner (§4.3) for
+  the `code`/`practice` segments.
 - **Cross-cutting (coordinate w/ main) — provider-agnostic generation + Claude (§5.1).**
 
 ---
@@ -550,22 +557,33 @@ Three panes are in this repo at once. This pane must not collide.
 |------|------|---------|
 | **Main** | #1 real data (wire pages → `/api/me/*`), #2 **AI generation**, #3 auth hardening | `core/generation.ts`, `server/openai-generator.ts`, `server/enroll.ts`, `core/app-data.ts`, `server/app-data.ts`, the existing pages |
 | **Pane 2** | ROM gallery | its own new gallery files |
-| **This pane (education-core)** | the **learning experience**: lesson player, learning loop, review/SR, tutor, grader, code exercises | **new** files in `core/`, `server/`, `api/me/`, `pages/app/learn.tsx`, `components/learn/*` |
+| **This pane (education-core)** | the **learning experience**: lesson player, learning loop, review/SR, tutor, grader, code exercises | **new** files in `core/`, `server/`, `pages/app/learn.tsx`, `components/learn/*`; **extends** the main-owned `api/me/[action].ts` (adds actions, not files) |
 
 Collision-avoidance rules for this pane:
 
 - **Do not modify** `core/generation.ts` / `server/openai-generator.ts` / `enroll.ts` —
   main owns generation (#2). Our Claude/structured-outputs proposal (§5.1) is filed as a
   *recommendation to main*, not something we implement here unless asked.
-- **Do not rewrite** the existing `/api/me/*` read endpoints or `core/app-data.ts` —
-  main owns "real data" (#1). We **add new** endpoints (`/api/me/lesson`, `/answer`,
-  `/review`, `/tutor`, `/enroll`) rather than editing existing ones.
+- **Do not rewrite** the existing `/api/me/*` read logic or `core/app-data.ts` — main owns
+  "real data" (#1). New education endpoints (`lesson`, `answer`, `complete`, `review`,
+  `tutor`) are added as **new `case`s in the main-owned `api/me/[action].ts`**, not as new
+  files (see the function-cap rule below). That makes the endpoints a coordinate-with-main
+  touchpoint — but each is a small, additive diff (one `case`), so conflicts stay trivial.
+- **⚠️ Vercel Hobby caps a deployment at 12 serverless functions, and the repo is already
+  at exactly 12.** Every file under `api/` is one function; the `api/me/*` reads were
+  consolidated into the single dynamic `api/me/[action].ts` (`d0fbadc`) precisely to fit —
+  which is *why* PR #6's own deploy failed until `main` (with the fix) was merged in.
+  **Adding any new `api/*.ts` file breaks the build.** So: education endpoints ride as
+  *actions* inside `api/me/[action].ts`; if a genuinely separate route is ever unavoidable,
+  consolidate something else first or move the project to Vercel Pro (which raises the cap).
+  Sanity-check the count with
+  `find api -name '*.ts' | grep -v /_lib/ | grep -vE '/_[a-zA-Z]' | wc -l`.
 - The learning loop **writes** the very tables main **reads** (`xpEvents`,
   `userLessonProgress`, `dailyActivity`, `quizAttempts`). That's complementary, not
   conflicting — but the write-shape (XP amounts, streak rules) should be agreed with main
   so the dashboards reflect it. This is the one real interface to sync on.
-- Net-new files only; no edits to `App.tsx` routing until integration time (add the
-  `/app/learn/:id` route in a small, reviewable change).
+- Net-new files only elsewhere; no edits to `App.tsx` routing until integration time (add
+  the `/app/learn/:id` route in a small, reviewable change).
 
 ---
 
