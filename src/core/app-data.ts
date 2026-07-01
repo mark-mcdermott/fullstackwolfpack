@@ -83,7 +83,6 @@ export const dashboardSchema = z.object({
   stats: statsSchema,
   focus: z.array(topicProgressSchema),
   recentLessons: z.array(recentLessonSchema),
-  activity: z.array(activityItemSchema),
   weekActivity: z.array(z.string()),
 })
 export type Dashboard = z.infer<typeof dashboardSchema>

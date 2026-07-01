@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-// Minimal data-fetching state for the logged-in pages: run an async fn on mount
-// (and when `deps` change), exposing loading / data / error. Stale results from
-// a superseded run are ignored.
+// Minimal data-fetching state for the logged-in pages: run an async fn once on
+// mount, exposing loading / data / error. Stale results from an unmounted
+// component are ignored.
 
 export type AsyncState<T> = {
   data: T | null
@@ -10,20 +10,19 @@ export type AsyncState<T> = {
   error: string | null
 }
 
-export function useAsync<T>(
-  fn: () => Promise<T>,
-  deps: unknown[] = [],
-): AsyncState<T> {
+export function useAsync<T>(fn: () => Promise<T>): AsyncState<T> {
   const [state, setState] = useState<AsyncState<T>>({
     data: null,
     loading: true,
     error: null,
   })
+  const fnRef = useRef(fn)
+  fnRef.current = fn
 
   useEffect(() => {
     let active = true
-    setState({ data: null, loading: true, error: null })
-    fn()
+    fnRef
+      .current()
       .then((data) => {
         if (active) setState({ data, loading: false, error: null })
       })
@@ -38,8 +37,7 @@ export function useAsync<T>(
     return () => {
       active = false
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps)
+  }, [])
 
   return state
 }

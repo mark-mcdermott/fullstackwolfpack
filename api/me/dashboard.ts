@@ -23,7 +23,6 @@ export async function GET(req: Request): Promise<Response> {
     stats,
     focus: topics.slice(0, 3),
     recentLessons: activity.recentLessons,
-    activity: activity.activity,
     weekActivity: activity.weekActivity,
   })
 }

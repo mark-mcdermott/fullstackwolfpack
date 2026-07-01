@@ -1,9 +1,59 @@
 import { render, screen } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { MemoryRouter } from 'react-router'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { AuthContext, type AuthContextValue } from '@/hooks/auth-context'
 import type { PublicUser } from '@/core/schemas'
+
+// The app pages fetch through the api-client singleton; stub it with canned
+// data so we test rendering, not the network.
+vi.mock('@/api-client', () => ({
+  api: {
+    data: {
+      dashboard: async () => ({
+        user: { displayName: 'Mark', level: 1, xp: 0, xpToNext: 400, levelPct: 0 },
+        stats: {
+          streak: 0,
+          bestStreak: 0,
+          accuracy: 0,
+          hoursLearned: 0,
+          hoursPlayed: 0,
+          lessonsCompleted: 0,
+          sessions: 0,
+          totalXp: 0,
+        },
+        focus: [],
+        recentLessons: [],
+        weekActivity: [],
+      }),
+      topics: async () => [
+        {
+          slug: 'react',
+          name: 'React',
+          category: 'frontend',
+          difficulty: 'beginner',
+          pct: 0,
+          lessonsCompleted: 0,
+          lessonsTotal: 0,
+        },
+      ],
+      achievements: async () => ({
+        earned: [
+          {
+            slug: 'week-warrior',
+            name: 'Week Warrior',
+            description: 'Complete 7 days in a row',
+            current: 7,
+            target: 7,
+            earnedAt: '2025-05-20T00:00:00.000Z',
+          },
+        ],
+        inProgress: [],
+        locked: [],
+      }),
+    },
+  },
+}))
 import { AchievementsPage } from '@/pages/app/achievements'
 import { DashboardPage } from '@/pages/app/dashboard'
 import { SettingsPage } from '@/pages/app/settings'
@@ -61,17 +111,17 @@ describe('public pages render', () => {
 })
 
 describe('app pages render', () => {
-  it('dashboard', () => {
+  it('dashboard', async () => {
     renderPage(<DashboardPage />)
-    expect(screen.getByText(/recent lessons/i)).toBeInTheDocument()
+    expect(await screen.findByText(/recent lessons/i)).toBeInTheDocument()
   })
-  it('topics', () => {
+  it('topics', async () => {
     renderPage(<TopicsPage />)
-    expect(screen.getByText('React')).toBeInTheDocument()
+    expect(await screen.findByText('React')).toBeInTheDocument()
   })
-  it('achievements', () => {
+  it('achievements', async () => {
     renderPage(<AchievementsPage />)
-    expect(screen.getByText('Week Warrior')).toBeInTheDocument()
+    expect(await screen.findByText('Week Warrior')).toBeInTheDocument()
   })
   it('settings shows billing', () => {
     renderPage(<SettingsPage />)
