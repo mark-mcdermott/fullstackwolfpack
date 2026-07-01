@@ -1,4 +1,5 @@
 import { api } from '@/api-client'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { ProgressMeter } from '@/components/ui-kit'
 import { useAuth } from '@/hooks/auth-context'
 import { useAsync } from '@/hooks/use-async'
@@ -15,6 +16,7 @@ export function AppHeader() {
         Good evening, {name} <span className="text-primary">++</span>
       </p>
       <div className="flex items-center gap-3">
+        <ThemeToggle className="lg:hidden" />
         <span className="font-mono text-xs tracking-widest uppercase">
           Level {summary?.level ?? '—'}
         </span>
