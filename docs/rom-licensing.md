@@ -182,6 +182,64 @@ runtime is not that.
 
 ---
 
+## Appendix — verified clear-license titles (no caveats)
+
+Every title below I **opened and confirmed** the license covers the **whole game
+(code + assets)** and **permits commercial bundling** with no source-opening
+obligation. Titles whose *code* was permissive but whose *assets* were unstated
+or non-commercial are deliberately **excluded** (see "What didn't make it").
+
+### 🟢 Bundle-safe in a closed commercial app
+
+**NES** — all three by *sebastiandine*, license **zlib** (bundle + sell freely;
+keep the copyright notice in your source/docs; no on-screen credit needed; whole
+repo is zlib — simple C clones, dev-authored graphics, no third-party assets;
+build the `.nes` with cc65):
+- **openNES-Pong** — `github.com/sebastiandine/openNES-Pong`
+- **openNES-Breakout** — `github.com/sebastiandine/openNES-Breakout`
+- **openNES-Snake** — `github.com/sebastiandine/openNES-Snake`
+
+**Game Boy / Color**
+- **Tobu Tobu Girl** — **MIT (code) + CC-BY-4.0 (assets)** —
+  `github.com/SimonLarsen/tobutobugirl`. Explicitly dual-licensed so the *whole
+  game* is covered; commercial bundling OK; one firm, clear condition —
+  **credit the author** (CC-BY). Build the `.gb` from source.
+
+### Why the list is this short (evidence, not laziness)
+
+Genuinely no-caveat, whole-game, commercially-bundle-able homebrew is **rare**:
+
+- The curated **GBA database** (`gbadev-org/games`) lists **189 games** — only
+  **2 are MIT**, 3 MPL-2.0; everything else is GPL or has **no license field**.
+- Even those failed the whole-game bar: **MeteoRain** (MIT code) bakes in
+  **CC-BY-NC** music (non-commercial → can't sell); **Skyland** and the **agb**
+  demos (*The Hat Chooses the Wizard*, *The purple night*) license the *code*
+  MPL-2.0 but **state no asset license**.
+- **Disassemblies** (pret's Pokémon, Link's Awakening DX) are MIT **on the
+  decompilation work** — the game is still Nintendo's IP → **not bundle-able**.
+- **Collections** (retrobrews) say *"approved for distribution here only —
+  contact the owner to share"* → not a redistribution grant.
+- Prolific devs (e.g. **Shiru**) ship source but **state no license** on most
+  titles → unverifiable.
+- **CC0** in homebrew is almost always **asset packs**, not finished games.
+- **SNES & Genesis:** no games meeting the bar were found — only permissively
+  licensed *dev kits* (e.g. SGDK is MIT), not shippable games.
+
+### How to grow the list legitimately
+
+1. Accept only a license covering **code AND assets** (or a whole-game
+   CC0 / zlib / MIT+CC-BY statement). The README's *assets/music* line is where
+   it usually breaks — check it every time.
+2. Exclude disassemblies of commercial games, "freeware / personal use," NC
+   music, and "contact us to share" collections.
+3. **Highest-yield lever:** email the author for **written permission to bundle
+   commercially**. Most hobbyist devs will grant it — a one-line grant turns a
+   freeware title into a clear-for-you title. Keep the emails on file.
+4. Relaxing "no caveats" to allow **CC-BY attribution** (a clear, trivial
+   condition) widens the pool — still verify assets each time.
+
+---
+
 ### Sources
 - [snes9x LICENSE (non-commercial)](https://github.com/snes9xgit/snes9x/blob/master/LICENSE)
 - [Genesis Plus GX (non-commercial)](https://github.com/libretro/Genesis-Plus-GX)
@@ -193,3 +251,4 @@ runtime is not that.
 - [PicoDrive → MAME license, non-commercial](https://github.com/notaz/picodrive/issues/41)
 - [GPL FAQ — aggregation vs. derivative](https://www.gnu.org/licenses/gpl-faq.html)
 - [Homebrew Hub](https://hh.gbdev.io/) · [OpenGameArt CC0 NES](https://opengameart.org/content/cc0-public-domain-nes) · [Zophar's PD ROMs (GB)](https://www.zophar.net/pdroms/gameboy.html)
+- Verified titles: [openNES-Pong (zlib)](https://github.com/sebastiandine/openNES-Pong) · [Tobu Tobu Girl (MIT+CC-BY)](https://github.com/SimonLarsen/tobutobugirl) · [gbadev-org/games DB](https://github.com/gbadev-org/games) · [awesome-gbdev](https://github.com/gbdev/awesome-gbdev)
