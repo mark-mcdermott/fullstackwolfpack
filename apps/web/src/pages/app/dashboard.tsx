@@ -24,7 +24,7 @@ export function DashboardPage() {
         <div className="flex items-center justify-between gap-6">
           <div className="flex flex-col gap-4">
             <SectionLabel>Overview</SectionLabel>
-            <h1 className="max-w-2xl text-4xl leading-[0.95] font-bold tracking-tight uppercase sm:text-6xl">
+            <h1 className="max-w-2xl text-4xl leading-[0.95] font-semibold tracking-tight uppercase sm:text-6xl">
               You're building something{' '}
               <span className="text-primary">powerful.</span>
             </h1>

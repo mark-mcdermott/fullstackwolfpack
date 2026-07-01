@@ -12,7 +12,7 @@ import { CodeBlock } from './code-block'
 
 const components: Components = {
   h1: ({ node: _n, ...p }) => (
-    <h1 className="text-2xl font-bold tracking-tight uppercase" {...p} />
+    <h1 className="text-2xl font-semibold tracking-tight uppercase" {...p} />
   ),
   h2: ({ node: _n, ...p }) => (
     <h2 className="mt-2 text-xl font-bold tracking-tight uppercase" {...p} />

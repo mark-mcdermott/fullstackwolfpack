@@ -23,7 +23,7 @@ export function Home() {
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div>
             <Pill>AI-powered learning platform</Pill>
-            <h1 className="mt-6 text-5xl leading-[0.95] font-bold tracking-tight uppercase sm:text-7xl">
+            <h1 className="mt-6 text-5xl leading-[0.95] font-semibold tracking-tight uppercase sm:text-7xl">
               Learn. Play. <span className="text-primary">Level up.</span>
             </h1>
             <p className="mt-6 max-w-md font-mono text-sm text-muted-foreground">

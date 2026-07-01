@@ -12,7 +12,7 @@ export function NotFound() {
           <p className="font-mono text-7xl leading-none font-bold sm:text-8xl">
             404
           </p>
-          <h1 className="text-2xl font-bold uppercase">
+          <h1 className="text-2xl font-semibold uppercase">
             Target not found<span className="text-primary">.</span>
           </h1>
           <p className="max-w-sm font-mono text-sm text-muted-foreground">

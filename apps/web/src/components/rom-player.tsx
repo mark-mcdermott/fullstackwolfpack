@@ -155,7 +155,7 @@ export function RomPlayer({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <SectionLabel>Now playing</SectionLabel>
-          <h1 className="mt-1 text-3xl font-bold uppercase">{rom.title}</h1>
+          <h1 className="mt-1 text-3xl font-semibold uppercase">{rom.title}</h1>
         </div>
         <div className="flex items-center gap-3">
           <Pill>{meta.label}</Pill>

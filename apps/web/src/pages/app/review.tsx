@@ -42,7 +42,7 @@ function ReviewRunner({ queue }: { queue: ReviewQueue }) {
       <div className="flex items-center justify-between">
         <div>
           <SectionLabel>Review</SectionLabel>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight uppercase">
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight uppercase">
             Due today
           </h1>
         </div>
@@ -175,7 +175,7 @@ function CaughtUp({ reviewed }: { reviewed: number }) {
       <Panel className="flex flex-col items-center gap-4 py-12 text-center">
         <Trophy className="size-10 text-primary" />
         <SectionLabel>Review</SectionLabel>
-        <h1 className="text-3xl font-bold tracking-tight uppercase">All caught up</h1>
+        <h1 className="text-3xl font-semibold tracking-tight uppercase">All caught up</h1>
         <p className="font-mono text-xs text-muted-foreground">
           {reviewed > 0
             ? `${reviewed} review${reviewed === 1 ? '' : 's'} done. Come back when more are due.`
@@ -198,7 +198,7 @@ function ProUpsell() {
       <Panel className="flex flex-col items-center gap-4 py-12 text-center">
         <Lock className="size-10 text-muted-foreground" />
         <SectionLabel>Pro feature</SectionLabel>
-        <h1 className="text-3xl font-bold tracking-tight uppercase">
+        <h1 className="text-3xl font-semibold tracking-tight uppercase">
           Smart review intervals
         </h1>
         <p className="max-w-md font-mono text-xs text-muted-foreground">
