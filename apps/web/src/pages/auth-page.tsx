@@ -25,7 +25,7 @@ export function AuthPage() {
               Learn. Play. Level up. Turn screen time into real-world skills.
             </p>
           </div>
-          <WolfSun className="size-64" />
+          <WolfSun className="w-64" />
         </div>
 
         {/* Form */}

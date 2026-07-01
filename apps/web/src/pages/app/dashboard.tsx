@@ -38,7 +38,7 @@ export function DashboardPage() {
               Start learning <ArrowRight className="size-4" />
             </Link>
           </div>
-          <WolfSun className="hidden size-56 shrink-0 md:block" />
+          <WolfSun className="hidden w-56 shrink-0 md:block" />
         </div>
       </Panel>
 

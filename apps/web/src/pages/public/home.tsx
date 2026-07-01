@@ -48,7 +48,7 @@ export function Home() {
               30 min play // 10 min learn
             </p>
           </div>
-          <WolfSun className="mx-auto size-72 sm:size-80 lg:size-96" />
+          <WolfSun className="mx-auto w-72 sm:w-80 lg:w-96" />
         </div>
       </section>
 
