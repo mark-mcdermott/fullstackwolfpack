@@ -15,16 +15,25 @@ export interface LaunchOptions {
   // CDN instead of our own assets.
   rom: File
   canvas: HTMLCanvasElement
+  // RetroArch overrides (input_player1_* remaps); merged over Nostalgist's
+  // defaults, so we only pass what the user changed.
+  retroarchConfig?: Record<string, string>
 }
 
 export type Launcher = (options: LaunchOptions) => Promise<EmulatorSession>
 
-export const launchRom: Launcher = async ({ core, rom, canvas }) => {
+export const launchRom: Launcher = async ({
+  core,
+  rom,
+  canvas,
+  retroarchConfig,
+}) => {
   const { Nostalgist } = await import('nostalgist')
   const nostalgist = await Nostalgist.launch({
     core,
     rom: { fileName: rom.name, fileContent: rom },
     element: canvas,
+    ...(retroarchConfig ? { retroarchConfig } : {}),
   })
   return {
     pause: () => nostalgist.pause(),

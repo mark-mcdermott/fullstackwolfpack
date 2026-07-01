@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { EmulatorSession, LaunchOptions } from '@/lib/emulator'
 import type { RomEntry, UploadedRom } from '@/lib/rom-catalog'
@@ -37,7 +38,10 @@ function stubOkFetch() {
   )
 }
 
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => {
+  vi.unstubAllGlobals()
+  localStorage.clear()
+})
 
 function setup(
   rom: RomEntry | UploadedRom = uploadRom,
@@ -46,7 +50,11 @@ function setup(
   const session = fakeSession()
   const launcher = vi.fn(launcherImpl ?? (async (_opts: LaunchOptions) => session))
   const onExit = vi.fn()
-  const view = render(<RomPlayer rom={rom} onExit={onExit} launcher={launcher} />)
+  const view = render(
+    <MemoryRouter>
+      <RomPlayer rom={rom} onExit={onExit} launcher={launcher} />
+    </MemoryRouter>,
+  )
   return { session, launcher, onExit, ...view }
 }
 
@@ -59,6 +67,35 @@ describe('RomPlayer', () => {
     expect(opts.core).toBe('mgba')
     expect(opts.rom).toBe(uploadRom.file)
     expect(opts.canvas).toBeInstanceOf(HTMLCanvasElement)
+  })
+
+  it('applies the saved key/gamepad bindings via retroarchConfig', async () => {
+    const { launcher } = setup(uploadRom)
+    await screen.findByRole('button', { name: 'Pause' })
+
+    const config = launcher.mock.calls[0][0].retroarchConfig
+    expect(config?.input_player1_a).toBe('x') // default keyboard A = X
+    expect(config?.input_player1_a_btn).toBe('1') // default pad A = button 1
+  })
+
+  it('toggles a read-only controls reference from the toolbar', async () => {
+    const user = userEvent.setup()
+    setup(uploadRom)
+    await screen.findByRole('button', { name: 'Pause' })
+
+    expect(
+      screen.queryByRole('button', { name: 'Close controls' }),
+    ).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Controls' }))
+    expect(
+      screen.getByRole('link', { name: /settings/i }),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Close controls' }))
+    expect(
+      screen.queryByRole('button', { name: 'Close controls' }),
+    ).not.toBeInTheDocument()
   })
 
   it('runs on a canvas attached inside the player, and removes it on unmount', async () => {

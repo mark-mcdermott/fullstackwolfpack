@@ -1,7 +1,11 @@
-import { GraduationCap, LogOut, Pause, Play } from 'lucide-react'
+import { Gamepad2, GraduationCap, LogOut, Pause, Play, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router'
+import { ControlsReference } from '@/components/controls/controls-reference'
 import { Panel, Pill, SectionLabel } from '@/components/ui-kit'
+import { bindsToRetroarchConfig } from '@/core/controls'
 import { coreForSystem, SYSTEM_META } from '@/core/roms'
+import { loadGamepadBinds, loadKeyboardBinds } from '@/lib/controls-store'
 import {
   type EmulatorSession,
   type Launcher,
@@ -58,12 +62,14 @@ export function RomPlayer({
   const [status, setStatus] = useState<Status>('loading')
   const [paused, setPaused] = useState(false)
   const [lessonOpen, setLessonOpen] = useState(false)
+  const [controlsOpen, setControlsOpen] = useState(false)
 
   useEffect(() => {
     let cancelled = false
     setStatus('loading')
     setPaused(false)
     setLessonOpen(false)
+    setControlsOpen(false)
 
     const container = containerRef.current
     if (!container) return
@@ -87,6 +93,10 @@ export function RomPlayer({
           core: coreForSystem(rom.system),
           rom: file,
           canvas,
+          retroarchConfig: bindsToRetroarchConfig(
+            loadKeyboardBinds(),
+            loadGamepadBinds(),
+          ),
         }).then((session) => {
           if (cancelled) {
             session.stop()
@@ -209,6 +219,29 @@ export function RomPlayer({
               />
             </div>
           )}
+
+          {controlsOpen && (
+            <div className="absolute inset-0 flex flex-col gap-4 overflow-auto bg-background/97 p-5">
+              <div className="flex items-center justify-between">
+                <SectionLabel>Controls</SectionLabel>
+                <button
+                  type="button"
+                  onClick={() => setControlsOpen(false)}
+                  aria-label="Close controls"
+                  className="border border-border p-1.5 hover:bg-muted"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+              <ControlsReference />
+              <Link
+                to="/app/settings"
+                className="w-fit font-mono text-[10px] tracking-widest text-primary uppercase hover:underline"
+              >
+                Change these in Settings → Arcade controls
+              </Link>
+            </div>
+          )}
         </div>
       </Panel>
 
@@ -223,6 +256,11 @@ export function RomPlayer({
           label="Pause for lesson"
           onClick={pauseForLesson}
           variant="primary"
+        />
+        <ControlButton
+          icon={Gamepad2}
+          label="Controls"
+          onClick={() => setControlsOpen((open) => !open)}
         />
       </div>
     </div>
