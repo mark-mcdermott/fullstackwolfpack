@@ -102,7 +102,7 @@ function LessonPlayer({ lesson }: { lesson: LessonView }) {
 
       <div>
         <SectionLabel>Lesson</SectionLabel>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight uppercase">
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight uppercase">
           {lesson.title}
         </h1>
       </div>
@@ -174,7 +174,7 @@ function CompletionPanel({
           className={cn('size-10', mastered ? 'text-primary' : 'text-muted-foreground')}
         />
         <SectionLabel>Lesson complete</SectionLabel>
-        <h1 className="text-3xl font-bold tracking-tight uppercase">{lesson.title}</h1>
+        <h1 className="text-3xl font-semibold tracking-tight uppercase">{lesson.title}</h1>
 
         <div className="mt-2 grid grid-cols-3 gap-4 sm:gap-8">
           <Stat value={`${completion.score}%`} label="Score" />

@@ -4,7 +4,7 @@ import { cn } from './utils'
 // `sun` = wolf facing forward + rising sun; `rear` = wolf from behind (404).
 // The parent sets the size via className; object-contain preserves the aspect.
 const SOURCES = {
-  sun: '/images/wolf-sun.png',
+  sun: '/images/wolf-sun-transparent.png',
   rear: '/images/wolf-rear-and-sun.png',
 } as const
 

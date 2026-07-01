@@ -18,14 +18,14 @@ export function AuthPage() {
           </Link>
           <div>
             <SectionLabel>Join the pack</SectionLabel>
-            <h1 className="mt-2 text-4xl leading-tight font-bold uppercase">
+            <h1 className="mt-2 text-4xl leading-tight font-semibold uppercase">
               Level up your <span className="text-primary">skills.</span>
             </h1>
             <p className="mt-3 max-w-sm font-mono text-sm text-muted-foreground">
               Learn. Play. Level up. Turn screen time into real-world skills.
             </p>
           </div>
-          <WolfSun className="size-64" />
+          <WolfSun className="w-64" />
         </div>
 
         {/* Form */}

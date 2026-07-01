@@ -30,3 +30,6 @@ dist-ssr
 
 # Astro
 .astro/
+
+# git worktrees live here (not tracked)
+worktrees/

@@ -1,23 +1,22 @@
-# Aesthetics & UX punchlist — round 2
+# Aesthetics & UX punchlist — round 3
 
-Branch `fix/aesthetics-and-ux-punchlist-2` (main repo; another pane holds
+Branch `fix/aesthetics-and-ux-punchlist-3` (main repo; another pane holds
 `worktrees/dev-mode` — don't touch it). Add items as we go; commit per item; one
-PR at the end. Round 1 (real art, light-default theme, Retry states, mobile nav)
-is merged (#28).
+PR at the end. Rounds 1 (real art, light theme, Retry, mobile nav — #28) and
+2 (theme-adaptive favicon — #30) are merged.
 
 Legend: `[ ]` todo · `[~]` in progress · `[x]` done · `[?]` needs Mark's call
 
-## Candidates (seed — reprioritize / add freely)
+## Candidates (carryover + fresh — reprioritize / add freely)
 
-- `[x]` **Favicon** — clean single-wolf SVG (boilerplate stripped) wired into
-  `apps/web` + `apps/site`; `CREDITS.md` tracks source (❓ confirm), Vecteezy
-  asset archived in `credits/` (unused). Open: optional dark-tab adaptivity.
-- `[?]` **Deeper mock parity** (ROADMAP `[~]`): richer stat panels, the dashboard
-  "system feed" / footer flourishes, closer alignment to the mocks per screen.
-- `[?]` **Loading skeletons** — upgrade the plain spinner to lightweight skeleton
-  placeholders on the data-heavy pages (Dashboard/Stats/Progress).
-- `[?]` **Interaction-state audit** — consistent focus rings, hover, active, and
-  disabled states on buttons/links/inputs across the app.
+- `[?]` **Deeper mock parity** (ROADMAP `[~]`): richer stat panels, dashboard
+  "system feed" / footer flourishes, closer per-screen alignment to the mocks.
+- `[?]` **Loading skeletons** — replace the plain spinner with lightweight
+  skeleton placeholders on the data-heavy pages (Dashboard/Stats/Progress).
+- `[?]` **Interaction-state audit** — consistent focus rings / hover / active /
+  disabled states on buttons, links, inputs across the app.
+- `[?]` **Astro ↔ @fw/ui parity** — add `@astrojs/react` so the marketing site
+  can render the real `@fw/ui` components (exact FW-01 match, de-dup markup).
 
 ## Mark's items (add here)
 

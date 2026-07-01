@@ -12,7 +12,7 @@ export function NotFound() {
           <p className="font-mono text-7xl leading-none font-bold sm:text-8xl">
             404
           </p>
-          <h1 className="text-2xl font-bold uppercase">
+          <h1 className="text-2xl font-semibold uppercase">
             Target not found<span className="text-primary">.</span>
           </h1>
           <p className="max-w-sm font-mono text-sm text-muted-foreground">
@@ -34,7 +34,7 @@ export function NotFound() {
             </Link>
           </div>
         </div>
-        <WolfSun variant="rear" className="mx-auto size-64 md:size-80" />
+        <WolfSun variant="rear" className="mx-auto w-64 md:w-80" />
       </div>
     </div>
   )
