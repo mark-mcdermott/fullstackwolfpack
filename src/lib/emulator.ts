@@ -10,8 +10,10 @@ export interface EmulatorSession {
 
 export interface LaunchOptions {
   core: string
-  // A URL string (catalog ROM) or a File the user uploaded.
-  rom: string | File
+  // The ROM bytes. We always hand Nostalgist the file content directly —
+  // passing a bare path lets Nostalgist "resolve" it against its default ROM
+  // CDN instead of our own assets.
+  rom: File
   canvas: HTMLCanvasElement
 }
 
@@ -21,7 +23,7 @@ export const launchRom: Launcher = async ({ core, rom, canvas }) => {
   const { Nostalgist } = await import('nostalgist')
   const nostalgist = await Nostalgist.launch({
     core,
-    rom: typeof rom === 'string' ? rom : { fileName: rom.name, fileContent: rom },
+    rom: { fileName: rom.name, fileContent: rom },
     element: canvas,
   })
   return {

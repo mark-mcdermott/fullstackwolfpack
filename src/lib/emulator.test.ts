@@ -15,19 +15,16 @@ beforeEach(() => {
 })
 
 describe('launchRom adapter', () => {
-  it('passes a URL rom straight through and maps session methods', async () => {
+  it('hands Nostalgist the file content (not a path) and maps session methods', async () => {
     const { launchRom } = await import('./emulator')
     const canvas = document.createElement('canvas')
+    const file = new File([new Uint8Array([1, 2, 3])], 'alter-ego.nes')
 
-    const session = await launchRom({
-      core: 'fceumm',
-      rom: '/roms/alter-ego.nes',
-      canvas,
-    })
+    const session = await launchRom({ core: 'fceumm', rom: file, canvas })
 
     expect(launch).toHaveBeenCalledWith({
       core: 'fceumm',
-      rom: '/roms/alter-ego.nes',
+      rom: { fileName: 'alter-ego.nes', fileContent: file },
       element: canvas,
     })
 
@@ -37,19 +34,5 @@ describe('launchRom adapter', () => {
     expect(pause).toHaveBeenCalledOnce()
     expect(resume).toHaveBeenCalledOnce()
     expect(exit).toHaveBeenCalledOnce()
-  })
-
-  it('wraps an uploaded File as { fileName, fileContent }', async () => {
-    const { launchRom } = await import('./emulator')
-    const canvas = document.createElement('canvas')
-    const file = new File([new Uint8Array([1, 2, 3])], 'mygame.gba')
-
-    await launchRom({ core: 'mgba', rom: file, canvas })
-
-    expect(launch).toHaveBeenCalledWith({
-      core: 'mgba',
-      rom: { fileName: 'mygame.gba', fileContent: file },
-      element: canvas,
-    })
   })
 })

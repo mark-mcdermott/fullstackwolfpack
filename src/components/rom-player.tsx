@@ -7,10 +7,14 @@ import {
   type Launcher,
   launchRom,
 } from '@/lib/emulator'
-import { type PlayableRom, romAssetUrl } from '@/lib/rom-catalog'
+import {
+  loadRomFile,
+  type PlayableRom,
+  RomNotFoundError,
+} from '@/lib/rom-catalog'
 import { cn } from '@/lib/utils'
 
-type Status = 'loading' | 'playing' | 'error'
+type Status = 'loading' | 'playing' | 'missing' | 'error'
 
 function ControlButton({
   icon: Icon,
@@ -64,8 +68,10 @@ export function RomPlayer({
     const canvas = canvasRef.current
     if (!canvas) return
 
-    const romInput = rom.source === 'catalog' ? romAssetUrl(rom) : rom.file
-    launcher({ core: coreForSystem(rom.system), rom: romInput, canvas })
+    loadRomFile(rom)
+      .then((file) =>
+        launcher({ core: coreForSystem(rom.system), rom: file, canvas }),
+      )
       .then((session) => {
         if (cancelled) {
           session.stop()
@@ -74,8 +80,14 @@ export function RomPlayer({
         sessionRef.current = session
         setStatus('playing')
       })
-      .catch(() => {
-        if (!cancelled) setStatus('error')
+      .catch((error: unknown) => {
+        if (cancelled) return
+        if (error instanceof RomNotFoundError) {
+          setStatus('missing')
+        } else {
+          console.error('[arcade] failed to start emulator', error)
+          setStatus('error')
+        }
       })
 
     return () => {
@@ -139,18 +151,20 @@ export function RomPlayer({
             </div>
           )}
 
-          {status === 'error' && (
+          {(status === 'missing' || status === 'error') && (
             <div
               role="alert"
               className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/85 px-6 text-center"
             >
               <p className="font-mono text-xs tracking-widest text-destructive uppercase">
-                Couldn’t start this game
+                {status === 'missing'
+                  ? 'Game not installed'
+                  : 'Couldn’t start this game'}
               </p>
               <p className="max-w-md font-mono text-xs text-muted-foreground">
-                {rom.source === 'catalog'
-                  ? `The ROM file isn’t installed yet. Drop ${rom.fileName} into public/roms/ (see the README there).`
-                  : 'That ROM couldn’t be loaded. Check the file and try again.'}
+                {status === 'missing' && rom.source === 'catalog'
+                  ? `Drop ${rom.fileName} into public/roms/ to play it (see the README there).`
+                  : 'The emulator couldn’t start. Check your connection and try again.'}
               </p>
               <ControlButton
                 icon={LogOut}

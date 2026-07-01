@@ -1,0 +1,5 @@
+# ROM binaries are copyright-sensitive and are NOT committed — drop them in
+# locally after confirming redistribution terms (see README.md).
+*
+!.gitignore
+!README.md

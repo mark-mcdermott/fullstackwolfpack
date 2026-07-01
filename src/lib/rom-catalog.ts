@@ -120,3 +120,24 @@ export function uploadedRomFromFile(file: File, system: RomSystem): UploadedRom 
 export function romAssetUrl(entry: RomEntry): string {
   return `${import.meta.env.BASE_URL}roms/${entry.fileName}`
 }
+
+// Thrown when a catalog ROM's binary hasn't been dropped into `public/roms/`
+// yet — distinct from an emulator failure so the UI can tell the user which.
+export class RomNotFoundError extends Error {
+  readonly fileName: string
+  constructor(fileName: string) {
+    super(`ROM file not found: ${fileName}`)
+    this.name = 'RomNotFoundError'
+    this.fileName = fileName
+  }
+}
+
+// Resolves a playable ROM to its bytes. Uploads already hold the file; catalog
+// entries are fetched from `public/roms/` (a 404 means "not installed yet").
+export async function loadRomFile(rom: PlayableRom): Promise<File> {
+  if (rom.source === 'upload') return rom.file
+  const response = await fetch(romAssetUrl(rom))
+  if (!response.ok) throw new RomNotFoundError(rom.fileName)
+  const blob = await response.blob()
+  return new File([blob], rom.fileName)
+}
