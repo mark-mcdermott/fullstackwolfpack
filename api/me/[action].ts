@@ -3,17 +3,24 @@ import {
   answerRequestSchema,
   completeRequestSchema,
 } from '../../src/core/lesson-view'
+import { can } from '../../src/core/access'
 import { reviewGradeRequestSchema } from '../../src/core/review-view'
-import { enrollRequest, openAiKeyRequest } from '../../src/core/schemas'
+import {
+  adminUpdateRequest,
+  enrollRequest,
+  openAiKeyRequest,
+} from '../../src/core/schemas'
 import { db } from '../../src/db'
-import { topics } from '../../src/db/schema'
+import { topics, users } from '../../src/db/schema'
 import {
   getAchievementsView,
   getActivity,
+  getAdminUsers,
   getSeries,
   getStats,
   getTopicsView,
   getUserSummary,
+  updateUserAccess,
 } from '../../src/server/app-data'
 import { enrollAndGenerate } from '../../src/server/enroll'
 import {
@@ -36,6 +43,15 @@ import { parseBody } from '../_lib/validate'
 // the last path segment + method — the URLs stay `/api/me/<action>`.
 function action(req: Request): string {
   return new URL(req.url).pathname.split('/').filter(Boolean).pop() ?? ''
+}
+
+// The server-side admin boundary (client route guards are UX only).
+async function requireAdmin(userId: string): Promise<Response | null> {
+  const user = await db.query.users.findFirst({ where: eq(users.id, userId) })
+  if (!user || !can(user, 'admin.access')) {
+    return json({ error: 'forbidden' }, { status: 403 })
+  }
+  return null
 }
 
 export async function GET(req: Request): Promise<Response> {
@@ -115,6 +131,12 @@ export async function GET(req: Request): Promise<Response> {
     case 'review':
       return json(await getDueReviews(userId))
 
+    case 'admin-users': {
+      const forbidden = await requireAdmin(userId)
+      if (forbidden) return forbidden
+      return json({ users: await getAdminUsers() })
+    }
+
     default:
       return json({ error: 'not found' }, { status: 404 })
   }
@@ -186,6 +208,18 @@ export async function POST(req: Request): Promise<Response> {
       )
       if (!result) return json({ error: 'review not found' }, { status: 404 })
       return json(result)
+    }
+
+    case 'admin-users': {
+      const forbidden = await requireAdmin(userId)
+      if (forbidden) return forbidden
+      const parsed = await parseBody(adminUpdateRequest, req)
+      if (!parsed.ok) return parsed.response
+      await updateUserAccess(parsed.data.userId, {
+        role: parsed.data.role,
+        tier: parsed.data.tier,
+      })
+      return json({ ok: true })
     }
 
     default:

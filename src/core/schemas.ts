@@ -73,3 +73,10 @@ export const enrollRequest = z.object({
 })
 export const enrollResultSchema = z.object({ courseId: z.string() })
 export type EnrollResult = z.infer<typeof enrollResultSchema>
+
+// Admin — change a user's role/tier (both optional; at least one meaningful).
+export const adminUpdateRequest = z.object({
+  userId: z.string().min(1),
+  role: z.enum(ROLES).optional(),
+  tier: z.enum(TIERS).optional(),
+})
