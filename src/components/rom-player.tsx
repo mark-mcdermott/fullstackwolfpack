@@ -53,7 +53,7 @@ export function RomPlayer({
   onExit: () => void
   launcher?: Launcher
 }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const sessionRef = useRef<EmulatorSession | null>(null)
   const [status, setStatus] = useState<Status>('loading')
   const [paused, setPaused] = useState(false)
@@ -65,20 +65,36 @@ export function RomPlayer({
     setPaused(false)
     setLessonOpen(false)
 
-    const canvas = canvasRef.current
-    if (!canvas) return
+    const container = containerRef.current
+    if (!container) return
+
+    // React owns the container; Nostalgist owns this canvas. Keeping them on
+    // separate nodes stops Nostalgist's exit handler (which calls
+    // canvas.remove()) from fighting React's reconciliation — and stops it
+    // from re-appending a now-detached canvas to <body> on StrictMode's
+    // double-mount, which pushed the game below the footer.
+    const canvas = document.createElement('canvas')
+    canvas.style.display = 'block'
+    canvas.style.width = '100%'
+    canvas.style.height = '100%'
+    canvas.style.imageRendering = 'pixelated'
+    container.append(canvas)
 
     loadRomFile(rom)
-      .then((file) =>
-        launcher({ core: coreForSystem(rom.system), rom: file, canvas }),
-      )
-      .then((session) => {
-        if (cancelled) {
-          session.stop()
-          return
-        }
-        sessionRef.current = session
-        setStatus('playing')
+      .then((file) => {
+        if (cancelled) return
+        return launcher({
+          core: coreForSystem(rom.system),
+          rom: file,
+          canvas,
+        }).then((session) => {
+          if (cancelled) {
+            session.stop()
+            return
+          }
+          sessionRef.current = session
+          setStatus('playing')
+        })
       })
       .catch((error: unknown) => {
         if (cancelled) return
@@ -94,6 +110,7 @@ export function RomPlayer({
       cancelled = true
       sessionRef.current?.stop()
       sessionRef.current = null
+      canvas.remove()
     }
   }, [rom, launcher])
 
@@ -137,11 +154,8 @@ export function RomPlayer({
       </div>
 
       <Panel className="overflow-hidden p-0">
-        <div className="relative">
-          <canvas
-            ref={canvasRef}
-            className="block aspect-video w-full bg-black"
-          />
+        <div className="relative aspect-video w-full bg-black">
+          <div ref={containerRef} className="absolute inset-0" />
 
           {status === 'loading' && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/80">

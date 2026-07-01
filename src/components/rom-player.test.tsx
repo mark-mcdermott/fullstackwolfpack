@@ -61,6 +61,21 @@ describe('RomPlayer', () => {
     expect(opts.canvas).toBeInstanceOf(HTMLCanvasElement)
   })
 
+  it('runs on a canvas attached inside the player, and removes it on unmount', async () => {
+    const { launcher, unmount } = setup(uploadRom)
+    await screen.findByRole('button', { name: 'Pause' })
+
+    const canvas = launcher.mock.calls[0][0].canvas
+    expect(canvas).toBeInstanceOf(HTMLCanvasElement)
+    // Attached to the player's container — never a detached node Nostalgist
+    // would re-append to <body> (the "game below the footer" bug).
+    expect(canvas.isConnected).toBe(true)
+    expect(canvas.parentElement).not.toBe(document.body)
+
+    unmount()
+    expect(canvas.isConnected).toBe(false)
+  })
+
   it('fetches a catalog ROM and launches it as a named File', async () => {
     stubOkFetch()
     const { launcher } = setup(catalogRom)
