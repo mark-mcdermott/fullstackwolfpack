@@ -1,0 +1,38 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+const launch = vi.fn()
+const pause = vi.fn()
+const resume = vi.fn()
+const exit = vi.fn()
+
+vi.mock('nostalgist', () => ({
+  Nostalgist: { launch: (opts: unknown) => launch(opts) },
+}))
+
+beforeEach(() => {
+  vi.clearAllMocks()
+  launch.mockResolvedValue({ pause, resume, exit })
+})
+
+describe('launchRom adapter', () => {
+  it('hands Nostalgist the file content (not a path) and maps session methods', async () => {
+    const { launchRom } = await import('./emulator')
+    const canvas = document.createElement('canvas')
+    const file = new File([new Uint8Array([1, 2, 3])], 'alter-ego.nes')
+
+    const session = await launchRom({ core: 'fceumm', rom: file, canvas })
+
+    expect(launch).toHaveBeenCalledWith({
+      core: 'fceumm',
+      rom: { fileName: 'alter-ego.nes', fileContent: file },
+      element: canvas,
+    })
+
+    session.pause()
+    session.resume()
+    session.stop()
+    expect(pause).toHaveBeenCalledOnce()
+    expect(resume).toHaveBeenCalledOnce()
+    expect(exit).toHaveBeenCalledOnce()
+  })
+})
