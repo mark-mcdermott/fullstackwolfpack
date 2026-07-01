@@ -1,5 +1,6 @@
 import { BookOpen, Flame, TrendingUp, Trophy } from 'lucide-react'
 import { api } from '@/api-client'
+import { ChartPanel } from '@/components/chart-panel'
 import { AsyncView } from '@/components/layout/async-view'
 import {
   PageHeading,
@@ -13,6 +14,7 @@ import { useAsync } from '@/hooks/use-async'
 
 export function ProgressPage() {
   const state = useAsync(() => api.data.progress())
+  const series = useAsync(() => api.data.series())
 
   return (
     <div>
@@ -32,6 +34,12 @@ export function ProgressPage() {
                 <StatTile icon={Flame} value={stats.streak} label="Current streak" sub={`Best: ${stats.bestStreak} days`} />
               </div>
             </Panel>
+
+            <div className="mb-5">
+              <AsyncView state={series}>
+                {(s) => <ChartPanel label="XP over time" data={s.xpCumulative} />}
+              </AsyncView>
+            </div>
 
             <div className="grid gap-5 lg:grid-cols-2">
               <Panel>

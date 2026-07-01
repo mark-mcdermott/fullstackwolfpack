@@ -20,6 +20,7 @@ import {
   courseOutlineSchema,
   dashboardSchema,
   progressViewSchema,
+  seriesSchema,
   statsViewSchema,
   topicsViewSchema,
   userSummarySchema,
@@ -27,6 +28,7 @@ import {
   type CourseOutline,
   type Dashboard,
   type ProgressView,
+  type Series,
   type StatsView,
   type TopicProgress,
   type UserSummary,
@@ -150,6 +152,9 @@ export function createApi({ http, passkeys }: Adapters) {
       return achievementsViewSchema.parse(
         await http.request('/api/me/achievements'),
       )
+    },
+    async series(): Promise<Series> {
+      return seriesSchema.parse(await http.request('/api/me/series'))
     },
     async lesson(lessonId: string): Promise<LessonView> {
       return lessonViewSchema.parse(

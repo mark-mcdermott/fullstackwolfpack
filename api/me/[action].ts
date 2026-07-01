@@ -10,6 +10,7 @@ import { topics } from '../../src/db/schema'
 import {
   getAchievementsView,
   getActivity,
+  getSeries,
   getStats,
   getTopicsView,
   getUserSummary,
@@ -50,6 +51,9 @@ export async function GET(req: Request): Promise<Response> {
 
     case 'achievements':
       return json(await getAchievementsView(userId))
+
+    case 'series':
+      return json(await getSeries(userId))
 
     case 'openai-key':
       return json({ hasKey: await hasOpenAiKey(userId) })
