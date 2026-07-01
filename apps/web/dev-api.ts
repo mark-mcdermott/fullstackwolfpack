@@ -15,16 +15,25 @@ export function devApi(): Plugin {
         if (!url.startsWith('/api/')) return next()
 
         const route = url.split('?')[0]
-        let file = path.join(server.config.root, `${route}.ts`)
-        if (!existsSync(file)) {
-          // Fall back to a dynamic segment file (e.g. api/me/[action].ts),
-          // matching how Vercel routes `[param].ts` in production.
-          const dir = path.dirname(file)
-          const dynamic = existsSync(dir)
-            ? readdirSync(dir).find((f) => /^\[.+\]\.ts$/.test(f))
-            : undefined
-          if (!dynamic) return next()
-          file = path.join(dir, dynamic)
+        let file: string
+        if (route === '/api/dev/become') {
+          // Dev-only role switcher. The handler lives in api/_dev, which
+          // Vercel ignores (underscore-prefixed), so it never ships as a
+          // serverless function — this route only exists under `npm run dev`.
+          file = path.join(server.config.root, 'api/_dev/become.ts')
+          if (!existsSync(file)) return next()
+        } else {
+          file = path.join(server.config.root, `${route}.ts`)
+          if (!existsSync(file)) {
+            // Fall back to a dynamic segment file (e.g. api/me/[action].ts),
+            // matching how Vercel routes `[param].ts` in production.
+            const dir = path.dirname(file)
+            const dynamic = existsSync(dir)
+              ? readdirSync(dir).find((f) => /^\[.+\]\.ts$/.test(f))
+              : undefined
+            if (!dynamic) return next()
+            file = path.join(dir, dynamic)
+          }
         }
 
         try {
