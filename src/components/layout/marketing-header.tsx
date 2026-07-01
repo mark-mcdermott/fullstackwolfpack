@@ -1,4 +1,5 @@
 import { Link, NavLink } from 'react-router'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { Logo } from '@/components/ui-kit'
 import { cn } from '@/lib/utils'
 
@@ -35,9 +36,10 @@ export function MarketingHeader() {
           ))}
         </nav>
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <Link
             to="/login"
-            className="font-mono text-xs tracking-widest text-muted-foreground uppercase hover:text-foreground"
+            className="hidden font-mono text-xs tracking-widest text-muted-foreground uppercase hover:text-foreground sm:inline"
           >
             Sign in
           </Link>
