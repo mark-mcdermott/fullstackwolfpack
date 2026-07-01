@@ -3,6 +3,7 @@ import { totpEnableRequest } from '../../../src/core/schemas'
 import { db } from '../../../src/db'
 import { users } from '../../../src/db/schema'
 import { verifyTotp } from '../../../src/lib/auth'
+import { openSecret } from '../../../src/server/crypto'
 import { json } from '../../_lib/http'
 import { getSessionUserId } from '../../_lib/session'
 import { parseBody } from '../../_lib/validate'
@@ -21,7 +22,7 @@ export async function POST(req: Request): Promise<Response> {
     return json({ error: 'no pending TOTP secret — run setup first' }, { status: 400 })
   }
 
-  if (!(await verifyTotp(token, user.totpSecret))) {
+  if (!(await verifyTotp(token, openSecret(user.totpSecret)))) {
     return json({ error: 'invalid code' }, { status: 400 })
   }
 

@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm'
 import { db } from '../../../src/db'
 import { users } from '../../../src/db/schema'
 import { generateTotpSecret, totpAuthUri } from '../../../src/lib/auth'
+import { sealSecret } from '../../../src/server/crypto'
 import { json } from '../../_lib/http'
 import { getSessionUserId } from '../../_lib/session'
 
@@ -17,8 +18,10 @@ export async function POST(req: Request): Promise<Response> {
   const secret = generateTotpSecret()
   await db
     .update(users)
-    .set({ totpSecret: secret, totpEnabled: false })
+    .set({ totpSecret: sealSecret(secret), totpEnabled: false })
     .where(eq(users.id, userId))
 
+  // The plaintext secret is returned once (QR / manual entry); only the sealed
+  // form is persisted.
   return json({ uri: totpAuthUri(user.email, secret), secret })
 }

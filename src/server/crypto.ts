@@ -43,3 +43,20 @@ export function decryptSecret(enc: Encrypted): string {
     decipher.final(),
   ]).toString('utf8')
 }
+
+// Pack/unpack the encrypted form into a single string, for storing in a lone
+// text column (e.g. users.totp_secret). `iv` and `ciphertext` are base64, which
+// never contains ':', so the split is unambiguous.
+export function sealSecret(plaintext: string): string {
+  const { ciphertext, iv } = encryptSecret(plaintext)
+  return `${iv}:${ciphertext}`
+}
+
+export function openSecret(sealed: string): string {
+  const sep = sealed.indexOf(':')
+  if (sep === -1) throw new Error('malformed sealed secret')
+  return decryptSecret({
+    iv: sealed.slice(0, sep),
+    ciphertext: sealed.slice(sep + 1),
+  })
+}

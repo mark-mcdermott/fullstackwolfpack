@@ -87,6 +87,16 @@ export const webauthnChallenges = pgTable('webauthn_challenges', {
   expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
 })
 
+// Fixed-window rate-limit counters for auth entry points (login, recover),
+// keyed by `${action}:${identifier}`. Shared across serverless instances.
+export const authRateLimits = pgTable('auth_rate_limits', {
+  key: text('key').primaryKey(),
+  count: integer('count').notNull().default(0),
+  windowStart: timestamp('window_start', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+})
+
 export type User = typeof users.$inferSelect
 export type NewUser = typeof users.$inferInsert
 export type Credential = typeof credentials.$inferSelect
