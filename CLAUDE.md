@@ -46,6 +46,8 @@ Routes are gated client-side by `RequireAuth` (UX) and server-side by the sessio
 
 ## Setup TODO
 
+> Whole-app roadmap (all tracks — features + infra, what's shipped vs left): [`docs/ROADMAP.md`](docs/ROADMAP.md).
+
 Pieces that need accounts or interactive/native steps — not done by the scaffold:
 
 - [ ] **Neon DB** — create a Neon project, `cp .env.example .env`, set `DATABASE_URL` (and the same in the Vercel project env). Then `npm run db:push` to create the tables. Auth needs a real DB to run end-to-end.
