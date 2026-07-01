@@ -70,6 +70,17 @@ describe('api.data', () => {
     expect(calls.some((c) => c.startsWith('/api/me/course'))).toBe(true)
   })
 
+  it('fetches the daily trend series', async () => {
+    const series = {
+      days: 14,
+      xpCumulative: [0, 10, 30],
+      minutesByDay: [0, 5, 8],
+      accuracyByDay: [0, 100, 50],
+    }
+    const { api } = withRoutes({ '/api/me/series': series })
+    expect(await api.data.series()).toEqual(series)
+  })
+
   it('throws on a malformed payload instead of leaking it through', async () => {
     const { api } = withRoutes({ '/api/me/summary': { displayName: 'Mark' } })
     await expect(api.data.summary()).rejects.toThrow()

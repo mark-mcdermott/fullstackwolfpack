@@ -113,6 +113,15 @@ export const statsViewSchema = z.object({
 })
 export type StatsView = z.infer<typeof statsViewSchema>
 
+// Time-series for the charts — one value per day over a trailing window.
+export const seriesSchema = z.object({
+  days: z.number().int(),
+  xpCumulative: z.array(z.number().int()),
+  minutesByDay: z.array(z.number().int()),
+  accuracyByDay: z.array(z.number().int()),
+})
+export type Series = z.infer<typeof seriesSchema>
+
 export const progressViewSchema = z.object({
   stats: statsSchema,
   topics: z.array(topicProgressSchema),
