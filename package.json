@@ -3,9 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "npm run dev -w @fw/web",
+    "dev:site": "npm run dev -w @fw/site",
+    "dev:all": "concurrently -k -n web,site -c blue,magenta \"npm run dev -w @fw/web\" \"npm run dev -w @fw/site\"",
     "build": "npm run build -w @fw/web",
     "preview": "npm run preview -w @fw/web",
     "test": "npm run test -w @fw/web",
@@ -18,5 +23,8 @@
     "db:studio": "npm run db:studio -w @fw/web",
     "tauri": "npm run tauri -w @fw/web",
     "cap": "npm run cap -w @fw/web"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3"
   }
 }
