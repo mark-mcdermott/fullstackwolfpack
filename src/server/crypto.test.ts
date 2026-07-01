@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { decryptSecret, encryptSecret } from './crypto'
+import { decryptSecret, encryptSecret, openSecret, sealSecret } from './crypto'
 
 describe('crypto', () => {
   it('round-trips a secret', () => {
@@ -20,5 +20,16 @@ describe('crypto', () => {
         ciphertext: Buffer.from('garbage-garbage-').toString('base64'),
       }),
     ).toThrow()
+  })
+
+  it('seals and opens a secret as a single string', () => {
+    const sealed = sealSecret('JBSWY3DPEHPK3PXP')
+    expect(sealed).not.toContain('JBSWY3DPEHPK3PXP')
+    expect(sealed).toContain(':')
+    expect(openSecret(sealed)).toBe('JBSWY3DPEHPK3PXP')
+  })
+
+  it('rejects a malformed sealed secret', () => {
+    expect(() => openSecret('not-sealed')).toThrow('malformed')
   })
 })

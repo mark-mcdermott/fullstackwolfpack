@@ -3,6 +3,7 @@ import { recoverRequest } from '../../../src/core/schemas'
 import { db } from '../../../src/db'
 import { users } from '../../../src/db/schema'
 import { verifyTotp } from '../../../src/lib/auth'
+import { openSecret } from '../../../src/server/crypto'
 import { json } from '../../_lib/http'
 import { createSessionCookie } from '../../_lib/session'
 import { publicUser } from '../../_lib/user'
@@ -20,7 +21,7 @@ export async function POST(req: Request): Promise<Response> {
     return json({ error: 'TOTP is not enabled for this account' }, { status: 400 })
   }
 
-  if (!(await verifyTotp(token, user.totpSecret))) {
+  if (!(await verifyTotp(token, openSecret(user.totpSecret)))) {
     return json({ error: 'invalid code' }, { status: 400 })
   }
 
