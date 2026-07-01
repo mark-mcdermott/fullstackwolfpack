@@ -7,6 +7,7 @@ import { PageHeading, Panel, ProgressMeter } from '@/components/ui-kit'
 import type { TopicProgress } from '@/core/app-data'
 import type { Difficulty } from '@/core/generation'
 import { useAsync } from '@/hooks/use-async'
+import { nextLessonPath } from '@/lib/open-course'
 import { cn } from '@/lib/utils'
 
 const TABS: [string, string | null][] = [
@@ -27,18 +28,11 @@ function TopicCard({ topic }: { topic: TopicProgress }) {
   const [busy, setBusy] = useState<null | 'generating' | 'opening'>(null)
   const [error, setError] = useState<string | null>(null)
 
-  // Resolve the topic's course and jump to the next unfinished lesson.
-  async function openCourse() {
-    const outline = await api.data.course(topic.slug)
-    if (!outline.nextLessonId) throw new Error('This course has no lessons yet.')
-    navigate(`/app/learn/${outline.nextLessonId}`)
-  }
-
   async function start() {
     setBusy('opening')
     setError(null)
     try {
-      await openCourse()
+      navigate(await nextLessonPath(topic.slug))
     } catch (e) {
       setBusy(null)
       setError(e instanceof Error ? e.message : 'Could not open the course')
@@ -53,7 +47,7 @@ function TopicCard({ topic }: { topic: TopicProgress }) {
       : 'beginner'
     try {
       await api.courses.enroll(topic.slug, difficulty)
-      await openCourse() // drop the learner straight into the fresh course
+      navigate(await nextLessonPath(topic.slug)) // straight into the fresh course
     } catch (e) {
       setBusy(null)
       setError(e instanceof Error ? e.message : 'Generation failed')
