@@ -1,9 +1,24 @@
-import { sql } from 'drizzle-orm'
+import { lt, sql } from 'drizzle-orm'
 import { decide, type RateLimitDecision } from '../core/rate-limit'
 import { db } from '../db'
 import { authRateLimits } from '../db/schema'
 
 export type RateLimitConfig = { limit: number; windowMs: number }
+
+// Rows idle longer than this are far past any active window and safe to drop.
+const PRUNE_AFTER_MS = 60 * 60_000
+// Prune on ~10% of checks so the table can't grow unbounded from distinct keys,
+// without a delete on every auth attempt (there's no cron — the 12-fn cap).
+const PRUNE_PROBABILITY = 0.1
+
+export async function pruneRateLimits(
+  olderThanMs: number,
+  now = Date.now(),
+): Promise<void> {
+  await db
+    .delete(authRateLimits)
+    .where(lt(authRateLimits.windowStart, new Date(now - olderThanMs)))
+}
 
 // Record one hit against `key` and return the decision. The counter update is a
 // single atomic statement so concurrent hits (across serverless instances)
@@ -32,10 +47,13 @@ export async function checkRateLimit(
       windowStart: authRateLimits.windowStart,
     })
 
-  return decide(
+  const decision = decide(
     { count: row.count, windowStart: row.windowStart.getTime() },
     now,
     limit,
     windowMs,
   )
+
+  if (Math.random() < PRUNE_PROBABILITY) await pruneRateLimits(PRUNE_AFTER_MS, now)
+  return decision
 }
