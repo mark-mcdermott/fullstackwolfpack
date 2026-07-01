@@ -55,6 +55,21 @@ describe('api.data', () => {
     expect(await api.data.achievements()).toEqual(view)
   })
 
+  it('fetches a course outline by topic slug', async () => {
+    const outline = {
+      courseId: 'c1',
+      topicSlug: 'react',
+      status: 'ready',
+      lessons: [
+        { lessonId: 'l1', title: 'Intro', orderIndex: 0, estMinutes: 5, status: 'not_started' },
+      ],
+      nextLessonId: 'l1',
+    }
+    const { api, calls } = withRoutes({ '/api/me/course?topic=react': outline })
+    expect(await api.data.course('react')).toEqual(outline)
+    expect(calls.some((c) => c.startsWith('/api/me/course'))).toBe(true)
+  })
+
   it('throws on a malformed payload instead of leaking it through', async () => {
     const { api } = withRoutes({ '/api/me/summary': { displayName: 'Mark' } })
     await expect(api.data.summary()).rejects.toThrow()

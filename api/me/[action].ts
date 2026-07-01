@@ -21,6 +21,7 @@ import {
 } from '../../src/server/provider-credentials'
 import {
   completeLesson,
+  getCourseOutline,
   getLessonView,
   submitAnswer,
 } from '../../src/server/learning'
@@ -97,6 +98,14 @@ export async function GET(req: Request): Promise<Response> {
       const lesson = await getLessonView(id)
       if (!lesson) return json({ error: 'lesson not found' }, { status: 404 })
       return json(lesson)
+    }
+
+    case 'course': {
+      const topic = new URL(req.url).searchParams.get('topic')
+      if (!topic) return json({ error: 'missing topic' }, { status: 400 })
+      const outline = await getCourseOutline(userId, topic)
+      if (!outline) return json({ error: 'no course for topic' }, { status: 404 })
+      return json(outline)
     }
 
     case 'review':

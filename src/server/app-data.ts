@@ -150,6 +150,7 @@ export async function getActivity(userId: string): Promise<{
   const [recentRows, activityRows, skillRows, days] = await Promise.all([
     db
       .select({
+        lessonId: lessons.id,
         title: lessons.title,
         topic: topics.name,
         minutes: lessons.estMinutes,
@@ -187,6 +188,7 @@ export async function getActivity(userId: string): Promise<{
 
   return {
     recentLessons: recentRows.map((r) => ({
+      lessonId: r.lessonId,
       title: r.title,
       topic: r.topic,
       minutes: r.minutes,

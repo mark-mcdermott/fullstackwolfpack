@@ -1,14 +1,8 @@
-import {
-  ArrowRight,
-  BookOpen,
-  CheckCircle2,
-  Flame,
-  Gamepad2,
-  Target,
-} from 'lucide-react'
+import { ArrowRight, BookOpen, Flame, Gamepad2, Target } from 'lucide-react'
 import { Link } from 'react-router'
 import { api } from '@/api-client'
 import { AsyncView } from '@/components/layout/async-view'
+import { RecentLessons } from '@/components/learn/recent-lessons'
 import { Panel, ProgressMeter, SectionLabel, StatTile } from '@/components/ui-kit'
 import { useAsync } from '@/hooks/use-async'
 import { cn } from '@/lib/utils'
@@ -34,7 +28,7 @@ export function DashboardPage() {
           Every session makes you stronger.
         </p>
         <Link
-          to="/app/sessions"
+          to="/app/topics"
           className="mt-2 inline-flex w-fit items-center gap-2 bg-primary px-5 py-3 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
         >
           Start learning <ArrowRight className="size-4" />
@@ -91,31 +85,11 @@ export function DashboardPage() {
                     View all →
                   </Link>
                 </div>
-                <div className="mt-5 flex flex-col divide-y divide-border">
-                  {recentLessons.length === 0 && (
-                    <p className="font-mono text-[10px] text-muted-foreground">
-                      No lessons yet — your completed lessons will show up here.
-                    </p>
-                  )}
-                  {recentLessons.map((l) => (
-                    <div key={l.title} className="flex items-center gap-3 py-3">
-                      <CheckCircle2
-                        className={cn(
-                          'size-4 shrink-0',
-                          l.status === 'completed' ? 'text-primary' : 'text-muted-foreground',
-                        )}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">{l.title}</p>
-                        <p className="font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
-                          {l.topic} · {l.minutes} min
-                        </p>
-                      </div>
-                      <span className="font-mono text-xs text-primary">
-                        {l.score !== null ? `${l.score}%` : 'In progress'}
-                      </span>
-                    </div>
-                  ))}
+                <div className="mt-5">
+                  <RecentLessons
+                    lessons={recentLessons}
+                    emptyText="No lessons yet — your completed lessons will show up here."
+                  />
                 </div>
               </Panel>
             </div>

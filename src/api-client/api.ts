@@ -17,12 +17,14 @@ import {
 import type { Difficulty } from '@/core/generation'
 import {
   achievementsViewSchema,
+  courseOutlineSchema,
   dashboardSchema,
   progressViewSchema,
   statsViewSchema,
   topicsViewSchema,
   userSummarySchema,
   type AchievementsView,
+  type CourseOutline,
   type Dashboard,
   type ProgressView,
   type StatsView,
@@ -152,6 +154,13 @@ export function createApi({ http, passkeys }: Adapters) {
     async lesson(lessonId: string): Promise<LessonView> {
       return lessonViewSchema.parse(
         await http.request(`/api/me/lesson?id=${encodeURIComponent(lessonId)}`),
+      )
+    },
+    async course(topicSlug: string): Promise<CourseOutline> {
+      return courseOutlineSchema.parse(
+        await http.request(
+          `/api/me/course?topic=${encodeURIComponent(topicSlug)}`,
+        ),
       )
     },
     async answer(
