@@ -4,10 +4,13 @@ import { db } from '../../../src/db'
 import { users } from '../../../src/db/schema'
 import { verifyTotp } from '../../../src/lib/auth'
 import { openSecret } from '../../../src/server/crypto'
-import { json } from '../../_lib/http'
+import { checkRateLimit } from '../../../src/server/rate-limit'
+import { json, tooManyRequests } from '../../_lib/http'
 import { createSessionCookie } from '../../_lib/session'
 import { publicUser } from '../../_lib/user'
 import { parseBody } from '../../_lib/validate'
+
+const RECOVER_LIMIT = { limit: 5, windowMs: 15 * 60_000 }
 
 // Unauthed recovery path: the TOTP code stands in for a lost passkey and
 // starts a session. (Production: rate-limit this and the login endpoints.)
@@ -15,6 +18,9 @@ export async function POST(req: Request): Promise<Response> {
   const parsed = await parseBody(recoverRequest, req)
   if (!parsed.ok) return parsed.response
   const { email, token } = parsed.data
+
+  const rl = await checkRateLimit(`recover:${email.toLowerCase()}`, RECOVER_LIMIT)
+  if (!rl.allowed) return tooManyRequests(rl.retryAfterMs)
 
   const user = await db.query.users.findFirst({ where: eq(users.email, email) })
   if (!user?.totpEnabled || !user.totpSecret) {
