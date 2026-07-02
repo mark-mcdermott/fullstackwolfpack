@@ -273,7 +273,7 @@ const triTopRight =
                 <span class="font-heading text-3xl font-semibold leading-none uppercase">
                   {s.value}
                 </span>
-                <span class="mt-1.5 font-mono text-[11px] font-bold tracking-widest uppercase">
+                <span class="mt-1.5 font-mono text-[11px] font-bold tracking-normal uppercase">
                   {s.label}
                 </span>
                 <span class="mt-0.5 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
@@ -307,11 +307,11 @@ const triTopRight =
         {
           steps.map((step, i) => (
             <div class="relative flex flex-col md:pl-10 md:pr-4">
-              <Icon name={step.icon} class="h-9 w-9 text-white" />
+              <Icon name={step.icon} class="h-[54px] w-[54px] text-white" />
               <div class="mt-3 mb-1 font-sans text-2xl font-bold text-primary">
                 {step.num}
               </div>
-              <h3 class="font-heading text-base font-semibold tracking-wider text-white uppercase">
+              <h3 class="font-heading text-base font-semibold tracking-normal text-white uppercase">
                 {step.title}
               </h3>
               <p class="mt-1.5 max-w-[13rem] font-mono text-[11px] leading-relaxed text-white">
@@ -324,7 +324,7 @@ const triTopRight =
               {i < steps.length - 1 && (
                 <svg
                   viewBox="0 0 88 20"
-                  class="absolute top-[1.125rem] left-[calc(50%+1.125rem+2.5rem)] hidden w-16 -translate-x-1/2 -translate-y-1/2 text-white/70 md:block lg:w-24"
+                  class="absolute top-[27px] left-[calc(50%+67px)] hidden w-[3.6rem] -translate-x-1/2 -translate-y-1/2 text-white/70 md:block lg:w-[5.4rem]"
                   fill="none"
                   stroke="currentColor"
                   stroke-width="2"
@@ -374,8 +374,8 @@ const triTopRight =
               </span>
               <span class="pointer-events-none absolute bottom-0 left-0 h-3 w-3 border-b border-l border-foreground/40" />
               <span class="pointer-events-none absolute right-0 bottom-0 h-3 w-3 border-r border-b border-foreground/40" />
-              <Icon name={f.icon} class="mx-auto mb-6 block h-9 w-9 text-foreground" />
-              <h3 class="mb-2 text-center font-heading text-sm font-semibold tracking-widest uppercase">
+              <Icon name={f.icon} class="mx-auto mb-6 block h-[54px] w-[54px] text-foreground" />
+              <h3 class="mb-2 text-center font-heading text-sm font-semibold tracking-normal uppercase">
                 {f.title}
               </h3>
               <p class="font-mono text-xs leading-relaxed text-muted-foreground">
@@ -428,7 +428,7 @@ const triTopRight =
                   {s.num}
                   <span class="text-3xl sm:text-4xl">{s.suffix}</span>
                 </div>
-                <div class="font-mono text-xs font-bold tracking-widest uppercase">
+                <div class="font-heading text-xs font-semibold tracking-normal uppercase">
                   {s.label}
                 </div>
                 <p class="font-mono text-[11px] leading-relaxed text-muted-foreground">
@@ -456,14 +456,14 @@ const triTopRight =
       <div class="relative overflow-hidden bg-primary text-primary-foreground">
         <CornerMarks class="text-white/40" />
         <div
-          class="flex flex-col gap-8 px-6 py-10 md:flex-row md:items-center md:justify-between md:px-12 md:py-14"
+          class="flex flex-col gap-8 px-6 py-5 md:flex-row md:items-center md:justify-between md:px-12 md:py-7"
         >
           <div class="flex flex-col gap-4">
             <p class="font-mono text-xs tracking-normal text-white/80 uppercase">
               <span class="text-white">//</span> Ready to level up?
             </p>
             <h2
-              class="font-display text-xl leading-[0.95] tracking-tight uppercase sm:text-3xl"
+              class="font-heading text-xl font-semibold leading-[0.95] tracking-tight uppercase sm:text-3xl"
             >
               Your next level<br />starts now.
             </h2>

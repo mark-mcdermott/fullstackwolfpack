@@ -109,31 +109,29 @@ const socials = [
           }
         </nav>
 
-        <div class="flex items-center gap-4 md:grid md:grid-cols-2">
+        <div class="flex items-center gap-4 md:grid md:grid-cols-[3fr_4fr]">
           <div
-            class="hidden flex-col gap-1 border border-neutral-700 px-7 py-5 md:flex"
+            class="hidden flex-col gap-1.5 border border-neutral-700 px-7 py-5 md:flex"
           >
-            <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-1.5">
               <span
                 class="font-mono text-[9px] tracking-widest text-neutral-400 uppercase"
                 >System status</span
               >
               <span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="font-mono text-[9px] tracking-widest uppercase"
-                >Online</span
-              >
-              <span class="fw-barcode h-2.5 w-16 text-neutral-500"></span>
-            </div>
+            <span class="font-mono text-[9px] tracking-widest text-primary uppercase"
+              >Online</span
+            >
+            <span class="fw-barcode h-2.5 w-16 text-neutral-500"></span>
           </div>
 
           <a
             href={`${APP_URL}/app`}
-            class="fw-notch-tr fw-notch-br flex items-center justify-center gap-2.5 bg-primary px-7 py-6.5 font-heading text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90"
+            class="fw-notch-tr fw-notch-br flex items-center justify-center gap-2.5 bg-primary px-7 py-6.5 font-heading text-base font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90"
           >
             Start Learning
-            <Icon name="arrow" class="h-4 w-4" />
+            <Icon name="arrow" class="h-8 w-8" />
           </a>
         </div>
       </div>
