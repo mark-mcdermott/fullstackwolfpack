@@ -211,11 +211,21 @@ const socials = [
           <div
             class="flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-[10px] tracking-widest text-neutral-500 uppercase"
           >
-            <span>© {year} Fullstack Wolfpack · All rights reserved</span>
+            <span
+              >© <span id="footer-year">{year}</span> Fullstack Wolfpack · All
+              rights reserved</span
+            >
             <Icon name="globe" class="h-3.5 w-3.5 text-neutral-400" />
           </div>
         </div>
       </div>
     </footer>
+
+    <script>
+      // Keep the footer year current on the client, so a long-unbuilt static
+      // page never shows a stale year (the SSR value is just the no-flash seed).
+      const yearEl = document.getElementById('footer-year')
+      if (yearEl) yearEl.textContent = String(new Date().getFullYear())
+    </script>
   </body>
 </html>
