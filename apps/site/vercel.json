@@ -1,0 +1,10 @@
+{
+  "rewrites": [
+    { "source": "/app",        "destination": "https://fullstackwolfpack-astro.vercel.app/app" },
+    { "source": "/app/:path*", "destination": "https://fullstackwolfpack-astro.vercel.app/app/:path*" },
+    { "source": "/api/:path*", "destination": "https://fullstackwolfpack-astro.vercel.app/api/:path*" },
+    { "source": "/login",      "destination": "https://fullstackwolfpack-astro.vercel.app/login" },
+    { "source": "/signup",     "destination": "https://fullstackwolfpack-astro.vercel.app/signup" },
+    { "source": "/admin",      "destination": "https://fullstackwolfpack-astro.vercel.app/admin" }
+  ]
+}
