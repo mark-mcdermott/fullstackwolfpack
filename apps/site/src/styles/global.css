@@ -50,6 +50,17 @@
   );
 }
 
+/* Compact bottom-right notch for small chrome like the FW-01 badge. */
+.fw-notch-br-sm {
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 0.4rem),
+    calc(100% - 0.4rem) 100%,
+    0 100%
+  );
+}
+
 /* Barcode strip — irregular vertical bars, inherits currentColor. */
 .fw-barcode {
   background-image: repeating-linear-gradient(

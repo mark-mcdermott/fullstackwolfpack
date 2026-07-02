@@ -159,20 +159,28 @@ const triBottomRight =
 
       <!-- Visual: wolf art + FW-01 HUD rail -->
       <div class="relative">
-        <!-- FW-01 badge, far top-right -->
-        <div class="absolute right-0 top-0 z-20 flex items-center gap-2 font-mono">
-          <span
-            class="bg-foreground px-2 py-1 text-[10px] font-bold tracking-widest text-background"
-            >FW-01</span
-          >
-          <span class="text-[11px] tracking-widest text-muted-foreground"
-            >⌗ ⌗ ⌗</span
-          >
-        </div>
-        <span
-          class="absolute right-0 top-9 z-20 font-mono text-[10px] tracking-widest text-muted-foreground"
-          >v1.0.0</span
+        <!-- FW-01 badge + HUD glyphs, far top-right -->
+        <div
+          class="absolute right-0 top-0 z-20 flex flex-col items-end gap-1.5 font-mono text-muted-foreground"
         >
+          <div class="flex items-center gap-2">
+            <span
+              class="fw-notch-br-sm bg-foreground px-2.5 py-1 text-[10px] font-bold tracking-widest text-background"
+              >FW-01</span
+            >
+            <div class="flex items-center gap-1">
+              {
+                Array.from({ length: 3 }).map(() => (
+                  <span class="grid h-3.5 w-3.5 place-items-center border border-current text-[7px] leading-none">
+                    +
+                  </span>
+                ))
+              }
+            </div>
+          </div>
+          <span class="fw-barcode h-2 w-20"></span>
+          <span class="text-[10px] tracking-widest">v1.0.0</span>
+        </div>
 
         <div class="flex items-center pt-1">
           <div class="relative flex-1">
@@ -202,8 +210,8 @@ const triBottomRight =
           <div
             class="hidden shrink-0 flex-col items-center gap-8 self-stretch pt-2 lg:flex"
           >
-            <!-- 3-column dot grid -->
-            <div class="grid grid-cols-3 gap-1.5">
+            <!-- 3-column dot grid (offset below the absolute FW-01 chrome) -->
+            <div class="mt-16 grid grid-cols-3 gap-1.5">
               {
                 Array.from({ length: 15 }).map(() => (
                   <span class="h-1 w-1 rounded-full bg-foreground/30" />
@@ -222,16 +230,13 @@ const triBottomRight =
               <span>+</span>
             </div>
 
-            <!-- vertical scroll indicator: + / SCROLL / +++++ -->
+            <!-- scroll indicator: + / SCROLL / +++++ -->
             <div
               class="flex flex-col items-center gap-2 font-mono text-[10px] text-foreground/40"
             >
               <span>+</span>
-              <span
-                class="tracking-[0.35em] uppercase [writing-mode:vertical-rl]"
-                >Scroll</span
-              >
-              <span class="tracking-widest [writing-mode:vertical-rl]">+++++</span>
+              <span class="tracking-[0.25em] uppercase">Scroll</span>
+              <span class="tracking-widest">+++++</span>
             </div>
           </div>
         </div>
