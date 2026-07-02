@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro'
 import Icon from '../components/Icon.astro'
 import CornerMarks from '../components/CornerMarks.astro'
+import { APP_URL } from '../consts'
 
 const stats = [
   {
@@ -135,14 +136,14 @@ const triBottomRight =
         </p>
         <div class="flex flex-wrap items-center gap-4">
           <a
-            href="/app"
+            href={`${APP_URL}/app`}
             class="fw-notch inline-flex items-center gap-2.5 bg-primary px-6 py-3.5 font-mono text-xs font-bold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90"
           >
             <Icon name="crosshair" class="h-4 w-4" />
             Start Session
           </a>
           <a
-            href="/app"
+            href={`${APP_URL}/app`}
             class="inline-flex items-center gap-2.5 border border-foreground px-6 py-3.5 font-mono text-xs font-bold tracking-widest uppercase transition-colors hover:bg-foreground hover:text-background"
           >
             View Dashboard
@@ -439,7 +440,7 @@ const triBottomRight =
         </h2>
       </div>
       <a
-        href="/app"
+        href={`${APP_URL}/app`}
         class="fw-notch inline-flex items-center justify-between gap-6 bg-white px-7 py-4 font-mono text-xs font-bold tracking-widest text-foreground uppercase transition-colors hover:bg-white/90"
       >
         <span class="inline-flex items-center gap-2.5">
