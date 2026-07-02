@@ -15,7 +15,16 @@ export default defineConfig(({ mode }) => {
     process.env[key] ??= value
   }
 
+  // Public base path. Defaults to '/' so dev and the Capacitor/Tauri native
+  // shells (which load assets from a non-HTTP root) keep working. Set
+  // VITE_APP_BASE='/app/' ONLY in the web app's Vercel project, where the Astro
+  // site owns the root and the SPA is served under /app (see
+  // docs/astro-migration-plan.md step 7 + docs/app-subpath-audit.md). Never set
+  // it for native builds.
+  const base = env.VITE_APP_BASE || '/'
+
   return {
+    base,
     plugins: [react(), tailwindcss(), devApi()],
     resolve: {
       alias: {
