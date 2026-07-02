@@ -1,1 +1,75 @@
 @import '@fw/ui/theme.css';
+
+/* Marketing site tweaks: the "white" areas read as a light warm-gray, and the
+   big sci-fi display headings use Sui Generis (Adobe Fonts). */
+:root {
+  --background: oklch(0.963 0 0);
+}
+
+.font-display {
+  font-family: 'sui-generis', var(--font-sans);
+  font-weight: 500;
+  font-style: normal;
+}
+
+/* FW-01 tactical HUD detail language — shared across the marketing chrome. */
+
+/* Clipped/notched top-right corner on primary action buttons. */
+.fw-notch {
+  clip-path: polygon(
+    0 0,
+    calc(100% - 0.7rem) 0,
+    100% 0.7rem,
+    100% 100%,
+    0 100%
+  );
+}
+
+/* Barcode strip — irregular vertical bars, inherits currentColor. */
+.fw-barcode {
+  background-image: repeating-linear-gradient(
+    90deg,
+    currentColor 0 1px,
+    transparent 1px 2px,
+    currentColor 2px 4px,
+    transparent 4px 5px,
+    currentColor 5px 6px,
+    transparent 6px 9px,
+    currentColor 9px 11px,
+    transparent 11px 12px
+  );
+}
+
+/* Red hazard stripes (/////) — inherits currentColor. */
+.fw-hazard {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    currentColor 0 5px,
+    transparent 5px 11px
+  );
+}
+
+/* Faint dot grid, inherits currentColor. */
+.fw-dotgrid {
+  background-image: radial-gradient(currentColor 1px, transparent 1.4px);
+  background-size: 13px 13px;
+}
+
+/* Visible keyboard focus on every interactive element. */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

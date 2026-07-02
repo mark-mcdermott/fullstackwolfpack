@@ -1,0 +1,14 @@
+---
+// Thin FW-01 crosshair `+` marks at a relative parent's four corners.
+interface Props {
+  class?: string
+}
+const { class: className = 'text-foreground/20' } = Astro.props
+const base = 'pointer-events-none absolute h-3.5 w-3.5'
+const cross = '<path d="M6 0v12M0 6h12" stroke="currentColor" stroke-width="1"/>'
+---
+
+<svg class:list={[base, 'left-4 top-4', className]} viewBox="0 0 12 12" aria-hidden="true" set:html={cross} />
+<svg class:list={[base, 'right-4 top-4', className]} viewBox="0 0 12 12" aria-hidden="true" set:html={cross} />
+<svg class:list={[base, 'bottom-4 left-4', className]} viewBox="0 0 12 12" aria-hidden="true" set:html={cross} />
+<svg class:list={[base, 'bottom-4 right-4', className]} viewBox="0 0 12 12" aria-hidden="true" set:html={cross} />
