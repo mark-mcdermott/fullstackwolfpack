@@ -156,18 +156,14 @@ const triTopRight =
           </a>
         </div>
         <div
-          class="flex items-center gap-2 font-mono text-[11px] tracking-widest uppercase"
+          class="flex items-center justify-center gap-2 font-mono text-[11px] tracking-widest uppercase sm:justify-start"
           data-intervals
           aria-hidden="true"
         >
-          <span class="fw-roll font-bold text-primary" data-role="play"
-            ><span class="fw-roll__track"><span class="fw-roll__n">30</span></span></span
-          >
+          <span class="font-bold text-primary" data-role="play">30</span>
           <span class="text-neutral-600">min play</span>
           <span class="text-primary">//</span>
-          <span class="fw-roll font-bold text-primary" data-role="learn"
-            ><span class="fw-roll__track"><span class="fw-roll__n">10</span></span></span
-          >
+          <span class="font-bold text-primary" data-role="learn">10</span>
           <span class="text-neutral-600">min learn</span>
         </div>
         <span class="sr-only"
@@ -519,49 +515,64 @@ const triTopRight =
 </script>
 
 <script>
-  // Interval odometer: roll the play/learn numbers through example splits so the
-  // hero reads as "you set the rhythm" rather than a fixed 30/10. Holds still
-  // for anyone who prefers reduced motion.
+  // Interval odometer: each play/learn number becomes a pair of 0–9 digit
+  // strips that roll to their target digits (with a subtle left-to-right
+  // stagger), cycling through example splits so the hero reads as "you set the
+  // rhythm" rather than a fixed 30/10. Two wheels per number, so single-digit
+  // values read as a padded instrument display (02 / 01). The sequence walks
+  // the range: long grinds, quick hits, and learn-heavy splits. Reduced motion
+  // leaves the static 30/10 text untouched.
   const combos = [
     [30, 10],
-    [55, 5],
     [90, 15],
+    [2, 1],
     [45, 10],
-    [25, 5],
+    [1, 5],
+    [60, 20],
   ]
-  const specs = Array.from(document.querySelectorAll('[data-intervals]'))
+  const spec = document.querySelector('[data-intervals]')
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  if (specs.length && !reduce) {
-    const rollTo = (roll, value) => {
-      const track = roll?.querySelector('.fw-roll__track')
-      const cur = track?.firstElementChild
-      if (!track || !cur || cur.textContent === String(value)) return
-      const next = document.createElement('span')
-      next.className = 'fw-roll__n'
-      next.textContent = String(value)
-      track.appendChild(next)
-      requestAnimationFrame(() => {
-        track.style.transform = 'translateY(-1em)'
-      })
-      const done = () => {
-        track.removeEventListener('transitionend', done)
-        track.style.transition = 'none'
-        track.removeChild(cur)
-        track.style.transform = 'translateY(0)'
-        requestAnimationFrame(() => {
-          track.style.transition = ''
+  if (spec && !reduce) {
+    const buildWheel = (numEl, baseDelay) => {
+      const start = parseInt(numEl.textContent, 10) || 0
+      numEl.textContent = ''
+      const strips = []
+      for (let slot = 0; slot < 2; slot++) {
+        const box = document.createElement('span')
+        box.className = 'fw-odo'
+        const strip = document.createElement('span')
+        strip.className = 'fw-odo__strip'
+        strip.style.transitionDelay = `${baseDelay + slot * 70}ms`
+        for (let d = 0; d <= 9; d++) {
+          const cell = document.createElement('span')
+          cell.textContent = String(d)
+          strip.appendChild(cell)
+        }
+        box.appendChild(strip)
+        numEl.appendChild(box)
+        strips.push(strip)
+      }
+      const set = (value, animate) => {
+        const digits = [Math.floor(value / 10) % 10, value % 10]
+        strips.forEach((strip, i) => {
+          if (!animate) strip.style.transition = 'none'
+          strip.style.transform = `translateY(-${digits[i]}em)`
+          if (!animate) {
+            strip.getBoundingClientRect()
+            strip.style.transition = ''
+          }
         })
       }
-      track.addEventListener('transitionend', done)
+      set(start, false)
+      return set
     }
+    const setPlay = buildWheel(spec.querySelector('[data-role="play"]'), 0)
+    const setLearn = buildWheel(spec.querySelector('[data-role="learn"]'), 140)
     let i = 0
     setInterval(() => {
       i = (i + 1) % combos.length
-      const [play, learn] = combos[i]
-      for (const spec of specs) {
-        rollTo(spec.querySelector('[data-role="play"]'), play)
-        rollTo(spec.querySelector('[data-role="learn"]'), learn)
-      }
+      setPlay(combos[i][0], true)
+      setLearn(combos[i][1], true)
     }, 4000)
   }
 </script>

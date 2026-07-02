@@ -95,27 +95,31 @@
   );
 }
 
-/* Vertical odometer — rolls a number to a new value (interval spec). */
-.fw-roll {
+/* Per-digit odometer — each digit rides its own 0–9 strip and rolls to its
+   target (interval spec). Tactical instrument-readout feel; JS builds the
+   strips from the static number so it degrades to plain text without JS. */
+.fw-odo {
   display: inline-block;
   height: 1em;
   overflow: hidden;
-  vertical-align: bottom;
-  min-width: 1.7ch;
-  text-align: center;
+  vertical-align: middle;
   font-variant-numeric: tabular-nums;
 }
-.fw-roll__track {
-  display: block;
-  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+.fw-odo__strip {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+  transition: transform 0.62s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.fw-roll__n {
-  display: block;
+.fw-odo__strip > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 1em;
-  line-height: 1em;
+  line-height: 1;
 }
 @media (prefers-reduced-motion: reduce) {
-  .fw-roll__track {
+  .fw-odo__strip {
     transition: none;
   }
 }
