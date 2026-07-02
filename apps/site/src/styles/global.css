@@ -76,13 +76,25 @@
   );
 }
 
-/* Red hazard stripes (/////) — inherits currentColor. */
+/* Hazard stripes — leaning full-height bars, not a clipped diagonal gradient.
+   Vertical stripes on a skewed, over-wide layer clipped to the box: the top and
+   bottom edges stay clean and only the left/right ends trail off (no corner
+   triangles). Inherits currentColor. The box is always positioned at its usage
+   (absolute), so it already establishes the containing block for ::before —
+   don't set position here or it would override the .absolute utility. */
 .fw-hazard {
+  overflow: hidden;
+}
+.fw-hazard::before {
+  content: '';
+  position: absolute;
+  inset: 0 -1.25rem;
   background-image: repeating-linear-gradient(
-    -45deg,
+    to right,
     currentColor 0 5px,
-    transparent 5px 11px
+    transparent 5px 12px
   );
+  transform: skewX(-45deg);
 }
 
 /* Very light diagonal-line texture (/) — thin, sparse; inherits currentColor.
