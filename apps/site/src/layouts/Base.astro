@@ -81,7 +81,7 @@ const socials = [
   >
     <header class="bg-neutral-950 text-white">
       <div
-        class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-5 md:px-8"
+        class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-5 md:px-3"
       >
         <a href="/" class="flex gap-5">
           <WolfMark class="h-18 text-white" />
@@ -93,13 +93,13 @@ const socials = [
         </a>
 
         <nav
-          class="hidden items-center gap-7 font-mono text-[11px] tracking-widest uppercase lg:flex"
+          class="hidden items-center gap-7 font-heading text-[12px] tracking-widest uppercase lg:flex"
         >
           {
             navLinks.map((n) => (
               <a
                 href={n.href}
-                class="text-neutral-400 transition-colors hover:text-white"
+                class="text-gray-100 transition-colors hover:text-white"
               >
                 {n.label}
               </a>
@@ -109,7 +109,7 @@ const socials = [
 
         <div class="flex items-center gap-4">
           <div
-            class="hidden flex-col gap-1 border border-neutral-700 px-3 py-1.5 xl:flex"
+            class="flex-col gap-1 border border-neutral-700 px-7 py-5 xl:flex"
           >
             <div class="flex items-center justify-between gap-4">
               <span
@@ -128,7 +128,7 @@ const socials = [
 
           <a
             href={`${APP_URL}/app`}
-            class="fw-notch inline-flex items-center bg-primary px-5 py-3.5 font-mono text-[11px] font-bold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90"
+            class="fw-notch-tr fw-notch-br inline-flex items-center bg-primary px-7 py-6.5 font-mono text-[11px] font-bold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90"
           >
             Start Learning
           </a>
