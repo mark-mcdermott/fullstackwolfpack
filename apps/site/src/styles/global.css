@@ -95,6 +95,31 @@
   );
 }
 
+/* Vertical odometer — rolls a number to a new value (interval spec). */
+.fw-roll {
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  vertical-align: bottom;
+  min-width: 1.7ch;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.fw-roll__track {
+  display: block;
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.fw-roll__n {
+  display: block;
+  height: 1em;
+  line-height: 1em;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fw-roll__track {
+    transition: none;
+  }
+}
+
 /* Faint dot grid, inherits currentColor. */
 .fw-dotgrid {
   background-image: radial-gradient(currentColor 1px, transparent 1.4px);

@@ -121,7 +121,7 @@ const triTopRight =
   <section class="relative overflow-hidden">
     <CornerMarks class="text-foreground/25" />
     <div
-      class="mx-auto grid max-w-7xl items-center px-5 pt-8 pb-6 md:grid-cols-2 md:px-8 md:pt-10 md:pb-10"
+      class="mx-auto grid max-w-7xl items-center gap-y-8 px-5 pt-8 pb-6 md:grid-cols-2 md:gap-y-0 md:px-8 md:pt-10 md:pb-10"
     >
       <div class="mx-auto flex max-w-lg flex-col gap-6 md:mx-0 md:max-w-none">
         <p class="font-mono text-xs tracking-normal text-primary uppercase">
@@ -139,27 +139,41 @@ const triTopRight =
         >
           Turn screen time<br />into real world skills.
         </p>
-        <div class="flex flex-wrap items-center gap-4">
+        <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
           <a
             href={`${APP_URL}/app`}
-            class="fw-notch-tr inline-flex items-center gap-2.5 bg-primary px-6 py-3.5 font-mono text-xs font-bold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90"
+            class="fw-notch-tr flex w-full items-center justify-center gap-2.5 bg-primary px-6 py-3.5 font-mono text-xs font-bold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90 sm:w-auto sm:justify-start"
           >
             <Icon name="crosshair" class="h-4 w-4" />
             Start Session
           </a>
           <a
             href={`${APP_URL}/app`}
-            class="inline-flex items-center gap-2.5 border border-foreground px-6 py-3.5 font-mono text-xs font-bold tracking-widest uppercase transition-colors hover:bg-foreground hover:text-background"
+            class="flex w-full items-center justify-center gap-2.5 border border-foreground px-6 py-3.5 font-mono text-xs font-bold tracking-widest uppercase transition-colors hover:bg-foreground hover:text-background sm:w-auto sm:justify-start"
           >
             View Dashboard
             <Icon name="arrow" class="h-4 w-4" />
           </a>
         </div>
-        <p
-          class="font-mono text-[11px] tracking-widest text-neutral-600 uppercase"
+        <div
+          class="flex items-center gap-2 font-mono text-[11px] tracking-widest uppercase"
+          data-intervals
+          aria-hidden="true"
         >
-          30 Min Play // 10 Min Learn
-        </p>
+          <span class="fw-roll font-bold text-primary" data-role="play"
+            ><span class="fw-roll__track"><span class="fw-roll__n">30</span></span></span
+          >
+          <span class="text-neutral-600">min play</span>
+          <span class="text-primary">//</span>
+          <span class="fw-roll font-bold text-primary" data-role="learn"
+            ><span class="fw-roll__track"><span class="fw-roll__n">10</span></span></span
+          >
+          <span class="text-neutral-600">min learn</span>
+        </div>
+        <span class="sr-only"
+          >Flexible sessions — you set the split, for example 30 minutes play
+          to 10 minutes learn.</span
+        >
       </div>
 
       <!-- Visual: wolf art + FW-01 HUD rail -->
@@ -197,8 +211,8 @@ const triTopRight =
               width="800"
               height="663"
             />
-            <!-- coordinates + measurement line -->
-            <div class="absolute -bottom-3 right-0 left-0 z-10 flex flex-col items-end gap-1.5">
+            <!-- coordinates + measurement line (desktop HUD only) -->
+            <div class="absolute -bottom-3 right-0 left-0 z-10 hidden flex-col items-end gap-1.5 lg:flex">
               <div
                 class="flex items-center gap-2 font-mono text-[10px] tracking-widest text-muted-foreground"
               >
@@ -501,5 +515,53 @@ const triTopRight =
         }
       })
       .catch(() => {})
+  }
+</script>
+
+<script>
+  // Interval odometer: roll the play/learn numbers through example splits so the
+  // hero reads as "you set the rhythm" rather than a fixed 30/10. Holds still
+  // for anyone who prefers reduced motion.
+  const combos = [
+    [30, 10],
+    [55, 5],
+    [90, 15],
+    [45, 10],
+    [25, 5],
+  ]
+  const specs = Array.from(document.querySelectorAll('[data-intervals]'))
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (specs.length && !reduce) {
+    const rollTo = (roll, value) => {
+      const track = roll?.querySelector('.fw-roll__track')
+      const cur = track?.firstElementChild
+      if (!track || !cur || cur.textContent === String(value)) return
+      const next = document.createElement('span')
+      next.className = 'fw-roll__n'
+      next.textContent = String(value)
+      track.appendChild(next)
+      requestAnimationFrame(() => {
+        track.style.transform = 'translateY(-1em)'
+      })
+      const done = () => {
+        track.removeEventListener('transitionend', done)
+        track.style.transition = 'none'
+        track.removeChild(cur)
+        track.style.transform = 'translateY(0)'
+        requestAnimationFrame(() => {
+          track.style.transition = ''
+        })
+      }
+      track.addEventListener('transitionend', done)
+    }
+    let i = 0
+    setInterval(() => {
+      i = (i + 1) % combos.length
+      const [play, learn] = combos[i]
+      for (const spec of specs) {
+        rollTo(spec.querySelector('[data-role="play"]'), play)
+        rollTo(spec.querySelector('[data-role="learn"]'), learn)
+      }
+    }, 4000)
   }
 </script>
