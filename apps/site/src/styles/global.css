@@ -15,10 +15,21 @@
 /* FW-01 tactical HUD detail language — shared across the marketing chrome. */
 
 /* Clipped/notched top-right corner on primary action buttons. */
-.fw-notch {
+.fw-notch-tr {
   clip-path: polygon(
     0 0,
     calc(100% - 0.7rem) 0,
+    100% 0.7rem,
+    100% 100%,
+    0 100%
+  );
+}
+
+/* Clipped/notched bottom-right corner on primary action buttons. */
+.fw-notch-br {
+  clip-path: polygon(
+    0 calc(100% - 0.7rem),
+    0, 0,
     100% 0.7rem,
     100% 100%,
     0 100%
