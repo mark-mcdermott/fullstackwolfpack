@@ -28,10 +28,35 @@
 /* Clipped/notched bottom-right corner on primary action buttons. */
 .fw-notch-br {
   clip-path: polygon(
-    0 calc(100% - 0.7rem),
-    0, 0,
+    0 0,
+    100% 0,
+    100% calc(100% - 0.7rem),
+    calc(100% - 0.7rem) 100%,
+    0 100%
+  );
+}
+
+/* Both right corners notched. clip-path is a single property, so the two
+   classes can't stack — this compound selector wins on specificity and clips
+   both corners when an element carries fw-notch-tr and fw-notch-br together. */
+.fw-notch-tr.fw-notch-br {
+  clip-path: polygon(
+    0 0,
+    calc(100% - 0.7rem) 0,
     100% 0.7rem,
-    100% 100%,
+    100% calc(100% - 0.7rem),
+    calc(100% - 0.7rem) 100%,
+    0 100%
+  );
+}
+
+/* Compact bottom-right notch for small chrome like the FW-01 badge. */
+.fw-notch-br-sm {
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 0.4rem),
+    calc(100% - 0.4rem) 100%,
     0 100%
   );
 }
