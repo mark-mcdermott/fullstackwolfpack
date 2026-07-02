@@ -85,6 +85,16 @@
   );
 }
 
+/* Very light diagonal-line texture (/) — thin, sparse; inherits currentColor.
+   Meant as a barely-there background wash behind card content. */
+.fw-diaglines {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    currentColor 0 1px,
+    transparent 1px 10px
+  );
+}
+
 /* Faint dot grid, inherits currentColor. */
 .fw-dotgrid {
   background-image: radial-gradient(currentColor 1px, transparent 1.4px);

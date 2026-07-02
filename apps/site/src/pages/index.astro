@@ -88,6 +88,7 @@ const whyStats = [
     label: 'Higher Retention',
     body: 'Compared to traditional learning.',
     source: 'Cognitive Science Research',
+    bar: 48,
   },
   {
     num: '45',
@@ -95,6 +96,7 @@ const whyStats = [
     label: 'More Consistent',
     body: 'Users who learn in intervals stay more consistent.',
     source: 'Learning Lab Study 2025',
+    bar: 45,
   },
   {
     num: '98',
@@ -102,6 +104,7 @@ const whyStats = [
     label: 'User Satisfaction',
     body: 'Of users feel more productive and motivated.',
     source: 'Wolfpack User Survey',
+    bar: 98,
   },
 ] as const
 
@@ -250,7 +253,11 @@ const triTopRight =
 
   <!-- 3 · Stats bar -->
   <section class="mx-auto max-w-7xl px-5 pb-16 md:px-8">
-    <div class="relative border border-neutral-600 px-6 py-8 md:px-10">
+    <div class="relative isolate border border-neutral-600 px-6 py-8 md:px-10">
+      <span
+        class="fw-diaglines pointer-events-none absolute inset-8 -z-10 text-foreground opacity-[0.04]"
+        aria-hidden="true"
+      ></span>
       <span class="pointer-events-none absolute left-0 top-0 h-0 w-0" style={triTopLeft}></span>
       <span
         class="pointer-events-none absolute right-0 bottom-0 h-0 w-0"
@@ -286,7 +293,7 @@ const triTopRight =
     class="relative overflow-hidden bg-neutral-950 text-white"
   >
     <CornerMarks class="text-white" />
-    <div class="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
+    <div class="mx-auto max-w-7xl px-5 pt-8 pb-12 md:px-16 md:pt-10 md:pb-16">
       <p class="font-mono text-xs tracking-normal text-primary uppercase">
         // How it works
       </p>
@@ -340,7 +347,7 @@ const triTopRight =
   <!-- 5 · Features -->
   <section id="features" class="relative overflow-hidden">
     <CornerMarks class="text-foreground/25" />
-    <div class="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
+    <div class="mx-auto max-w-7xl px-5 pt-8 pb-12 md:px-16 md:pt-10 md:pb-16">
       <p class="font-mono text-xs tracking-normal text-primary uppercase">
         // Features
       </p>
@@ -353,7 +360,11 @@ const triTopRight =
       <div class="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {
           features.map((f) => (
-            <div class="relative border border-border bg-background p-6">
+            <div class="relative isolate border border-border bg-background p-6">
+              <span
+                class="fw-diaglines pointer-events-none absolute inset-6 -z-10 text-foreground opacity-[0.04]"
+                aria-hidden="true"
+              />
               <span
                 class="pointer-events-none absolute right-0 top-0 h-0 w-0"
                 style={triTopRight}
@@ -379,7 +390,7 @@ const triTopRight =
 
   <!-- 6 · Why it works -->
   <section class="relative border-t border-neutral-300">
-    <div class="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
+    <div class="mx-auto max-w-7xl px-5 pt-8 pb-12 md:px-16 md:pt-10 md:pb-16">
       <div class="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
         <div class="flex flex-col gap-6">
           <p class="font-mono text-xs tracking-normal text-primary uppercase">
@@ -390,13 +401,13 @@ const triTopRight =
           >
             Short bursts.<br />Lasting impact.
           </h2>
-          <p class="max-w-md font-mono text-sm leading-relaxed text-muted-foreground">
+          <p class="max-w-xs font-mono text-sm leading-relaxed text-muted-foreground">
             Science shows spaced learning with active recall improves retention
             and builds real mastery over time.
           </p>
           <a
             href="#features"
-            class="inline-flex items-center gap-2 font-mono text-xs font-bold tracking-widest text-primary uppercase transition-opacity hover:opacity-70"
+            class="inline-flex items-center gap-2 font-heading text-xs font-semibold tracking-widest text-primary uppercase transition-opacity hover:opacity-70"
           >
             Learn more
             <Icon name="arrow" class="h-4 w-4" />
@@ -408,7 +419,11 @@ const triTopRight =
         >
           {
             whyStats.map((s) => (
-              <div class="flex flex-col gap-2 sm:px-6 sm:first:pl-0">
+              <div class="relative isolate flex flex-col gap-2 sm:px-6 sm:first:pl-0">
+                <span
+                  class="fw-diaglines pointer-events-none absolute inset-4 -z-10 text-foreground opacity-[0.04]"
+                  aria-hidden="true"
+                />
                 <div class="font-heading text-5xl font-semibold leading-none text-primary sm:text-6xl">
                   {s.num}
                   <span class="text-3xl sm:text-4xl">{s.suffix}</span>
@@ -422,6 +437,9 @@ const triTopRight =
                 <p class="mt-3 font-mono text-[10px] leading-relaxed text-muted-foreground/60">
                   Source: {s.source}
                 </p>
+                <div class="mt-4 h-1 w-full max-w-[10rem] bg-foreground/10">
+                  <div class="h-full bg-primary" style={`width: ${s.bar}%`} />
+                </div>
               </div>
             ))
           }
@@ -430,34 +448,38 @@ const triTopRight =
     </div>
   </section>
 
-  <!-- 7 · CTA band -->
-  <section class="relative overflow-hidden bg-primary text-primary-foreground">
-    <CornerMarks class="text-white/40" />
-    <div
-      class="mx-auto flex max-w-7xl flex-col gap-8 px-5 py-10 md:flex-row md:items-center md:justify-between md:px-8 md:py-14"
-    >
-      <div class="flex flex-col gap-4">
-        <p class="font-mono text-xs tracking-normal text-white/80 uppercase">
-          <span class="text-white">//</span> Ready to level up?
-        </p>
-        <h2
-          class="font-display text-2xl leading-[0.95] tracking-tight uppercase sm:text-4xl"
+  <!-- 7 · CTA band — contained banner, aligned with the hero stats bar -->
+  <section class="py-12 md:py-16">
+    <div class="mx-auto max-w-7xl px-5 md:px-8">
+      <div class="relative overflow-hidden bg-primary text-primary-foreground">
+        <CornerMarks class="text-white/40" />
+        <div
+          class="flex flex-col gap-8 px-6 py-10 md:flex-row md:items-center md:justify-between md:px-12 md:py-14"
         >
-          Your next level<br />starts now.
-        </h2>
+          <div class="flex flex-col gap-4">
+            <p class="font-mono text-xs tracking-normal text-white/80 uppercase">
+              <span class="text-white">//</span> Ready to level up?
+            </p>
+            <h2
+              class="font-display text-2xl leading-[0.95] tracking-tight uppercase sm:text-4xl"
+            >
+              Your next level<br />starts now.
+            </h2>
+          </div>
+          <a
+            href={`${APP_URL}/app`}
+            class="fw-notch-tr fw-notch-br inline-flex items-center justify-between gap-6 bg-white px-7 py-4 font-heading text-xs font-semibold tracking-widest text-foreground uppercase transition-colors hover:bg-white/90"
+          >
+            <span class="inline-flex items-center gap-2.5">
+              <Icon name="crosshair" class="h-8 w-8 text-primary" />
+              Start Your Session
+            </span>
+            <Icon name="arrow" class="h-8 w-8 text-primary" />
+          </a>
+        </div>
+        <div class="fw-hazard absolute right-5 bottom-5 h-4 w-24 text-white"></div>
       </div>
-      <a
-        href={`${APP_URL}/app`}
-        class="fw-notch-tr inline-flex items-center justify-between gap-6 bg-white px-7 py-4 font-mono text-xs font-bold tracking-widest text-foreground uppercase transition-colors hover:bg-white/90"
-      >
-        <span class="inline-flex items-center gap-2.5">
-          <Icon name="crosshair" class="h-4 w-4 text-primary" />
-          Start Your Session
-        </span>
-        <Icon name="arrow" class="h-4 w-4" />
-      </a>
     </div>
-    <div class="fw-hazard absolute right-5 bottom-5 h-4 w-24 text-white/70"></div>
   </section>
 </Base>
 

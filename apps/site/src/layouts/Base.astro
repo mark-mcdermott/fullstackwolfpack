@@ -14,6 +14,8 @@ const {
   description = 'Turn screen time into real world skills.',
 } = Astro.props
 
+const year = new Date().getFullYear()
+
 const navLinks = [
   { href: '#how-it-works', label: 'How it works' },
   { href: '#features', label: 'Features' },
@@ -209,15 +211,8 @@ const socials = [
           <div
             class="flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-[10px] tracking-widest text-neutral-500 uppercase"
           >
-            <span>© 2025 Fullstack Wolfpack · All rights reserved</span>
-            <button
-              type="button"
-              class="flex items-center gap-1.5 text-neutral-400 transition-colors hover:text-white"
-            >
-              <Icon name="globe" class="h-3.5 w-3.5" />
-              EN
-              <Icon name="chevron" class="h-3 w-3" />
-            </button>
+            <span>© {year} Fullstack Wolfpack · All rights reserved</span>
+            <Icon name="globe" class="h-3.5 w-3.5 text-neutral-400" />
           </div>
         </div>
       </div>
