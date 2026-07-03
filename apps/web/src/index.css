@@ -131,3 +131,68 @@
     @apply font-heading;
     }
 }
+
+/* FW-01 tactical HUD detail language — ported from apps/site for the marketing
+   chrome reused on the logged-out auth pages. Keep in sync with
+   apps/site/src/styles/global.css. */
+
+/* Clipped/notched top-right corner (primary action buttons). */
+.fw-notch-tr {
+  clip-path: polygon(0 0, calc(100% - 0.7rem) 0, 100% 0.7rem, 100% 100%, 0 100%);
+}
+
+/* Clipped/notched bottom-right corner (primary action buttons). */
+.fw-notch-br {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 0.7rem), calc(100% - 0.7rem) 100%, 0 100%);
+}
+
+/* Both right corners notched — clip-path is one property, so the compound
+   selector wins when an element carries both classes. */
+.fw-notch-tr.fw-notch-br {
+  clip-path: polygon(
+    0 0,
+    calc(100% - 0.5rem) 0,
+    100% 0.5rem,
+    100% calc(100% - 0.5rem),
+    calc(100% - 0.5rem) 100%,
+    0 100%
+  );
+}
+
+/* Barcode strip — irregular vertical bars, inherits currentColor. */
+.fw-barcode {
+  background-image: repeating-linear-gradient(
+    90deg,
+    currentColor 0 1px,
+    transparent 1px 2px,
+    currentColor 2px 4px,
+    transparent 4px 5px,
+    currentColor 5px 6px,
+    transparent 6px 9px,
+    currentColor 9px 11px,
+    transparent 11px 12px
+  );
+}
+
+.fw-barcode-regular {
+  background-image: repeating-linear-gradient(
+    90deg,
+    currentColor 0 1px,
+    transparent 1px 2px,
+    currentColor 2px 3px,
+    transparent 3px 4px,
+    currentColor 4px 5px,
+    transparent 5px 6px,
+    currentColor 6px 7px,
+    transparent 7px 8px
+  );
+}
+
+/* Very light diagonal-line texture (/) — a barely-there wash behind cards. */
+.fw-diaglines {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    currentColor 0 1px,
+    transparent 1px 10px
+  );
+}

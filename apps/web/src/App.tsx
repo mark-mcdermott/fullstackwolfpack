@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router'
 import { AppLayout } from '@/components/layout/app-layout'
+import { AuthChromeLayout } from '@/components/layout/auth-chrome-layout'
 import { RequireAuth, RequireRole } from '@/components/layout/guards'
 import { MarketingLayout } from '@/components/layout/marketing-layout'
 import { AchievementsPage } from '@/pages/app/achievements'
@@ -14,7 +15,8 @@ import { SettingsPage } from '@/pages/app/settings'
 import { StatsPage } from '@/pages/app/stats'
 import { TopicsPage } from '@/pages/app/topics'
 import { AdminUsersPage } from '@/pages/admin/users'
-import { AuthPage } from '@/pages/auth-page'
+import { SignInPage } from '@/pages/auth/sign-in'
+import { SignUpPage } from '@/pages/auth/sign-up'
 import { NotFound } from '@/pages/not-found'
 import { About } from '@/pages/public/about'
 import { Blog } from '@/pages/public/blog'
@@ -37,8 +39,10 @@ function App() {
       </Route>
 
       {/* Auth */}
-      <Route path="/login" element={<AuthPage />} />
-      <Route path="/signup" element={<AuthPage />} />
+      <Route element={<AuthChromeLayout />}>
+        <Route path="/login" element={<SignInPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
+      </Route>
 
       {/* Private */}
       <Route element={<RequireAuth />}>
