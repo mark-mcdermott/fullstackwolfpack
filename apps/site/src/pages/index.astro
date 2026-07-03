@@ -300,10 +300,10 @@ const triTopRight =
   <!-- 4 · How it works -->
   <section
     id="how-it-works"
-    class="relative overflow-hidden bg-neutral-950 text-white"
+    class="overflow-hidden bg-neutral-950 text-white"
   >
     <CornerMarks class="text-white" omit={['br']} />
-    <div class="mx-auto max-w-7xl px-5 pt-8 pb-12 md:px-16 md:pt-10 md:pb-16">
+    <div class="relative mx-auto max-w-7xl px-5 pt-8 pb-12 md:px-16 md:pt-10 md:pb-16">
       <p class="font-mono text-xs tracking-normal text-primary uppercase">
         // How it works
       </p>
@@ -363,8 +363,8 @@ const triTopRight =
           ))
         }
       </div>
+      <div class="fw-hazard absolute right-16 bottom-6 h-2.5 w-23 text-primary"></div>
     </div>
-    <div class="fw-hazard absolute right-6 bottom-6 h-2.5 w-23 text-primary"></div>
   </section>
 
   <!-- 5 · Features -->
@@ -424,7 +424,7 @@ const triTopRight =
           >
             Short bursts.<br />Lasting impact.
           </h2>
-          <p class="max-w-xs font-mono text-sm leading-relaxed text-muted-foreground">
+          <p class="max-w-md lg:max-w-xs font-mono text-sm leading-relaxed text-muted-foreground">
             Science shows spaced learning with active recall improves retention
             and builds real mastery over time.
           </p>
