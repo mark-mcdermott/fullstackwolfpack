@@ -3,6 +3,7 @@
 // Features / Pricing): back-link, eyebrow, two-line heading with a red period,
 // body copy, and the FW-01 wolf visual with a HUD dot grid + optional FM label.
 import Icon from './Icon.astro'
+import HeroWolf from './HeroWolf.astro'
 
 interface Props {
   eyebrow: string
@@ -41,33 +42,6 @@ const { eyebrow, titleTop, titleBottom, body, fm } = Astro.props
       <slot />
     </div>
 
-    <!-- Visual: wolf art + HUD dot grid -->
-    <div class="relative mx-auto w-full max-w-md md:mx-0 md:max-w-none">
-      <div class="absolute right-0 top-2 z-10 hidden items-start gap-3 lg:flex">
-        <span class="mt-1 font-mono text-sm text-foreground/40">+</span>
-        <div class="grid grid-cols-5 gap-x-3 gap-y-2.5">
-          {
-            Array.from({ length: 30 }).map(() => (
-              <span class="h-1 w-1 rounded-full bg-foreground/30" />
-            ))
-          }
-        </div>
-      </div>
-      <img
-        src="/images/wolf-sun-transparent.png"
-        alt="Ink illustration of a wolf's head against a red rising sun"
-        class="w-full"
-        loading="eager"
-        width="800"
-        height="663"
-      />
-      {
-        fm && (
-          <span class="absolute right-1 -bottom-1 font-mono text-[11px] tracking-widest text-muted-foreground">
-            {fm}
-          </span>
-        )
-      }
-    </div>
+    <HeroWolf fm={fm} />
   </div>
 </section>

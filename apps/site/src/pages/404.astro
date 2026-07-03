@@ -1,0 +1,146 @@
+---
+import Base from '../layouts/Base.astro'
+import Icon from '../components/Icon.astro'
+import HeroWolf from '../components/HeroWolf.astro'
+import { APP_URL } from '../consts'
+
+const lostItems = [
+  {
+    icon: 'compass',
+    title: 'Check the URL',
+    body: 'Make sure the address is typed correctly.',
+  },
+  {
+    icon: 'book',
+    title: 'Browse Features',
+    body: 'Explore what Wolfpack has to offer.',
+  },
+  {
+    icon: 'search',
+    title: 'Search',
+    body: 'Use search to find lessons and guides.',
+  },
+] as const
+---
+
+<Base
+  title="Page not found — Fullstack Wolfpack"
+  description="404 — target not found. The page you're looking for doesn't exist or has been moved."
+>
+  <div class="mx-auto max-w-7xl px-5 md:px-8">
+    <!-- Hero -->
+    <section class="relative overflow-hidden pt-16 pb-10">
+      <div class="pb-4 grid items-center gap-y-10 lg:grid-cols-[2fr_3fr]">
+        <div class="mx-auto flex max-w-lg flex-col items-center gap-6 text-center lg:mx-0 lg:items-start lg:text-left">
+          <p class="mt-4 font-mono text-xs tracking-normal text-primary uppercase">// Error</p>
+          <div class="w-fit">
+            <p class="mt-1 font-heading text-[8.5rem] font-light leading-[0.78] sm:text-[12rem] lg:text-[14rem]">
+              404
+            </p>
+            <h1
+              class="mt-10 font-heading text-2xl text-center font-normal leading-[0.95] tracking-tight uppercase sm:text-3xl"
+            >
+              Target not found<span class="text-primary">.</span>
+            </h1>
+
+            <!-- Glitch barcode line — spans the width of the 404 above it -->
+            <div class="mt-8 flex w-full items-center gap-1.5" aria-hidden="true">
+              <span class="fw-barcode h-1 flex-[6] text-foreground/70"></span>
+              <span class="h-1 flex-[2] bg-primary"></span>
+              <span class="fw-barcode h-1.5 flex-1 text-foreground/40"></span>
+              <span class="h-2 w-2.5 shrink-0 bg-primary"></span>
+            </div>
+          </div>
+
+          <p class="mt-4 max-w-xs font-mono text-[12px] leading-loose text-neutral-700">
+            The page you're looking for doesn't exist or has been moved.<br />
+            Let's get you back on track.
+          </p>
+
+          <div class="mt-2 flex max-w-xs flex-col gap-4">
+            <a
+              href="/"
+              class="fw-notch-br flex items-center gap-4 bg-primary px-6 py-4 font-heading text-sm font-bold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90"
+            >
+              <Icon name="crosshair" class="h-6 w-6" />
+              <span class="h-6 w-px bg-white/40"></span>
+              Return home
+              <Icon name="arrow" class="ml-auto h-5 w-5" />
+            </a>
+            <a
+              href="/features"
+              class="flex items-center gap-4 border border-foreground px-6 py-4 font-heading text-sm font-bold tracking-widest uppercase transition-colors hover:bg-foreground hover:text-background"
+            >
+              <Icon name="hexagon" class="h-6 w-6" />
+              <span class="h-6 w-px bg-foreground/20"></span>
+              Explore features
+              <Icon name="arrow" class="ml-auto h-5 w-5" />
+            </a>
+          </div>
+        </div>
+
+        <div class="mx-auto max-w-sm md:max-w-md lg:mx-0 lg:max-w-none xl:max-w-[800px] lg:translate-y-12 lg:-translate-x-18">
+          <HeroWolf
+            src="/images/wolf-rear-and-sun-transparent.png"
+            alt="Ink illustration of a wolf standing before a red rising sun"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- Lost? try these -->
+    <section class="pb-10">
+      <div class="relative">
+        <!-- Dark fill sitting behind the notch, revealed by the clip below. -->
+        <span
+          class="pointer-events-none absolute right-0 top-0 z-0 h-0 w-0"
+          style="border-width: 12px 0 0 12px; border-style: solid; border-color: var(--foreground) transparent transparent transparent;"
+        ></span>
+        <div class="fw-notch-tr relative z-10 border border-neutral-600 bg-background px-6 py-6 md:px-10">
+        <div class="fw-hazard pointer-events-none absolute right-0 bottom-1.5 h-2.5 w-23 text-foreground"></div>
+        <p class="font-mono text-[11px] tracking-widest text-primary uppercase">
+          // Lost? Try these
+        </p>
+        <div
+          class="mt-1 grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-neutral-300"
+        >
+          {
+            lostItems.map((it) => (
+              <div class="relative isolate flex flex-col items-center text-center sm:px-6">
+                <span
+                  class="fw-diaglines pointer-events-none absolute inset-2 -z-10 text-foreground opacity-[0.015]"
+                  aria-hidden="true"
+                />
+                <span class="relative inline-flex h-20 w-20 items-center justify-center">
+                  <Icon name="hexagon" class="absolute inset-0 h-full w-full text-foreground/30" />
+                  <Icon name={it.icon} class="h-[35px] w-[35px] text-foreground" />
+                </span>
+                <h3 class="mt-2.5 font-heading text-sm font-semibold tracking-normal uppercase">
+                  {it.title}
+                </h3>
+                <p class="mt-1.5 font-mono text-xs leading-relaxed text-muted-foreground">
+                  {it.body}
+                </p>
+              </div>
+            ))
+          }
+        </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mini CTA -->
+    <section class="pb-16 text-center">
+      <p class="font-mono text-sm text-muted-foreground">
+        Ready to level up your skills?
+      </p>
+      <a
+        href={`${APP_URL}/app`}
+        class="mt-3 inline-flex items-center gap-2 font-heading text-xs font-semibold tracking-widest text-primary uppercase transition-opacity hover:opacity-70"
+      >
+        Start Learning
+        <Icon name="arrow" class="h-4 w-4" />
+      </a>
+    </section>
+  </div>
+</Base>
