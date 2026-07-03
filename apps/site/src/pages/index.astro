@@ -302,7 +302,7 @@ const triTopRight =
     id="how-it-works"
     class="relative overflow-hidden bg-neutral-950 text-white"
   >
-    <CornerMarks class="text-white" />
+    <CornerMarks class="text-white" omit={['br']} />
     <div class="mx-auto max-w-7xl px-5 pt-8 pb-12 md:px-16 md:pt-10 md:pb-16">
       <p class="font-mono text-xs tracking-normal text-primary uppercase">
         // How it works
@@ -493,7 +493,7 @@ const triTopRight =
           </div>
           <a
             href={`${APP_URL}/app`}
-            class="fw-notch-tr fw-notch-br inline-flex items-center justify-between gap-6 bg-white px-7 py-4 font-heading text-xs font-semibold tracking-widest text-foreground uppercase transition-colors hover:bg-white/90"
+            class="fw-notch-tl inline-flex items-center justify-between gap-6 bg-white px-7 py-4 font-heading text-lg font-semibold tracking-widest text-foreground uppercase transition-colors hover:bg-white/90 md:text-xs"
           >
             <span class="inline-flex items-center gap-2.5">
               <Icon name="crosshair" class="h-8 w-8 text-primary" />

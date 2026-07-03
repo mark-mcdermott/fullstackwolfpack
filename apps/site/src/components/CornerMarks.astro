@@ -1,14 +1,30 @@
 ---
 // Thin FW-01 crosshair `+` marks at a relative parent's four corners.
+type Corner = 'tl' | 'tr' | 'bl' | 'br'
 interface Props {
   class?: string
+  omit?: Corner[]
 }
-const { class: className = 'text-foreground/20' } = Astro.props
+const { class: className = 'text-foreground/20', omit = [] } = Astro.props
 const base = 'pointer-events-none absolute h-3.5 w-3.5'
 const cross = '<path d="M6 0v12M0 6h12" stroke="currentColor" stroke-width="1"/>'
+const corners: { key: Corner; pos: string }[] = [
+  { key: 'tl', pos: 'left-4 top-4' },
+  { key: 'tr', pos: 'right-4 top-4' },
+  { key: 'bl', pos: 'bottom-4 left-4' },
+  { key: 'br', pos: 'bottom-4 right-4' },
+]
 ---
 
-<svg class:list={[base, 'left-4 top-4', className]} viewBox="0 0 12 12" aria-hidden="true" set:html={cross} />
-<svg class:list={[base, 'right-4 top-4', className]} viewBox="0 0 12 12" aria-hidden="true" set:html={cross} />
-<svg class:list={[base, 'bottom-4 left-4', className]} viewBox="0 0 12 12" aria-hidden="true" set:html={cross} />
-<svg class:list={[base, 'bottom-4 right-4', className]} viewBox="0 0 12 12" aria-hidden="true" set:html={cross} />
+{
+  corners
+    .filter((c) => !omit.includes(c.key))
+    .map((c) => (
+      <svg
+        class:list={[base, c.pos, className]}
+        viewBox="0 0 12 12"
+        aria-hidden="true"
+        set:html={cross}
+      />
+    ))
+}
