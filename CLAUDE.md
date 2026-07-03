@@ -36,7 +36,8 @@ This is now a workspace monorepo. **The "## Layout" paths below are relative to 
 - `src/pages/` — public (`public/`), logged-in app (`app/`), and admin (`admin/`) pages; the `app/` pages read live data via `api.data.*`. The lesson player is `app/learn.tsx` (route `/app/learn/:lessonId`); Topics/Dashboard/Sessions launch into it (`src/lib/open-course.ts` resolves a topic → its next lesson). Sessions is a real "continue learning" hub.
 - `src/lib/auth.ts` — WebAuthn relying-party config + TOTP helpers (server-side).
 - `src/hooks/auth-context.ts` + `auth-provider.tsx` — `AuthProvider` + `useAuth` (`user`/`register`/`login`/`recover`/`logout`/`refresh`).
-- `src/components/` — `auth-card.tsx` (sign-in / register / recover), `require-auth.tsx` (route guard), `dashboard.tsx` (protected view), `totp-card.tsx` (authenticator enrollment).
+- `src/pages/auth/{sign-in,sign-up}.tsx` — the logged-out `/login` + `/signup` pages, styled to match the Astro site (FW-01 hero + bordered card + "why" strip) under `components/layout/auth-chrome-layout.tsx` (site header/footer + a forced-light token island). Passkey-only, so only the flow's fields are live (email; +name on sign-up; recover behind a "Lost your passkey?" toggle) — the rest are commented out. Shared bits: `components/auth/{hero-wolf,auth-field,why-box,auth-card-shell,brand-icons}.tsx`, `components/layout/{fw-header,fw-footer}.tsx`.
+- `src/components/` — `require-auth.tsx` (route guard), `dashboard.tsx` (protected view), `totp-card.tsx` (authenticator enrollment).
 - `src/components/ui/` — shadcn components (`base-nova` style, base-ui primitives).
 - `dev-api.ts` — Vite dev plugin that serves `api/` under `npm run dev` (Node↔Web adapter), so passkeys work locally without `vercel dev`.
 - `drizzle.config.ts` — drizzle-kit config (reads `DATABASE_URL`).

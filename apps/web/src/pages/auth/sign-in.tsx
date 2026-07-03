@@ -80,7 +80,7 @@ export function SignInPage() {
             <p className="font-mono text-xs tracking-normal text-primary uppercase">
               // Welcome back
             </p>
-            <h1 className="font-heading text-4xl leading-[0.95] tracking-tight uppercase sm:text-5xl lg:text-[3.5rem]">
+            <h1 className="font-heading text-4xl leading-[0.95] tracking-tight text-foreground uppercase sm:text-5xl lg:text-[3.5rem]">
               <span className="block">Sign in</span>
               <span className="block">to continue</span>
               <span className="block">

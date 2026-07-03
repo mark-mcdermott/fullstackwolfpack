@@ -47,7 +47,7 @@ export function WhyBox({
               aria-hidden
             />
             <Icon className="h-8 w-8 text-foreground" strokeWidth={1.5} aria-hidden />
-            <h3 className="mt-3 font-heading text-sm font-semibold tracking-normal uppercase">
+            <h3 className="mt-3 font-heading text-sm font-semibold tracking-normal text-foreground uppercase">
               {title}
             </h3>
             <p className="mt-2 font-mono text-xs leading-relaxed text-muted-foreground">
