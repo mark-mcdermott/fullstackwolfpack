@@ -17,18 +17,20 @@ const {
 const year = new Date().getFullYear()
 
 const navLinks = [
-  { href: '#how-it-works', label: 'How it works' },
-  { href: '#features', label: 'Features' },
+  { href: '/#how-it-works', label: 'How it works' },
+  { href: '/#features', label: 'Features' },
   { href: '#', label: 'Pricing' },
-  { href: '#', label: 'About' },
+  { href: '/about', label: 'About' },
 ]
+
+const path = Astro.url.pathname
 
 const footerCols = [
   {
     title: 'Platform',
     links: [
-      { label: 'How It Works', href: '#how-it-works' },
-      { label: 'Features', href: '#features' },
+      { label: 'How It Works', href: '/#how-it-works' },
+      { label: 'Features', href: '/#features' },
       { label: 'Pricing', href: '#' },
       { label: 'Games We Support', href: '#' },
     ],
@@ -45,7 +47,7 @@ const footerCols = [
   {
     title: 'Company',
     links: [
-      { label: 'About Us', href: '#' },
+      { label: 'About Us', href: '/about' },
       { label: 'Careers', href: '#' },
       { label: 'Privacy Policy', href: '#' },
       { label: 'Terms of Service', href: '#' },
@@ -101,7 +103,11 @@ const socials = [
             navLinks.map((n) => (
               <a
                 href={n.href}
-                class="text-gray-100 transition-colors hover:text-white"
+                aria-current={n.href === path ? 'page' : undefined}
+                class:list={[
+                  'transition-colors hover:text-white',
+                  n.href === path ? 'text-primary' : 'text-gray-100',
+                ]}
               >
                 {n.label}
               </a>
