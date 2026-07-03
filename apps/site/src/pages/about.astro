@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro'
 import Icon from '../components/Icon.astro'
 import CornerMarks from '../components/CornerMarks.astro'
+import PageHero from '../components/PageHero.astro'
 import { APP_URL } from '../consts'
 
 const toc = [
@@ -62,59 +63,12 @@ const plus =
   description="Built by developers, for developers — the story, mission, and values behind Fullstack Wolfpack."
 >
   <div class="mx-auto max-w-7xl px-5 md:px-8">
-    <!-- Back link -->
-    <a
-      href="/"
-      class="mt-8 inline-flex items-center gap-2 font-mono text-[11px] font-bold tracking-widest text-muted-foreground uppercase transition-colors hover:text-foreground"
-    >
-      <Icon name="arrow" class="h-4 w-4 rotate-180" />
-      Back to home
-    </a>
-
-    <!-- Hero -->
-    <section class="relative overflow-hidden pt-6 pb-10">
-      <div class="grid items-center gap-y-10 md:grid-cols-2 md:gap-x-10 md:gap-y-0">
-        <div class="flex max-w-xl flex-col gap-6">
-          <p class="font-mono text-xs tracking-normal text-primary uppercase">
-            // About Fullstack Wolfpack
-          </p>
-          <h1
-            class="font-heading text-4xl leading-[0.95] tracking-tight uppercase sm:text-5xl lg:text-[3.5rem]"
-          >
-            <span class="block">Built by developers.</span>
-            <span class="block">For developers<span class="text-primary">.</span></span>
-          </h1>
-          <p class="max-w-md font-mono text-[15px] leading-relaxed text-neutral-700">
-            Fullstack Wolfpack is an AI-powered learning platform that helps you
-            turn screen time into skill time. Short bursts. Real skills. Lasting
-            impact.
-          </p>
-        </div>
-
-        <!-- Visual: wolf art + HUD dot grid -->
-        <div class="relative mx-auto w-full max-w-md md:mx-0 md:max-w-none">
-          <!-- 5×6 dot grid + crosshair, far top-right (desktop HUD only) -->
-          <div class="absolute right-0 top-2 z-10 hidden items-start gap-3 lg:flex">
-            <span class="mt-1 font-mono text-sm text-foreground/40">+</span>
-            <div class="grid grid-cols-5 gap-x-3 gap-y-2.5">
-              {
-                Array.from({ length: 30 }).map(() => (
-                  <span class="h-1 w-1 rounded-full bg-foreground/30" />
-                ))
-              }
-            </div>
-          </div>
-          <img
-            src="/images/wolf-sun-transparent.png"
-            alt="Ink illustration of a wolf's head against a red rising sun"
-            class="w-full"
-            loading="eager"
-            width="800"
-            height="663"
-          />
-        </div>
-      </div>
-    </section>
+    <PageHero
+      eyebrow="About Fullstack Wolfpack"
+      titleTop="Built by developers."
+      titleBottom="For developers"
+      body="Fullstack Wolfpack is an AI-powered learning platform that helps you turn screen time into skill time. Short bursts. Real skills. Lasting impact."
+    />
 
     <!-- Body: sticky sidebar + content -->
     <div class="grid gap-10 border-t border-border pt-12 pb-16 lg:grid-cols-[220px_1fr] lg:gap-16">

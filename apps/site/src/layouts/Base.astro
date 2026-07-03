@@ -17,9 +17,9 @@ const {
 const year = new Date().getFullYear()
 
 const navLinks = [
-  { href: '/#how-it-works', label: 'How it works' },
-  { href: '/#features', label: 'Features' },
-  { href: '#', label: 'Pricing' },
+  { href: '/how-it-works', label: 'How it works' },
+  { href: '/features', label: 'Features' },
+  { href: '/pricing', label: 'Pricing' },
   { href: '/about', label: 'About' },
 ]
 
@@ -29,9 +29,9 @@ const footerCols = [
   {
     title: 'Platform',
     links: [
-      { label: 'How It Works', href: '/#how-it-works' },
-      { label: 'Features', href: '/#features' },
-      { label: 'Pricing', href: '#' },
+      { label: 'How It Works', href: '/how-it-works' },
+      { label: 'Features', href: '/features' },
+      { label: 'Pricing', href: '/pricing' },
       { label: 'Games We Support', href: '#' },
     ],
   },
@@ -105,8 +105,10 @@ const socials = [
                 href={n.href}
                 aria-current={n.href === path ? 'page' : undefined}
                 class:list={[
-                  'transition-colors hover:text-white',
-                  n.href === path ? 'text-primary' : 'text-gray-100',
+                  'border-b-2 pb-1 transition-colors hover:text-white',
+                  n.href === path
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-gray-100',
                 ]}
               >
                 {n.label}

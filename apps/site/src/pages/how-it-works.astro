@@ -1,0 +1,174 @@
+---
+import Base from '../layouts/Base.astro'
+import Icon from '../components/Icon.astro'
+import CornerMarks from '../components/CornerMarks.astro'
+import PageHero from '../components/PageHero.astro'
+import { APP_URL } from '../consts'
+
+const steps = [
+  {
+    num: '01',
+    icon: 'gamepad',
+    title: 'You Play',
+    body: 'Set a timer and dive into a curated game or challenge. No pressure, just focus.',
+  },
+  {
+    num: '02',
+    icon: 'bell',
+    title: 'We Pause',
+    body: "When time's up, we pause the game. The action stops, but the learning begins.",
+  },
+  {
+    num: '03',
+    icon: 'book',
+    title: 'You Learn',
+    body: 'Answer a short lesson or reflect on what happened. We keep it clear, relevant, and practical.',
+  },
+  {
+    num: '04',
+    icon: 'crosshair',
+    title: 'You Level Up',
+    body: 'Track your progress, build real skills, and unlock new challenges. Repeat. Improve. Grow.',
+  },
+] as const
+
+const highlights = [
+  {
+    icon: 'crosshair',
+    title: 'Short by design',
+    body: 'Learn in 10–20 minute intervals that fit your life.',
+  },
+  {
+    icon: 'brain',
+    title: 'Built to stick',
+    body: 'Spaced learning and active recall improve retention.',
+  },
+  {
+    icon: 'bars',
+    title: 'See real progress',
+    body: 'Clear stats, streaks, and milestones keep you motivated.',
+  },
+  {
+    icon: 'users',
+    title: 'Skills that matter',
+    body: 'Everything you learn is designed to be useful in the real world.',
+  },
+] as const
+
+const triTopLeft =
+  'border-width: 14px 14px 0 0; border-style: solid; border-color: var(--foreground) transparent transparent transparent;'
+const triBottomRight =
+  'border-width: 0 0 14px 14px; border-style: solid; border-color: transparent transparent var(--foreground) transparent;'
+---
+
+<Base
+  title="How it works — Fullstack Wolfpack"
+  description="Learn in intervals, retain forever. See how Wolfpack turns short, focused sessions into real world skills."
+>
+  <div class="mx-auto max-w-7xl px-5 md:px-8">
+    <PageHero
+      eyebrow="How it works"
+      titleTop="Learn in intervals."
+      titleBottom="Retain forever"
+      body="Wolfpack turns short, focused sessions into real world skills that stick. Our proven method keeps you engaged, builds momentum, and helps you level up—every day."
+      fm="FM · 02"
+    />
+
+    <!-- Steps -->
+    <section class="border-t border-border pt-12 pb-4">
+      <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-0">
+        {
+          steps.map((step, i) => (
+            <div class="relative lg:pr-6">
+              <div class="relative">
+                <Icon name={step.icon} class="h-[54px] w-[54px] text-foreground" />
+                {i < steps.length - 1 && (
+                  <Icon
+                    name="arrow"
+                    class="absolute top-[27px] left-[calc(50%+27px)] hidden h-6 w-6 -translate-x-1/2 -translate-y-1/2 text-foreground/50 lg:block"
+                  />
+                )}
+              </div>
+              <div class="mt-6 font-sans text-2xl font-bold text-primary">
+                {step.num}
+              </div>
+              <h3 class="mt-1 font-heading text-base font-semibold tracking-normal uppercase">
+                {step.title}
+              </h3>
+              <p class="mt-2 max-w-[15rem] font-mono text-xs leading-relaxed text-neutral-600">
+                {step.body}
+              </p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- Method highlights -->
+    <section class="pt-6 pb-14">
+      <div class="relative border border-neutral-600 px-6 py-10 md:px-10">
+        <span class="pointer-events-none absolute left-0 top-0 h-0 w-0" style={triTopLeft}></span>
+        <span
+          class="pointer-events-none absolute right-0 bottom-0 h-0 w-0"
+          style={triBottomRight}></span>
+        <div
+          class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-0 lg:divide-x lg:divide-neutral-300"
+        >
+          {
+            highlights.map((h) => (
+              <div class="relative isolate lg:px-8 lg:first:pl-0 lg:last:pr-0">
+                <span
+                  class="fw-diaglines pointer-events-none absolute inset-2 -z-10 text-foreground opacity-[0.015]"
+                  aria-hidden="true"
+                />
+                <div class="flex items-center gap-2.5">
+                  <Icon name={h.icon} class="h-6 w-6 shrink-0 text-primary" />
+                  <h3 class="font-heading text-sm font-semibold tracking-normal uppercase">
+                    {h.title}
+                  </h3>
+                </div>
+                <p class="mt-3 font-mono text-xs leading-relaxed text-neutral-600">
+                  {h.body}
+                </p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- CTA band -->
+  <section>
+    <div class="mx-auto max-w-7xl px-5 md:px-8 pb-6">
+      <div class="relative overflow-hidden bg-primary text-primary-foreground">
+        <CornerMarks class="text-white/40" omit={['br']} />
+        <div
+          class="flex flex-col gap-8 px-6 py-5 md:flex-row md:items-center md:justify-between md:px-12 md:py-7"
+        >
+          <div class="flex flex-col gap-4">
+            <p class="font-mono text-xs tracking-normal text-white/80 uppercase">
+              <span class="text-white">//</span> Ready to level up?
+            </p>
+            <h2
+              class="font-heading text-[clamp(1.5rem,5vw,4rem)] text-center md:text-left font-semibold leading-[0.95] tracking-tight uppercase"
+            >
+              Your next level <br class="hidden md:inline" />starts now.
+            </h2>
+          </div>
+          <a
+            href={`${APP_URL}/app`}
+            class="fw-notch-tl inline-flex items-center justify-between gap-6 bg-white px-7 py-4 font-heading text-lg font-semibold tracking-widest text-foreground uppercase transition-colors hover:bg-white/90 md:text-xs"
+          >
+            <span class="inline-flex items-center gap-2.5">
+              <Icon name="crosshair" class="h-8 w-8 text-primary" />
+              Start Your Session
+            </span>
+            <Icon name="arrow" class="h-8 w-8 text-primary" />
+          </a>
+        </div>
+        <div class="fw-hazard absolute right-0 bottom-1 h-2.5 w-18 text-white"></div>
+      </div>
+    </div>
+  </section>
+</Base>
