@@ -42,10 +42,10 @@
 .fw-notch-tr.fw-notch-br {
   clip-path: polygon(
     0 0,
-    calc(100% - 0.7rem) 0,
-    100% 0.7rem,
-    100% calc(100% - 0.7rem),
-    calc(100% - 0.7rem) 100%,
+    calc(100% - 0.5rem) 0,
+    100% 0.5rem,
+    100% calc(100% - 0.5rem),
+    calc(100% - 0.5rem) 100%,
     0 100%
   );
 }
@@ -87,6 +87,20 @@
   );
 }
 
+.fw-barcode-regular {
+  background-image: repeating-linear-gradient(
+    90deg,
+    currentColor 0 1px,
+    transparent 1px 2px,
+    currentColor 2px 3px,
+    transparent 3px 4px,
+    currentColor 4px 5px,
+    transparent 5px 6px,
+    currentColor 6px 7px,
+    transparent 7px 8px
+  );
+}
+
 /* Hazard stripes — a slanted chip whose left/right ends run parallel to the
    diagonal stripes, so every stripe is a full bar and no corner triangles are
    left over. The clip offset (1rem) matches the h-4 usage height for 45° ends.
@@ -95,7 +109,7 @@
   background-image: repeating-linear-gradient(
     -45deg,
     currentColor 0 7.5px,
-    transparent 7.5px 18px
+    transparent 7.5px 13px
   );
   clip-path: polygon(1rem 0, 100% 0, calc(100% - 1rem) 100%, 0 100%);
 }

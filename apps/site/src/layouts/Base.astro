@@ -111,27 +111,27 @@ const socials = [
 
         <div class="flex items-center gap-4 md:grid md:grid-cols-[3fr_4fr]">
           <div
-            class="hidden flex-col gap-1.5 border border-neutral-700 px-7 py-5 md:flex"
+            class="hidden h-16 flex-col gap-1 border border-neutral-300 px-3 md:flex"
           >
-            <div class="flex items-center gap-1.5">
+            <div class="flex items-center gap-1.5 mt-2">
               <span
-                class="font-mono text-[9px] tracking-widest text-neutral-400 uppercase"
+                class="font-mono text-[9px] tracking-tight font-bold font-heading text-neutral-300 uppercase"
                 >System status</span
               >
-              <span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+              <span class="h-1 w-1 rounded-full bg-primary mb-0.5"></span>
             </div>
-            <span class="font-mono text-[9px] tracking-widest text-primary uppercase"
+            <span class="font-mono text-[9px] tracking-widest text-primary font-bold uppercase relative mb-0.5"
               >Online</span
             >
-            <span class="fw-barcode h-2.5 w-16 text-neutral-500"></span>
+            <span class="fw-barcode-regular h-2 w-30 text-neutral-500"></span>
           </div>
 
           <a
             href={`${APP_URL}/app`}
-            class="fw-notch-br flex items-center justify-center gap-1.5 bg-primary px-4 py-2.5 font-heading text-xs font-semibold tracking-wide whitespace-nowrap text-primary-foreground uppercase transition-colors hover:bg-primary/90 md:gap-2.5 md:px-7 md:py-6.5 md:text-base md:tracking-widest"
+            class="fw-notch-br fw-notch-tr flex h-16 items-center justify-center gap-1.5 bg-primary px-4 py-2.5 text-xs font-heading font-semibold tracking-widest whitespace-nowrap text-primary-foreground uppercase transition-colors hover:bg-primary/90 md:gap-2.5 md:pl-7 md:pr-4 md:py-6.5 md:text-sm"
           >
             Start Learning
-            <Icon name="arrow" class="h-4 w-4 md:h-8 md:w-8" />
+            <Icon name="arrow" class="h-4 w-4 md:h-7 md:w-7 md:ml-3" />
           </a>
         </div>
       </div>
