@@ -94,8 +94,8 @@
 .fw-hazard {
   background-image: repeating-linear-gradient(
     -45deg,
-    currentColor 0 5px,
-    transparent 5px 12px
+    currentColor 0 7.5px,
+    transparent 7.5px 18px
   );
   clip-path: polygon(1rem 0, 100% 0, calc(100% - 1rem) 100%, 0 100%);
 }
