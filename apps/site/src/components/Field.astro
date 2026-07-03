@@ -1,0 +1,67 @@
+---
+// Labelled form input with a leading FW-01 icon and an optional password
+// visibility toggle. Used by the sign-in / sign-up forms.
+import Icon from './Icon.astro'
+
+interface Props {
+  label: string
+  name: string
+  type?: string
+  placeholder: string
+  icon: string
+  autocomplete?: string
+  toggle?: boolean
+  required?: boolean
+}
+
+const {
+  label,
+  name,
+  type = 'text',
+  placeholder,
+  icon,
+  autocomplete,
+  toggle = false,
+  required = false,
+} = Astro.props
+---
+
+<div>
+  <label
+    for={name}
+    class="font-mono text-[11px] font-bold tracking-widest text-foreground uppercase"
+  >
+    {label}
+  </label>
+  <div class="relative mt-2">
+    <Icon
+      name={icon as never}
+      class="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+    />
+    <input
+      id={name}
+      name={name}
+      type={type}
+      placeholder={placeholder}
+      autocomplete={autocomplete}
+      required={required}
+      class:list={[
+        'w-full border border-neutral-300 bg-background py-3.5 pl-12 font-mono text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-foreground focus:outline-none',
+        toggle ? 'pr-12' : 'pr-4',
+      ]}
+    />
+    {
+      toggle && (
+        <button
+          type="button"
+          data-pw-toggle
+          aria-label="Show password"
+          class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <Icon name="eye" class="pw-eye h-4 w-4" />
+          <Icon name="eye-off" class="pw-eye-off hidden h-4 w-4" />
+        </button>
+      )
+    }
+  </div>
+</div>
