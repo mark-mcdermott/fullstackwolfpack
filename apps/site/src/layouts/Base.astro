@@ -14,6 +14,8 @@ const {
   description = 'Turn screen time into real world skills.',
 } = Astro.props
 
+const year = new Date().getFullYear()
+
 const navLinks = [
   { href: '#how-it-works', label: 'How it works' },
   { href: '#features', label: 'Features' },
@@ -83,12 +85,12 @@ const socials = [
       <div
         class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-5 md:px-3"
       >
-        <a href="/" class="flex gap-5">
-          <WolfMark class="h-18 text-white" />
-          <span class="flex flex-col gap-1 font-heading text-[19px] leading-none tracking-wide">
+        <a href="/" class="flex gap-2.5 md:gap-5">
+          <WolfMark class="h-11 text-white md:h-18" />
+          <span class="flex flex-col gap-1 font-heading text-[13px] leading-none tracking-wide md:text-[19px]">
             <span>FULLSTACK</span>
             <span>WOLFPACK</span>
-            <span class="mt-1 text-[15px] font-normal text-primary">ウルフパック</span>
+            <span class="mt-1 text-[10px] font-normal text-primary md:text-[15px]">ウルフパック</span>
           </span>
         </a>
 
@@ -107,31 +109,29 @@ const socials = [
           }
         </nav>
 
-        <div class="flex items-center gap-4 md:grid md:grid-cols-2">
+        <div class="flex items-center gap-4 md:grid md:grid-cols-[3fr_4fr]">
           <div
-            class="hidden flex-col gap-1 border border-neutral-700 px-7 py-5 md:flex"
+            class="hidden h-16 flex-col gap-1 border border-neutral-300 px-3 md:flex"
           >
-            <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-1.5 mt-2">
               <span
-                class="font-mono text-[9px] tracking-widest text-neutral-400 uppercase"
+                class="font-mono text-[9px] tracking-tight font-bold font-heading text-neutral-300 uppercase"
                 >System status</span
               >
-              <span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+              <span class="h-1 w-1 rounded-full bg-primary mb-0.5"></span>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="font-mono text-[9px] tracking-widest uppercase"
-                >Online</span
-              >
-              <span class="fw-barcode h-2.5 w-16 text-neutral-500"></span>
-            </div>
+            <span class="font-mono text-[9px] tracking-widest text-primary font-bold uppercase relative mb-0.5"
+              >Online</span
+            >
+            <span class="fw-barcode-regular h-2 w-30 text-neutral-500"></span>
           </div>
 
           <a
             href={`${APP_URL}/app`}
-            class="fw-notch-tr fw-notch-br flex items-center justify-center gap-2.5 bg-primary px-7 py-6.5 font-heading text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90"
+            class="fw-notch-br fw-notch-tr flex h-16 items-center justify-center gap-1.5 bg-primary px-4 py-2.5 text-xs font-heading font-semibold tracking-widest whitespace-nowrap text-primary-foreground uppercase transition-colors hover:bg-primary/90 md:gap-2.5 md:pl-7 md:pr-4 md:py-6.5 md:text-sm"
           >
             Start Learning
-            <Icon name="arrow" class="h-4 w-4" />
+            <Icon name="arrow" class="h-4 w-4 md:h-7 md:w-7 md:ml-3" />
           </a>
         </div>
       </div>
@@ -209,18 +209,21 @@ const socials = [
           <div
             class="flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-[10px] tracking-widest text-neutral-500 uppercase"
           >
-            <span>© 2025 Fullstack Wolfpack · All rights reserved</span>
-            <button
-              type="button"
-              class="flex items-center gap-1.5 text-neutral-400 transition-colors hover:text-white"
+            <span
+              >© <span id="footer-year">{year}</span> Fullstack Wolfpack · All
+              rights reserved</span
             >
-              <Icon name="globe" class="h-3.5 w-3.5" />
-              EN
-              <Icon name="chevron" class="h-3 w-3" />
-            </button>
+            <Icon name="globe" class="h-3.5 w-3.5 text-neutral-400" />
           </div>
         </div>
       </div>
     </footer>
+
+    <script>
+      // Keep the footer year current on the client, so a long-unbuilt static
+      // page never shows a stale year (the SSR value is just the no-flash seed).
+      const yearEl = document.getElementById('footer-year')
+      if (yearEl) yearEl.textContent = String(new Date().getFullYear())
+    </script>
   </body>
 </html>

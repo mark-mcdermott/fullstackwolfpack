@@ -88,6 +88,7 @@ const whyStats = [
     label: 'Higher Retention',
     body: 'Compared to traditional learning.',
     source: 'Cognitive Science Research',
+    bar: 48,
   },
   {
     num: '45',
@@ -95,6 +96,7 @@ const whyStats = [
     label: 'More Consistent',
     body: 'Users who learn in intervals stay more consistent.',
     source: 'Learning Lab Study 2025',
+    bar: 45,
   },
   {
     num: '98',
@@ -102,6 +104,7 @@ const whyStats = [
     label: 'User Satisfaction',
     body: 'Of users feel more productive and motivated.',
     source: 'Wolfpack User Survey',
+    bar: 98,
   },
 ] as const
 
@@ -109,6 +112,8 @@ const triTopLeft =
   'border-width: 14px 14px 0 0; border-style: solid; border-color: var(--foreground) transparent transparent transparent;'
 const triBottomRight =
   'border-width: 0 0 14px 14px; border-style: solid; border-color: transparent transparent var(--foreground) transparent;'
+const triTopRight =
+  'border-width: 14px 0 0 14px; border-style: solid; border-color: var(--foreground) transparent transparent transparent;'
 ---
 
 <Base>
@@ -116,10 +121,10 @@ const triBottomRight =
   <section class="relative overflow-hidden">
     <CornerMarks class="text-foreground/25" />
     <div
-      class="mx-auto grid max-w-7xl items-center px-5 pt-8 pb-6 md:grid-cols-2 md:px-8 md:pt-10 md:pb-10"
+      class="mx-auto grid max-w-7xl items-center gap-y-8 px-5 pt-8 pb-6 md:grid-cols-2 md:gap-y-0 md:px-8 md:pt-10 md:pb-10"
     >
       <div class="mx-auto flex max-w-lg flex-col gap-6 md:mx-0 md:max-w-none">
-        <p class="font-mono text-xs font-bold tracking-normal text-primary uppercase">
+        <p class="font-mono text-xs tracking-normal text-primary uppercase">
           // AI-Powered Learning Platform
         </p>
         <h1
@@ -134,27 +139,37 @@ const triBottomRight =
         >
           Turn screen time<br />into real world skills.
         </p>
-        <div class="flex flex-wrap items-center gap-4">
+        <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
           <a
             href={`${APP_URL}/app`}
-            class="fw-notch-tr inline-flex items-center gap-2.5 bg-primary px-6 py-3.5 font-mono text-xs font-bold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90"
+            class="fw-notch-tr flex w-full items-center justify-center gap-2.5 bg-primary px-6 py-3.5 font-mono text-xs font-bold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90 sm:w-auto sm:justify-start"
           >
             <Icon name="crosshair" class="h-4 w-4" />
             Start Session
           </a>
           <a
             href={`${APP_URL}/app`}
-            class="inline-flex items-center gap-2.5 border border-foreground px-6 py-3.5 font-mono text-xs font-bold tracking-widest uppercase transition-colors hover:bg-foreground hover:text-background"
+            class="flex w-full items-center justify-center gap-2.5 border border-foreground px-6 py-3.5 font-mono text-xs font-bold tracking-widest uppercase transition-colors hover:bg-foreground hover:text-background sm:w-auto sm:justify-start"
           >
             View Dashboard
             <Icon name="arrow" class="h-4 w-4" />
           </a>
         </div>
-        <p
-          class="font-mono text-[11px] tracking-widest text-neutral-600 uppercase"
+        <div
+          class="flex items-center justify-center gap-2 font-mono text-[11px] tracking-widest uppercase sm:justify-start"
+          data-intervals
+          aria-hidden="true"
         >
-          30 Min Play // 10 Min Learn
-        </p>
+          <span class="font-bold text-primary" data-role="play">30</span>
+          <span class="text-neutral-600">min play</span>
+          <span class="text-primary">//</span>
+          <span class="font-bold text-primary" data-role="learn">10</span>
+          <span class="text-neutral-600">min learn</span>
+        </div>
+        <span class="sr-only"
+          >Flexible sessions — you set the split, for example 30 minutes play
+          to 10 minutes learn.</span
+        >
       </div>
 
       <!-- Visual: wolf art + FW-01 HUD rail -->
@@ -192,16 +207,16 @@ const triBottomRight =
               width="800"
               height="663"
             />
-            <!-- coordinates + measurement line -->
-            <div class="absolute -bottom-3 right-0 left-0 z-10 flex flex-col items-end gap-1.5">
+            <!-- coordinates + measurement line (desktop HUD only) -->
+            <div class="absolute -bottom-3 right-0 left-0 z-10 hidden flex-col items-end gap-1.5 lg:flex">
               <div
                 class="flex items-center gap-2 font-mono text-[10px] tracking-widest text-muted-foreground"
               >
-                <Icon name="crosshair" class="h-3.5 w-3.5 text-primary" />
+                <Icon name="crosshair" class="h-5 w-5 text-muted-foreground" />
                 <span id="coords">35.6895° N, 139.6917° E</span>
               </div>
-              <div class="relative h-px w-40 bg-foreground/20">
-                <div class="absolute top-0 left-0 h-px w-1/3 bg-foreground/60"></div>
+              <div class="relative h-0.5 w-40 bg-foreground/20">
+                <div class="absolute top-0 left-0 h-0.5 w-1/3 bg-foreground/60"></div>
               </div>
             </div>
           </div>
@@ -211,7 +226,7 @@ const triBottomRight =
             class="hidden shrink-0 flex-col items-center gap-8 self-stretch pt-2 lg:flex"
           >
             <!-- 3-column dot grid (offset below the absolute FW-01 chrome) -->
-            <div class="mt-16 grid grid-cols-3 gap-1.5">
+            <div class="mt-24 grid grid-cols-3 gap-1.5">
               {
                 Array.from({ length: 15 }).map(() => (
                   <span class="h-1 w-1 rounded-full bg-foreground/30" />
@@ -235,7 +250,7 @@ const triBottomRight =
               class="flex flex-col items-center gap-2 font-mono text-[10px] text-foreground/40"
             >
               <span>+</span>
-              <span class="tracking-[0.25em] uppercase">Scroll</span>
+              <span class="text-[5px] tracking-[0.25em] uppercase">Scroll</span>
               <div class="flex flex-col items-center gap-1">
                 {Array.from({ length: 5 }).map(() => <span>+</span>)}
               </div>
@@ -258,13 +273,17 @@ const triBottomRight =
       >
         {
           stats.map((s) => (
-            <div class="flex items-center gap-4 md:px-8 md:first:pl-0">
+            <div class="relative isolate flex items-center gap-4 md:px-8 md:first:pl-0">
+              <span
+                class="fw-diaglines pointer-events-none absolute inset-2 -z-10 text-foreground opacity-[0.015]"
+                aria-hidden="true"
+              />
               <Icon name={s.icon} class="h-9 w-9 shrink-0 text-primary" />
               <div class="flex flex-col">
                 <span class="font-heading text-3xl font-semibold leading-none uppercase">
                   {s.value}
                 </span>
-                <span class="mt-1.5 font-mono text-[11px] font-bold tracking-widest uppercase">
+                <span class="mt-1.5 font-mono text-[11px] font-bold tracking-normal uppercase">
                   {s.label}
                 </span>
                 <span class="mt-0.5 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
@@ -283,39 +302,52 @@ const triBottomRight =
     id="how-it-works"
     class="relative overflow-hidden bg-neutral-950 text-white"
   >
-    <CornerMarks class="text-white" />
-    <div class="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
-      <p class="font-mono text-xs tracking-[0.25em] text-primary uppercase">
+    <CornerMarks class="text-white" omit={['br']} />
+    <div class="mx-auto max-w-7xl px-5 pt-8 pb-12 md:px-16 md:pt-10 md:pb-16">
+      <p class="font-mono text-xs tracking-normal text-primary uppercase">
         // How it works
       </p>
       <h2
-        class="mt-4 font-display text-3xl leading-[0.95] tracking-tight uppercase sm:text-4xl"
+        class="mt-4 font-display text-xl leading-[0.95] tracking-tight uppercase sm:text-3xl"
       >
         Learn in intervals.<br />Retain forever.
       </h2>
 
-      <div class="mt-14 flex flex-col gap-10 md:grid md:grid-cols-4 md:gap-0">
+      <div class="mt-14 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 md:grid-cols-4 md:gap-0">
         {
           steps.map((step, i) => (
-            <div class="relative flex flex-col md:pr-4">
-              <Icon name={step.icon} class="h-9 w-9 text-white" />
-              <div class="mt-3 mb-1 font-sans text-2xl text-primary">
-                {step.num}
+            <div class="relative flex gap-4 sm:flex-col sm:gap-0 md:pl-10 md:pr-4">
+              {/* Icon node + (mobile) spine linking it to the next step. */}
+              <div class="relative flex shrink-0 flex-col items-center sm:block">
+                <Icon
+                  name={step.icon}
+                  class="relative z-10 h-[54px] w-[54px] text-white"
+                />
+                {i < steps.length - 1 && (
+                  <span
+                    class="absolute top-14 -bottom-10 left-1/2 w-px -translate-x-1/2 bg-white/15 sm:hidden"
+                    aria-hidden="true"
+                  />
+                )}
               </div>
-              <h3 class="font-mono text-sm font-bold tracking-widest text-white uppercase">
-                {step.title}
-              </h3>
-              <p class="mt-1.5 max-w-[13rem] font-mono text-[11px] leading-relaxed text-neutral-400">
-                {step.body}
-              </p>
-              {/* Arrow to the next step: centered on the midpoint between this
-                  icon and the next — 50% of the column plus half the icon width
-                  (h-9 → 1.125rem) — and vertically at the icon's center. Anchored
-                  to the icons, so it ignores the content/column widths. */}
+              <div class="min-w-0 pb-2 sm:pb-0">
+                <div class="font-sans text-2xl font-bold text-primary sm:mt-3 sm:mb-1">
+                  {step.num}
+                </div>
+                <h3 class="mt-0.5 font-heading text-base font-semibold tracking-normal text-white uppercase sm:mt-0">
+                  {step.title}
+                </h3>
+                <p class="mt-1.5 font-mono text-[11px] leading-relaxed text-white sm:max-w-[13rem]">
+                  {step.body}
+                </p>
+              </div>
+              {/* Arrow to the next step (desktop 4-across only): centered on the
+                  midpoint between this icon and the next — 50% of the column plus
+                  half the icon width — at the icon's vertical center. */}
               {i < steps.length - 1 && (
                 <svg
                   viewBox="0 0 88 20"
-                  class="absolute top-[1.125rem] left-[calc(50%+1.125rem)] hidden w-16 -translate-x-1/2 -translate-y-1/2 text-white/70 md:block lg:w-24"
+                  class="absolute top-[27px] left-[calc(50%+67px)] hidden w-[3.6rem] -translate-x-1/2 -translate-y-1/2 text-white/70 md:block lg:w-[5.4rem]"
                   fill="none"
                   stroke="currentColor"
                   stroke-width="2"
@@ -323,7 +355,7 @@ const triBottomRight =
                   stroke-linejoin="round"
                   aria-hidden="true"
                 >
-                  <path d="M2 10h76" />
+                  <path d="M2 10h84" />
                   <path d="M78 2 86 10 78 18" />
                 </svg>
               )}
@@ -332,18 +364,18 @@ const triBottomRight =
         }
       </div>
     </div>
-    <div class="fw-hazard absolute right-6 bottom-6 h-4 w-24 text-primary"></div>
+    <div class="fw-hazard absolute right-6 bottom-6 h-2.5 w-23 text-primary"></div>
   </section>
 
   <!-- 5 · Features -->
   <section id="features" class="relative overflow-hidden">
     <CornerMarks class="text-foreground/25" />
-    <div class="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
-      <p class="font-mono text-xs tracking-[0.25em] text-primary uppercase">
+    <div class="mx-auto max-w-7xl px-5 pt-8 pb-12 md:px-16 md:pt-10 md:pb-16">
+      <p class="font-mono text-xs tracking-normal text-primary uppercase">
         // Features
       </p>
       <h2
-        class="mt-4 font-display text-3xl leading-[0.95] tracking-tight uppercase sm:text-4xl"
+        class="mt-4 font-display text-xl leading-[0.95] tracking-tight uppercase sm:text-3xl"
       >
         Built for gamers.<br />Designed for growth.
       </h2>
@@ -351,18 +383,22 @@ const triBottomRight =
       <div class="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {
           features.map((f) => (
-            <div class="relative border border-border bg-background p-6">
+            <div class="relative isolate border border-border bg-background p-6">
               <span
-                class="pointer-events-none absolute left-0 top-0 h-0 w-0"
-                style={triTopLeft}
+                class="fw-diaglines pointer-events-none absolute inset-6 -z-10 text-foreground opacity-[0.015]"
+                aria-hidden="true"
               />
-              <span class="absolute right-3 top-3 font-mono text-sm text-muted-foreground">
+              <span
+                class="pointer-events-none absolute right-0 top-0 h-0 w-0"
+                style={triTopRight}
+              />
+              <span class="absolute left-3 top-3 font-mono text-sm text-muted-foreground">
                 +
               </span>
               <span class="pointer-events-none absolute bottom-0 left-0 h-3 w-3 border-b border-l border-foreground/40" />
               <span class="pointer-events-none absolute right-0 bottom-0 h-3 w-3 border-r border-b border-foreground/40" />
-              <Icon name={f.icon} class="mb-6 h-9 w-9 text-foreground" />
-              <h3 class="mb-2 font-mono text-sm font-bold tracking-widest uppercase">
+              <Icon name={f.icon} class="mx-auto mb-6 block h-[54px] w-[54px] text-foreground" />
+              <h3 class="mb-2 text-center font-heading text-sm font-semibold tracking-normal uppercase">
                 {f.title}
               </h3>
               <p class="font-mono text-xs leading-relaxed text-muted-foreground">
@@ -377,24 +413,24 @@ const triBottomRight =
 
   <!-- 6 · Why it works -->
   <section class="relative border-t border-neutral-300">
-    <div class="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
+    <div class="mx-auto max-w-7xl px-5 pt-8 pb-12 md:px-16 md:pt-10 md:pb-10">
       <div class="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
         <div class="flex flex-col gap-6">
-          <p class="font-mono text-xs tracking-[0.25em] text-primary uppercase">
+          <p class="font-mono text-xs tracking-normal text-primary uppercase">
             // Why it works
           </p>
           <h2
-            class="font-display text-3xl leading-[0.95] tracking-tight uppercase sm:text-4xl"
+            class="font-display text-xl leading-[0.95] tracking-tight uppercase sm:text-3xl"
           >
             Short bursts.<br />Lasting impact.
           </h2>
-          <p class="max-w-md font-mono text-sm leading-relaxed text-muted-foreground">
+          <p class="max-w-xs font-mono text-sm leading-relaxed text-muted-foreground">
             Science shows spaced learning with active recall improves retention
             and builds real mastery over time.
           </p>
           <a
             href="#features"
-            class="inline-flex items-center gap-2 font-mono text-xs font-bold tracking-widest text-primary uppercase transition-opacity hover:opacity-70"
+            class="inline-flex items-center gap-2 font-heading text-xs font-semibold tracking-widest text-primary uppercase transition-opacity hover:opacity-70"
           >
             Learn more
             <Icon name="arrow" class="h-4 w-4" />
@@ -406,12 +442,16 @@ const triBottomRight =
         >
           {
             whyStats.map((s) => (
-              <div class="flex flex-col gap-2 sm:px-6 sm:first:pl-0">
+              <div class="relative isolate flex flex-col gap-2 sm:px-6 sm:first:pl-0">
+                <span
+                  class="fw-diaglines pointer-events-none absolute inset-4 -z-10 text-foreground opacity-[0.015]"
+                  aria-hidden="true"
+                />
                 <div class="font-heading text-5xl font-semibold leading-none text-primary sm:text-6xl">
                   {s.num}
                   <span class="text-3xl sm:text-4xl">{s.suffix}</span>
                 </div>
-                <div class="font-mono text-xs font-bold tracking-widest uppercase">
+                <div class="font-heading text-xs font-semibold tracking-normal uppercase">
                   {s.label}
                 </div>
                 <p class="font-mono text-[11px] leading-relaxed text-muted-foreground">
@@ -420,6 +460,11 @@ const triBottomRight =
                 <p class="mt-3 font-mono text-[10px] leading-relaxed text-muted-foreground/60">
                   Source: {s.source}
                 </p>
+                <div class="mt-auto pt-6">
+                  <div class="h-1 w-full bg-foreground/10 sm:max-w-[10rem]">
+                    <div class="h-full bg-primary" style={`width: ${s.bar}%`} />
+                  </div>
+                </div>
               </div>
             ))
           }
@@ -428,34 +473,38 @@ const triBottomRight =
     </div>
   </section>
 
-  <!-- 7 · CTA band -->
-  <section class="relative overflow-hidden bg-primary text-primary-foreground">
-    <CornerMarks class="text-white/40" />
-    <div
-      class="mx-auto flex max-w-7xl flex-col gap-8 px-5 py-10 md:flex-row md:items-center md:justify-between md:px-8 md:py-14"
-    >
-      <div class="flex flex-col gap-4">
-        <p class="font-mono text-xs tracking-[0.25em] text-white/80 uppercase">
-          <span class="text-white">//</span> Ready to level up?
-        </p>
-        <h2
-          class="font-display text-3xl leading-[0.95] tracking-tight uppercase sm:text-4xl"
+  <!-- 7 · CTA band — contained banner, aligned with the hero stats bar -->
+  <section>
+    <div class="mx-auto max-w-7xl px-5 md:px-8 pb-6">
+      <div class="relative overflow-hidden bg-primary text-primary-foreground">
+        <CornerMarks class="text-white/40" omit={['br']} />
+        <div
+          class="flex flex-col gap-8 px-6 py-5 md:flex-row md:items-center md:justify-between md:px-12 md:py-7"
         >
-          Your next level<br />starts now.
-        </h2>
+          <div class="flex flex-col gap-4">
+            <p class="font-mono text-xs tracking-normal text-white/80 uppercase">
+              <span class="text-white">//</span> Ready to level up?
+            </p>
+            <h2
+              class="font-heading text-[clamp(1.5rem,5vw,4rem)] text-center md:text-left font-semibold leading-[0.95] tracking-tight uppercase"
+            >
+              Your next level <br class="hidden md:inline"/>starts now.
+            </h2>
+          </div>
+          <a
+            href={`${APP_URL}/app`}
+            class="fw-notch-tl inline-flex items-center justify-between gap-6 bg-white px-7 py-4 font-heading text-lg font-semibold tracking-widest text-foreground uppercase transition-colors hover:bg-white/90 md:text-xs"
+          >
+            <span class="inline-flex items-center gap-2.5">
+              <Icon name="crosshair" class="h-8 w-8 text-primary" />
+              Start Your Session
+            </span>
+            <Icon name="arrow" class="h-8 w-8 text-primary" />
+          </a>
+        </div>
+        <div class="fw-hazard absolute right-0 bottom-1 h-2.5 w-18 text-white"></div>
       </div>
-      <a
-        href={`${APP_URL}/app`}
-        class="fw-notch-tr inline-flex items-center justify-between gap-6 bg-white px-7 py-4 font-mono text-xs font-bold tracking-widest text-foreground uppercase transition-colors hover:bg-white/90"
-      >
-        <span class="inline-flex items-center gap-2.5">
-          <Icon name="crosshair" class="h-4 w-4 text-primary" />
-          Start Your Session
-        </span>
-        <Icon name="arrow" class="h-4 w-4" />
-      </a>
     </div>
-    <div class="fw-hazard absolute right-5 bottom-5 h-4 w-24 text-white/70"></div>
   </section>
 </Base>
 
@@ -475,5 +524,68 @@ const triBottomRight =
         }
       })
       .catch(() => {})
+  }
+</script>
+
+<script>
+  // Interval odometer: each play/learn number becomes a pair of 0–9 digit
+  // strips that roll to their target digits (with a subtle left-to-right
+  // stagger), cycling through example splits so the hero reads as "you set the
+  // rhythm" rather than a fixed 30/10. Two wheels per number, so single-digit
+  // values read as a padded instrument display (02 / 01). The sequence walks
+  // the range: long grinds, quick hits, and learn-heavy splits. Reduced motion
+  // leaves the static 30/10 text untouched.
+  const combos = [
+    [30, 10],
+    [90, 15],
+    [2, 1],
+    [45, 10],
+    [1, 5],
+    [60, 20],
+  ]
+  const spec = document.querySelector('[data-intervals]')
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (spec && !reduce) {
+    const buildWheel = (numEl, baseDelay) => {
+      const start = parseInt(numEl.textContent, 10) || 0
+      numEl.textContent = ''
+      const strips = []
+      for (let slot = 0; slot < 2; slot++) {
+        const box = document.createElement('span')
+        box.className = 'fw-odo'
+        const strip = document.createElement('span')
+        strip.className = 'fw-odo__strip'
+        strip.style.transitionDelay = `${baseDelay + slot * 70}ms`
+        for (let d = 0; d <= 9; d++) {
+          const cell = document.createElement('span')
+          cell.textContent = String(d)
+          strip.appendChild(cell)
+        }
+        box.appendChild(strip)
+        numEl.appendChild(box)
+        strips.push(strip)
+      }
+      const set = (value, animate) => {
+        const digits = [Math.floor(value / 10) % 10, value % 10]
+        strips.forEach((strip, i) => {
+          if (!animate) strip.style.transition = 'none'
+          strip.style.transform = `translateY(-${digits[i]}em)`
+          if (!animate) {
+            strip.getBoundingClientRect()
+            strip.style.transition = ''
+          }
+        })
+      }
+      set(start, false)
+      return set
+    }
+    const setPlay = buildWheel(spec.querySelector('[data-role="play"]'), 0)
+    const setLearn = buildWheel(spec.querySelector('[data-role="learn"]'), 140)
+    let i = 0
+    setInterval(() => {
+      i = (i + 1) % combos.length
+      setPlay(combos[i][0], true)
+      setLearn(combos[i][1], true)
+    }, 4000)
   }
 </script>

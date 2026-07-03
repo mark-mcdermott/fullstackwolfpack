@@ -42,10 +42,10 @@
 .fw-notch-tr.fw-notch-br {
   clip-path: polygon(
     0 0,
-    calc(100% - 0.7rem) 0,
-    100% 0.7rem,
-    100% calc(100% - 0.7rem),
-    calc(100% - 0.7rem) 100%,
+    calc(100% - 0.5rem) 0,
+    100% 0.5rem,
+    100% calc(100% - 0.5rem),
+    calc(100% - 0.5rem) 100%,
     0 100%
   );
 }
@@ -58,6 +58,17 @@
     100% calc(100% - 0.4rem),
     calc(100% - 0.4rem) 100%,
     0 100%
+  );
+}
+
+/* Clipped/notched top-left corner. */
+.fw-notch-tl {
+  clip-path: polygon(
+    0.7rem 0,
+    100% 0,
+    100% 100%,
+    0 100%,
+    0 0.7rem
   );
 }
 
@@ -76,13 +87,70 @@
   );
 }
 
-/* Red hazard stripes (/////) — inherits currentColor. */
+.fw-barcode-regular {
+  background-image: repeating-linear-gradient(
+    90deg,
+    currentColor 0 1px,
+    transparent 1px 2px,
+    currentColor 2px 3px,
+    transparent 3px 4px,
+    currentColor 4px 5px,
+    transparent 5px 6px,
+    currentColor 6px 7px,
+    transparent 7px 8px
+  );
+}
+
+/* Hazard stripes — a slanted chip whose left/right ends run parallel to the
+   diagonal stripes, so every stripe is a full bar and no corner triangles are
+   left over. The clip offset (1rem) matches the h-4 usage height for 45° ends.
+   Inherits currentColor. */
 .fw-hazard {
   background-image: repeating-linear-gradient(
     -45deg,
-    currentColor 0 5px,
-    transparent 5px 11px
+    currentColor 0 7.5px,
+    transparent 7.5px 13px
   );
+  clip-path: polygon(1rem 0, 100% 0, calc(100% - 1rem) 100%, 0 100%);
+}
+
+/* Very light diagonal-line texture (/) — thin, sparse; inherits currentColor.
+   Meant as a barely-there background wash behind card content. */
+.fw-diaglines {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    currentColor 0 1px,
+    transparent 1px 10px
+  );
+}
+
+/* Per-digit odometer — each digit rides its own 0–9 strip and rolls to its
+   target (interval spec). Tactical instrument-readout feel; JS builds the
+   strips from the static number so it degrades to plain text without JS. */
+.fw-odo {
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+}
+.fw-odo__strip {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+  transition: transform 0.62s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.fw-odo__strip > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1em;
+  line-height: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fw-odo__strip {
+    transition: none;
+  }
 }
 
 /* Faint dot grid, inherits currentColor. */
