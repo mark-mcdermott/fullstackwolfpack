@@ -1,0 +1,226 @@
+---
+import Base from '../layouts/Base.astro'
+import Icon from '../components/Icon.astro'
+import CornerMarks from '../components/CornerMarks.astro'
+import PageHero from '../components/PageHero.astro'
+import { APP_URL } from '../consts'
+
+const freeFeatures = [
+  '10 min play / 10 min learn',
+  'AI curated lessons',
+  'Web access',
+  'Basic progress tracking',
+] as const
+
+const wolfFeatures = [
+  '20 min play / 20 min learn',
+  'AI curated lessons',
+  'Web, mobile & desktop access',
+  'Detailed progress analytics',
+  'Streaks & achievements',
+  'Priority support',
+  'New features first',
+] as const
+
+const compare = [
+  { icon: 'gamepad', label: 'Play / Learn Time', free: '10 / 10 min', wolf: '20 / 20 min' },
+  { icon: 'crosshair', label: 'AI Curated Lessons', free: true, wolf: true },
+  { icon: 'globe', label: 'Platform Access', free: 'Web', wolf: 'Web, Mobile, Desktop' },
+  { icon: 'signal', label: 'Detailed Progress Analytics', free: false, wolf: true },
+  { icon: 'star', label: 'Streaks & Achievements', free: false, wolf: true },
+  { icon: 'headphones', label: 'Priority Support', free: false, wolf: true },
+  { icon: 'zap', label: 'New Features First', free: false, wolf: true },
+] as const
+
+const triBottomRightRed =
+  'border-width: 0 0 18px 18px; border-style: solid; border-color: transparent transparent var(--primary) transparent;'
+---
+
+<Base
+  title="Pricing — Fullstack Wolfpack"
+  description="Simple pricing, maximum impact. Start free or unlock the full experience with Wolf. Upgrade anytime."
+>
+  <div class="mx-auto max-w-7xl px-5 md:px-8">
+    <PageHero
+      eyebrow="Pricing"
+      titleTop="Simple pricing."
+      titleBottom="Maximum impact"
+      body="All plans include our core learning experience. Upgrade anytime."
+      fm="PR · 01"
+    >
+      <p class="flex items-center gap-2 font-mono text-xs text-muted-foreground">
+        <Icon name="lock" class="h-4 w-4 text-primary" />
+        Secure payment powered by Stripe.
+      </p>
+    </PageHero>
+
+    <!-- Plan cards -->
+    <section class="pt-2 pb-12">
+      <div class="grid items-start gap-8 lg:grid-cols-2">
+        <!-- Free -->
+        <div class="fw-notch-br flex flex-col border border-neutral-300 bg-background p-8">
+          <h2 class="font-heading text-2xl font-bold uppercase">Free</h2>
+          <p class="mt-3 font-mono text-sm leading-relaxed text-muted-foreground">
+            Start learning for free.<br />Perfect for trying it out.
+          </p>
+          <div class="mt-6 flex items-end gap-1.5">
+            <span class="font-heading text-2xl font-bold">$</span>
+            <span class="font-heading text-6xl font-bold leading-none">0</span>
+            <span class="mb-1.5 font-mono text-sm text-muted-foreground">/ month</span>
+          </div>
+          <a
+            href={`${APP_URL}/app`}
+            class="mt-7 flex items-center justify-between border border-foreground px-5 py-3.5 font-heading text-xs font-bold tracking-widest uppercase transition-colors hover:bg-foreground hover:text-background"
+          >
+            Get Started
+            <Icon name="arrow" class="h-4 w-4" />
+          </a>
+          <hr class="my-7 border-border" />
+          <ul class="flex flex-col gap-3.5">
+            {
+              freeFeatures.map((feat) => (
+                <li class="flex gap-3 font-mono text-sm text-neutral-700">
+                  <span class="shrink-0 text-primary">+</span>
+                  <span>{feat}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <!-- Wolf -->
+        <div class="relative flex flex-col border-2 border-primary bg-background p-8">
+          <span class="pointer-events-none absolute right-0 bottom-0" style={triBottomRightRed}></span>
+          <span
+            class="fw-notch-br-sm absolute -top-3 left-8 bg-foreground px-3 py-1.5 font-mono text-[10px] font-bold tracking-widest text-background uppercase"
+          >
+            Most Popular
+          </span>
+          <h2 class="font-heading text-2xl font-bold text-primary uppercase">Wolf</h2>
+          <p class="mt-3 font-mono text-sm leading-relaxed text-muted-foreground">
+            Unlock the full experience.<br />All features. Maximum growth.
+          </p>
+          <div class="mt-6 flex items-end gap-1.5">
+            <span class="font-heading text-2xl font-bold text-primary">$</span>
+            <span class="font-heading text-6xl font-bold leading-none text-primary">9</span>
+            <span class="mb-1.5 font-mono text-sm text-muted-foreground">/ month</span>
+          </div>
+          <a
+            href={`${APP_URL}/app`}
+            class="fw-notch-br mt-7 flex items-center justify-between bg-primary px-5 py-3.5 font-heading text-xs font-bold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90"
+          >
+            Start Learning
+            <Icon name="arrow" class="h-4 w-4" />
+          </a>
+          <hr class="my-7 border-border" />
+          <ul class="flex flex-col gap-3.5">
+            {
+              wolfFeatures.map((feat) => (
+                <li class="flex gap-3 font-mono text-sm text-neutral-700">
+                  <span class="shrink-0 text-primary">+</span>
+                  <span>{feat}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Compare features -->
+    <section class="pt-2 pb-14">
+      <p class="font-mono text-xs tracking-normal text-primary uppercase">
+        // Compare features
+      </p>
+      <div class="mt-6 overflow-x-auto">
+        <table class="w-full min-w-[640px] border-collapse text-left">
+          <thead>
+            <tr class="border-b border-border">
+              <th class="py-3 pr-4 font-mono text-[11px] font-bold tracking-widest text-muted-foreground uppercase">
+                Features
+              </th>
+              <th class="px-4 py-3 text-center font-mono text-[11px] font-bold tracking-widest text-foreground uppercase">
+                Free
+              </th>
+              <th class="border-x border-primary/30 bg-primary/[0.04] px-4 py-3 text-center font-mono text-[11px] font-bold tracking-widest text-primary uppercase">
+                Wolf
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              compare.map((row) => (
+                <tr class="border-b border-border">
+                  <th scope="row" class="py-3.5 pr-4 font-normal">
+                    <span class="flex items-center gap-3">
+                      <Icon name={row.icon} class="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <span class="font-mono text-[13px] text-foreground">
+                        {row.label}
+                      </span>
+                    </span>
+                  </th>
+                  <td class="px-4 py-3.5 text-center font-mono text-[13px] text-neutral-600">
+                    {typeof row.free === 'boolean' ? (
+                      row.free ? (
+                        <Icon name="check" class="mx-auto h-4 w-4 text-foreground" />
+                      ) : (
+                        <span class="text-muted-foreground/50">—</span>
+                      )
+                    ) : (
+                      row.free
+                    )}
+                  </td>
+                  <td class="border-x border-primary/30 bg-primary/[0.04] px-4 py-3.5 text-center font-mono text-[13px] font-bold text-primary">
+                    {typeof row.wolf === 'boolean' ? (
+                      row.wolf ? (
+                        <Icon name="check" class="mx-auto h-4 w-4 text-primary" />
+                      ) : (
+                        <span class="text-muted-foreground/50">—</span>
+                      )
+                    ) : (
+                      row.wolf
+                    )}
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <!-- CTA band -->
+  <section>
+    <div class="mx-auto max-w-7xl px-5 md:px-8 pb-6">
+      <div class="relative overflow-hidden bg-primary text-primary-foreground">
+        <CornerMarks class="text-white/40" omit={['br']} />
+        <div
+          class="flex flex-col gap-8 px-6 py-5 md:flex-row md:items-center md:justify-between md:px-12 md:py-7"
+        >
+          <div class="flex flex-col gap-4">
+            <p class="font-mono text-xs tracking-normal text-white/80 uppercase">
+              <span class="text-white">//</span> Ready to level up?
+            </p>
+            <h2
+              class="font-heading text-[clamp(1.5rem,5vw,4rem)] text-center md:text-left font-semibold leading-[0.95] tracking-tight uppercase"
+            >
+              Your next level <br class="hidden md:inline" />starts now.
+            </h2>
+          </div>
+          <a
+            href={`${APP_URL}/app`}
+            class="fw-notch-tl inline-flex items-center justify-between gap-6 bg-white px-7 py-4 font-heading text-lg font-semibold tracking-widest text-foreground uppercase transition-colors hover:bg-white/90 md:text-xs"
+          >
+            <span class="inline-flex items-center gap-2.5">
+              <Icon name="crosshair" class="h-8 w-8 text-primary" />
+              Start Your Session
+            </span>
+            <Icon name="arrow" class="h-8 w-8 text-primary" />
+          </a>
+        </div>
+        <div class="fw-hazard absolute right-0 bottom-1 h-2.5 w-18 text-white"></div>
+      </div>
+    </div>
+  </section>
+</Base>
