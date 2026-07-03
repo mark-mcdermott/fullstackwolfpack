@@ -1,0 +1,415 @@
+---
+import Base from '../layouts/Base.astro'
+import Icon from '../components/Icon.astro'
+import CornerMarks from '../components/CornerMarks.astro'
+import { APP_URL } from '../consts'
+
+const toc = [
+  { id: 'our-story', label: 'Our Story' },
+  { id: 'our-mission', label: 'Our Mission' },
+  { id: 'our-values', label: 'Our Values' },
+  { id: 'who-its-for', label: "Who It's For" },
+  { id: 'the-pack', label: 'The Pack' },
+  { id: 'by-the-numbers', label: 'By the Numbers' },
+  { id: 'where-were-headed', label: "Where We're Headed" },
+] as const
+
+const values = [
+  { label: 'Practical First', body: 'Real world skills you can apply today. No fluff.' },
+  { label: 'Measurable Progress', body: 'Track, learn, and level up with clear feedback.' },
+  { label: 'Engaging by Design', body: 'Gamified learning that keeps you coming back.' },
+  { label: 'Built for Everyone', body: 'From junior devs to seasoned pros.' },
+] as const
+
+const audience = [
+  'Developers looking to grow their skills',
+  'Busy professionals with limited time',
+  'Teams that want better learning outcomes',
+  'Curious minds who love to build',
+] as const
+
+const stats = [
+  { icon: 'signal', value: '3+', label: 'Platforms', sub: 'Web · Mobile · Desktop' },
+  { icon: 'cpu', value: 'AI', label: 'Curated Courses', sub: 'Personalized to you' },
+  { icon: 'trending', value: '2.4×', label: 'Higher Retention', sub: 'vs. traditional learning' },
+  { icon: 'users', value: '98%', label: 'Satisfaction', sub: 'Feel more productive' },
+] as const
+
+const roadmap = [
+  'Deeper integrations with the games you already play',
+  'Community challenges, streaks, and leaderboards',
+  'Native mobile and desktop apps',
+  'An AI tutor for every topic you can dream up',
+] as const
+
+const triTopLeft =
+  'border-width: 14px 14px 0 0; border-style: solid; border-color: var(--foreground) transparent transparent transparent;'
+const triBottomRight =
+  'border-width: 0 0 14px 14px; border-style: solid; border-color: transparent transparent var(--foreground) transparent;'
+
+// Shared shell for each content section; the first section drops the top rule.
+const sec = 'relative scroll-mt-28 border-t border-border pt-10 mt-10'
+const secFirst = 'relative scroll-mt-28'
+const heading = 'font-heading text-xl font-semibold tracking-tight text-foreground uppercase'
+const para = 'font-mono text-sm leading-relaxed text-neutral-700'
+// `+` crosshair riding the divider at the content column's left edge (desktop).
+const plus =
+  'pointer-events-none absolute -left-3 -top-[9px] hidden bg-background px-1 font-mono text-sm text-muted-foreground lg:block'
+---
+
+<Base
+  title="About — Fullstack Wolfpack"
+  description="Built by developers, for developers — the story, mission, and values behind Fullstack Wolfpack."
+>
+  <div class="mx-auto max-w-7xl px-5 md:px-8">
+    <!-- Back link -->
+    <a
+      href="/"
+      class="mt-8 inline-flex items-center gap-2 font-mono text-[11px] font-bold tracking-widest text-muted-foreground uppercase transition-colors hover:text-foreground"
+    >
+      <Icon name="arrow" class="h-4 w-4 rotate-180" />
+      Back to home
+    </a>
+
+    <!-- Hero -->
+    <section class="relative overflow-hidden pt-6 pb-10">
+      <div class="grid items-center gap-y-10 md:grid-cols-2 md:gap-x-10 md:gap-y-0">
+        <div class="flex max-w-xl flex-col gap-6">
+          <p class="font-mono text-xs tracking-normal text-primary uppercase">
+            // About Fullstack Wolfpack
+          </p>
+          <h1
+            class="font-heading text-4xl leading-[0.95] tracking-tight uppercase sm:text-5xl lg:text-[3.5rem]"
+          >
+            <span class="block">Built by developers.</span>
+            <span class="block">For developers<span class="text-primary">.</span></span>
+          </h1>
+          <p class="max-w-md font-mono text-[15px] leading-relaxed text-neutral-700">
+            Fullstack Wolfpack is an AI-powered learning platform that helps you
+            turn screen time into skill time. Short bursts. Real skills. Lasting
+            impact.
+          </p>
+        </div>
+
+        <!-- Visual: wolf art + HUD dot grid -->
+        <div class="relative mx-auto w-full max-w-md md:mx-0 md:max-w-none">
+          <!-- 5×6 dot grid + crosshair, far top-right (desktop HUD only) -->
+          <div class="absolute right-0 top-2 z-10 hidden items-start gap-3 lg:flex">
+            <span class="mt-1 font-mono text-sm text-foreground/40">+</span>
+            <div class="grid grid-cols-5 gap-x-3 gap-y-2.5">
+              {
+                Array.from({ length: 30 }).map(() => (
+                  <span class="h-1 w-1 rounded-full bg-foreground/30" />
+                ))
+              }
+            </div>
+          </div>
+          <img
+            src="/images/wolf-sun-transparent.png"
+            alt="Ink illustration of a wolf's head against a red rising sun"
+            class="w-full"
+            loading="eager"
+            width="800"
+            height="663"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- Body: sticky sidebar + content -->
+    <div class="grid gap-10 border-t border-border pt-12 pb-16 lg:grid-cols-[220px_1fr] lg:gap-16">
+      <!-- Sidebar (TOC + newsletter) -->
+      <aside class="order-2 self-start lg:order-1 lg:sticky lg:top-8">
+        <nav aria-label="On this page" class="hidden lg:block">
+          <p class="font-mono text-[11px] font-bold tracking-widest text-muted-foreground uppercase">
+            On this page
+          </p>
+          <ul class="mt-4 flex flex-col gap-0.5">
+            {
+              toc.map((t, i) => (
+                <li>
+                  <a
+                    href={`#${t.id}`}
+                    data-toc-link
+                    class:list={[
+                      'toc-link block border-l-2 py-1.5 pl-3 font-mono text-[13px] text-muted-foreground transition-colors hover:text-foreground',
+                      i === 0 && 'is-active',
+                    ]}
+                  >
+                    {t.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+
+        <!-- Newsletter -->
+        <div class="relative mt-12 border border-neutral-300 p-5">
+          <span class="pointer-events-none absolute right-2.5 top-2.5 font-mono text-sm text-muted-foreground">+</span>
+          <span class="pointer-events-none absolute bottom-2.5 left-2.5 font-mono text-sm text-muted-foreground">+</span>
+          <p class="font-mono text-[11px] font-bold tracking-widest text-muted-foreground uppercase">
+            Newsletter
+          </p>
+          <p class="mt-4 text-2xl font-bold leading-[1.05] tracking-tight text-foreground">
+            Get lessons straight to your inbox.
+          </p>
+          <p class="mt-4 font-mono text-xs leading-relaxed text-muted-foreground">
+            No spam. Just practical insights for developers.
+          </p>
+          <form data-newsletter class="mt-5 flex flex-col gap-3" novalidate>
+            <label class="sr-only" for="nl-email">Email address</label>
+            <input
+              id="nl-email"
+              name="email"
+              type="email"
+              required
+              placeholder="you@example.com"
+              class="border border-border bg-background px-3 py-2.5 font-mono text-xs text-foreground placeholder:text-muted-foreground/70 focus:border-foreground focus:outline-none"
+            />
+            <button
+              type="submit"
+              class="fw-notch-br flex items-center justify-center gap-2 bg-foreground px-4 py-3 font-heading text-xs font-bold tracking-widest text-background uppercase transition-opacity hover:opacity-90"
+            >
+              Subscribe
+              <Icon name="arrow" class="h-4 w-4" />
+            </button>
+            <p data-nl-msg hidden class="font-mono text-[11px] leading-relaxed text-primary"></p>
+          </form>
+        </div>
+      </aside>
+
+      <!-- Content -->
+      <div class="order-1 min-w-0 lg:order-2">
+        <section id="our-story" class={secFirst}>
+          <h2 class={heading}>Our Story</h2>
+          <p class={`mt-5 ${para}`}>
+            Wolfpack started as a simple idea between developers who loved
+            learning but struggled to find time for it. We experimented with
+            learning in short bursts between meetings, commits, and context
+            switches — and it worked.
+          </p>
+          <p class={`mt-4 ${para}`}>
+            We saw real progress. Better retention. More confidence. So we built
+            the platform we wished we had. Today, thousands of learners around
+            the world use Wolfpack to grow, build, and level up every day.
+          </p>
+        </section>
+
+        <section id="our-mission" class={sec}>
+          <span class={plus}>+</span>
+          <h2 class={heading}>Our Mission</h2>
+          <p class={`mt-5 ${para}`}>
+            We believe learning should be engaging, effective, and accessible.
+            Our mission is to help developers master real world skills through
+            focused practice and AI-powered guidance.
+          </p>
+          <p class={`mt-4 ${para}`}>
+            We're here to help you build the skills that matter and the
+            confidence to use them.
+          </p>
+        </section>
+
+        <section id="our-values" class={sec}>
+          <span class={plus}>+</span>
+          <h2 class={heading}>Our Values</h2>
+          <ul class="mt-5 flex flex-col gap-3.5">
+            {
+              values.map((v) => (
+                <li class="flex gap-3 font-mono text-sm leading-relaxed">
+                  <span class="mt-0.5 shrink-0 text-primary">+</span>
+                  <span class="text-neutral-700">
+                    <strong class="font-bold tracking-wide text-foreground uppercase">
+                      {v.label}
+                    </strong>
+                    {'  '}— {v.body}
+                  </span>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+
+        <section id="who-its-for" class={sec}>
+          <span class={plus}>+</span>
+          <h2 class={heading}>Who It's For</h2>
+          <ul class="mt-5 flex flex-col gap-3.5">
+            {
+              audience.map((a) => (
+                <li class="flex gap-3 font-mono text-sm leading-relaxed text-neutral-700">
+                  <span class="mt-0.5 shrink-0 text-primary">+</span>
+                  <span>{a}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+
+        <section id="the-pack" class={sec}>
+          <span class={plus}>+</span>
+          <h2 class={heading}>The Pack</h2>
+          <p class={`mt-5 ${para}`}>
+            We're developers, designers, and problem solvers on a mission to make
+            learning better. Together, we build the tools we wish we had.
+          </p>
+          <a
+            href={`${APP_URL}/app`}
+            class="mt-6 inline-flex items-center gap-2 font-heading text-xs font-semibold tracking-widest text-primary uppercase transition-opacity hover:opacity-70"
+          >
+            Join our pack
+            <Icon name="arrow" class="h-4 w-4" />
+          </a>
+        </section>
+
+        <section id="by-the-numbers" class={sec}>
+          <span class={plus}>+</span>
+          <h2 class={heading}>By the Numbers</h2>
+          <div class="relative mt-6 border border-neutral-600 px-6 py-8 md:px-8">
+            <span class="pointer-events-none absolute left-0 top-0 h-0 w-0" style={triTopLeft}></span>
+            <span
+              class="pointer-events-none absolute right-0 bottom-0 h-0 w-0"
+              style={triBottomRight}></span>
+            <div
+              class="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-4 md:gap-0 md:divide-x md:divide-neutral-300"
+            >
+              {
+                stats.map((s) => (
+                  <div class="relative isolate flex items-center gap-3.5 md:px-6 md:first:pl-0">
+                    <span
+                      class="fw-diaglines pointer-events-none absolute inset-2 -z-10 text-foreground opacity-[0.015]"
+                      aria-hidden="true"
+                    />
+                    <Icon name={s.icon} class="h-8 w-8 shrink-0 text-primary" />
+                    <div class="flex flex-col">
+                      <span class="font-heading text-2xl font-semibold leading-none uppercase">
+                        {s.value}
+                      </span>
+                      <span class="mt-1.5 font-mono text-[10px] font-bold tracking-normal uppercase">
+                        {s.label}
+                      </span>
+                      <span class="mt-0.5 font-mono text-[9px] tracking-widest text-muted-foreground uppercase">
+                        {s.sub}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        </section>
+
+        <section id="where-were-headed" class={sec}>
+          <span class={plus}>+</span>
+          <h2 class={heading}>Where We're Headed</h2>
+          <p class={`mt-5 ${para}`}>
+            We're just getting started. Here's a glimpse of what the pack is
+            building next.
+          </p>
+          <ul class="mt-5 flex flex-col gap-3.5">
+            {
+              roadmap.map((r) => (
+                <li class="flex gap-3 font-mono text-sm leading-relaxed text-neutral-700">
+                  <span class="mt-0.5 shrink-0 text-primary">+</span>
+                  <span>{r}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA band — matches the homepage banner -->
+  <section>
+    <div class="mx-auto max-w-7xl px-5 md:px-8 pb-6">
+      <div class="relative overflow-hidden bg-primary text-primary-foreground">
+        <CornerMarks class="text-white/40" omit={['br']} />
+        <div
+          class="flex flex-col gap-8 px-6 py-5 md:flex-row md:items-center md:justify-between md:px-12 md:py-7"
+        >
+          <div class="flex flex-col gap-4">
+            <p class="font-mono text-xs tracking-normal text-white/80 uppercase">
+              <span class="text-white">//</span> Ready to level up?
+            </p>
+            <h2
+              class="font-heading text-[clamp(1.5rem,5vw,4rem)] text-center md:text-left font-semibold leading-[0.95] tracking-tight uppercase"
+            >
+              Your next level <br class="hidden md:inline" />starts now.
+            </h2>
+          </div>
+          <a
+            href={`${APP_URL}/app`}
+            class="fw-notch-tl inline-flex items-center justify-between gap-6 bg-white px-7 py-4 font-heading text-lg font-semibold tracking-widest text-foreground uppercase transition-colors hover:bg-white/90 md:text-xs"
+          >
+            <span class="inline-flex items-center gap-2.5">
+              <Icon name="crosshair" class="h-8 w-8 text-primary" />
+              Start Your Session
+            </span>
+            <Icon name="arrow" class="h-8 w-8 text-primary" />
+          </a>
+        </div>
+        <div class="fw-hazard absolute right-0 bottom-1 h-2.5 w-18 text-white"></div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .toc-link {
+    border-color: transparent;
+  }
+  .toc-link.is-active {
+    color: var(--primary);
+    border-color: var(--primary);
+  }
+</style>
+
+<script>
+  // Scroll-spy: highlight the TOC entry for the section currently in view.
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')]
+  const byId = new Map(
+    links.map((l) => [l.getAttribute('href')!.slice(1), l]),
+  )
+  const sections = links
+    .map((l) => document.getElementById(l.getAttribute('href')!.slice(1)))
+    .filter((el): el is HTMLElement => el !== null)
+
+  const setActive = (id: string) => {
+    links.forEach((l) => l.classList.remove('is-active'))
+    byId.get(id)?.classList.add('is-active')
+  }
+
+  const io = new IntersectionObserver(
+    (entries) => {
+      const inView = entries
+        .filter((e) => e.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+      if (inView[0]) setActive(inView[0].target.id)
+    },
+    { rootMargin: '-25% 0px -70% 0px', threshold: 0 },
+  )
+  sections.forEach((s) => io.observe(s))
+</script>
+
+<script>
+  // Newsletter: no backend on the static site, so validate + confirm inline.
+  const form = document.querySelector<HTMLFormElement>('[data-newsletter]')
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault()
+      const input = form.querySelector<HTMLInputElement>('input[type="email"]')
+      const msg = form.querySelector<HTMLElement>('[data-nl-msg]')
+      if (!input) return
+      if (!input.value || !input.checkValidity()) {
+        input.focus()
+        return
+      }
+      form.reset()
+      if (msg) {
+        msg.textContent = "You're on the list. Watch your inbox."
+        msg.hidden = false
+      }
+    })
+  }
+</script>
