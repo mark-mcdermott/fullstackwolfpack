@@ -2,7 +2,7 @@ import { Route, Routes } from 'react-router'
 import { AppLayout } from '@/components/layout/app-layout'
 import { AuthChromeLayout } from '@/components/layout/auth-chrome-layout'
 import { RequireAuth, RequireRole } from '@/components/layout/guards'
-import { MarketingLayout } from '@/components/layout/marketing-layout'
+import { RootRedirect } from '@/components/layout/root-redirect'
 import { AchievementsPage } from '@/pages/app/achievements'
 import { ArcadePage } from '@/pages/app/arcade'
 import { BadgesPage } from '@/pages/app/badges'
@@ -18,25 +18,12 @@ import { AdminUsersPage } from '@/pages/admin/users'
 import { SignInPage } from '@/pages/auth/sign-in'
 import { SignUpPage } from '@/pages/auth/sign-up'
 import { NotFound } from '@/pages/not-found'
-import { About } from '@/pages/public/about'
-import { Blog } from '@/pages/public/blog'
-import { Features } from '@/pages/public/features'
-import { Home } from '@/pages/public/home'
-import { HowItWorks } from '@/pages/public/how-it-works'
-import { Pricing } from '@/pages/public/pricing'
 
 function App() {
   return (
     <Routes>
-      {/* Public */}
-      <Route element={<MarketingLayout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/how-it-works" element={<HowItWorks />} />
-        <Route path="/features" element={<Features />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/blog" element={<Blog />} />
-      </Route>
+      {/* Root: signed-in → app, signed-out → the public site */}
+      <Route path="/" element={<RootRedirect />} />
 
       {/* Auth */}
       <Route element={<AuthChromeLayout />}>

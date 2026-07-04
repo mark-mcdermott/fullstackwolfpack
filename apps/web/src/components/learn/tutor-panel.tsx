@@ -1,7 +1,7 @@
 import { Lock, Send, Sparkles } from 'lucide-react'
 import { useState } from 'react'
-import { Link } from 'react-router'
 import { api } from '@/api-client'
+import { siteUrl } from '@/consts'
 import type { TutorMessage, TutorMode } from '@/core/tutor'
 import { cn } from '@/lib/utils'
 import { LessonMarkdown } from './lesson-markdown'
@@ -30,12 +30,12 @@ export function TutorPanel({
         <p className="text-xs text-muted-foreground">
           Get grounded hints and explanations for this lesson with the AI tutor.
         </p>
-        <Link
-          to="/pricing"
+        <a
+          href={siteUrl('/pricing')}
           className="mt-1 bg-primary px-4 py-2 font-mono text-[10px] tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
         >
           Upgrade to Pro
-        </Link>
+        </a>
       </div>
     )
   }

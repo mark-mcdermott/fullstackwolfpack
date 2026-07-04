@@ -1,9 +1,11 @@
 import { ArrowRight } from 'lucide-react'
-import { Link, NavLink } from 'react-router'
-import { WolfMark, cn } from '@fw/ui'
+import { Link } from 'react-router'
+import { WolfMark } from '@fw/ui'
+import { siteUrl } from '@/consts'
 
-// FW-01 marketing header — ported from apps/site Base.astro so the logged-out
-// auth pages carry the public site's chrome.
+// FW-01 marketing header for the logged-out auth pages. The marketing pages
+// live on the Astro site, so the brand + nav link out there; only the sign-up
+// CTA stays in the app.
 const NAV: [string, string][] = [
   ['How it works', '/how-it-works'],
   ['Features', '/features'],
@@ -15,7 +17,7 @@ export function FwHeader() {
   return (
     <header className="bg-neutral-950 text-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-5 md:px-3">
-        <Link to="/" className="flex gap-2.5 md:gap-5">
+        <a href={siteUrl()} className="flex gap-2.5 md:gap-5">
           <WolfMark className="h-11 text-white md:h-18" />
           <span className="flex flex-col gap-1 font-heading text-[13px] leading-none tracking-wide md:text-[19px]">
             <span>FULLSTACK</span>
@@ -24,24 +26,17 @@ export function FwHeader() {
               ウルフパック
             </span>
           </span>
-        </Link>
+        </a>
 
         <nav className="hidden items-center gap-7 font-heading text-[12px] tracking-widest uppercase lg:flex">
           {NAV.map(([label, to]) => (
-            <NavLink
+            <a
               key={to}
-              to={to}
-              className={({ isActive }) =>
-                cn(
-                  'border-b-2 pb-1 transition-colors hover:text-white',
-                  isActive
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-gray-100',
-                )
-              }
+              href={siteUrl(to)}
+              className="border-b-2 border-transparent pb-1 text-gray-100 transition-colors hover:text-white"
             >
               {label}
-            </NavLink>
+            </a>
           ))}
         </nav>
 

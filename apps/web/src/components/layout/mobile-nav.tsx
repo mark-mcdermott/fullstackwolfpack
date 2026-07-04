@@ -4,12 +4,14 @@ import { NavLink } from 'react-router'
 import { ThemeToggle, WolfMark } from '@fw/ui'
 import { can } from '@/core/access'
 import { useAuth } from '@/hooks/auth-context'
+import { useSignOut } from '@/lib/use-sign-out'
 import { NAV, navItemClass } from './nav'
 
 // The app's primary navigation for < lg screens, where the Sidebar is hidden.
 // A hamburger opens a slide-in drawer with the same nav + sign-out.
 export function MobileNav() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
+  const signOut = useSignOut()
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
@@ -93,7 +95,7 @@ export function MobileNav() {
                 type="button"
                 onClick={() => {
                   setOpen(false)
-                  logout()
+                  void signOut()
                 }}
                 className="flex flex-1 items-center gap-3 border border-border px-3 py-2 font-mono text-xs tracking-widest text-muted-foreground uppercase transition-colors hover:border-primary hover:text-primary"
               >
