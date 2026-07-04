@@ -44,6 +44,36 @@ describe('parseGeneratedCourse', () => {
       }),
     ).toThrow()
   })
+  it('tolerates a capitalized difficulty echoed by the LLM (unused field)', () => {
+    expect(() =>
+      parseGeneratedCourse({ ...validCourse, difficulty: 'Beginner' }),
+    ).not.toThrow()
+  })
+  it('normalizes capitalized/padded segment + question types', () => {
+    const parsed = parseGeneratedCourse({
+      topic: 'React',
+      difficulty: 'beginner',
+      lessons: [
+        {
+          title: 'L',
+          estMinutes: 5,
+          segments: [
+            {
+              title: 'S',
+              type: ' Reading ',
+              body: 'x',
+              estMinutes: 2,
+              questions: [
+                { type: 'MCQ', prompt: 'q', options: ['a'], correctIndex: 0 },
+              ],
+            },
+          ],
+        },
+      ],
+    })
+    expect(parsed.lessons[0].segments[0].type).toBe('reading')
+    expect(parsed.lessons[0].segments[0].questions[0].type).toBe('mcq')
+  })
 })
 
 describe('buildGenerationPrompt', () => {

@@ -9,8 +9,16 @@ export type Difficulty = 'beginner' | 'intermediate' | 'advanced'
 
 // ---- Validated shape of whatever the LLM returns ----
 
+// LLMs frequently capitalize or pad enum values ("Beginner", " MCQ"). Accept
+// them case-insensitively so a well-formed course isn't rejected over casing.
+const lenientEnum = <const T extends readonly [string, ...string[]]>(values: T) =>
+  z.preprocess(
+    (v) => (typeof v === 'string' ? v.trim().toLowerCase() : v),
+    z.enum(values),
+  )
+
 export const generatedQuestionSchema = z.object({
-  type: z.enum(['mcq', 'short_answer']),
+  type: lenientEnum(['mcq', 'short_answer']),
   prompt: z.string(),
   options: z.array(z.string()).optional(),
   correctIndex: z.number().int().nonnegative().optional(),
@@ -20,7 +28,7 @@ export const generatedQuestionSchema = z.object({
 
 export const generatedSegmentSchema = z.object({
   title: z.string(),
-  type: z.enum(['reading', 'code', 'practice', 'quiz']),
+  type: lenientEnum(['reading', 'code', 'practice', 'quiz']),
   body: z.string(),
   estMinutes: z.number().int().positive().default(2),
   questions: z.array(generatedQuestionSchema).default([]),
@@ -33,8 +41,11 @@ export const generatedLessonSchema = z.object({
 })
 
 export const generatedCourseSchema = z.object({
-  topic: z.string(),
-  difficulty: z.enum(['beginner', 'intermediate', 'advanced']),
+  // topic + difficulty are echoed by the LLM but never used — the pipeline
+  // already knows them from the enroll input. Keep them tolerant (any string,
+  // optional) so a stray value/casing can't reject an otherwise-valid course.
+  topic: z.string().optional(),
+  difficulty: z.string().optional(),
   lessons: z.array(generatedLessonSchema).min(1),
 })
 
