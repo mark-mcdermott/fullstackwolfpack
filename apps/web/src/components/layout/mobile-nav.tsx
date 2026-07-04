@@ -1,17 +1,11 @@
-import { LogOut, Menu, ShieldAlert, X } from 'lucide-react'
+import { Menu } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { NavLink } from 'react-router'
-import { ThemeToggle, WolfMark } from '@fw/ui'
-import { can } from '@/core/access'
-import { useAuth } from '@/hooks/auth-context'
-import { useSignOut } from '@/lib/use-sign-out'
-import { NAV, navItemClass } from './nav'
+import { SidebarContent } from './sidebar-content'
 
 // The app's primary navigation for < lg screens, where the Sidebar is hidden.
-// A hamburger opens a slide-in drawer with the same nav + sign-out.
+// A hamburger opens a slide-in drawer with the exact same body as the desktop
+// sidebar; tapping the backdrop, pressing Escape, or picking a link closes it.
 export function MobileNav() {
-  const { user } = useAuth()
-  const signOut = useSignOut()
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
@@ -46,63 +40,8 @@ export function MobileNav() {
             onClick={() => setOpen(false)}
             className="absolute inset-0 bg-background/80 backdrop-blur-sm"
           />
-          <aside className="absolute inset-y-0 left-0 flex w-72 max-w-[85%] flex-col gap-5 border-r border-border bg-background p-5">
-            <div className="flex items-center justify-between border-b border-border pb-4">
-              <div className="flex items-center gap-2">
-                <WolfMark className="h-8 text-foreground" />
-                <span className="font-mono text-sm font-bold tracking-widest">
-                  FW-01
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                aria-label="Close menu"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <X className="size-5" />
-              </button>
-            </div>
-
-            <nav className="flex flex-col gap-1">
-              {NAV.map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  end={item.end}
-                  className={navItemClass}
-                  onClick={() => setOpen(false)}
-                >
-                  <item.icon className="size-4" />
-                  {item.label}
-                </NavLink>
-              ))}
-              {user && can(user, 'admin.access') && (
-                <NavLink
-                  to="/admin"
-                  className={navItemClass}
-                  onClick={() => setOpen(false)}
-                >
-                  <ShieldAlert className="size-4" />
-                  Admin
-                </NavLink>
-              )}
-            </nav>
-
-            <div className="mt-auto flex gap-2">
-              <ThemeToggle />
-              <button
-                type="button"
-                onClick={() => {
-                  setOpen(false)
-                  void signOut()
-                }}
-                className="flex flex-1 items-center gap-3 border border-border px-3 py-2 font-mono text-xs tracking-widest text-muted-foreground uppercase transition-colors hover:border-primary hover:text-primary"
-              >
-                <LogOut className="size-4" />
-                Sign out
-              </button>
-            </div>
+          <aside className="absolute inset-y-0 left-0 flex w-60 max-w-[85%] flex-col gap-5 overflow-y-auto border-r border-border bg-background p-5">
+            <SidebarContent onNavigate={() => setOpen(false)} />
           </aside>
         </div>
       )}
