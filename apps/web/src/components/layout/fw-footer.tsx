@@ -1,6 +1,5 @@
 import { Globe } from 'lucide-react'
 import type { ComponentType } from 'react'
-import { Link } from 'react-router'
 import { WolfMark } from '@fw/ui'
 import {
   DiscordIcon,
@@ -8,6 +7,7 @@ import {
   XIcon,
   YouTubeIcon,
 } from '@/components/auth/brand-icons'
+import { siteUrl } from '@/consts'
 
 // FW-01 marketing footer — ported from apps/site Base.astro.
 const COLS: { title: string; links: [string, string][] }[] = [
@@ -51,12 +51,8 @@ const linkClass =
   'font-mono text-xs text-neutral-400 transition-colors hover:text-white'
 
 function FooterLink({ to, label }: { to: string; label: string }) {
-  return to.startsWith('/') ? (
-    <Link to={to} className={linkClass}>
-      {label}
-    </Link>
-  ) : (
-    <a href={to} className={linkClass}>
+  return (
+    <a href={to.startsWith('/') ? siteUrl(to) : to} className={linkClass}>
       {label}
     </a>
   )

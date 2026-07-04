@@ -1,7 +1,7 @@
 import { Check, Lock } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router'
 import { api } from '@/api-client'
+import { siteUrl } from '@/consts'
 import { AnthropicKeyPanel } from '@/components/settings/anthropic-key-panel'
 import { ControlsPanel } from '@/components/controls/controls-panel'
 import { PageHeading, Panel, SectionLabel } from '@fw/ui'
@@ -154,12 +154,12 @@ export function SettingsPage() {
               </p>
             </div>
             {tier === 'free' ? (
-              <Link
-                to="/pricing"
+              <a
+                href={siteUrl('/pricing')}
                 className="bg-primary px-4 py-2 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
               >
                 Upgrade to Pro
-              </Link>
+              </a>
             ) : (
               <button
                 type="button"

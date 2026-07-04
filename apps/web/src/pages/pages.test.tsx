@@ -83,9 +83,6 @@ import { DashboardPage } from '@/pages/app/dashboard'
 import { SettingsPage } from '@/pages/app/settings'
 import { TopicsPage } from '@/pages/app/topics'
 import { AdminUsersPage } from '@/pages/admin/users'
-import { Blog } from '@/pages/public/blog'
-import { Home } from '@/pages/public/home'
-import { Pricing } from '@/pages/public/pricing'
 
 const adminUser: PublicUser = {
   id: 'u1',
@@ -118,22 +115,6 @@ function renderPage(ui: ReactNode, user: PublicUser | null = adminUser) {
 
 // Slim regression set: every top-level page renders without crashing and shows
 // its signature content.
-describe('public pages render', () => {
-  it('home', () => {
-    renderPage(<Home />)
-    expect(screen.getByText(/why it works/i)).toBeInTheDocument()
-  })
-  it('pricing lists both plans', () => {
-    renderPage(<Pricing />)
-    expect(screen.getByText('Recruit')).toBeInTheDocument()
-    expect(screen.getByText('Wolf')).toBeInTheDocument()
-  })
-  it('blog', () => {
-    renderPage(<Blog />)
-    expect(screen.getByText('Wolfpack Blog')).toBeInTheDocument()
-  })
-})
-
 describe('app pages render', () => {
   it('dashboard', async () => {
     renderPage(<DashboardPage />)

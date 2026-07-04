@@ -2,6 +2,7 @@ import { ArrowRight, CheckCircle2, Lock, Trophy, XCircle } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { api } from '@/api-client'
+import { siteUrl } from '@/consts'
 import { AsyncView } from '@/components/layout/async-view'
 import { Panel, Pill, ProgressMeter, SectionLabel } from '@fw/ui'
 import { can } from '@/core/access'
@@ -205,12 +206,12 @@ function ProUpsell() {
           Spaced repetition brings each concept back right before you'd forget it.
           Upgrade to Pro to unlock your review queue.
         </p>
-        <Link
-          to="/pricing"
+        <a
+          href={siteUrl('/pricing')}
           className="mt-2 inline-flex items-center gap-2 bg-primary px-5 py-2 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
         >
           See Pro <ArrowRight className="size-4" />
-        </Link>
+        </a>
       </Panel>
     </div>
   )

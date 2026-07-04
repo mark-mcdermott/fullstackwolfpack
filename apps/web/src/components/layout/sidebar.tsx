@@ -4,6 +4,7 @@ import { Panel, ThemeToggle, WolfMark } from '@fw/ui'
 import { can } from '@/core/access'
 import { useAuth } from '@/hooks/auth-context'
 import { cn } from '@/lib/utils'
+import { useSignOut } from '@/lib/use-sign-out'
 import { NAV, navItemClass } from './nav'
 
 // A thin "barcode" strip — a decorative FW-01 flourish.
@@ -21,7 +22,8 @@ function Barcode({ className }: { className?: string }) {
 }
 
 export function Sidebar() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
+  const signOut = useSignOut()
   return (
     <aside className="hidden w-60 shrink-0 flex-col gap-5 border-r border-border p-5 lg:flex">
       {/* Brand block */}
@@ -74,7 +76,7 @@ export function Sidebar() {
           <ThemeToggle />
           <button
             type="button"
-            onClick={() => logout()}
+            onClick={() => void signOut()}
             className="flex flex-1 items-center gap-3 border border-border px-3 py-2 font-mono text-xs tracking-widest text-muted-foreground uppercase transition-colors hover:border-primary hover:text-primary"
           >
             <LogOut className="size-4" />
