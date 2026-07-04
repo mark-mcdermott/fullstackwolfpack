@@ -22,7 +22,14 @@ async function userKey(userId: string, provider: LlmProvider): Promise<string | 
     ),
   })
   if (!cred) return null
-  return decryptSecret({ ciphertext: cred.ciphertext, iv: cred.iv })
+  try {
+    return decryptSecret({ ciphertext: cred.ciphertext, iv: cred.iv })
+  } catch {
+    // Stored key can't be decrypted (e.g. encrypted under a since-rotated
+    // ENCRYPTION_KEY) — treat as absent so resolution falls through to the
+    // next provider / env key instead of throwing a raw crypto error.
+    return null
+  }
 }
 
 // Pick the provider to use, in order: the user's own Anthropic key (Claude is the
