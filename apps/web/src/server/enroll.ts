@@ -4,10 +4,35 @@ import { runGeneration, type EnrollInput } from '../core/generation'
 import { db } from '../db'
 import { providerCredentials } from '../db/schema'
 import { drizzleCourseStore } from './course-store'
-import { decryptSecret } from './crypto'
+import { decryptSecret, type Encrypted } from './crypto'
 import { openAiGenerator } from './openai-generator'
 
-// End-to-end: decrypt the user's OpenAI key, generate a course, persist it.
+// Resolve an OpenAI key from a stored credential + the platform env key. Pure
+// (takes the decrypt fn) so the branches are unit-testable. A stored key that
+// can't be decrypted — e.g. it was encrypted under a since-rotated
+// ENCRYPTION_KEY — is treated as absent and we fall back to the env key rather
+// than surfacing a raw "unable to authenticate data" crypto error.
+export function pickOpenAiKey(
+  cred: Encrypted | null,
+  envKey: string | undefined,
+  decrypt: (enc: Encrypted) => string = decryptSecret,
+): string {
+  if (cred) {
+    try {
+      return decrypt(cred)
+    } catch {
+      // Undecryptable stored key — fall through to the platform key.
+    }
+  }
+  if (envKey) return envKey
+  throw new Error(
+    cred
+      ? "Your saved OpenAI key couldn't be read — please re-enter it in Settings."
+      : 'No OpenAI key on file — add one in Settings.',
+  )
+}
+
+// End-to-end: resolve an OpenAI key, generate a course, persist it.
 export async function enrollAndGenerate(input: EnrollInput): Promise<string> {
   const cred = await db.query.providerCredentials.findFirst({
     where: and(
@@ -15,11 +40,8 @@ export async function enrollAndGenerate(input: EnrollInput): Promise<string> {
       eq(providerCredentials.provider, 'openai'),
     ),
   })
-  if (!cred) {
-    throw new Error('No OpenAI key on file — add one in Settings.')
-  }
 
-  const apiKey = decryptSecret({ ciphertext: cred.ciphertext, iv: cred.iv })
+  const apiKey = pickOpenAiKey(cred ?? null, process.env.OPENAI_API_KEY)
   const generator = openAiGenerator(apiKey, { model: process.env.OPENAI_MODEL })
   return runGeneration({ generator, store: drizzleCourseStore() }, input)
 }
