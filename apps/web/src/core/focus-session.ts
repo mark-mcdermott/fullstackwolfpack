@@ -103,3 +103,17 @@ export function formatClock(seconds: number): string {
   const secs = total % 60
   return `${mins}:${String(secs).padStart(2, '0')}`
 }
+
+// XP for completing a focus session. The base is earned in proportion to how
+// much of the plan you finished (focus score); learning time is rewarded per
+// minute. Computed server-side from the (bounded) recorded result, never trusted
+// from the client. Learning is weighted over play.
+export const FOCUS_XP = { base: 20, perLearnMinute: 4 } as const
+
+export function xpForFocusSession(result: {
+  learnMinutes: number
+  focusScore: number
+}): number {
+  const base = Math.round(FOCUS_XP.base * (result.focusScore / 100))
+  return base + Math.max(0, result.learnMinutes) * FOCUS_XP.perLearnMinute
+}

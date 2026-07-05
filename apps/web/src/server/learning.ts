@@ -4,11 +4,9 @@ import { parseExerciseTests } from '../core/exercise'
 import {
   gradeMcqAnswer,
   lessonScore,
-  nextStreak,
   topicProgressPct,
   xpForLesson,
   xpForQuiz,
-  xpForStreakDay,
 } from '../core/learning'
 import type {
   AnswerFeedback,
@@ -21,7 +19,6 @@ import type {
 import { db } from '../db'
 import {
   courses,
-  dailyActivity,
   exercises,
   lessons,
   lessonSegments,
@@ -30,10 +27,9 @@ import {
   topics,
   userLessonProgress,
   userTopics,
-  users,
-  xpEvents,
 } from '../db/schema'
 import { gradeAnswer } from './grader'
+import { grantXp, logActivityAndStreak } from './rewards'
 import { seedReviewCard } from './review'
 
 // Server-only writes + reads for the learning loop. Thin Drizzle that composes the
@@ -41,32 +37,6 @@ import { seedReviewCard } from './review'
 // lesson player. Mirrors the style of server/app-data.ts.
 
 const num = (v: string | number | null | undefined): number => Number(v ?? 0)
-const dateStr = (d: Date): string => d.toISOString().slice(0, 10)
-
-type XpGrant = {
-  type: 'quiz' | 'lesson_completed' | 'streak'
-  xp: number
-  refType?: string
-  refId?: string
-  description?: string
-}
-
-// Append an XP ledger row and bump the cached total on `users`.
-async function grantXp(userId: string, e: XpGrant): Promise<void> {
-  if (e.xp === 0) return
-  await db.insert(xpEvents).values({
-    userId,
-    type: e.type,
-    xp: e.xp,
-    refType: e.refType ?? null,
-    refId: e.refId ?? null,
-    description: e.description ?? null,
-  })
-  await db
-    .update(users)
-    .set({ xp: sql`${users.xp} + ${e.xp}` })
-    .where(eq(users.id, userId))
-}
 
 // ---- Read: the lesson tree the player renders (answer keys stripped) ----
 
@@ -406,7 +376,7 @@ export async function completeLesson(
       refId: lessonId,
       description: 'Lesson completed',
     })
-    xp = lessonXp + (await bumpStreak(userId, now))
+    xp = lessonXp + (await logActivityAndStreak(userId, now, { lessonsCompleted: 1 }))
   }
 
   return { score, correct, total, xp }
@@ -447,52 +417,4 @@ async function recomputeTopicProgress(
       target: [userTopics.userId, userTopics.topicId],
       set: { lessonsCompleted: done, progressPct: pct, lastViewedAt: now },
     })
-}
-
-// Advance the daily streak. Returns the streak XP granted (0 if already active today).
-async function bumpStreak(userId: string, now: Date): Promise<number> {
-  const [u] = await db
-    .select({ currentStreak: users.currentStreak, bestStreak: users.bestStreak })
-    .from(users)
-    .where(eq(users.id, userId))
-  if (!u) return 0
-
-  // Last active day = the most recent daily_activity row (read before we upsert today).
-  const [last] = await db
-    .select({ date: dailyActivity.date })
-    .from(dailyActivity)
-    .where(eq(dailyActivity.userId, userId))
-    .orderBy(desc(dailyActivity.date))
-    .limit(1)
-
-  const result = nextStreak(last?.date ?? null, now, u.currentStreak)
-
-  await db
-    .insert(dailyActivity)
-    .values({ userId, date: dateStr(now), status: 'completed', lessonsCompleted: 1 })
-    .onConflictDoUpdate({
-      target: [dailyActivity.userId, dailyActivity.date],
-      set: {
-        status: 'completed',
-        lessonsCompleted: sql`${dailyActivity.lessonsCompleted} + 1`,
-      },
-    })
-
-  if (!result.isNewDay) return 0 // already counted today
-
-  await db
-    .update(users)
-    .set({
-      currentStreak: result.streak,
-      bestStreak: Math.max(u.bestStreak, result.streak),
-    })
-    .where(eq(users.id, userId))
-
-  const streakXp = xpForStreakDay(result.streak)
-  await grantXp(userId, {
-    type: 'streak',
-    xp: streakXp,
-    description: `Day ${result.streak} streak`,
-  })
-  return streakXp
 }

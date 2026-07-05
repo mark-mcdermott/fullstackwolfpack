@@ -6,6 +6,7 @@ import {
   formatClock,
   normalizeFocusConfig,
   planTotals,
+  xpForFocusSession,
 } from './focus-session'
 
 describe('buildFocusPlan', () => {
@@ -62,6 +63,18 @@ describe('focusResult', () => {
     const result = focusResult({ playMinutes: 25, learnMinutes: 5, rounds: 1 }, 1500, 0)
     expect(result.learnMinutes).toBe(0)
     expect(result.focusScore).toBe(83) // 1500 / 1800
+  })
+})
+
+describe('xpForFocusSession', () => {
+  it('rewards a full session with base + per-learn-minute', () => {
+    // base 20 (score 100) + 5 learn * 4 = 40
+    expect(xpForFocusSession({ learnMinutes: 5, focusScore: 100 })).toBe(40)
+  })
+  it('scales the base by completion and grants nothing for an instant bail', () => {
+    expect(xpForFocusSession({ learnMinutes: 0, focusScore: 0 })).toBe(0)
+    // base 20 * 0.5 rounded + 0 learn = 10
+    expect(xpForFocusSession({ learnMinutes: 0, focusScore: 50 })).toBe(10)
   })
 })
 
