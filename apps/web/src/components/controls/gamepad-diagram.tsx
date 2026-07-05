@@ -25,7 +25,7 @@ function Key({
       aria-label={`${button} button`}
       aria-pressed={active}
       className={cn(
-        'flex flex-col items-center justify-center gap-0.5 border border-border bg-card font-mono leading-none',
+        'flex flex-col items-center justify-center gap-0.5 rounded-md border border-border bg-card font-mono leading-none',
         interactive
           ? 'cursor-pointer hover:border-primary hover:bg-muted'
           : 'cursor-default',
@@ -64,7 +64,7 @@ export function GamepadDiagram(props: Props) {
           {key('up', '▲')}
           <span />
           {key('left', '◀')}
-          <span className="border border-border bg-card" />
+          <span className="rounded-md border border-border bg-card" />
           {key('right', '▶')}
           <span />
           {key('down', '▼')}

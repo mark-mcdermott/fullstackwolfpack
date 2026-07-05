@@ -1,5 +1,5 @@
 import { LogOut, ShieldAlert } from 'lucide-react'
-import { NavLink } from 'react-router'
+import { Link, NavLink } from 'react-router'
 import { Panel, ThemeToggle, WolfMark } from '@fw/ui'
 import { can } from '@/core/access'
 import { useAuth } from '@/hooks/auth-context'
@@ -29,18 +29,27 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const signOut = useSignOut()
   return (
     <>
-      {/* Brand block */}
+      {/* Brand block — everything above the version/barcode row links home. */}
       <div className="flex flex-col items-center gap-3 border-b border-border pb-5">
-        <span className="w-fit self-start border border-foreground px-1.5 py-0.5 font-mono text-xs font-bold">
-          FW-01
-        </span>
-        <WolfMark className="h-24 text-foreground" />
-        <div className="text-center leading-tight">
-          <p className="font-mono text-sm font-bold">FULLSTACK WOLFPACK</p>
-          <p className="font-mono text-xs tracking-widest text-primary">
-            ウルフパック
-          </p>
-        </div>
+        <Link
+          to="/app"
+          onClick={onNavigate}
+          aria-label="Fullstack Wolfpack home"
+          className="group flex w-full flex-col items-center gap-3 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <span className="w-fit self-start border border-foreground px-1.5 py-0.5 font-mono text-xs font-bold transition-colors group-hover:border-primary group-hover:text-primary">
+            FW-01
+          </span>
+          <WolfMark className="h-24 text-foreground transition-colors group-hover:text-primary" />
+          <div className="text-center leading-tight">
+            <p className="font-mono text-sm font-bold transition-colors group-hover:text-primary">
+              FULLSTACK WOLFPACK
+            </p>
+            <p className="font-mono text-xs tracking-widest text-primary">
+              ウルフパック
+            </p>
+          </div>
+        </Link>
         <div className="flex w-full items-center gap-2">
           <span className="font-mono text-[10px] tracking-widest text-muted-foreground">
             v1.0.0

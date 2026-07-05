@@ -130,6 +130,14 @@
   h1 {
     @apply font-heading;
     }
+  /* Tailwind v4 Preflight drops the historic `cursor: pointer` on buttons.
+     Restore it for enabled buttons and role="button" elements so every
+     clickable control shows the pointer (utilities like `cursor-default` /
+     `cursor-not-allowed` still win over this base rule). */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    @apply cursor-pointer;
+    }
 }
 
 /* FW-01 tactical HUD detail language — ported from apps/site for the marketing

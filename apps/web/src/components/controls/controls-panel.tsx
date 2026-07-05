@@ -180,6 +180,9 @@ export function ControlsPanel() {
         </div>
 
         <div className="flex flex-col gap-2">
+          <p className="font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
+            Key mapping
+          </p>
           <ul className="grid gap-1.5">
             {RETROPAD_BUTTONS.map((button) => {
               const active = listening === button
