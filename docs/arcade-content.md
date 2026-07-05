@@ -36,7 +36,7 @@ Include a title only if compliance is a **concrete one-time step**:
 |---|---|---|
 | **2048** | MIT | Spotless, tiny, swipe-native. **Bundled.** |
 | **Hextris** | GPL-3.0 | Addictive, mobile-perfect. Ship source (its repo). **Bundled** (ads stripped). |
-| **HexGL** | MIT + PD/CC-BY audio | AAA-feel 3D racer; the showpiece. ~16 MB + 3 CC-BY sound credits. Ready to add (see below). |
+| **HexGL** | MIT + PD/CC-BY audio | AAA-feel 3D racer; the showpiece. **Bundled** (GA stripped; 3 CC-BY sound credits). |
 | **Underrun** | MIT | Neon twin-stick shooter; procedural assets. |
 | **Astray** | Unlicense (PD) | 3D tilt maze. |
 | **cube-composer** | MIT | Functional-programming puzzle (on-brand). |
@@ -92,5 +92,6 @@ That trades away cross-frame isolation. **Hardening path (roadmap):** serve
 2. Add a manifest entry (+ `credits` for CC-BY assets); whitelist the folder.
 3. `npm run test` — the guard verifies the LICENSE + entry.
 
-**HexGL** is the intended next add (the showpiece): MIT + 3 CC-BY sound credits,
-~16 MB; deferred from the first PR only for repo weight + real in-browser QA.
+**HexGL** (the showpiece 3D racer) is bundled: MIT code/resources + public-domain
+& CC-BY 3.0 audio (3 sound credits in the manifest), ~16 MB, Google Analytics
+stripped.

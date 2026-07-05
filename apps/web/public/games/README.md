@@ -30,3 +30,5 @@ is default-deny + explicit whitelist so nothing ships by accident.
 - **2048/** — MIT · Gabriele Cirulli · https://github.com/gabrielecirulli/2048
 - **hextris/** — GPL-3.0 · Hextris contributors · https://github.com/Hextris/hextris
   (bundled Google AdSense + Analytics removed)
+- **hexgl/** — MIT + PD/CC-BY audio · Thibaut Despoulain · https://github.com/BKcore/HexGL
+  (Google Analytics removed; see `FW-MODIFICATIONS.txt`)
