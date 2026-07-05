@@ -12,6 +12,8 @@ import {
   meResultSchema,
   protectedResultSchema,
   resetTopicResultSchema,
+  setDifficultyResultSchema,
+  topicTracksSchema,
   totpSetupSchema,
   type BillingRedirect,
   type EnrollResult,
@@ -20,6 +22,8 @@ import {
   type GenerationEta,
   type KeyStatus,
   type PublicUser,
+  type SetDifficultyResult,
+  type TopicTracks,
   type TotpSetup,
 } from '@/core/schemas'
 import type { Difficulty } from '@/core/generation'
@@ -281,6 +285,26 @@ export function createApi({ http, passkeys }: Adapters) {
         await http.request('/api/me/reset-topic', {
           method: 'POST',
           body: JSON.stringify({ topicSlug }),
+        }),
+      )
+    },
+    // The topic's difficulty tracks: which levels have a course + which is active.
+    async tracks(topicSlug: string): Promise<TopicTracks> {
+      return topicTracksSchema.parse(
+        await http.request(
+          `/api/me/topic-tracks?topic=${encodeURIComponent(topicSlug)}`,
+        ),
+      )
+    },
+    // Switch the active difficulty (generates the track if it doesn't exist yet).
+    async setDifficulty(
+      topicSlug: string,
+      difficulty: Difficulty,
+    ): Promise<SetDifficultyResult> {
+      return setDifficultyResultSchema.parse(
+        await http.request('/api/me/set-difficulty', {
+          method: 'POST',
+          body: JSON.stringify({ topicSlug, difficulty }),
         }),
       )
     },

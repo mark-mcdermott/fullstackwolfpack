@@ -147,11 +147,27 @@ export async function getTopicsView(userId: string): Promise<TopicProgress[]> {
     ]),
   )
 
+  // Difficulty of each topic's ACTIVE track (authoritative over the historic
+  // user_topics.difficulty setpoint), so cards/settings show the track you're on.
+  const diffRows = activeCourseIds.length
+    ? await db
+        .select({ id: courses.id, difficulty: courses.difficulty })
+        .from(courses)
+        .where(inArray(courses.id, activeCourseIds))
+    : []
+  const diffByCourse = new Map(diffRows.map((d) => [d.id, d.difficulty as string]))
+  const diffByTopic = new Map(
+    [...activeByTopic].map(([topicId, courseId]) => [
+      topicId,
+      diffByCourse.get(courseId),
+    ]),
+  )
+
   return rows.map((r) => ({
     slug: r.slug,
     name: r.name,
     category: r.category,
-    difficulty: r.difficulty ?? 'beginner',
+    difficulty: diffByTopic.get(r.id) ?? r.difficulty ?? 'beginner',
     pct: r.pct ?? 0,
     lessonsCompleted: r.done ?? 0,
     lessonsTotal: totals.get(r.id) ?? 0,
