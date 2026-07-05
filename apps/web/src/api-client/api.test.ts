@@ -123,3 +123,24 @@ describe('api.integrations + api.courses', () => {
     expect(calls).toContain('/api/me/enroll')
   })
 })
+
+describe('api.billing', () => {
+  it('starts checkout and returns the redirect url', async () => {
+    const url = 'https://checkout.stripe.com/c/pay/cs_test_123'
+    const { api, calls } = withRoutes({ '/api/me/checkout': { url } })
+    expect(await api.billing.checkout()).toEqual({ url })
+    expect(calls).toContain('/api/me/checkout')
+  })
+
+  it('opens the billing portal and returns the redirect url', async () => {
+    const url = 'https://billing.stripe.com/p/session/abc'
+    const { api, calls } = withRoutes({ '/api/me/billing-portal': { url } })
+    expect(await api.billing.portal()).toEqual({ url })
+    expect(calls).toContain('/api/me/billing-portal')
+  })
+
+  it('rejects a non-url billing response instead of redirecting to junk', async () => {
+    const { api } = withRoutes({ '/api/me/checkout': { url: 'not-a-url' } })
+    await expect(api.billing.checkout()).rejects.toThrow()
+  })
+})

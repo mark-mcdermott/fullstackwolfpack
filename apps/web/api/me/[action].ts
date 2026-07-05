@@ -24,6 +24,12 @@ import {
   getUserSummary,
   updateUserAccess,
 } from '../../src/server/app-data'
+import {
+  BillingNotConfiguredError,
+  createBillingPortalUrl,
+  createCheckoutUrl,
+  handleStripeWebhook,
+} from '../../src/server/billing'
 import { enrollAndGenerate } from '../../src/server/enroll'
 import { getGenerationEta } from '../../src/server/generation-timing'
 import {
@@ -160,10 +166,34 @@ export async function GET(req: Request): Promise<Response> {
   }
 }
 
+// Stripe webhook: unauthenticated (Stripe isn't a logged-in user) and needs the
+// raw body for signature verification, so it runs before the session gate and
+// reads `req.text()` instead of parsing JSON.
+async function stripeWebhook(req: Request): Promise<Response> {
+  const signature = req.headers.get('stripe-signature')
+  if (!signature) return json({ error: 'missing signature' }, { status: 400 })
+  try {
+    await handleStripeWebhook(await req.text(), signature)
+    return json({ received: true })
+  } catch (err) {
+    if (err instanceof BillingNotConfiguredError) {
+      return json({ error: err.message }, { status: 503 })
+    }
+    // Bad signature → 400 (forged/misconfigured, don't retry). Anything else is
+    // treated as transient → 500 so Stripe retries.
+    const badSignature =
+      err instanceof Error && err.name === 'StripeSignatureVerificationError'
+    const message = err instanceof Error ? err.message : 'webhook error'
+    return json({ error: message }, { status: badSignature ? 400 : 500 })
+  }
+}
+
 export async function POST(req: Request): Promise<Response> {
   // Dev Mode role switcher (off unless VITE_ENABLE_DEV_MODE=1). Unauthenticated
   // — it mints the session — so it runs before the auth gate below.
   if (action(req) === 'become') return devBecome(req)
+  // Stripe webhook is also unauthenticated + raw-body (see above).
+  if (action(req) === 'stripe-webhook') return stripeWebhook(req)
 
   const userId = await getSessionUserId(req)
   if (!userId) return json({ error: 'unauthorized' }, { status: 401 })
@@ -203,6 +233,31 @@ export async function POST(req: Request): Promise<Response> {
         return json({ courseId })
       } catch (err) {
         const message = err instanceof Error ? err.message : 'generation failed'
+        return json({ error: message }, { status: 400 })
+      }
+    }
+
+    case 'checkout': {
+      try {
+        return json({ url: await createCheckoutUrl(userId) })
+      } catch (err) {
+        if (err instanceof BillingNotConfiguredError) {
+          return json({ error: err.message }, { status: 503 })
+        }
+        const message = err instanceof Error ? err.message : 'checkout failed'
+        return json({ error: message }, { status: 400 })
+      }
+    }
+
+    case 'billing-portal': {
+      try {
+        return json({ url: await createBillingPortalUrl(userId) })
+      } catch (err) {
+        if (err instanceof BillingNotConfiguredError) {
+          return json({ error: err.message }, { status: 503 })
+        }
+        const message =
+          err instanceof Error ? err.message : 'could not open billing portal'
         return json({ error: message }, { status: 400 })
       }
     }

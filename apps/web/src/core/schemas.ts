@@ -94,6 +94,10 @@ export const generationEtaSchema = z.object({
 })
 export type GenerationEta = z.infer<typeof generationEtaSchema>
 
+// A hosted Stripe URL (Checkout or Billing Portal) the client redirects to.
+export const billingRedirectSchema = z.object({ url: z.string().url() })
+export type BillingRedirect = z.infer<typeof billingRedirectSchema>
+
 // Admin — change a user's role/tier (both optional; at least one meaningful).
 export const adminUpdateRequest = z.object({
   userId: z.string().min(1),
