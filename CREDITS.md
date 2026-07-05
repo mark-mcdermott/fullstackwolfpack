@@ -2,6 +2,23 @@
 
 Third-party assets and how to credit them.
 
+## Bundled arcade ROMs
+
+All bundled titles clear the 🟢 Green bucket in
+[`docs/rom-licensing.md`](docs/rom-licensing.md) (redistributable in a closed
+commercial app). Binaries live in `apps/web/public/roms/`.
+
+- **Paddle Duel** (from openNES-Pong), **Brick Buster** (from openNES-Breakout),
+  **Snake** (from openNES-Snake) — © sebastiandine, **zlib** license —
+  `github.com/sebastiandine/openNES-Pong` · `/openNES-Breakout` · `/openNES-Snake`.
+  Paddle Duel / Brick Buster are our own trademark-safe names for these upstream
+  clones. zlib permits commercial bundling with **no on-screen credit required**;
+  we keep the copyright notice here for provenance. Built from source with cc65.
+- **Tobu Tobu Girl** — © Tangram Games (Simon Larsen & Lukas Nuszkowski).
+  Code **MIT**, assets **CC-BY 4.0** — `github.com/SimonLarsen/tobutobugirl`.
+  CC-BY **requires attribution**, surfaced in-app on the arcade tile
+  (`{author} · {license}`). Required credit: **"Tobu Tobu Girl by Tangram Games."**
+
 ## Active favicon — wolf mark
 
 - **Where:** `apps/web/public/favicon.svg` and `apps/site/public/favicon.svg`.

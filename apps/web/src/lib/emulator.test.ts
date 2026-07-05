@@ -18,13 +18,13 @@ describe('launchRom adapter', () => {
   it('hands Nostalgist the file content (not a path) and maps session methods', async () => {
     const { launchRom } = await import('./emulator')
     const canvas = document.createElement('canvas')
-    const file = new File([new Uint8Array([1, 2, 3])], 'alter-ego.nes')
+    const file = new File([new Uint8Array([1, 2, 3])], 'brick-buster.nes')
 
     const session = await launchRom({ core: 'fceumm', rom: file, canvas })
 
     expect(launch).toHaveBeenCalledWith({
       core: 'fceumm',
-      rom: { fileName: 'alter-ego.nes', fileContent: file },
+      rom: { fileName: 'brick-buster.nes', fileContent: file },
       element: canvas,
     })
 

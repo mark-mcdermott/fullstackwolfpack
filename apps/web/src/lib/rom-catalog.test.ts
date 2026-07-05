@@ -46,7 +46,11 @@ describe('loadRomFile', () => {
     const blob = new Blob([new Uint8Array([1, 2, 3, 4])])
     vi.stubGlobal(
       'fetch',
-      vi.fn(async () => ({ ok: true, blob: async () => blob })),
+      vi.fn(async () => ({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/octet-stream' }),
+        blob: async () => blob,
+      })),
     )
     const entry = ROM_CATALOG[0]
 
@@ -61,6 +65,22 @@ describe('loadRomFile', () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async () => ({ ok: false })),
+    )
+    await expect(loadRomFile(ROM_CATALOG[0])).rejects.toBeInstanceOf(
+      RomNotFoundError,
+    )
+  })
+
+  // In prod a missing /roms/*.nes hits the SPA rewrite → index.html with a 200,
+  // not a 404. Without this guard the emulator would try to boot an HTML page.
+  it('throws RomNotFoundError when the SPA fallback returns HTML with a 200', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        headers: new Headers({ 'content-type': 'text/html; charset=utf-8' }),
+        blob: async () => new Blob(['<!doctype html><title>app</title>']),
+      })),
     )
     await expect(loadRomFile(ROM_CATALOG[0])).rejects.toBeInstanceOf(
       RomNotFoundError,

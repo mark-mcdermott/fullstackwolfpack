@@ -28,30 +28,47 @@ export type UploadedRom = {
 
 export type PlayableRom = RomEntry | UploadedRom
 
+// Only titles whose license clears the "🟢 Green bucket" bar in
+// `docs/rom-licensing.md` (§4 + appendix) — 100% redistributable in a closed
+// commercial app — are bundled here. Freeware / no-license / GPL titles were
+// removed (see that doc's appendix for the audit). Add a title only after
+// confirming its license covers code AND assets.
 export const ROM_CATALOG: RomEntry[] = [
   {
     source: 'catalog',
-    id: 'alter-ego',
-    title: 'Alter Ego',
+    id: 'paddle-duel',
+    title: 'Paddle Duel',
     system: 'nes',
-    author: 'RetroSouls',
-    license: 'Freeware',
+    author: 'sebastiandine',
+    license: 'zlib',
     description:
-      'A clever puzzle-platformer where every move you make is mirrored by your shadow self.',
-    fileName: 'alter-ego.nes',
-    accent: 'text-rose-400',
+      'A one-on-one paddle duel — outlast the CPU in a test of pure reflex.',
+    fileName: 'paddle-duel.nes',
+    accent: 'text-emerald-400',
   },
   {
     source: 'catalog',
-    id: 'lan-master',
-    title: 'Lan Master',
+    id: 'brick-buster',
+    title: 'Brick Buster',
     system: 'nes',
-    author: 'Shiru',
-    license: 'Freeware',
+    author: 'sebastiandine',
+    license: 'zlib',
     description:
-      'Rotate the pipes to connect every node on the network before the clock runs out.',
-    fileName: 'lan-master.nes',
+      'Angle the ball off your paddle and chip through the wall, brick by brick.',
+    fileName: 'brick-buster.nes',
     accent: 'text-amber-400',
+  },
+  {
+    source: 'catalog',
+    id: 'opennes-snake',
+    title: 'Snake',
+    system: 'nes',
+    author: 'sebastiandine',
+    license: 'zlib',
+    description:
+      'Chase the dots to grow longer — but never cross your own tail.',
+    fileName: 'snake.nes',
+    accent: 'text-violet-400',
   },
   {
     source: 'catalog',
@@ -59,35 +76,11 @@ export const ROM_CATALOG: RomEntry[] = [
     title: 'Tobu Tobu Girl',
     system: 'gb',
     author: 'Tangram Games',
-    license: 'Open source',
+    license: 'MIT + CC-BY 4.0',
     description:
       'A vertical arcade climber — bounce off enemies to chase your runaway pet across the sky.',
     fileName: 'tobu-tobu-girl.gb',
     accent: 'text-sky-400',
-  },
-  {
-    source: 'catalog',
-    id: 'ucity',
-    title: 'µCity',
-    system: 'gbc',
-    author: 'AntonioND',
-    license: 'GPLv3',
-    description:
-      'An open-source city-building sim in the spirit of the classics, on Game Boy Color.',
-    fileName: 'ucity.gbc',
-    accent: 'text-emerald-400',
-  },
-  {
-    source: 'catalog',
-    id: 'anguna',
-    title: 'Anguna',
-    system: 'gba',
-    author: 'Nathan Tolbert',
-    license: 'Freeware',
-    description:
-      'A compact action-RPG dungeon crawl built for the Game Boy Advance homebrew scene.',
-    fileName: 'anguna.gba',
-    accent: 'text-violet-400',
   },
 ]
 
@@ -138,6 +131,13 @@ export async function loadRomFile(rom: PlayableRom): Promise<File> {
   if (rom.source === 'upload') return rom.file
   const response = await fetch(romAssetUrl(rom))
   if (!response.ok) throw new RomNotFoundError(rom.fileName)
+  // A ROM that isn't in the build doesn't 404 in production: the SPA rewrite
+  // (`vercel.json`) serves index.html with a 200, so `response.ok` lies. Feeding
+  // that HTML to the emulator drops it into RetroArch's menu ("failed to load
+  // content"). Treat an HTML body as "not installed" and surface it cleanly.
+  if ((response.headers.get('content-type') ?? '').includes('text/html')) {
+    throw new RomNotFoundError(rom.fileName)
+  }
   const blob = await response.blob()
   return new File([blob], rom.fileName)
 }

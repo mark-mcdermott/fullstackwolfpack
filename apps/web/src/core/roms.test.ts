@@ -27,8 +27,8 @@ describe('systemForExtension', () => {
   it('infers the system from the file extension, case-insensitively', () => {
     expect(systemForExtension('Contra.NES')).toBe('nes')
     expect(systemForExtension('tobu.gb')).toBe('gb')
-    expect(systemForExtension('ucity.gbc')).toBe('gbc')
-    expect(systemForExtension('anguna.gba')).toBe('gba')
+    expect(systemForExtension('demo.gbc')).toBe('gbc')
+    expect(systemForExtension('demo.gba')).toBe('gba')
     expect(systemForExtension('sonic.md')).toBe('genesis')
     expect(systemForExtension('demo.smc')).toBe('snes')
   })
