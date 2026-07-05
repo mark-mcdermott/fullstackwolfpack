@@ -125,15 +125,17 @@ describe('api.integrations + api.courses', () => {
 })
 
 describe('api.focus', () => {
-  it('records a completed focus session', async () => {
-    const { api, calls } = withRoutes({ '/api/me/focus-session': { ok: true } })
-    await api.focus.record({
-      playMinutes: 25,
-      learnMinutes: 5,
-      playIntervalMin: 25,
-      learnIntervalMin: 5,
-      focusScore: 100,
-    })
+  it('records a completed focus session and returns the XP granted', async () => {
+    const { api, calls } = withRoutes({ '/api/me/focus-session': { xp: 40 } })
+    expect(
+      await api.focus.record({
+        playMinutes: 25,
+        learnMinutes: 5,
+        playIntervalMin: 25,
+        learnIntervalMin: 5,
+        focusScore: 100,
+      }),
+    ).toEqual({ xp: 40 })
     expect(calls).toContain('/api/me/focus-session')
   })
 })

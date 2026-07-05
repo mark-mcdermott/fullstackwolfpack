@@ -110,6 +110,12 @@ export const focusSessionRequest = z.object({
 })
 export type FocusSessionInput = z.infer<typeof focusSessionRequest>
 
+// XP granted for a recorded focus session (session XP + any streak XP).
+export const focusSessionResultSchema = z.object({
+  xp: z.number().int().nonnegative(),
+})
+export type FocusSessionResult = z.infer<typeof focusSessionResultSchema>
+
 // Admin — change a user's role/tier (both optional; at least one meaningful).
 export const adminUpdateRequest = z.object({
   userId: z.string().min(1),

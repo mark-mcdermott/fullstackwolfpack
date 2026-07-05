@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
-const h = vi.hoisted(() => ({ record: vi.fn(async () => {}) }))
+const h = vi.hoisted(() => ({ record: vi.fn(async () => ({ xp: 40 })) }))
 vi.mock('@/api-client', () => ({ api: { focus: { record: h.record } } }))
 
 import { FocusSession } from './focus-session'
@@ -34,6 +34,7 @@ describe('FocusSession', () => {
 
     expect(await screen.findByText(/session complete/i)).toBeInTheDocument()
     expect(h.record).toHaveBeenCalledOnce()
+    expect(await screen.findByText(/\+40 XP/i)).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: /new session/i }),
     ).toBeInTheDocument()
