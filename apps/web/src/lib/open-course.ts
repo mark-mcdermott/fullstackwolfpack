@@ -8,3 +8,10 @@ export async function nextLessonPath(topicSlug: string): Promise<string> {
   if (!outline.nextLessonId) throw new Error('This course has no lessons yet.')
   return `/app/learn/${outline.nextLessonId}`
 }
+
+// Deep-link to a topic's card on the Topics page (scrolled to + highlighted).
+// Used by clickable topic names on Progress and the Dashboard's current focus.
+// Single source of truth for the `?topic=` param the Topics page reads.
+export function topicCoursePath(topicSlug: string): string {
+  return `/app/topics?topic=${encodeURIComponent(topicSlug)}`
+}

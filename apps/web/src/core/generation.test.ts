@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
+  averageEtaMs,
   buildGenerationPrompt,
+  COURSE_TARGET,
+  DEFAULT_GENERATION_ETA_MS,
   parseGeneratedCourse,
   runGeneration,
   type CourseStore,
@@ -81,6 +84,22 @@ describe('buildGenerationPrompt', () => {
     const p = buildGenerationPrompt({ topic: 'Docker', difficulty: 'intermediate' })
     expect(p).toContain('Docker')
     expect(p).toContain('intermediate')
+  })
+  it('requests a substantial, multi-lesson course', () => {
+    const p = buildGenerationPrompt({ topic: 'Docker', difficulty: 'beginner' })
+    expect(p).toContain(`${COURSE_TARGET.minLessons}-${COURSE_TARGET.maxLessons} lessons`)
+    expect(p).toContain(`${COURSE_TARGET.minQuizPerLesson} quiz questions`)
+  })
+})
+
+describe('averageEtaMs', () => {
+  it('falls back when there are no samples', () => {
+    expect(averageEtaMs([])).toBe(DEFAULT_GENERATION_ETA_MS)
+    expect(averageEtaMs([], 5000)).toBe(5000)
+  })
+  it('rounds the mean of the samples', () => {
+    expect(averageEtaMs([10_000, 20_000, 30_000])).toBe(20_000)
+    expect(averageEtaMs([10_000, 15_000])).toBe(12_500)
   })
 })
 

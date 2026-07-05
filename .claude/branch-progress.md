@@ -1,27 +1,21 @@
-# Aesthetics & UX punchlist — round 3
+# Branch: feat/punchlist-items — COMPLETE (items 1–9; item 10 deferred)
 
-Branch `fix/aesthetics-and-ux-punchlist-3` (main repo; another pane holds
-`worktrees/dev-mode` — don't touch it). Add items as we go; commit per item; one
-PR at the end. Rounds 1 (real art, light theme, Retry, mobile nav — #28) and
-2 (theme-adaptive favicon — #30) are merged.
+All 9 in-scope punchlist items shipped. Item 10 (Stripe) deferred to its own branch by user decision.
 
-Legend: `[ ]` todo · `[~]` in progress · `[x]` done · `[?]` needs Mark's call
+- [x] 1. Sidebar brand → dashboard link (`sidebar-content.tsx`, `<Link to="/app">`).
+- [x] 2. Dark-mode toggle on the Astro site (`Base.astro` header + `Icon.astro` moon/sun + `global.css` `:root:not(.dark)` fix + 5 white-CTA readability fixes).
+- [x] 3. Longer courses — `buildGenerationPrompt` targets 6–8 lessons via `COURSE_TARGET`; schema stays permissive.
+- [x] 4. Generate-course ETA progress bar + `generation_timings` table + `getGenerationEta` + GET `generation-eta`. Degrades to default ETA before `db:push`.
+- [x] 5. Global `cursor: pointer` base rule (index.css + theme.css) — Tailwind v4 root fix.
+- [x] 6. Deep-link topic/focus names → Topics card (`topicCoursePath`, `?topic=` scroll+highlight).
+- [x] 7. Badges — derived from live stats (`core/achievements.ts` evaluator + server snapshot), Badges page shows earned/in-progress/locked with per-badge art.
+- [x] 8. Gamepad button `rounded-md`.
+- [x] 9. "Key mapping" heading above the mapping column.
+- [ ] 10. [DEFERRED] Stripe → own branch.
 
-## Candidates (carryover + fresh — reprioritize / add freely)
+## Verification
+- Full web suite: 274 tests pass · `tsc --noEmit` clean · `npm run build` (web + site) pass · lint clean (1 pre-existing warning untouched).
 
-- `[?]` **Deeper mock parity** (ROADMAP `[~]`): richer stat panels, dashboard
-  "system feed" / footer flourishes, closer per-screen alignment to the mocks.
-- `[?]` **Loading skeletons** — replace the plain spinner with lightweight
-  skeleton placeholders on the data-heavy pages (Dashboard/Stats/Progress).
-- `[?]` **Interaction-state audit** — consistent focus rings / hover / active /
-  disabled states on buttons, links, inputs across the app.
-- `[?]` **Astro ↔ @fw/ui parity** — add `@astrojs/react` so the marketing site
-  can render the real `@fw/ui` components (exact FW-01 match, de-dup markup).
-
-## Mark's items (add here)
-
-- …
-
-## Done
-
-- …
+## Follow-up for the user
+- Run `npm run db:push -w @fw/web` to create the `generation_timings` table (feature works with a default ETA until then).
+- Stripe billing = separate branch (greenfield; needs Stripe account/keys + a reclaimed function slot).

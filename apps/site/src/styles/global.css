@@ -1,8 +1,11 @@
 @import '@fw/ui/theme.css';
 
 /* Marketing site tweaks: the "white" areas read as a light warm-gray, and the
-   big sci-fi display headings use Sui Generis (Adobe Fonts). */
-:root {
+   big sci-fi display headings use Sui Generis (Adobe Fonts). Scoped to light
+   mode only (`:not(.dark)`) so it can't override theme.css's `.dark` background
+   — both selectors have equal specificity, so an unscoped `:root` would win by
+   source order and leave dark mode with a light background. */
+:root:not(.dark) {
   --background: oklch(0.963 0 0);
 }
 

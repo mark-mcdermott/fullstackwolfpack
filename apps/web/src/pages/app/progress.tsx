@@ -1,4 +1,5 @@
 import { BookOpen, Flame, TrendingUp, Trophy } from 'lucide-react'
+import { Link } from 'react-router'
 import { api } from '@/api-client'
 import { ChartPanel } from '@/components/chart-panel'
 import { AsyncView } from '@/components/layout/async-view'
@@ -11,6 +12,7 @@ import {
 } from '@fw/ui'
 import { relativeTime } from '@/core/progress'
 import { useAsync } from '@/hooks/use-async'
+import { topicCoursePath } from '@/lib/open-course'
 
 export function ProgressPage() {
   const state = useAsync(() => api.data.progress())
@@ -52,9 +54,12 @@ export function ProgressPage() {
                   )}
                   {topics.slice(0, 8).map((t) => (
                     <div key={t.slug} className="flex items-center gap-3">
-                      <span className="w-28 truncate font-mono text-xs uppercase">
+                      <Link
+                        to={topicCoursePath(t.slug)}
+                        className="w-28 truncate font-mono text-xs uppercase transition-colors hover:text-primary hover:underline"
+                      >
                         {t.name}
-                      </span>
+                      </Link>
                       <ProgressMeter value={t.pct} />
                       <span className="w-8 text-right font-mono text-xs">{t.pct}%</span>
                     </div>

@@ -5,11 +5,13 @@ import type {
 import {
   authResultSchema,
   enrollResultSchema,
+  generationEtaSchema,
   keyStatusSchema,
   meResultSchema,
   protectedResultSchema,
   totpSetupSchema,
   type EnrollResult,
+  type GenerationEta,
   type KeyStatus,
   type PublicUser,
   type TotpSetup,
@@ -265,6 +267,12 @@ export function createApi({ http, passkeys }: Adapters) {
           method: 'POST',
           body: JSON.stringify({ topicSlug, difficulty }),
         }),
+      )
+    },
+    // Expected generation duration (ms) for the progress bar's ETA.
+    async generationEta(): Promise<GenerationEta> {
+      return generationEtaSchema.parse(
+        await http.request('/api/me/generation-eta'),
       )
     },
   }

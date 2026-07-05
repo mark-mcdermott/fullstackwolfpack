@@ -6,6 +6,7 @@ import { RecentLessons } from '@/components/learn/recent-lessons'
 import { Panel, ProgressMeter, SectionLabel, StatTile } from '@fw/ui'
 import { WolfSun } from '@fw/ui'
 import { useAsync } from '@/hooks/use-async'
+import { topicCoursePath } from '@/lib/open-course'
 import { cn } from '@/lib/utils'
 
 // daily_activity status → dot styling.
@@ -71,7 +72,12 @@ export function DashboardPage() {
                   {focus.map((t) => (
                     <div key={t.slug} className="flex items-center gap-4">
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold">{t.name}</p>
+                        <Link
+                          to={topicCoursePath(t.slug)}
+                          className="block w-fit max-w-full truncate text-sm font-semibold transition-colors hover:text-primary"
+                        >
+                          {t.name}
+                        </Link>
                         <p className="font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
                           {t.difficulty}
                         </p>
