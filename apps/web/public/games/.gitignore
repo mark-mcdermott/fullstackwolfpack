@@ -10,3 +10,5 @@
 !/2048/
 # Hextris — GPL-3.0 (Hextris contributors); bundled ads/trackers stripped
 !/hextris/
+# HexGL — MIT (Thibaut Despoulain) + PD/CC-BY audio; GA stripped
+!/hexgl/

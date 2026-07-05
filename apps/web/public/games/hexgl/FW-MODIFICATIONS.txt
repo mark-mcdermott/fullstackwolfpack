@@ -1,0 +1,13 @@
+Modifications to this vendored copy of HexGL (MIT) by Fullstack Wolfpack on
+2026-07-05:
+
+- Removed the inline Google Analytics snippet (index.html) — no third-party
+  tracking.
+- Changed the favicon <link> from the hotlinked http://hexgl.bkcore.com/ URL to
+  the bundled local favicon.png.
+- Omitted from the vendored copy (not needed to run): package.zip, cache.appcache
+  (AppCache is dead), the CoffeeScript sources (*.coffee — the compiled bkcore/
+  JS is what runs), and the Firefox-OS manifests (manifest.webapp/package.webapp).
+
+No gameplay code was altered. Upstream source: https://github.com/BKcore/HexGL
+Sound licenses: see audio/LICENSE (public domain + CC-BY 3.0).
