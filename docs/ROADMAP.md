@@ -38,7 +38,13 @@ _Status: `[x]` shipped · `[~]` partial/stubbed · `[ ]` not started._
 - `[x]` **Stripe billing** (PR #59). Real Checkout + Billing Portal + a signature-verified webhook that flips `users.tier`; `checkout`/`billing-portal`/`stripe-webhook` fold into `api/me/[action].ts` (still 12/12 functions). Free/Pro gating (`core/access.ts`) already real. Dormant until the `STRIPE_*` env is set — see `CLAUDE.md` "Setup TODO".
 
 ### Focus-session runtime (the namesake feature)
-- `[x]` **Timed play/learn sessions** — the focus timer, play/learn intervals, and focus score that "learn between gaming sessions" implies. Runtime (`core/focus-session.ts` plan/score + a Focus panel on **Sessions**); completed sessions record to `sessions` with `focusMode` and **grant rewards** — session XP, a `daily_activity` learn-minutes contribution, and a streak advance — via the shared `server/rewards.ts` (also used by lesson completion). Feeds hours, the minutes-learned trend, streaks, and the Focus-Mode badge. Optional enhancement left: launch a real lesson during the Learn phase.
+- `[x]` **Timed play/learn sessions** — the focus timer, play/learn intervals, and focus score that "learn between gaming sessions" implies. Runtime (`core/focus-session.ts` plan/score + a Focus panel on **Sessions**); completed sessions record to `sessions` with `focusMode` and **grant rewards** — session XP, a `daily_activity` learn-minutes contribution, and a streak advance — via the shared `server/rewards.ts` (also used by lesson completion). Feeds hours, the minutes-learned trend, streaks, and the Focus-Mode badge. Enhancements left:
+  - `[ ]` **Custom play/learn lengths** — a free number input on Sessions for arbitrary play/learn minutes, alongside the 15/25/45 · 5/10/15 presets (clamp to the `normalizeFocusConfig` bounds).
+  - `[ ]` Launch a real lesson during the Learn phase (deep-link into the player).
+
+### Arcade
+- `[ ]` **Mobile touch controls (virtual gamepad).** On a phone the emulator has no way to send inputs — a bundled ROM that says "Press Start" is unplayable because there are no on-screen buttons (confirmed in prod on iOS). Add a touch overlay to the Arcade player: an on-screen D-pad + A/B + Start/Select mapping to the existing RetroPad inputs, shown on touch/coarse-pointer devices. Reuse the button set already defined for the controls remapper (`RETROPAD_BUTTONS`).
+- `[ ]` **Better bundled games.** The 4 legally-clear homebrew ROMs are weak; evaluating non-ROM lanes (self-hosted open-source HTML5 games, interactive fiction, DOS/ScummVM freeware) that fit a new embed lane in the arcade. Legal bar unchanged: Green-bucket only (CC0/MIT/BSD/zlib/Apache/CC-BY), **code + assets both verified** (see `docs/rom-licensing.md`).
 
 ### Native / desktop shells
 - `[ ]` **Capacitor** (iOS/Android) — not initialized (`npx cap add …`; needs Xcode / Android Studio).
