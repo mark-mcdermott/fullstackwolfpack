@@ -1,0 +1,12 @@
+# Embed-game files are copyright-sensitive: DEFAULT-DENY, then explicitly
+# whitelist verified 🟢 Green-bucket games (docs/arcade-content.md). Only add a
+# folder after its license clears that bar — code AND assets — never
+# blanket-unignore. Mirrors public/roms/.gitignore.
+/*
+!/.gitignore
+!/README.md
+# Green-bucket, bundle-safe:
+# 2048 — MIT (Gabriele Cirulli)
+!/2048/
+# Hextris — GPL-3.0 (Hextris contributors); bundled ads/trackers stripped
+!/hextris/

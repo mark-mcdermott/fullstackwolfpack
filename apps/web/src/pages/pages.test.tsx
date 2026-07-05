@@ -80,6 +80,7 @@ vi.mock('@/api-client', () => ({
 }))
 import { AchievementsPage } from '@/pages/app/achievements'
 import { ArcadePage } from '@/pages/app/arcade'
+import { CreditsPage } from '@/pages/app/credits'
 import { DashboardPage } from '@/pages/app/dashboard'
 import { SettingsPage } from '@/pages/app/settings'
 import { TopicsPage } from '@/pages/app/topics'
@@ -128,6 +129,11 @@ describe('app pages render', () => {
   it('arcade shows the game gallery', () => {
     renderPage(<ArcadePage />)
     expect(screen.getByText('Add your ROM')).toBeInTheDocument()
+  })
+  it('credits lists bundled games', () => {
+    renderPage(<CreditsPage />)
+    expect(screen.getByText('Licenses & credits')).toBeInTheDocument()
+    expect(screen.getByText('2048')).toBeInTheDocument()
   })
   it('achievements', async () => {
     renderPage(<AchievementsPage />)

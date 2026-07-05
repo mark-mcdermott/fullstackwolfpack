@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
+import { EMBED_CATALOG } from '@/lib/embed-catalog'
 import { ROM_CATALOG } from '@/lib/rom-catalog'
 import { SYSTEM_META } from '@/core/roms'
 import { RomGallery } from './rom-gallery'
@@ -79,6 +80,37 @@ describe('RomGallery', () => {
         file,
       }),
     )
+  })
+
+  it('renders embed (web) games and selects one on Play', async () => {
+    const user = userEvent.setup()
+    const onSelect = vi.fn()
+    render(<RomGallery onSelect={onSelect} />)
+
+    const firstEmbed = EMBED_CATALOG[0]
+    expect(screen.getByText(firstEmbed.title)).toBeInTheDocument()
+
+    await user.click(
+      screen.getByRole('button', { name: `Play ${firstEmbed.title}` }),
+    )
+    expect(onSelect).toHaveBeenCalledWith(
+      expect.objectContaining({ source: 'embed', id: firstEmbed.id }),
+    )
+  })
+
+  it('the Web tab hides ROMs and shows only embed games', async () => {
+    const user = userEvent.setup()
+    render(<RomGallery onSelect={vi.fn()} />)
+
+    await user.click(screen.getByRole('button', { name: 'Web' }))
+    for (const rom of ROM_CATALOG) {
+      expect(screen.queryByText(rom.title)).not.toBeInTheDocument()
+    }
+    for (const game of EMBED_CATALOG) {
+      expect(screen.getByText(game.title)).toBeInTheDocument()
+    }
+    // The upload (ROM) tile is hidden on the Web tab.
+    expect(screen.queryByText('Add your ROM')).not.toBeInTheDocument()
   })
 
   it('rejects an unsupported upload and shows an error', () => {
