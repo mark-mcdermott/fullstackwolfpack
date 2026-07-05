@@ -17,6 +17,7 @@
     "test:watch": "npm run test:watch -w @fw/web",
     "lint": "npm run lint -w @fw/web",
     "db:seed": "npm run db:seed -w @fw/web",
+    "gen:builtins": "npm run gen:builtins -w @fw/web --",
     "db:generate": "npm run db:generate -w @fw/web",
     "db:migrate": "npm run db:migrate -w @fw/web",
     "db:push": "npm run db:push -w @fw/web",

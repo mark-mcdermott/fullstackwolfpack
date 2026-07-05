@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router'
 import { api } from '@/api-client'
 import { AsyncView, EmptyState } from '@/components/layout/async-view'
 import { PageHeading, Panel, ProgressMeter } from '@fw/ui'
+import { DIFFICULTIES } from '@/core/adaptive'
 import type { TopicProgress } from '@/core/app-data'
 import { DEFAULT_GENERATION_ETA_MS, type Difficulty } from '@/core/generation'
 import { useAsync } from '@/hooks/use-async'
@@ -20,7 +21,9 @@ const TABS: [string, string | null][] = [
   ['AI & Data', 'ai_data'],
 ]
 
-const DIFFICULTIES: readonly string[] = ['beginner', 'intermediate', 'advanced']
+function isLevel(v: string): v is Difficulty {
+  return (DIFFICULTIES as readonly string[]).includes(v)
+}
 
 function TopicCard({
   topic,
@@ -36,6 +39,9 @@ function TopicCard({
   const [busy, setBusy] = useState<null | 'generating' | 'opening'>(null)
   const [error, setError] = useState<string | null>(null)
   const [progress, setProgress] = useState(0)
+  const [level, setLevel] = useState<Difficulty>(
+    isLevel(topic.difficulty) ? topic.difficulty : 'beginner',
+  )
 
   // When deep-linked (`/app/topics?topic=slug`), bring the card into view.
   useEffect(() => {
@@ -74,11 +80,8 @@ function TopicCard({
     setBusy('generating')
     setError(null)
     setProgress(0)
-    const difficulty: Difficulty = DIFFICULTIES.includes(topic.difficulty)
-      ? (topic.difficulty as Difficulty)
-      : 'beginner'
     try {
-      await api.courses.enroll(topic.slug, difficulty)
+      await api.courses.enroll(topic.slug, level)
       setProgress(100)
       navigate(await nextLessonPath(topic.slug)) // straight into the fresh course
     } catch (e) {
@@ -104,12 +107,40 @@ function TopicCard({
       </div>
       <h3 className="text-lg font-bold uppercase">{topic.name}</h3>
       <ProgressMeter value={topic.pct} />
-      <div className="flex justify-between font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
-        <span>{topic.difficulty}</span>
-        <span>
-          {topic.lessonsCompleted} / {topic.lessonsTotal} lessons
-        </span>
-      </div>
+      {hasCourse ? (
+        <div className="flex justify-between font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
+          <span>{topic.difficulty}</span>
+          <span>
+            {topic.lessonsCompleted} / {topic.lessonsTotal} lessons
+          </span>
+        </div>
+      ) : (
+        busy !== 'generating' && (
+          <div>
+            <span className="mb-1.5 block font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
+              Level
+            </span>
+            <div className="flex divide-x divide-border border border-border">
+              {DIFFICULTIES.map((lvl) => (
+                <button
+                  key={lvl}
+                  type="button"
+                  onClick={() => setLevel(lvl)}
+                  aria-pressed={level === lvl}
+                  className={cn(
+                    'flex-1 py-1.5 font-mono text-[9px] tracking-wide uppercase transition-colors',
+                    level === lvl
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:bg-muted',
+                  )}
+                >
+                  {lvl}
+                </button>
+              ))}
+            </div>
+          </div>
+        )
+      )}
       {hasCourse ? (
         <button
           type="button"
@@ -144,9 +175,9 @@ function TopicCard({
         <button
           type="button"
           onClick={generate}
-          className="mt-1 border border-border py-2 font-mono text-[10px] tracking-widest uppercase hover:bg-muted"
+          className="mt-1 bg-primary py-2 font-mono text-[10px] tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
         >
-          Generate course →
+          Start learning →
         </button>
       )}
       {error && (

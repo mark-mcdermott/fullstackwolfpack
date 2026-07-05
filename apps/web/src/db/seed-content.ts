@@ -1,3 +1,5 @@
+import { GENERATED_BUILTIN_COURSES } from './seed-content.generated'
+
 // Built-in starter course(s), seeded as shared courses (ownerUserId = null) so
 // every user has real content to learn before generating their own. Pure +
 // typed; ids are fixed so the seed runner (scripts/seed.ts) is idempotent.
@@ -260,4 +262,7 @@ export const BUILTIN_COURSES: SeedCourse[] = [
       },
     ],
   },
+  // Beginner "dive-in" starter courses for the remaining topics, produced by
+  // `npm run gen:builtins` and committed after review (empty until generated).
+  ...GENERATED_BUILTIN_COURSES,
 ]

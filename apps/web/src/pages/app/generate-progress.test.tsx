@@ -69,7 +69,7 @@ const auth: AuthContextValue = {
 }
 
 describe('Generate-course progress bar', () => {
-  it('replaces the Generate button with a progress bar while generating', async () => {
+  it('replaces the start-learning CTA with a progress bar while generating', async () => {
     render(
       <AuthContext.Provider value={auth}>
         <MemoryRouter>
@@ -78,7 +78,8 @@ describe('Generate-course progress bar', () => {
       </AuthContext.Provider>,
     )
 
-    const btn = await screen.findByRole('button', { name: /generate course/i })
+    // An un-generated topic's primary CTA generates a course on click.
+    const btn = await screen.findByRole('button', { name: /start learning/i })
     await userEvent.click(btn)
 
     // Enroll is still pending → the button is swapped for a progressbar.
@@ -87,7 +88,7 @@ describe('Generate-course progress bar', () => {
     })
     expect(bar).toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: /generate course/i }),
+      screen.queryByRole('button', { name: /start learning/i }),
     ).not.toBeInTheDocument()
   })
 })

@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "db:seed": "tsx --env-file=.env scripts/seed.ts",
+    "gen:builtins": "tsx --env-file=.env scripts/gen-builtins.ts",
     "tauri": "tauri",
     "cap": "cap",
     "db:generate": "drizzle-kit generate",
