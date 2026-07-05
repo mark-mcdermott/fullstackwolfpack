@@ -1,0 +1,8 @@
+Modifications to this vendored copy of Hextris (GPL-3.0), by Fullstack Wolfpack
+on 2026-07-05, per GPL-3.0 §5(a) ("mark your changes"):
+
+- Removed the bundled Google AdSense script (index.html) — no advertising.
+- Removed the bundled Google Analytics snippet (index.html) — no third-party
+  tracking.
+
+No gameplay code was altered. Upstream source: https://github.com/Hextris/hextris
