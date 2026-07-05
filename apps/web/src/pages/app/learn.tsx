@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, RotateCcw, TrendingDown, TrendingUp, Trophy } from 'lucide-react'
+import { ArrowLeft, ArrowRight, RotateCcw, Settings, TrendingDown, TrendingUp, Trophy } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { api } from '@/api-client'
@@ -97,7 +97,16 @@ function LessonPlayer({ lesson }: { lesson: LessonView }) {
         >
           <ArrowLeft className="size-3" /> Topics
         </Link>
-        <Pill>{lesson.topic}</Pill>
+        <div className="flex items-center gap-3">
+          <Link
+            to={`/app/topics/${lesson.topicSlug}/settings`}
+            aria-label="Topic settings"
+            className="text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <Settings className="size-4" />
+          </Link>
+          <Pill>{lesson.topic}</Pill>
+        </div>
       </div>
 
       <div>

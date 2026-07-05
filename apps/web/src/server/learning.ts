@@ -24,6 +24,7 @@ import {
   lessonSegments,
   quizAttempts,
   quizQuestions,
+  reviewCards,
   topics,
   userLessonProgress,
   userTopics,
@@ -420,4 +421,84 @@ async function recomputeTopicProgress(
       target: [userTopics.userId, userTopics.topicId],
       set: { lessonsCompleted: done, progressPct: pct, lastViewedAt: now },
     })
+}
+
+// ---- Write: reset one topic's progress for a user ----
+
+// Clear the user's per-lesson progress, quiz attempts, and review cards for every
+// lesson/question under this topic's courses (built-in + their own tracks), then
+// zero the topic rollup. Deliberately topic-scoped: keeps global XP/streak and
+// the chosen track (difficulty/activeCourseId) — a "start this course over", not
+// an account wipe. Sequential deletes (no cross-statement transaction, matching
+// completeLesson); the op is idempotent, so a retry finishes a partial reset.
+export async function resetTopicProgress(
+  userId: string,
+  topicSlug: string,
+): Promise<boolean> {
+  const [topic] = await db
+    .select({ id: topics.id })
+    .from(topics)
+    .where(eq(topics.slug, topicSlug))
+  if (!topic) return false
+
+  const lessonIds = (
+    await db
+      .select({ id: lessons.id })
+      .from(lessons)
+      .innerJoin(courses, eq(courses.id, lessons.courseId))
+      .where(eq(courses.topicId, topic.id))
+  ).map((r) => r.id)
+
+  const questionIds = lessonIds.length
+    ? (
+        await db
+          .select({ id: quizQuestions.id })
+          .from(quizQuestions)
+          .innerJoin(
+            lessonSegments,
+            eq(lessonSegments.id, quizQuestions.segmentId),
+          )
+          .where(inArray(lessonSegments.lessonId, lessonIds))
+      ).map((r) => r.id)
+    : []
+
+  if (lessonIds.length) {
+    await db
+      .delete(userLessonProgress)
+      .where(
+        and(
+          eq(userLessonProgress.userId, userId),
+          inArray(userLessonProgress.lessonId, lessonIds),
+        ),
+      )
+  }
+
+  if (questionIds.length) {
+    await db
+      .delete(quizAttempts)
+      .where(
+        and(
+          eq(quizAttempts.userId, userId),
+          inArray(quizAttempts.questionId, questionIds),
+        ),
+      )
+    // reviewCards.itemId holds the question id (not an FK); reviewLogs cascade.
+    await db
+      .delete(reviewCards)
+      .where(
+        and(
+          eq(reviewCards.userId, userId),
+          eq(reviewCards.itemType, 'quiz_question'),
+          inArray(reviewCards.itemId, questionIds),
+        ),
+      )
+  }
+
+  // Zero the rollup but keep the track selection (difficulty/activeCourseId).
+  await db
+    .update(userTopics)
+    .set({ lessonsCompleted: 0, progressPct: 0, lastViewedAt: null })
+    .where(and(eq(userTopics.userId, userId), eq(userTopics.topicId, topic.id)))
+
+  return true
 }

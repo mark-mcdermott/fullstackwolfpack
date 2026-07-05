@@ -12,6 +12,7 @@ import {
   enrollRequest,
   focusSessionRequest,
   openAiKeyRequest,
+  resetTopicRequest,
 } from '../../src/core/schemas'
 import { db } from '../../src/db'
 import { topics, users } from '../../src/db/schema'
@@ -43,6 +44,7 @@ import {
   completeLesson,
   getCourseOutline,
   getLessonView,
+  resetTopicProgress,
   submitAnswer,
 } from '../../src/server/learning'
 import { getAdaptiveState } from '../../src/server/adaptive'
@@ -306,6 +308,14 @@ export async function POST(req: Request): Promise<Response> {
       const result = await completeLesson(userId, parsed.data.lessonId)
       if (!result) return json({ error: 'lesson not found' }, { status: 404 })
       return json(result)
+    }
+
+    case 'reset-topic': {
+      const parsed = await parseBody(resetTopicRequest, req)
+      if (!parsed.ok) return parsed.response
+      const ok = await resetTopicProgress(userId, parsed.data.topicSlug)
+      if (!ok) return json({ error: 'unknown topic' }, { status: 404 })
+      return json({ ok: true })
     }
 
     case 'review': {

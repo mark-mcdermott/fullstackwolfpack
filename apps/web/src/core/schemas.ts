@@ -86,6 +86,12 @@ export const enrollRequest = z.object({
 export const enrollResultSchema = z.object({ courseId: z.string() })
 export type EnrollResult = z.infer<typeof enrollResultSchema>
 
+// Reset a user's progress for one topic (per-lesson progress, quiz attempts, and
+// review cards) back to zero. Global XP/streak and the chosen track are kept.
+export const resetTopicRequest = z.object({ topicSlug: z.string().min(1) })
+export const resetTopicResultSchema = z.object({ ok: z.boolean() })
+export type ResetTopicResult = z.infer<typeof resetTopicResultSchema>
+
 // Expected course-generation duration (ms) + how many samples it averages —
 // drives the ETA on the Generate-course progress bar.
 export const generationEtaSchema = z.object({

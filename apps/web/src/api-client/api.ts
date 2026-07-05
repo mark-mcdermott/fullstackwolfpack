@@ -11,6 +11,7 @@ import {
   keyStatusSchema,
   meResultSchema,
   protectedResultSchema,
+  resetTopicResultSchema,
   totpSetupSchema,
   type BillingRedirect,
   type EnrollResult,
@@ -271,6 +272,15 @@ export function createApi({ http, passkeys }: Adapters) {
         await http.request('/api/me/enroll', {
           method: 'POST',
           body: JSON.stringify({ topicSlug, difficulty }),
+        }),
+      )
+    },
+    // Reset the user's progress for a topic back to zero (keeps XP/streak).
+    async resetTopic(topicSlug: string): Promise<void> {
+      resetTopicResultSchema.parse(
+        await http.request('/api/me/reset-topic', {
+          method: 'POST',
+          body: JSON.stringify({ topicSlug }),
         }),
       )
     },
