@@ -56,6 +56,29 @@ export const EMBED_CATALOG: EmbedEntry[] = [
     modifications:
       'Removed the bundled Google AdSense + Google Analytics scripts (no ads / no third-party tracking).',
   },
+  {
+    source: 'embed',
+    id: 'hexgl',
+    slug: 'hexgl',
+    entry: 'index.html',
+    title: 'HexGL',
+    author: 'Thibaut Despoulain (BKcore)',
+    license: 'MIT',
+    licenseUrl: 'https://github.com/BKcore/HexGL/blob/master/LICENSE',
+    sourceUrl: 'https://github.com/BKcore/HexGL',
+    description:
+      'A fast, futuristic WebGL racer — carve the neon tracks at breakneck speed.',
+    accent: 'text-fuchsia-400',
+    // MIT code/resources; a few sound effects are CC-BY 3.0 (credit required),
+    // the rest are public domain (see the vendored audio/LICENSE).
+    credits: [
+      'Sound "boost" by IFartInUrGeneralDirection (CC-BY 3.0)',
+      'Sound "wind" by kangaroovindaloo (CC-BY 3.0)',
+      'Sound "destroyed" by beman87 (CC-BY 3.0)',
+    ],
+    modifications:
+      'Removed the bundled Google Analytics snippet and de-hotlinked the favicon.',
+  },
 ]
 
 // URL of an embed game's entry file, served from `public/games/`.
