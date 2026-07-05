@@ -1,6 +1,6 @@
 import { Search } from 'lucide-react'
-import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router'
 import { api } from '@/api-client'
 import { AsyncView, EmptyState } from '@/components/layout/async-view'
 import { PageHeading, Panel, ProgressMeter } from '@fw/ui'
@@ -22,11 +22,26 @@ const TABS: [string, string | null][] = [
 
 const DIFFICULTIES: readonly string[] = ['beginner', 'intermediate', 'advanced']
 
-function TopicCard({ topic }: { topic: TopicProgress }) {
+function TopicCard({
+  topic,
+  highlighted = false,
+}: {
+  topic: TopicProgress
+  highlighted?: boolean
+}) {
   const navigate = useNavigate()
   const hasCourse = topic.lessonsTotal > 0
   const [busy, setBusy] = useState<null | 'generating' | 'opening'>(null)
   const [error, setError] = useState<string | null>(null)
+
+  // When deep-linked (`/app/topics?topic=slug`), bring the card into view.
+  useEffect(() => {
+    if (!highlighted) return
+    const el = document.getElementById(`topic-${topic.slug}`)
+    if (el && typeof el.scrollIntoView === 'function') {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [highlighted, topic.slug])
 
   async function start() {
     setBusy('opening')
@@ -55,7 +70,13 @@ function TopicCard({ topic }: { topic: TopicProgress }) {
   }
 
   return (
-    <Panel className="flex flex-col gap-3">
+    <Panel
+      id={`topic-${topic.slug}`}
+      className={cn(
+        'flex scroll-mt-24 flex-col gap-3 transition-shadow',
+        highlighted && 'ring-2 ring-primary ring-offset-2 ring-offset-background',
+      )}
+    >
       <div className="flex items-start justify-between">
         <div className="flex size-10 items-center justify-center border border-border font-mono text-xs font-bold">
           {topic.name.slice(0, 2).toUpperCase()}
@@ -103,6 +124,8 @@ function TopicCard({ topic }: { topic: TopicProgress }) {
 export function TopicsPage() {
   const [tab, setTab] = useState<string | null>(null)
   const [q, setQ] = useState('')
+  const [params] = useSearchParams()
+  const focusSlug = params.get('topic')
   const state = useAsync(() => api.data.topics())
 
   return (
@@ -151,7 +174,11 @@ export function TopicsPage() {
           return (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {topics.map((t) => (
-                <TopicCard key={t.slug} topic={t} />
+                <TopicCard
+                  key={t.slug}
+                  topic={t}
+                  highlighted={t.slug === focusSlug}
+                />
               ))}
             </div>
           )
