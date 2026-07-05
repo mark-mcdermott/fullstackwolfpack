@@ -13,6 +13,7 @@ export const sampleLesson: LessonView = parseLessonView({
   lessonId: 'demo',
   courseId: 'demo-course',
   topic: 'JavaScript',
+  topicSlug: 'javascript',
   title: 'Async / Await',
   estMinutes: 6,
   segments: [

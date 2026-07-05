@@ -78,6 +78,7 @@ export async function getLessonView(lessonId: string): Promise<LessonView | null
       title: lessons.title,
       estMinutes: lessons.estMinutes,
       topic: topics.name,
+      topicSlug: topics.slug,
     })
     .from(lessons)
     .innerJoin(courses, eq(courses.id, lessons.courseId))
@@ -143,6 +144,7 @@ export async function getLessonView(lessonId: string): Promise<LessonView | null
     lessonId: head.lessonId,
     courseId: head.courseId,
     topic: head.topic,
+    topicSlug: head.topicSlug,
     title: head.title,
     estMinutes: head.estMinutes,
     segments,

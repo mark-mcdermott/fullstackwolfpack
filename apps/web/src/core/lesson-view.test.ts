@@ -13,6 +13,7 @@ const validLesson = {
   lessonId: 'l1',
   courseId: 'c1',
   topic: 'JavaScript',
+  topicSlug: 'javascript',
   title: 'Promises',
   estMinutes: 5,
   segments: [
