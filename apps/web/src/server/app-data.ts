@@ -30,6 +30,7 @@ import {
   users,
   xpEvents,
 } from '../db/schema'
+import { visibleCourseFilter } from './course-visibility'
 
 // Server-only data access for the logged-in app. Thin Drizzle queries that
 // hand off to the pure mappers in core; the only place `db` is touched for the
@@ -124,12 +125,16 @@ export async function getTopicsView(userId: string): Promise<TopicProgress[]> {
     )
     .orderBy(topics.name)
 
+  // Count only courses THIS user can actually open (own + shared/built-in),
+  // using the same scope as getCourseOutline — otherwise a topic shows lessons +
+  // "Start learning" from another user's course but opening it 404s.
   const totals = new Map(
     (
       await db
         .select({ topicId: courses.topicId, total: count(lessons.id) })
         .from(courses)
         .leftJoin(lessons, eq(lessons.courseId, courses.id))
+        .where(visibleCourseFilter(userId))
         .groupBy(courses.topicId)
     ).map((t) => [t.topicId, num(t.total)]),
   )

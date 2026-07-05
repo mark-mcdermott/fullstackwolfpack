@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, isNull, or, sql, sum } from 'drizzle-orm'
+import { and, desc, eq, inArray, sql, sum } from 'drizzle-orm'
 import type { CourseOutline } from '../core/app-data'
 import { parseExerciseTests } from '../core/exercise'
 import {
@@ -28,6 +28,7 @@ import {
   userLessonProgress,
   userTopics,
 } from '../db/schema'
+import { visibleCourseFilter } from './course-visibility'
 import { gradeAnswer } from './grader'
 import { grantXp, logActivityAndStreak } from './rewards'
 import { seedReviewCard } from './review'
@@ -132,12 +133,7 @@ export async function getCourseOutline(
     .select({ id: courses.id, status: courses.status })
     .from(courses)
     .innerJoin(topics, eq(topics.id, courses.topicId))
-    .where(
-      and(
-        eq(topics.slug, topicSlug),
-        or(eq(courses.ownerUserId, userId), isNull(courses.ownerUserId)),
-      ),
-    )
+    .where(and(eq(topics.slug, topicSlug), visibleCourseFilter(userId)))
     .orderBy(desc(courses.createdAt))
     .limit(1)
   if (!course) return null
