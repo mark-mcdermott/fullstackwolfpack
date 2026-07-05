@@ -4,12 +4,14 @@ import type {
 } from '@simplewebauthn/browser'
 import {
   authResultSchema,
+  billingRedirectSchema,
   enrollResultSchema,
   generationEtaSchema,
   keyStatusSchema,
   meResultSchema,
   protectedResultSchema,
   totpSetupSchema,
+  type BillingRedirect,
   type EnrollResult,
   type GenerationEta,
   type KeyStatus,
@@ -277,6 +279,20 @@ export function createApi({ http, passkeys }: Adapters) {
     },
   }
 
+  // Stripe billing. Each returns a hosted URL the caller redirects to.
+  const billing = {
+    async checkout(): Promise<BillingRedirect> {
+      return billingRedirectSchema.parse(
+        await http.request('/api/me/checkout', { method: 'POST' }),
+      )
+    },
+    async portal(): Promise<BillingRedirect> {
+      return billingRedirectSchema.parse(
+        await http.request('/api/me/billing-portal', { method: 'POST' }),
+      )
+    },
+  }
+
   // Admin-only (server enforces admin.access; this just reads/writes).
   const admin = {
     async users(): Promise<AdminUser[]> {
@@ -294,7 +310,7 @@ export function createApi({ http, passkeys }: Adapters) {
     },
   }
 
-  return { auth, totp, getProtected, data, integrations, courses, admin }
+  return { auth, totp, getProtected, data, integrations, courses, billing, admin }
 }
 
 export type Api = ReturnType<typeof createApi>
