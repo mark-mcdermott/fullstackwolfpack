@@ -1,6 +1,6 @@
-import { Search } from 'lucide-react'
+import { Search, Settings } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 import { api } from '@/api-client'
 import { AsyncView, EmptyState } from '@/components/layout/async-view'
 import { PageHeading, Panel, ProgressMeter } from '@fw/ui'
@@ -103,7 +103,16 @@ function TopicCard({
         <div className="flex size-10 items-center justify-center border border-border font-mono text-xs font-bold">
           {topic.name.slice(0, 2).toUpperCase()}
         </div>
-        <span className="font-mono text-xs">{topic.pct}%</span>
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-xs">{topic.pct}%</span>
+          <Link
+            to={`/app/topics/${topic.slug}/settings`}
+            aria-label={`${topic.name} settings`}
+            className="text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <Settings className="size-4" />
+          </Link>
+        </div>
       </div>
       <h3 className="text-lg font-bold uppercase">{topic.name}</h3>
       <ProgressMeter value={topic.pct} />

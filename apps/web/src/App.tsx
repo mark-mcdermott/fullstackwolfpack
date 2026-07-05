@@ -14,6 +14,7 @@ import { ReviewPage } from '@/pages/app/review'
 import { SessionsPage } from '@/pages/app/sessions'
 import { SettingsPage } from '@/pages/app/settings'
 import { StatsPage } from '@/pages/app/stats'
+import { TopicSettingsPage } from '@/pages/app/topic-settings'
 import { TopicsPage } from '@/pages/app/topics'
 import { AdminUsersPage } from '@/pages/admin/users'
 import { SignInPage } from '@/pages/auth/sign-in'
@@ -40,6 +41,10 @@ function App() {
           <Route path="/app/arcade" element={<ArcadePage />} />
           <Route path="/app/credits" element={<CreditsPage />} />
           <Route path="/app/topics" element={<TopicsPage />} />
+          <Route
+            path="/app/topics/:slug/settings"
+            element={<TopicSettingsPage />}
+          />
           <Route path="/app/learn/:lessonId" element={<LearnPage />} />
           <Route path="/app/review" element={<ReviewPage />} />
           <Route path="/app/progress" element={<ProgressPage />} />
