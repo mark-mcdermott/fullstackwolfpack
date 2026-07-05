@@ -242,6 +242,21 @@ type QuestionRow = {
   prompt: string
 }
 
+// Seeding a spaced-repetition card is a best-effort side effect of grading —
+// never let it fail the answer itself (e.g. if the review tables are missing or
+// a transient DB error occurs, the learner still gets their result + XP).
+async function seedReviewCardSafely(
+  userId: string,
+  questionId: string,
+  correct: boolean,
+): Promise<void> {
+  try {
+    await seedReviewCard(userId, questionId, correct)
+  } catch (err) {
+    console.error('seedReviewCard failed (non-fatal):', err)
+  }
+}
+
 async function gradeMcq(
   userId: string,
   questionId: string,
@@ -262,7 +277,7 @@ async function gradeMcq(
     type: 'quiz', xp, refType: 'question', refId: questionId,
     description: correct ? 'Correct answer' : 'Quiz attempt',
   })
-  await seedReviewCard(userId, questionId, correct)
+  await seedReviewCardSafely(userId, questionId, correct)
 
   return {
     questionId, correct, correctIndex: q.correctIndex,
@@ -300,7 +315,7 @@ async function gradeShortAnswer(
     type: 'quiz', xp, refType: 'question', refId: questionId,
     description: grade.correct ? 'Correct answer' : 'Quiz attempt',
   })
-  await seedReviewCard(userId, questionId, grade.correct)
+  await seedReviewCardSafely(userId, questionId, grade.correct)
 
   return {
     questionId, correct: grade.correct, correctIndex: null,
