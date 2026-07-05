@@ -17,12 +17,13 @@ _Status: `[x]` shipped · `[~]` partial/stubbed · `[ ]` not started._
 - `[x]` **Shared core + api-client** — adapter seam, request validation (#2).
 - `[x]` **Data model + seed** — 12 topics / 12 achievements / 20 levels; roles/tiers/permissions (#3).
 - `[x]` **AI generation pipeline** — enroll → generate a course via the user's OpenAI key (encrypted); wired to Settings + Topics (#3, #7).
-- `[x]` **Real-data app pages** — Dashboard/Topics/Progress/Stats/Achievements/Badges read live per-user data with honest empty states (#5).
+- `[x]` **Real-data app pages** — Dashboard/Topics/Progress/Stats/Achievements/Badges read live per-user data with honest empty states (#5). Badges are now **earned from live stats** — a pure `core/achievements.ts` engine derives each badge's status/progress (no award table), and the Badges page shows earned/in-progress/locked with per-badge art.
 - `[x]` **Lesson player + learning loop** — segment-stepped player, inline MCQ grading, completion → score/XP/streak (#10).
 - `[x]` **Spaced-repetition reviews** — SM-2 POC (#6) promoted to a wired review system (#11).
 - `[x]` **Learn integration** — Topics/Dashboard/Sessions launch into the player; Sessions is a real "continue" hub; rate-limit row pruning (#12, #13).
 - `[x]` **Arcade** — selectable ROM gallery + in-app emulator (#4) with remappable keyboard/gamepad controls (#8).
 - `[x]` **FW-01 visual pass** — red accent theme, wolf mark + favicon, sidebar system-status + sign-out, wolf-sun art (landing / 404 / sign-in), and a **dark-mode toggle** (PR #15).
+- `[x]` **UX punchlist round** (PR #58) — clickable sidebar brand, global pointer-cursor fix, gamepad radius + key-map label, topic-name deep links (Progress/Dashboard → Topics), longer generated courses (6–8 lessons), a **course-generation ETA progress bar** (with a `generation_timings` metrics table), and a **dark-mode toggle on the marketing site**.
 
 ---
 
@@ -34,10 +35,10 @@ _Status: `[x]` shipped · `[~]` partial/stubbed · `[ ]` not started._
 - `[x]` **Adaptive difficulty** (education-system.md §5.4) — `core/adaptive.ts` (85% setpoint, Elo, mastery gate) + `server/adaptive.ts` + a `GET /api/me/adaptive` action; surfaced as a "try X next" nudge on the completion panel. No LLM, no new tables.
 
 ### Monetization / tiers
-- `[~]` **Stripe billing.** `subscriptions` table, Pricing page, and the Settings billing panel exist as **schema/UI stubs** — no payment provider wired. Free/Pro tier gating (`core/access.ts`) is real; the checkout/webhook path is not.
+- `[x]` **Stripe billing** (PR #59). Real Checkout + Billing Portal + a signature-verified webhook that flips `users.tier`; `checkout`/`billing-portal`/`stripe-webhook` fold into `api/me/[action].ts` (still 12/12 functions). Free/Pro gating (`core/access.ts`) already real. Dormant until the `STRIPE_*` env is set — see `CLAUDE.md` "Setup TODO".
 
 ### Focus-session runtime (the namesake feature)
-- `[ ]` **Timed play/learn sessions** — the focus timer, play/learn intervals, and focus score that "learn between gaming sessions" implies. The **Sessions** page is now a real launcher (resume/start a lesson); the *timed session runtime* itself is unbuilt and slots into that page.
+- `[~]` **Timed play/learn sessions** — the focus timer, play/learn intervals, and focus score that "learn between gaming sessions" implies. Runtime built (`core/focus-session.ts` plan/score + a Focus panel on **Sessions**; completed sessions record to `sessions` with `focusMode`, feeding hours + the Focus-Mode badge). Follow-ups: wiring XP/streak/`daily_activity` on completion, and mid-session lesson launch.
 
 ### Native / desktop shells
 - `[ ]` **Capacitor** (iOS/Android) — not initialized (`npx cap add …`; needs Xcode / Android Studio).
