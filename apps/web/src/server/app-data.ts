@@ -11,11 +11,12 @@ import type {
   UserSummary,
 } from '../core/app-data'
 import type { Role, Tier } from '../core/access'
+import { evaluateAchievements, type AchievementStats } from '../core/achievements'
 import { bucketAchievements, levelProgress } from '../core/progress'
 import { bucketByDay, cumulative, ratioByDay } from '../core/series'
 import { db } from '../db'
+import { SEED_ACHIEVEMENTS } from '../db/seed-data'
 import {
-  achievements,
   courses,
   dailyActivity,
   lessons,
@@ -23,7 +24,6 @@ import {
   quizAttempts,
   sessions,
   topics,
-  userAchievements,
   userLessonProgress,
   userSkills,
   userTopics,
@@ -210,48 +210,82 @@ export async function getActivity(userId: string): Promise<{
   }
 }
 
+// Aggregate everything the achievement engine scores against. A handful of
+// cheap counts on top of the existing stats/topics reads.
+async function getAchievementStats(userId: string): Promise<AchievementStats> {
+  const [summary, stats, topicsView, [perfect], [highScore], [focus], [early]] =
+    await Promise.all([
+      getUserSummary(userId),
+      getStats(userId),
+      getTopicsView(userId),
+      db
+        .select({ n: count() })
+        .from(userLessonProgress)
+        .where(
+          and(
+            eq(userLessonProgress.userId, userId),
+            eq(userLessonProgress.status, 'completed'),
+            eq(userLessonProgress.score, 100),
+          ),
+        ),
+      db
+        .select({ n: count() })
+        .from(userLessonProgress)
+        .where(
+          and(
+            eq(userLessonProgress.userId, userId),
+            eq(userLessonProgress.status, 'completed'),
+            gte(userLessonProgress.score, 90),
+          ),
+        ),
+      db
+        .select({ n: count() })
+        .from(sessions)
+        .where(and(eq(sessions.userId, userId), eq(sessions.focusMode, true))),
+      db
+        .select({ n: count() })
+        .from(sessions)
+        .where(
+          and(
+            eq(sessions.userId, userId),
+            sql`extract(hour from ${sessions.startedAt}) < 9`,
+          ),
+        ),
+    ])
+
+  return {
+    level: summary.level,
+    bestStreak: stats.bestStreak,
+    hoursLearned: stats.hoursLearned,
+    accuracyPct: stats.accuracy,
+    focusSessions: num(focus?.n),
+    highScoreQuizzes: num(highScore?.n),
+    perfectLessons: num(perfect?.n),
+    earlySession: num(early?.n) > 0,
+    topicLessons: Object.fromEntries(
+      topicsView.map((t) => [t.slug, t.lessonsCompleted]),
+    ),
+    completedTopics: topicsView
+      .filter((t) => t.lessonsTotal > 0 && t.lessonsCompleted >= t.lessonsTotal)
+      .map((t) => t.slug),
+  }
+}
+
+// Badges are derived on read from the user's live stats (no separate award
+// table to keep in sync), then bucketed for the Badges / Achievements screens.
 export async function getAchievementsView(
   userId: string,
 ): Promise<AchievementsView> {
-  const catalog = await db
-    .select({
-      id: achievements.id,
-      slug: achievements.slug,
-      name: achievements.name,
-      description: achievements.description,
-      progressTarget: achievements.progressTarget,
-    })
-    .from(achievements)
-    .orderBy(achievements.name)
-
-  const rows = await db
-    .select({
-      achievementId: userAchievements.achievementId,
-      status: userAchievements.status,
-      progressCurrent: userAchievements.progressCurrent,
-      earnedAt: userAchievements.earnedAt,
-    })
-    .from(userAchievements)
-    .where(eq(userAchievements.userId, userId))
-
-  const slugById = new Map(catalog.map((c) => [c.id, c.slug]))
-  const userRows = rows
-    .filter((r) => slugById.has(r.achievementId))
-    .map((r) => ({
-      achievementSlug: slugById.get(r.achievementId) as string,
-      status: r.status,
-      progressCurrent: r.progressCurrent,
-      earnedAt: r.earnedAt,
-    }))
-
+  const stats = await getAchievementStats(userId)
+  const rows = evaluateAchievements([...SEED_ACHIEVEMENTS], stats)
   return bucketAchievements(
-    catalog.map(({ slug, name, description, progressTarget }) => ({
+    SEED_ACHIEVEMENTS.map(({ slug, name, description, progressTarget }) => ({
       slug,
       name,
       description,
       progressTarget,
     })),
-    userRows,
+    rows,
   )
 }
 
