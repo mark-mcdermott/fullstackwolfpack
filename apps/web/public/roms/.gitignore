@@ -1,5 +1,15 @@
-# ROM binaries are copyright-sensitive and are NOT committed — drop them in
-# locally after confirming redistribution terms (see README.md).
+# ROM binaries are copyright-sensitive and are NOT committed by default — drop
+# them in locally after confirming redistribution terms (see README.md).
+# EXCEPTION: verified 🟢 Green-bucket titles (docs/rom-licensing.md) are
+# whitelisted below to bundle in the repo. Only add a file here after its
+# license clears that bar — never blanket-unignore.
 *
 !.gitignore
 !README.md
+# Green-bucket, bundle-safe:
+# Tobu Tobu Girl — MIT + CC-BY 4.0 (credit Tangram Games)
+!tobu-tobu-girl.gb
+# Paddle Duel / Brick Buster / Snake — zlib (sebastiandine)
+!paddle-duel.nes
+!brick-buster.nes
+!snake.nes

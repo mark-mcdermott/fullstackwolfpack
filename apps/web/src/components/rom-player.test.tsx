@@ -8,14 +8,14 @@ import { RomPlayer } from './rom-player'
 
 const catalogRom: RomEntry = {
   source: 'catalog',
-  id: 'alter-ego',
-  title: 'Alter Ego',
+  id: 'brick-buster',
+  title: 'Brick Buster',
   system: 'nes',
-  author: 'RetroSouls',
-  license: 'Freeware',
-  description: 'Puzzle platformer.',
-  fileName: 'alter-ego.nes',
-  accent: 'text-rose-400',
+  author: 'sebastiandine',
+  license: 'zlib',
+  description: 'Brick breaker.',
+  fileName: 'brick-buster.nes',
+  accent: 'text-amber-400',
 }
 
 const uploadRom: UploadedRom = {
@@ -34,7 +34,11 @@ function stubOkFetch() {
   const blob = new Blob([new Uint8Array([1, 2, 3, 4])])
   vi.stubGlobal(
     'fetch',
-    vi.fn(async () => ({ ok: true, blob: async () => blob })),
+    vi.fn(async () => ({
+      ok: true,
+      headers: new Headers({ 'content-type': 'application/octet-stream' }),
+      blob: async () => blob,
+    })),
   )
 }
 
@@ -118,11 +122,11 @@ describe('RomPlayer', () => {
     const { launcher } = setup(catalogRom)
     await screen.findByRole('button', { name: 'Pause' })
 
-    expect(fetch).toHaveBeenCalledWith('/roms/alter-ego.nes')
+    expect(fetch).toHaveBeenCalledWith('/roms/brick-buster.nes')
     const opts = launcher.mock.calls[0][0]
     expect(opts.core).toBe('fceumm')
     expect(opts.rom).toBeInstanceOf(File)
-    expect(opts.rom.name).toBe('alter-ego.nes')
+    expect(opts.rom.name).toBe('brick-buster.nes')
   })
 
   it('toggles pause/resume on the session', async () => {
@@ -171,7 +175,7 @@ describe('RomPlayer', () => {
 
     const alert = await screen.findByRole('alert')
     expect(alert).toHaveTextContent(/not installed/i)
-    expect(alert).toHaveTextContent(/alter-ego\.nes/i)
+    expect(alert).toHaveTextContent(/brick-buster\.nes/i)
     expect(alert).toHaveTextContent(/public\/roms/i)
   })
 
