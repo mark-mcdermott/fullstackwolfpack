@@ -98,6 +98,18 @@ export type GenerationEta = z.infer<typeof generationEtaSchema>
 export const billingRedirectSchema = z.object({ url: z.string().url() })
 export type BillingRedirect = z.infer<typeof billingRedirectSchema>
 
+// A completed focus session (timed play/learn cycles) to record. Upper bounds
+// match the runtime's config limits so a hand-crafted request can't inflate a
+// user's own hours/badge counts with absurd values.
+export const focusSessionRequest = z.object({
+  playMinutes: z.number().int().min(0).max(960), // 120m play × 8 rounds
+  learnMinutes: z.number().int().min(0).max(480), // 60m learn × 8 rounds
+  playIntervalMin: z.number().int().min(1).max(120),
+  learnIntervalMin: z.number().int().min(1).max(60),
+  focusScore: z.number().int().min(0).max(100),
+})
+export type FocusSessionInput = z.infer<typeof focusSessionRequest>
+
 // Admin — change a user's role/tier (both optional; at least one meaningful).
 export const adminUpdateRequest = z.object({
   userId: z.string().min(1),

@@ -13,6 +13,7 @@ import {
   totpSetupSchema,
   type BillingRedirect,
   type EnrollResult,
+  type FocusSessionInput,
   type GenerationEta,
   type KeyStatus,
   type PublicUser,
@@ -279,6 +280,16 @@ export function createApi({ http, passkeys }: Adapters) {
     },
   }
 
+  // Focus sessions (timed play/learn cycles).
+  const focus = {
+    async record(input: FocusSessionInput): Promise<void> {
+      await http.request('/api/me/focus-session', {
+        method: 'POST',
+        body: JSON.stringify(input),
+      })
+    },
+  }
+
   // Stripe billing. Each returns a hosted URL the caller redirects to.
   const billing = {
     async checkout(): Promise<BillingRedirect> {
@@ -310,7 +321,17 @@ export function createApi({ http, passkeys }: Adapters) {
     },
   }
 
-  return { auth, totp, getProtected, data, integrations, courses, billing, admin }
+  return {
+    auth,
+    totp,
+    getProtected,
+    data,
+    integrations,
+    courses,
+    focus,
+    billing,
+    admin,
+  }
 }
 
 export type Api = ReturnType<typeof createApi>

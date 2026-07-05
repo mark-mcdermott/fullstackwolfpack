@@ -10,6 +10,7 @@ import {
   adminUpdateRequest,
   anthropicKeyRequest,
   enrollRequest,
+  focusSessionRequest,
   openAiKeyRequest,
 } from '../../src/core/schemas'
 import { db } from '../../src/db'
@@ -31,6 +32,7 @@ import {
   handleStripeWebhook,
 } from '../../src/server/billing'
 import { enrollAndGenerate } from '../../src/server/enroll'
+import { recordFocusSession } from '../../src/server/focus'
 import { getGenerationEta } from '../../src/server/generation-timing'
 import {
   hasOpenAiKey,
@@ -260,6 +262,13 @@ export async function POST(req: Request): Promise<Response> {
           err instanceof Error ? err.message : 'could not open billing portal'
         return json({ error: message }, { status: 400 })
       }
+    }
+
+    case 'focus-session': {
+      const parsed = await parseBody(focusSessionRequest, req)
+      if (!parsed.ok) return parsed.response
+      await recordFocusSession(userId, parsed.data)
+      return json({ ok: true })
     }
 
     case 'answer': {
