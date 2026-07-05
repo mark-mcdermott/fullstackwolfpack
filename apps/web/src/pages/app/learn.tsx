@@ -167,6 +167,18 @@ function CompletionPanel({
   onRestart: () => void
 }) {
   const mastered = completion.score >= 90
+  // Fetch the course so we can advance the learner to the next lesson instead of
+  // dead-ending at Topics. `nextLessonId` alone can't tell us "course finished" —
+  // it falls back to the first lesson for review once everything's done — so we
+  // derive the next lesson from the per-lesson status, skipping the one just
+  // completed (which also keeps us correct if the completion write hit its fallback).
+  const courseState = useAsync(() => api.data.course(lesson.topicSlug))
+  const nextLessonId =
+    courseState.data?.lessons.find(
+      (l) => l.status !== 'completed' && l.lessonId !== lesson.lessonId,
+    )?.lessonId ?? null
+  const courseComplete = courseState.data != null && nextLessonId == null
+
   return (
     <div className="mx-auto flex max-w-3xl flex-col">
       <Panel className="flex flex-col items-center gap-4 py-12 text-center">
@@ -182,9 +194,19 @@ function CompletionPanel({
           <Stat value={`+${completion.xp}`} label="XP earned" />
         </div>
 
+        {courseComplete && (
+          <div className="mt-4 flex items-center gap-2 border border-border px-4 py-3">
+            <Trophy className="size-4 shrink-0 text-primary" />
+            <p className="text-left text-xs text-muted-foreground">
+              You've finished every lesson in{' '}
+              <span className="font-bold text-foreground uppercase">{lesson.topic}</span>.
+            </p>
+          </div>
+        )}
+
         <NextDifficulty />
 
-        <div className="mt-4 flex items-center gap-3">
+        <div className="mt-4 flex flex-col items-center gap-3 sm:flex-row">
           <button
             type="button"
             onClick={onRestart}
@@ -194,10 +216,24 @@ function CompletionPanel({
           </button>
           <Link
             to="/app/topics"
-            className="inline-flex items-center gap-2 bg-primary px-5 py-2 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+            className={cn(
+              'inline-flex items-center gap-2 px-4 py-2 font-mono text-xs tracking-widest uppercase',
+              nextLessonId
+                ? 'border border-border hover:border-muted-foreground'
+                : 'bg-primary px-5 text-primary-foreground hover:bg-primary/80',
+            )}
           >
-            Back to topics <ArrowRight className="size-4" />
+            Back to topics
+            {!nextLessonId && <ArrowRight className="size-4" />}
           </Link>
+          {nextLessonId && (
+            <Link
+              to={`/app/learn/${nextLessonId}`}
+              className="inline-flex items-center gap-2 bg-primary px-5 py-2 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+            >
+              Continue course <ArrowRight className="size-4" />
+            </Link>
+          )}
         </div>
       </Panel>
     </div>

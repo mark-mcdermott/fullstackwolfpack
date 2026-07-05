@@ -50,6 +50,7 @@ export const lessonViewSchema = z.object({
   lessonId: z.string(),
   courseId: z.string(),
   topic: z.string(),
+  topicSlug: z.string(),
   title: z.string(),
   estMinutes: z.number().int().positive(),
   segments: z.array(segmentViewSchema).min(1),
