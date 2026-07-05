@@ -52,6 +52,49 @@ describe('parseGeneratedCourse', () => {
       parseGeneratedCourse({ ...validCourse, difficulty: 'Beginner' }),
     ).not.toThrow()
   })
+  it('tolerates a bodyless quiz segment (coerces body to "")', () => {
+    const parsed = parseGeneratedCourse({
+      topic: 'React',
+      difficulty: 'beginner',
+      lessons: [
+        {
+          title: 'L',
+          estMinutes: 5,
+          segments: [
+            {
+              title: 'Check-in',
+              type: 'quiz',
+              // no `body` field — the questions carry it
+              estMinutes: 2,
+              questions: [
+                { type: 'mcq', prompt: 'q', options: ['a', 'b'], correctIndex: 0 },
+              ],
+            },
+          ],
+        },
+      ],
+    })
+    expect(parsed.lessons[0].segments[0].body).toBe('')
+  })
+  it('falls back on a missing/fractional estMinutes instead of failing', () => {
+    const parsed = parseGeneratedCourse({
+      topic: 'React',
+      difficulty: 'beginner',
+      lessons: [
+        {
+          title: 'L',
+          // fractional lesson estMinutes → fallback
+          estMinutes: 5.5,
+          segments: [
+            // segment with no estMinutes → fallback
+            { title: 'S', type: 'reading', body: 'x', questions: [] },
+          ],
+        },
+      ],
+    })
+    expect(parsed.lessons[0].estMinutes).toBe(5)
+    expect(parsed.lessons[0].segments[0].estMinutes).toBe(2)
+  })
   it('normalizes capitalized/padded segment + question types', () => {
     const parsed = parseGeneratedCourse({
       topic: 'React',
@@ -89,6 +132,12 @@ describe('buildGenerationPrompt', () => {
     const p = buildGenerationPrompt({ topic: 'Docker', difficulty: 'beginner' })
     expect(p).toContain(`${COURSE_TARGET.minLessons}-${COURSE_TARGET.maxLessons} lessons`)
     expect(p).toContain(`${COURSE_TARGET.minQuizPerLesson} quiz questions`)
+  })
+  it('demands substantive readings, not one-sentence definitions', () => {
+    const p = buildGenerationPrompt({ topic: 'Docker', difficulty: 'beginner' })
+    expect(p).toMatch(/at least 120 words/)
+    expect(p).toMatch(/inline example/i)
+    expect(p).toMatch(/unacceptable/i)
   })
 })
 

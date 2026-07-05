@@ -29,14 +29,19 @@ export const generatedQuestionSchema = z.object({
 export const generatedSegmentSchema = z.object({
   title: z.string(),
   type: lenientEnum(['reading', 'code', 'practice', 'quiz']),
-  body: z.string(),
-  estMinutes: z.number().int().positive().default(2),
+  // A quiz segment usually has no prose body — the questions carry it. Coerce a
+  // missing/null/non-string body to '' so one bodyless segment can't reject an
+  // otherwise-valid (paid) course.
+  body: z.preprocess((v) => (typeof v === 'string' ? v : ''), z.string()),
+  // Fall back to a sane length on a missing/zero/fractional estMinutes instead
+  // of failing the parse.
+  estMinutes: z.number().int().positive().catch(2),
   questions: z.array(generatedQuestionSchema).default([]),
 })
 
 export const generatedLessonSchema = z.object({
   title: z.string(),
-  estMinutes: z.number().int().positive().default(5),
+  estMinutes: z.number().int().positive().catch(5),
   segments: z.array(generatedSegmentSchema).min(1),
 })
 
@@ -109,12 +114,20 @@ export function averageEtaMs(
 export function buildGenerationPrompt(input: GenerationInput): string {
   const t = COURSE_TARGET
   return [
-    `Create a ${input.difficulty} course on "${input.topic}" for a developer who learns in short bursts between gaming sessions.`,
-    `Make it substantial: produce ${t.minLessons}-${t.maxLessons} lessons that progress from fundamentals toward more advanced material, each with ${t.minSegments}-${t.maxSegments} segments.`,
+    `You are an expert developer-educator. Write a ${input.difficulty}-level course on "${input.topic}" for a working developer who learns in short, focused bursts between gaming sessions.`,
+    `Produce ${t.minLessons}-${t.maxLessons} lessons — never fewer than ${t.minLessons} — that build on each other, progressing from fundamentals toward genuinely advanced, practical material, each with ${t.minSegments}-${t.maxSegments} segments.`,
+    'Depth is the priority — this must NOT read like flash cards or a glossary:',
+    '- Open each lesson with a short hook that motivates why the concept matters or what problem it solves — never a bare dictionary definition.',
+    '- Every "reading" segment must actually teach: at least 120 words (2-4 substantial paragraphs) that explain the concept, include a concrete inline example (a short code snippet or a worked scenario), and note when/why you would use it plus a common pitfall. One- or two-sentence "X is a tool that does Y" segments are unacceptable.',
+    '- "code" segments must include a real, runnable, commented snippet the learner can study and modify — not pseudocode.',
+    '- "practice" segments pose an applied task tied to the reading.',
+    '- "quiz" segments carry a lesson check-in; give each a short one-line body introducing it, plus its questions.',
+    '- Assume the reader is a developer: use correct terminology, real commands/APIs, and realistic scenarios. Honor the difficulty — go deeper and skip hand-holding for intermediate/advanced.',
+    '- Set each segment estMinutes to honestly reflect its length (a 3-minute reading is several substantial paragraphs, not one line).',
+    `Include at least ${t.minQuizPerLesson} quiz questions per lesson that test understanding (not recall of a single sentence), each with a brief explanation. Vary segment types across each lesson (reading, code, practice) so no lesson is all prose.`,
     'Respond with JSON only, shaped as:',
     '{ "topic", "difficulty", "lessons": [{ "title", "estMinutes", "segments": [{ "title", "type", "body", "estMinutes", "questions": [{ "type", "prompt", "options"?, "correctIndex"?, "expectedAnswer"?, "explanation"? }] }] }] }',
-    'segment.type is one of: reading | code | practice | quiz. question.type is one of: mcq | short_answer.',
-    `Keep each segment to a few minutes. Include at least ${t.minQuizPerLesson} quiz questions per lesson, and vary segment types (reading, code, practice) so lessons are not all prose.`,
+    'segment.type is one of: reading | code | practice | quiz. question.type is one of: mcq | short_answer. "body" is markdown.',
   ].join('\n')
 }
 
