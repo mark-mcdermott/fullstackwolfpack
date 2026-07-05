@@ -124,6 +124,20 @@ describe('api.integrations + api.courses', () => {
   })
 })
 
+describe('api.focus', () => {
+  it('records a completed focus session', async () => {
+    const { api, calls } = withRoutes({ '/api/me/focus-session': { ok: true } })
+    await api.focus.record({
+      playMinutes: 25,
+      learnMinutes: 5,
+      playIntervalMin: 25,
+      learnIntervalMin: 5,
+      focusScore: 100,
+    })
+    expect(calls).toContain('/api/me/focus-session')
+  })
+})
+
 describe('api.billing', () => {
   it('starts checkout and returns the redirect url', async () => {
     const url = 'https://checkout.stripe.com/c/pay/cs_test_123'

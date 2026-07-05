@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { api } from '@/api-client'
 import { AsyncView } from '@/components/layout/async-view'
+import { FocusSession } from '@/components/focus/focus-session'
 import { RecentLessons } from '@/components/learn/recent-lessons'
 import { PageHeading, Panel, ProgressMeter, SectionLabel } from '@fw/ui'
 import type { TopicProgress } from '@/core/app-data'
@@ -52,7 +53,9 @@ export function SessionsPage() {
         title="Sessions"
         subtitle="Short lessons, one at a time — pick up right where you left off."
       />
-      <AsyncView state={state}>
+      <div className="flex flex-col gap-5">
+        <FocusSession />
+        <AsyncView state={state}>
         {({ focus, recentLessons }) => {
           const active = focus.filter((t) => t.lessonsTotal > 0)
           return (
@@ -112,7 +115,8 @@ export function SessionsPage() {
             </div>
           )
         }}
-      </AsyncView>
+        </AsyncView>
+      </div>
     </div>
   )
 }
