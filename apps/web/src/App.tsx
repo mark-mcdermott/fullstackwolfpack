@@ -6,6 +6,7 @@ import { RootRedirect } from '@/components/layout/root-redirect'
 import { AchievementsPage } from '@/pages/app/achievements'
 import { ArcadePage } from '@/pages/app/arcade'
 import { BadgesPage } from '@/pages/app/badges'
+import { CreditsPage } from '@/pages/app/credits'
 import { DashboardPage } from '@/pages/app/dashboard'
 import { LearnPage } from '@/pages/app/learn'
 import { ProgressPage } from '@/pages/app/progress'
@@ -37,6 +38,7 @@ function App() {
           <Route path="/app" element={<DashboardPage />} />
           <Route path="/app/sessions" element={<SessionsPage />} />
           <Route path="/app/arcade" element={<ArcadePage />} />
+          <Route path="/app/credits" element={<CreditsPage />} />
           <Route path="/app/topics" element={<TopicsPage />} />
           <Route path="/app/learn/:lessonId" element={<LearnPage />} />
           <Route path="/app/review" element={<ReviewPage />} />
