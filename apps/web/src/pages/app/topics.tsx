@@ -5,7 +5,7 @@ import { api } from '@/api-client'
 import { AsyncView, EmptyState } from '@/components/layout/async-view'
 import { PageHeading, Panel, ProgressMeter } from '@fw/ui'
 import type { TopicProgress } from '@/core/app-data'
-import type { Difficulty } from '@/core/generation'
+import { DEFAULT_GENERATION_ETA_MS, type Difficulty } from '@/core/generation'
 import { useAsync } from '@/hooks/use-async'
 import { nextLessonPath } from '@/lib/open-course'
 import { cn } from '@/lib/utils'
@@ -25,14 +25,17 @@ const DIFFICULTIES: readonly string[] = ['beginner', 'intermediate', 'advanced']
 function TopicCard({
   topic,
   highlighted = false,
+  etaMs = DEFAULT_GENERATION_ETA_MS,
 }: {
   topic: TopicProgress
   highlighted?: boolean
+  etaMs?: number
 }) {
   const navigate = useNavigate()
   const hasCourse = topic.lessonsTotal > 0
   const [busy, setBusy] = useState<null | 'generating' | 'opening'>(null)
   const [error, setError] = useState<string | null>(null)
+  const [progress, setProgress] = useState(0)
 
   // When deep-linked (`/app/topics?topic=slug`), bring the card into view.
   useEffect(() => {
@@ -42,6 +45,19 @@ function TopicCard({
       el.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
   }, [highlighted, topic.slug])
+
+  // Drive the ETA progress bar while generating: ease toward 95% over the
+  // expected duration, then generate() snaps to 100% on success and navigates.
+  // Cleared automatically when generation ends or the card unmounts.
+  useEffect(() => {
+    if (busy !== 'generating') return
+    const startedAt = performance.now()
+    const id = setInterval(() => {
+      const elapsed = performance.now() - startedAt
+      setProgress(Math.min(95, (elapsed / Math.max(etaMs, 1)) * 100))
+    }, 120)
+    return () => clearInterval(id)
+  }, [busy, etaMs])
 
   async function start() {
     setBusy('opening')
@@ -57,14 +73,17 @@ function TopicCard({
   async function generate() {
     setBusy('generating')
     setError(null)
+    setProgress(0)
     const difficulty: Difficulty = DIFFICULTIES.includes(topic.difficulty)
       ? (topic.difficulty as Difficulty)
       : 'beginner'
     try {
       await api.courses.enroll(topic.slug, difficulty)
+      setProgress(100)
       navigate(await nextLessonPath(topic.slug)) // straight into the fresh course
     } catch (e) {
       setBusy(null)
+      setProgress(0)
       setError(e instanceof Error ? e.message : 'Generation failed')
     }
   }
@@ -104,14 +123,30 @@ function TopicCard({
               ? 'Continue learning →'
               : 'Start learning →'}
         </button>
+      ) : busy === 'generating' ? (
+        <div
+          className="relative mt-1 h-9 overflow-hidden border border-primary/50"
+          role="progressbar"
+          aria-label="Generating course"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(progress)}
+        >
+          <div
+            className="absolute inset-y-0 left-0 bg-primary/25 transition-[width] duration-150 ease-linear"
+            style={{ width: `${progress}%` }}
+          />
+          <span className="absolute inset-0 flex items-center justify-center font-mono text-[10px] tracking-widest text-primary uppercase">
+            Generating… {Math.round(progress)}%
+          </span>
+        </div>
       ) : (
         <button
           type="button"
           onClick={generate}
-          disabled={busy !== null}
-          className="mt-1 border border-border py-2 font-mono text-[10px] tracking-widest uppercase hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-1 border border-border py-2 font-mono text-[10px] tracking-widest uppercase hover:bg-muted"
         >
-          {busy === 'generating' ? 'Generating…' : 'Generate course →'}
+          Generate course →
         </button>
       )}
       {error && (
@@ -126,7 +161,21 @@ export function TopicsPage() {
   const [q, setQ] = useState('')
   const [params] = useSearchParams()
   const focusSlug = params.get('topic')
+  const [etaMs, setEtaMs] = useState(DEFAULT_GENERATION_ETA_MS)
   const state = useAsync(() => api.data.topics())
+
+  // Prefetch the expected generation duration so the progress bar's ETA is
+  // ready before any card is generated. Falls back to the default on failure.
+  useEffect(() => {
+    let active = true
+    api.courses
+      .generationEta()
+      .then((r) => active && setEtaMs(r.etaMs))
+      .catch(() => {})
+    return () => {
+      active = false
+    }
+  }, [])
 
   return (
     <div>
@@ -178,6 +227,7 @@ export function TopicsPage() {
                   key={t.slug}
                   topic={t}
                   highlighted={t.slug === focusSlug}
+                  etaMs={etaMs}
                 />
               ))}
             </div>

@@ -5,6 +5,7 @@ import { db } from '../db'
 import { providerCredentials } from '../db/schema'
 import { drizzleCourseStore } from './course-store'
 import { decryptSecret, type Encrypted } from './crypto'
+import { recordGenerationTiming } from './generation-timing'
 import { openAiGenerator } from './openai-generator'
 
 // Resolve an OpenAI key from a stored credential + the platform env key. Pure
@@ -43,5 +44,29 @@ export async function enrollAndGenerate(input: EnrollInput): Promise<string> {
 
   const apiKey = pickOpenAiKey(cred ?? null, process.env.OPENAI_API_KEY)
   const generator = openAiGenerator(apiKey, { model: process.env.OPENAI_MODEL })
-  return runGeneration({ generator, store: drizzleCourseStore() }, input)
+
+  // Time the generation so the Generate-course progress bar can show a
+  // data-driven ETA (running average of recorded durations).
+  const startedAt = Date.now()
+  try {
+    const courseId = await runGeneration(
+      { generator, store: drizzleCourseStore() },
+      input,
+    )
+    await recordGenerationTiming({
+      topicId: input.topicId,
+      difficulty: input.difficulty,
+      durationMs: Date.now() - startedAt,
+      succeeded: true,
+    })
+    return courseId
+  } catch (err) {
+    await recordGenerationTiming({
+      topicId: input.topicId,
+      difficulty: input.difficulty,
+      durationMs: Date.now() - startedAt,
+      succeeded: false,
+    })
+    throw err
+  }
 }

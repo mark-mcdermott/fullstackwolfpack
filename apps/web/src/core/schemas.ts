@@ -86,6 +86,14 @@ export const enrollRequest = z.object({
 export const enrollResultSchema = z.object({ courseId: z.string() })
 export type EnrollResult = z.infer<typeof enrollResultSchema>
 
+// Expected course-generation duration (ms) + how many samples it averages —
+// drives the ETA on the Generate-course progress bar.
+export const generationEtaSchema = z.object({
+  etaMs: z.number().nonnegative(),
+  samples: z.number().int().nonnegative(),
+})
+export type GenerationEta = z.infer<typeof generationEtaSchema>
+
 // Admin — change a user's role/tier (both optional; at least one meaningful).
 export const adminUpdateRequest = z.object({
   userId: z.string().min(1),

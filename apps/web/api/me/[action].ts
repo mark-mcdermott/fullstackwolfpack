@@ -25,6 +25,7 @@ import {
   updateUserAccess,
 } from '../../src/server/app-data'
 import { enrollAndGenerate } from '../../src/server/enroll'
+import { getGenerationEta } from '../../src/server/generation-timing'
 import {
   hasOpenAiKey,
   saveOpenAiKey,
@@ -76,6 +77,9 @@ export async function GET(req: Request): Promise<Response> {
 
     case 'series':
       return json(await getSeries(userId))
+
+    case 'generation-eta':
+      return json(await getGenerationEta())
 
     case 'openai-key':
       return json({ hasKey: await hasOpenAiKey(userId) })

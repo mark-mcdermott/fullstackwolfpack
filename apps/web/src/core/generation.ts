@@ -91,6 +91,21 @@ export const COURSE_TARGET = {
   minQuizPerLesson: 2,
 } as const
 
+// Fallback ETA for the Generate-course progress bar before any timings exist.
+export const DEFAULT_GENERATION_ETA_MS = 20_000
+
+// Running-average ETA from recorded generation durations (ms). Pure so the
+// server read and the client both agree; falls back when there are no samples.
+export function averageEtaMs(
+  durations: number[],
+  fallbackMs = DEFAULT_GENERATION_ETA_MS,
+): number {
+  if (durations.length === 0) return fallbackMs
+  return Math.round(
+    durations.reduce((sum, d) => sum + d, 0) / durations.length,
+  )
+}
+
 export function buildGenerationPrompt(input: GenerationInput): string {
   const t = COURSE_TARGET
   return [

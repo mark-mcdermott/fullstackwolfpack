@@ -49,6 +49,9 @@ vi.mock('@/api-client', () => ({
       series: async () => ({ xpCumulative: [] }),
       topics: async () => [topic],
     },
+    courses: {
+      generationEta: async () => ({ etaMs: 20000, samples: 0 }),
+    },
   },
 }))
 

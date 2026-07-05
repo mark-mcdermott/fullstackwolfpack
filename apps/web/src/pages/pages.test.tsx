@@ -60,6 +60,7 @@ vi.mock('@/api-client', () => ({
     },
     courses: {
       enroll: async () => ({ courseId: 'course-1' }),
+      generationEta: async () => ({ etaMs: 20000, samples: 0 }),
     },
     admin: {
       users: async () => [
