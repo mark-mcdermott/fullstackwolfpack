@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildGenerationPrompt,
+  COURSE_TARGET,
   parseGeneratedCourse,
   runGeneration,
   type CourseStore,
@@ -81,6 +82,11 @@ describe('buildGenerationPrompt', () => {
     const p = buildGenerationPrompt({ topic: 'Docker', difficulty: 'intermediate' })
     expect(p).toContain('Docker')
     expect(p).toContain('intermediate')
+  })
+  it('requests a substantial, multi-lesson course', () => {
+    const p = buildGenerationPrompt({ topic: 'Docker', difficulty: 'beginner' })
+    expect(p).toContain(`${COURSE_TARGET.minLessons}-${COURSE_TARGET.maxLessons} lessons`)
+    expect(p).toContain(`${COURSE_TARGET.minQuizPerLesson} quiz questions`)
   })
 })
 
