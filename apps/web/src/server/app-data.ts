@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gte, sql, sum } from 'drizzle-orm'
+import { and, count, desc, eq, gte, inArray, sql, sum } from 'drizzle-orm'
 import type {
   AchievementsView,
   ActivityItem,
@@ -30,7 +30,7 @@ import {
   users,
   xpEvents,
 } from '../db/schema'
-import { visibleCourseFilter } from './course-visibility'
+import { resolveActiveCourseIdsByTopic } from './course-resolver'
 
 // Server-only data access for the logged-in app. Thin Drizzle queries that
 // hand off to the pure mappers in core; the only place `db` is touched for the
@@ -125,18 +125,26 @@ export async function getTopicsView(userId: string): Promise<TopicProgress[]> {
     )
     .orderBy(topics.name)
 
-  // Count only courses THIS user can actually open (own + shared/built-in),
-  // using the same scope as getCourseOutline — otherwise a topic shows lessons +
-  // "Start learning" from another user's course but opening it 404s.
+  // Count only the ACTIVE track's lessons per topic (the course this user is on,
+  // resolved the same way getCourseOutline picks it), so multiple difficulty
+  // tracks per topic can't inflate the lesson total.
+  const activeByTopic = await resolveActiveCourseIdsByTopic(userId)
+  const activeCourseIds = [...activeByTopic.values()]
+  const lessonCounts = activeCourseIds.length
+    ? await db
+        .select({ courseId: lessons.courseId, total: count(lessons.id) })
+        .from(lessons)
+        .where(inArray(lessons.courseId, activeCourseIds))
+        .groupBy(lessons.courseId)
+    : []
+  const countByCourse = new Map(
+    lessonCounts.map((l) => [l.courseId, num(l.total)]),
+  )
   const totals = new Map(
-    (
-      await db
-        .select({ topicId: courses.topicId, total: count(lessons.id) })
-        .from(courses)
-        .leftJoin(lessons, eq(lessons.courseId, courses.id))
-        .where(visibleCourseFilter(userId))
-        .groupBy(courses.topicId)
-    ).map((t) => [t.topicId, num(t.total)]),
+    [...activeByTopic].map(([topicId, courseId]) => [
+      topicId,
+      countByCourse.get(courseId) ?? 0,
+    ]),
   )
 
   return rows.map((r) => ({

@@ -11,7 +11,7 @@ import {
 } from 'drizzle-orm/pg-core'
 import { users } from './auth'
 import { achievements, topics } from './catalog'
-import { lessons, quizQuestions } from './content'
+import { courses, lessons, quizQuestions } from './content'
 
 export const lessonStatus = pgEnum('lesson_status', [
   'not_started',
@@ -44,6 +44,13 @@ export const userTopics = pgTable(
       .notNull()
       .references(() => topics.id, { onDelete: 'cascade' }),
     difficulty: text('difficulty').notNull().default('beginner'),
+    // The course track the user has chosen for this topic (a difficulty track or
+    // a tailored course). Null ⇒ fall back to the newest visible course — keeps
+    // pre-pointer users working. `set null` so deleting a course just reverts to
+    // the fallback rather than orphaning the row.
+    activeCourseId: text('active_course_id').references(() => courses.id, {
+      onDelete: 'set null',
+    }),
     lessonsCompleted: integer('lessons_completed').notNull().default(0),
     progressPct: integer('progress_pct').notNull().default(0),
     lastViewedAt: timestamp('last_viewed_at', { withTimezone: true }),

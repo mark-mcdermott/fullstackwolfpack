@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, sql, sum } from 'drizzle-orm'
+import { and, eq, inArray, sql, sum } from 'drizzle-orm'
 import type { CourseOutline } from '../core/app-data'
 import { parseExerciseTests } from '../core/exercise'
 import {
@@ -28,7 +28,7 @@ import {
   userLessonProgress,
   userTopics,
 } from '../db/schema'
-import { visibleCourseFilter } from './course-visibility'
+import { resolveActiveCourse } from './course-resolver'
 import { gradeAnswer } from './grader'
 import { grantXp, logActivityAndStreak } from './rewards'
 import { seedReviewCard } from './review'
@@ -128,14 +128,14 @@ export async function getCourseOutline(
   userId: string,
   topicSlug: string,
 ): Promise<CourseOutline | null> {
-  // The user's own AI course for the topic, else a shared/built-in one.
-  const [course] = await db
-    .select({ id: courses.id, status: courses.status })
-    .from(courses)
-    .innerJoin(topics, eq(topics.id, courses.topicId))
-    .where(and(eq(topics.slug, topicSlug), visibleCourseFilter(userId)))
-    .orderBy(desc(courses.createdAt))
-    .limit(1)
+  const [topic] = await db
+    .select({ id: topics.id })
+    .from(topics)
+    .where(eq(topics.slug, topicSlug))
+  if (!topic) return null
+
+  // The user's active track for this topic (their chosen course, else newest).
+  const course = await resolveActiveCourse(userId, topic.id)
   if (!course) return null
 
   const rows = await db
@@ -384,25 +384,32 @@ async function recomputeTopicProgress(
   topicId: string,
   now: Date,
 ): Promise<void> {
-  const [totals] = await db
-    .select({ total: sql<number>`count(*)` })
-    .from(lessons)
-    .innerJoin(courses, eq(courses.id, lessons.courseId))
-    .where(eq(courses.topicId, topicId))
+  // Scope the rollup to the ACTIVE track's lessons — with multiple difficulty
+  // tracks per topic, counting across all of them would inflate the total.
+  const active = await resolveActiveCourse(userId, topicId)
+  const activeCourseId = active?.id
+
+  const [totals] = activeCourseId
+    ? await db
+        .select({ total: sql<number>`count(*)` })
+        .from(lessons)
+        .where(eq(lessons.courseId, activeCourseId))
+    : [{ total: 0 }]
   const total = num(totals?.total)
 
-  const [doneAgg] = await db
-    .select({ done: sql<number>`count(*)` })
-    .from(userLessonProgress)
-    .innerJoin(lessons, eq(lessons.id, userLessonProgress.lessonId))
-    .innerJoin(courses, eq(courses.id, lessons.courseId))
-    .where(
-      and(
-        eq(userLessonProgress.userId, userId),
-        eq(courses.topicId, topicId),
-        eq(userLessonProgress.status, 'completed'),
-      ),
-    )
+  const [doneAgg] = activeCourseId
+    ? await db
+        .select({ done: sql<number>`count(*)` })
+        .from(userLessonProgress)
+        .innerJoin(lessons, eq(lessons.id, userLessonProgress.lessonId))
+        .where(
+          and(
+            eq(userLessonProgress.userId, userId),
+            eq(lessons.courseId, activeCourseId),
+            eq(userLessonProgress.status, 'completed'),
+          ),
+        )
+    : [{ done: 0 }]
   const done = num(doneAgg?.done)
   const pct = topicProgressPct(done, total)
 

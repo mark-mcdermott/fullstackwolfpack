@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull, or } from 'drizzle-orm'
+import { and, desc, eq } from 'drizzle-orm'
 import {
   accuracyPct,
   DIFFICULTIES,
@@ -9,13 +9,13 @@ import {
 import type { Difficulty } from '../core/generation'
 import { db } from '../db'
 import {
-  courses,
   lessons,
   quizAttempts,
   topics,
   userLessonProgress,
   userTopics,
 } from '../db/schema'
+import { resolveActiveCourse } from './course-resolver'
 
 // Server read for adaptive difficulty. Pure math in core/adaptive.ts over signals
 // we already store (quiz_attempts, user_topics, user_lesson_progress) — NO new
@@ -58,18 +58,8 @@ export async function getAdaptiveState(
         .where(and(eq(userTopics.userId, userId), eq(userTopics.topicId, topic.id)))
       current = asDifficulty(ut?.difficulty)
 
-      // The topic's course (the user's own, else the shared/built-in one).
-      const [course] = await db
-        .select({ id: courses.id })
-        .from(courses)
-        .where(
-          and(
-            eq(courses.topicId, topic.id),
-            or(eq(courses.ownerUserId, userId), isNull(courses.ownerUserId)),
-          ),
-        )
-        .orderBy(desc(courses.createdAt))
-        .limit(1)
+      // The topic's active track (the user's chosen course, else newest visible).
+      const course = await resolveActiveCourse(userId, topic.id)
 
       if (course) {
         const rows = await db
