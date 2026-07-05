@@ -38,7 +38,7 @@ _Status: `[x]` shipped · `[~]` partial/stubbed · `[ ]` not started._
 - `[x]` **Stripe billing** (PR #59). Real Checkout + Billing Portal + a signature-verified webhook that flips `users.tier`; `checkout`/`billing-portal`/`stripe-webhook` fold into `api/me/[action].ts` (still 12/12 functions). Free/Pro gating (`core/access.ts`) already real. Dormant until the `STRIPE_*` env is set — see `CLAUDE.md` "Setup TODO".
 
 ### Focus-session runtime (the namesake feature)
-- `[~]` **Timed play/learn sessions** — the focus timer, play/learn intervals, and focus score that "learn between gaming sessions" implies. Runtime built (`core/focus-session.ts` plan/score + a Focus panel on **Sessions**; completed sessions record to `sessions` with `focusMode`, feeding hours + the Focus-Mode badge). Follow-ups: wiring XP/streak/`daily_activity` on completion, and mid-session lesson launch.
+- `[x]` **Timed play/learn sessions** — the focus timer, play/learn intervals, and focus score that "learn between gaming sessions" implies. Runtime (`core/focus-session.ts` plan/score + a Focus panel on **Sessions**); completed sessions record to `sessions` with `focusMode` and **grant rewards** — session XP, a `daily_activity` learn-minutes contribution, and a streak advance — via the shared `server/rewards.ts` (also used by lesson completion). Feeds hours, the minutes-learned trend, streaks, and the Focus-Mode badge. Optional enhancement left: launch a real lesson during the Learn phase.
 
 ### Native / desktop shells
 - `[ ]` **Capacitor** (iOS/Android) — not initialized (`npx cap add …`; needs Xcode / Android Studio).

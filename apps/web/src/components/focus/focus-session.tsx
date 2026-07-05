@@ -72,6 +72,7 @@ export function FocusSession() {
   const [donePlay, setDonePlay] = useState(0)
   const [doneLearn, setDoneLearn] = useState(0)
   const [result, setResult] = useState<FocusResult | null>(null)
+  const [earnedXp, setEarnedXp] = useState<number | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
 
   const step = plan[stepIndex]
@@ -80,9 +81,11 @@ export function FocusSession() {
   async function finalize(playSeconds: number, learnSeconds: number) {
     const res = focusResult(config, playSeconds, learnSeconds)
     setResult(res)
+    setEarnedXp(null)
     setStatus('done')
     try {
-      await api.focus.record(res)
+      const { xp } = await api.focus.record(res)
+      setEarnedXp(xp)
     } catch {
       setSaveError('Session finished, but it could not be saved.')
     }
@@ -128,6 +131,7 @@ export function FocusSession() {
     setDonePlay(0)
     setDoneLearn(0)
     setResult(null)
+    setEarnedXp(null)
     setSaveError(null)
     setPaused(false)
     setStatus('running')
@@ -320,9 +324,16 @@ export function FocusSession() {
           {saveError ? (
             <p className="font-mono text-[10px] text-destructive">{saveError}</p>
           ) : (
-            <p className="font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
-              Saved to your sessions
-            </p>
+            <div className="flex flex-col items-center gap-1">
+              {earnedXp !== null && (
+                <p className="font-mono text-sm font-bold text-primary">
+                  +{earnedXp} XP
+                </p>
+              )}
+              <p className="font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
+                Saved to your sessions
+              </p>
+            </div>
           )}
           <button
             type="button"

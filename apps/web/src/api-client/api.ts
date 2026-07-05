@@ -6,6 +6,7 @@ import {
   authResultSchema,
   billingRedirectSchema,
   enrollResultSchema,
+  focusSessionResultSchema,
   generationEtaSchema,
   keyStatusSchema,
   meResultSchema,
@@ -14,6 +15,7 @@ import {
   type BillingRedirect,
   type EnrollResult,
   type FocusSessionInput,
+  type FocusSessionResult,
   type GenerationEta,
   type KeyStatus,
   type PublicUser,
@@ -280,13 +282,15 @@ export function createApi({ http, passkeys }: Adapters) {
     },
   }
 
-  // Focus sessions (timed play/learn cycles).
+  // Focus sessions (timed play/learn cycles). Returns the XP granted.
   const focus = {
-    async record(input: FocusSessionInput): Promise<void> {
-      await http.request('/api/me/focus-session', {
-        method: 'POST',
-        body: JSON.stringify(input),
-      })
+    async record(input: FocusSessionInput): Promise<FocusSessionResult> {
+      return focusSessionResultSchema.parse(
+        await http.request('/api/me/focus-session', {
+          method: 'POST',
+          body: JSON.stringify(input),
+        }),
+      )
     },
   }
 

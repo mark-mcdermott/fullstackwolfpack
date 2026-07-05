@@ -267,8 +267,7 @@ export async function POST(req: Request): Promise<Response> {
     case 'focus-session': {
       const parsed = await parseBody(focusSessionRequest, req)
       if (!parsed.ok) return parsed.response
-      await recordFocusSession(userId, parsed.data)
-      return json({ ok: true })
+      return json(await recordFocusSession(userId, parsed.data))
     }
 
     case 'answer': {
