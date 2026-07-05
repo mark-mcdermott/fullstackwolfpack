@@ -92,6 +92,35 @@ export const resetTopicRequest = z.object({ topicSlug: z.string().min(1) })
 export const resetTopicResultSchema = z.object({ ok: z.boolean() })
 export type ResetTopicResult = z.infer<typeof resetTopicResultSchema>
 
+// Switchable difficulty tracks. A topic can hold one course per difficulty; the
+// user picks which is active (each keeps its own progress). A level with no
+// course yet is generated on switch.
+export const difficultySchema = z.enum(['beginner', 'intermediate', 'advanced'])
+
+export const topicTrackSchema = z.object({
+  difficulty: difficultySchema,
+  exists: z.boolean(), // a ready course exists → instant switch, else generate
+  status: z.enum(['ready', 'generating', 'failed']).nullable(),
+  active: z.boolean(),
+})
+export const topicTracksSchema = z.object({
+  topicSlug: z.string(),
+  activeDifficulty: difficultySchema.nullable(),
+  tracks: z.array(topicTrackSchema),
+})
+export type TopicTracks = z.infer<typeof topicTracksSchema>
+
+export const setDifficultyRequest = z.object({
+  topicSlug: z.string().min(1),
+  difficulty: difficultySchema,
+})
+export const setDifficultyResultSchema = z.object({
+  courseId: z.string(),
+  difficulty: difficultySchema,
+  generated: z.boolean(), // true if a new course was generated for this level
+})
+export type SetDifficultyResult = z.infer<typeof setDifficultyResultSchema>
+
 // Expected course-generation duration (ms) + how many samples it averages —
 // drives the ETA on the Generate-course progress bar.
 export const generationEtaSchema = z.object({

@@ -380,7 +380,7 @@ export async function completeLesson(
 }
 
 // Recompute a topic's completed-lesson count + progress % for this user.
-async function recomputeTopicProgress(
+export async function recomputeTopicProgress(
   userId: string,
   topicId: string,
   now: Date,

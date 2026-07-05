@@ -13,6 +13,7 @@ import {
   focusSessionRequest,
   openAiKeyRequest,
   resetTopicRequest,
+  setDifficultyRequest,
 } from '../../src/core/schemas'
 import { db } from '../../src/db'
 import { topics, users } from '../../src/db/schema'
@@ -48,6 +49,7 @@ import {
   submitAnswer,
 } from '../../src/server/learning'
 import { getAdaptiveState } from '../../src/server/adaptive'
+import { getTopicTracks, setActiveDifficulty } from '../../src/server/tracks'
 import { runTutor } from '../../src/server/tutor'
 import { getDueReviews, gradeReview } from '../../src/server/review'
 import { json } from '../_lib/http'
@@ -154,6 +156,14 @@ export async function GET(req: Request): Promise<Response> {
       const outline = await getCourseOutline(userId, topic)
       if (!outline) return json({ error: 'no course for topic' }, { status: 404 })
       return json(outline)
+    }
+
+    case 'topic-tracks': {
+      const topic = new URL(req.url).searchParams.get('topic')
+      if (!topic) return json({ error: 'missing topic' }, { status: 400 })
+      const tracks = await getTopicTracks(userId, topic)
+      if (!tracks) return json({ error: 'unknown topic' }, { status: 404 })
+      return json(tracks)
     }
 
     case 'review':
@@ -316,6 +326,24 @@ export async function POST(req: Request): Promise<Response> {
       const ok = await resetTopicProgress(userId, parsed.data.topicSlug)
       if (!ok) return json({ error: 'unknown topic' }, { status: 404 })
       return json({ ok: true })
+    }
+
+    case 'set-difficulty': {
+      const parsed = await parseBody(setDifficultyRequest, req)
+      if (!parsed.ok) return parsed.response
+      try {
+        const result = await setActiveDifficulty(
+          userId,
+          parsed.data.topicSlug,
+          parsed.data.difficulty,
+        )
+        if (!result) return json({ error: 'unknown topic' }, { status: 404 })
+        return json(result)
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : 'could not switch difficulty'
+        return json({ error: message }, { status: 400 })
+      }
     }
 
     case 'review': {

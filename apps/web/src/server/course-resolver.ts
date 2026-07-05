@@ -1,4 +1,6 @@
 import { and, desc, eq } from 'drizzle-orm'
+import { DIFFICULTIES } from '../core/adaptive'
+import type { Difficulty } from '../core/generation'
 import { db } from '../db'
 import { courses, userTopics } from '../db/schema'
 import { visibleCourseFilter } from './course-visibility'
@@ -21,6 +23,41 @@ export function pickActiveCourseId(
     return activeCourseId
   }
   return visibleCourseIdsNewestFirst[0] ?? null
+}
+
+export type CourseStatus = 'ready' | 'generating' | 'failed'
+export type TrackCourse = { id: string; difficulty: Difficulty; status: CourseStatus }
+export type TrackSummary = {
+  difficulty: Difficulty
+  exists: boolean // a ready course at this difficulty is available to switch to
+  status: CourseStatus | null
+  active: boolean
+}
+
+// Pure: summarize a topic's difficulty tracks for the settings UI. Per difficulty
+// reports whether a ready course exists (→ instant switch vs generate) and which
+// difficulty is currently active. `active` is resolved the same way as the player
+// picks a course (pointer if visible, else newest).
+export function summarizeTracks(
+  coursesNewestFirst: readonly TrackCourse[],
+  activeCourseId: string | null | undefined,
+): { activeDifficulty: Difficulty | null; tracks: TrackSummary[] } {
+  const activeId = pickActiveCourseId(
+    activeCourseId,
+    coursesNewestFirst.map((c) => c.id),
+  )
+  const active = coursesNewestFirst.find((c) => c.id === activeId) ?? null
+  const tracks = DIFFICULTIES.map((difficulty) => {
+    const newest =
+      coursesNewestFirst.find((c) => c.difficulty === difficulty) ?? null
+    return {
+      difficulty,
+      exists: newest?.status === 'ready',
+      status: newest?.status ?? null,
+      active: active?.difficulty === difficulty,
+    }
+  })
+  return { activeDifficulty: active?.difficulty ?? null, tracks }
 }
 
 // Resolve a single topic's active course (id + status) for a user, or null if the
