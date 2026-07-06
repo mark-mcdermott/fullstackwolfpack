@@ -7,10 +7,12 @@ import {
   Square,
   X,
 } from 'lucide-react'
+import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { ProgressMeter } from '@fw/ui'
 import { formatClock } from '@/core/focus-session'
 import { useTimer } from '@/hooks/timer-context'
+import { continueLearningPath } from '@/lib/open-course'
 
 function DockButton({
   icon: Icon,
@@ -47,6 +49,17 @@ export function FocusTimerDock() {
   const timer = useTimer()
   const navigate = useNavigate()
   const location = useLocation()
+  const [opening, setOpening] = useState(false)
+
+  // "Learn now" deep-links straight into the next unfinished lesson of the course
+  // the user should continue; if nothing resolves, fall back to the Topics page.
+  const goLearn = () => {
+    setOpening(true)
+    continueLearningPath()
+      .then((path) => navigate(path ?? '/app/topics'))
+      .catch(() => navigate('/app/topics'))
+      .finally(() => setOpening(false))
+  }
 
   if (location.pathname === '/app/sessions') return null
 
@@ -114,11 +127,12 @@ export function FocusTimerDock() {
 
       <button
         type="button"
-        onClick={() => navigate(isPlay ? '/app/arcade' : '/app/topics')}
-        className="mt-3 flex w-full items-center justify-center gap-2 bg-primary px-3 py-2 font-mono text-[10px] tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+        onClick={() => (isPlay ? navigate('/app/arcade') : goLearn())}
+        disabled={!isPlay && opening}
+        className="mt-3 flex w-full items-center justify-center gap-2 bg-primary px-3 py-2 font-mono text-[10px] tracking-widest text-primary-foreground uppercase hover:bg-primary/80 disabled:opacity-60"
       >
         {isPlay ? <Gamepad2 className="size-3.5" /> : <BookOpen className="size-3.5" />}
-        {isPlay ? 'Play now' : 'Learn now'}
+        {isPlay ? 'Play now' : opening ? 'Opening…' : 'Learn now'}
       </button>
 
       <div className="mt-2 flex items-center justify-center gap-2">
