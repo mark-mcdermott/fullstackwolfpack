@@ -1,4 +1,4 @@
-import { Check, Circle, Search, Send, UserPlus, X } from 'lucide-react'
+import { Check, Circle, Search, Send, UserPlus, X, Zap } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { api } from '@/api-client'
 import { PageHeading, Panel, SectionLabel } from '@fw/ui'
@@ -8,10 +8,14 @@ import type {
   FriendsView,
   UserSearchResult,
 } from '@/core/social'
+import { useAuth } from '@/hooks/auth-context'
+import { useRealtime } from '@/hooks/use-realtime'
 import { cn } from '@/lib/utils'
 
-const FRIENDS_POLL_MS = 10_000
-const CONVO_POLL_MS = 4_000
+// Poll cadence. When realtime is connected, polling drops to a slow safety net
+// (realtime carries the instant updates); otherwise it's the primary channel.
+const FRIENDS_POLL_MS = { live: 30_000, poll: 10_000 }
+const CONVO_POLL_MS = { live: 15_000, poll: 4_000 }
 
 function relativeSeen(iso: string | null): string {
   if (!iso) return 'never seen'
@@ -34,8 +38,10 @@ function PresenceDot({ online }: { online: boolean }) {
 }
 
 export function FriendsPage() {
+  const { user } = useAuth()
   const [view, setView] = useState<FriendsView | null>(null)
   const [selected, setSelected] = useState<Friend | null>(null)
+  const [rtNudge, setRtNudge] = useState(0)
 
   const loadFriends = useCallback(async () => {
     try {
@@ -45,11 +51,21 @@ export function FriendsPage() {
     }
   }, [])
 
+  // Realtime: any DM event refreshes the friends view (unread badges) and nudges
+  // the open conversation to reload. Falls back to polling when not connected.
+  const live = useRealtime(
+    user?.id,
+    useCallback(() => {
+      loadFriends()
+      setRtNudge((n) => n + 1)
+    }, [loadFriends]),
+  )
+
   useEffect(() => {
     loadFriends()
-    const t = setInterval(loadFriends, FRIENDS_POLL_MS)
+    const t = setInterval(loadFriends, live ? FRIENDS_POLL_MS.live : FRIENDS_POLL_MS.poll)
     return () => clearInterval(t)
-  }, [loadFriends])
+  }, [loadFriends, live])
 
   return (
     <div>
@@ -68,7 +84,12 @@ export function FriendsPage() {
             onSelect={setSelected}
           />
         </div>
-        <ChatPane friend={selected} onSent={loadFriends} />
+        <ChatPane
+          friend={selected}
+          onSent={loadFriends}
+          live={live}
+          nudge={rtNudge}
+        />
       </div>
     </div>
   )
@@ -260,9 +281,13 @@ function FriendList({
 function ChatPane({
   friend,
   onSent,
+  live,
+  nudge,
 }: {
   friend: Friend | null
   onSent: () => void
+  live: boolean
+  nudge: number
 }) {
   const [convo, setConvo] = useState<Conversation | null>(null)
   const [draft, setDraft] = useState('')
@@ -286,9 +311,15 @@ function ChatPane({
     setConvo(null)
     if (!friend) return
     load()
-    const t = setInterval(load, CONVO_POLL_MS)
+    const t = setInterval(load, live ? CONVO_POLL_MS.live : CONVO_POLL_MS.poll)
     return () => clearInterval(t)
-  }, [friend, load])
+  }, [friend, load, live])
+
+  // Realtime nudge — reload the open conversation without clearing it first.
+  useEffect(() => {
+    if (nudge > 0 && friend) load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nudge])
 
   async function send() {
     const body = draft.trim()
@@ -324,6 +355,14 @@ function ChatPane({
         <span className="font-mono text-[10px] text-muted-foreground">
           {friend.online ? 'online' : relativeSeen(friend.lastActiveAt)}
         </span>
+        {live && (
+          <span
+            title="Realtime connected"
+            className="ml-auto inline-flex items-center gap-1 font-mono text-[10px] tracking-widest text-emerald-500 uppercase"
+          >
+            <Zap className="size-3 fill-emerald-500" /> Live
+          </span>
+        )}
       </div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4">
