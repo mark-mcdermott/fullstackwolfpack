@@ -63,7 +63,15 @@ export function parseGeneratedCourse(raw: unknown): GeneratedCourse {
 
 // ---- Seams ----
 
-export type GenerationInput = { topic: string; difficulty: Difficulty }
+export type GenerationInput = {
+  topic: string
+  difficulty: Difficulty
+  // Free-text learner request threaded into the prompt (tailor feature).
+  customization?: string
+  // Present ⇒ extend an existing course: generate only NEW lessons, given the
+  // titles already covered (tailor "append" mode).
+  existingTitles?: readonly string[]
+}
 export type EnrollInput = GenerationInput & {
   topicId: string
   ownerUserId: string
@@ -111,23 +119,60 @@ export function averageEtaMs(
   )
 }
 
+// Shared quality bar for both a fresh course and an append. Kept in one place so
+// tailored/appended lessons are held to the same depth as generated ones.
+const DEPTH_GUIDANCE = [
+  'Depth is the priority — this must NOT read like flash cards or a glossary:',
+  '- Open each lesson with a short hook that motivates why the concept matters or what problem it solves — never a bare dictionary definition.',
+  '- Every "reading" segment must actually teach: at least 120 words (2-4 substantial paragraphs) that explain the concept, include a concrete inline example (a short code snippet or a worked scenario), and note when/why you would use it plus a common pitfall. One- or two-sentence "X is a tool that does Y" segments are unacceptable.',
+  '- "code" segments must include a real, runnable, commented snippet the learner can study and modify — not pseudocode.',
+  '- "practice" segments pose an applied task tied to the reading.',
+  '- "quiz" segments carry a lesson check-in; give each a short one-line body introducing it, plus its questions.',
+  '- Assume the reader is a developer: use correct terminology, real commands/APIs, and realistic scenarios. Honor the difficulty — go deeper and skip hand-holding for intermediate/advanced.',
+  '- Set each segment estMinutes to honestly reflect its length (a 3-minute reading is several substantial paragraphs, not one line).',
+]
+
+const LESSON_JSON_SHAPE = [
+  '{ "topic", "difficulty", "lessons": [{ "title", "estMinutes", "segments": [{ "title", "type", "body", "estMinutes", "questions": [{ "type", "prompt", "options"?, "correctIndex"?, "expectedAnswer"?, "explanation"? }] }] }] }',
+  'segment.type is one of: reading | code | practice | quiz. question.type is one of: mcq | short_answer. "body" is markdown.',
+]
+
 export function buildGenerationPrompt(input: GenerationInput): string {
+  if (input.existingTitles && input.existingTitles.length > 0) {
+    return buildAppendPrompt(input)
+  }
   const t = COURSE_TARGET
-  return [
+  const lines = [
     `You are an expert developer-educator. Write a ${input.difficulty}-level course on "${input.topic}" for a working developer who learns in short, focused bursts between gaming sessions.`,
     `Produce ${t.minLessons}-${t.maxLessons} lessons — never fewer than ${t.minLessons} — that build on each other, progressing from fundamentals toward genuinely advanced, practical material, each with ${t.minSegments}-${t.maxSegments} segments.`,
-    'Depth is the priority — this must NOT read like flash cards or a glossary:',
-    '- Open each lesson with a short hook that motivates why the concept matters or what problem it solves — never a bare dictionary definition.',
-    '- Every "reading" segment must actually teach: at least 120 words (2-4 substantial paragraphs) that explain the concept, include a concrete inline example (a short code snippet or a worked scenario), and note when/why you would use it plus a common pitfall. One- or two-sentence "X is a tool that does Y" segments are unacceptable.',
-    '- "code" segments must include a real, runnable, commented snippet the learner can study and modify — not pseudocode.',
-    '- "practice" segments pose an applied task tied to the reading.',
-    '- "quiz" segments carry a lesson check-in; give each a short one-line body introducing it, plus its questions.',
-    '- Assume the reader is a developer: use correct terminology, real commands/APIs, and realistic scenarios. Honor the difficulty — go deeper and skip hand-holding for intermediate/advanced.',
-    '- Set each segment estMinutes to honestly reflect its length (a 3-minute reading is several substantial paragraphs, not one line).',
+    ...DEPTH_GUIDANCE,
     `Include at least ${t.minQuizPerLesson} quiz questions per lesson that test understanding (not recall of a single sentence), each with a brief explanation. Vary segment types across each lesson (reading, code, practice) so no lesson is all prose.`,
+  ]
+  const custom = input.customization?.trim()
+  if (custom) {
+    lines.push(
+      `Additionally, honor this specific learner request throughout the course: "${custom}".`,
+    )
+  }
+  lines.push('Respond with JSON only, shaped as:', ...LESSON_JSON_SHAPE)
+  return lines.join('\n')
+}
+
+// Prompt for tailor "append": extend an existing course with NEW lessons only.
+function buildAppendPrompt(input: GenerationInput): string {
+  const t = COURSE_TARGET
+  const titles = (input.existingTitles ?? []).map((x) => `- ${x}`).join('\n')
+  const custom = input.customization?.trim()
+  return [
+    `You are an expert developer-educator EXTENDING an existing ${input.difficulty}-level course on "${input.topic}" for a working developer who studies in short, focused bursts.`,
+    `The course already contains these lessons — do NOT repeat, restate, or lightly reword any of them:\n${titles}`,
+    custom
+      ? `Add new lessons that fulfil this learner request: "${custom}".`
+      : 'Add new lessons that cover the next most valuable material beyond what already exists.',
+    `Produce 1-4 NEW lessons only, each with ${t.minSegments}-${t.maxSegments} segments and at least ${t.minQuizPerLesson} quiz questions.`,
+    ...DEPTH_GUIDANCE,
     'Respond with JSON only, shaped as:',
-    '{ "topic", "difficulty", "lessons": [{ "title", "estMinutes", "segments": [{ "title", "type", "body", "estMinutes", "questions": [{ "type", "prompt", "options"?, "correctIndex"?, "expectedAnswer"?, "explanation"? }] }] }] }',
-    'segment.type is one of: reading | code | practice | quiz. question.type is one of: mcq | short_answer. "body" is markdown.',
+    ...LESSON_JSON_SHAPE,
   ].join('\n')
 }
 
@@ -141,6 +186,7 @@ export async function runGeneration(
     const course = await deps.generator.generate({
       topic: input.topic,
       difficulty: input.difficulty,
+      customization: input.customization,
     })
     let order = 0
     for (const lesson of course.lessons) {
@@ -152,4 +198,21 @@ export async function runGeneration(
     await deps.store.markFailed(courseId)
     throw err
   }
+}
+
+// Tailor "append": generate NEW lessons (input.existingTitles set) and add them
+// to an existing course after its current last lesson. No createCourse/markReady
+// — the course is already ready. Returns how many lessons were added.
+export async function runAppend(
+  deps: { generator: LessonGenerator; store: CourseStore },
+  courseId: string,
+  input: GenerationInput,
+  startOrder: number,
+): Promise<number> {
+  const course = await deps.generator.generate(input)
+  let order = startOrder
+  for (const lesson of course.lessons) {
+    await deps.store.addLesson(courseId, order++, lesson)
+  }
+  return course.lessons.length
 }

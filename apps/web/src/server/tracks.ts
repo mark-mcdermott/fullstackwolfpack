@@ -2,7 +2,11 @@ import { and, desc, eq } from 'drizzle-orm'
 import type { Difficulty } from '../core/generation'
 import { db } from '../db'
 import { courses, topics, userTopics } from '../db/schema'
-import { summarizeTracks, type TrackCourse } from './course-resolver'
+import {
+  pickActiveCourseId,
+  summarizeTracks,
+  type TrackCourse,
+} from './course-resolver'
 import { visibleCourseFilter } from './course-visibility'
 import { enrollAndGenerate } from './enroll'
 import { recomputeTopicProgress } from './learning'
@@ -12,16 +16,18 @@ import { recomputeTopicProgress } from './learning'
 // user_topics.active_course_id (see course-resolver). This is the read + the
 // switch/generate write behind the topic-settings Difficulty panel.
 
-// The topic's courses this user can open, newest-first, typed for summarizeTracks.
+// The topic's courses this user can open, newest-first, typed for summarizeTracks
+// (+ ownerUserId so we can tell whether the active track is the user's own).
 async function visibleTrackCourses(
   userId: string,
   topicId: string,
-): Promise<TrackCourse[]> {
+): Promise<(TrackCourse & { ownerUserId: string | null })[]> {
   return db
     .select({
       id: courses.id,
       difficulty: courses.difficulty,
       status: courses.status,
+      ownerUserId: courses.ownerUserId,
     })
     .from(courses)
     .where(and(eq(courses.topicId, topicId), visibleCourseFilter(userId)))
@@ -41,7 +47,14 @@ export async function getTopicTracks(userId: string, topicSlug: string) {
     .where(and(eq(userTopics.userId, userId), eq(userTopics.topicId, topic.id)))
 
   const courseList = await visibleTrackCourses(userId, topic.id)
-  return { topicSlug, ...summarizeTracks(courseList, ut?.active) }
+  // Is the active track a course this user generated? (gates tailor "append")
+  const activeId = pickActiveCourseId(
+    ut?.active,
+    courseList.map((c) => c.id),
+  )
+  const activeOwned =
+    courseList.find((c) => c.id === activeId)?.ownerUserId === userId
+  return { topicSlug, activeOwned, ...summarizeTracks(courseList, ut?.active) }
 }
 
 // Switch the topic's active track to `difficulty`. If a ready course at that

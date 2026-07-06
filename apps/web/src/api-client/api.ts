@@ -13,6 +13,7 @@ import {
   protectedResultSchema,
   resetTopicResultSchema,
   setDifficultyResultSchema,
+  tailorResultSchema,
   topicTracksSchema,
   totpSetupSchema,
   type BillingRedirect,
@@ -23,6 +24,8 @@ import {
   type KeyStatus,
   type PublicUser,
   type SetDifficultyResult,
+  type TailorMode,
+  type TailorResult,
   type TopicTracks,
   type TotpSetup,
 } from '@/core/schemas'
@@ -305,6 +308,20 @@ export function createApi({ http, passkeys }: Adapters) {
         await http.request('/api/me/set-difficulty', {
           method: 'POST',
           body: JSON.stringify({ topicSlug, difficulty }),
+        }),
+      )
+    },
+    // Tailor the active course from a free-text instruction: append lessons or
+    // rebuild it. Both regenerate content (~20s).
+    async tailor(
+      topicSlug: string,
+      mode: TailorMode,
+      instructions: string,
+    ): Promise<TailorResult> {
+      return tailorResultSchema.parse(
+        await http.request('/api/me/tailor-course', {
+          method: 'POST',
+          body: JSON.stringify({ topicSlug, mode, instructions }),
         }),
       )
     },

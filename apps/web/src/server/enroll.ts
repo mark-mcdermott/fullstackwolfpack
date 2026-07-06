@@ -1,6 +1,10 @@
 import process from 'node:process'
 import { and, eq } from 'drizzle-orm'
-import { runGeneration, type EnrollInput } from '../core/generation'
+import {
+  runGeneration,
+  type EnrollInput,
+  type LessonGenerator,
+} from '../core/generation'
 import { db } from '../db'
 import { providerCredentials } from '../db/schema'
 import { drizzleCourseStore } from './course-store'
@@ -33,17 +37,22 @@ export function pickOpenAiKey(
   )
 }
 
-// End-to-end: resolve an OpenAI key, generate a course, persist it.
-export async function enrollAndGenerate(input: EnrollInput): Promise<string> {
+// Build a generator bound to a user's OpenAI key (their stored key, else the
+// platform env key). Shared by enroll + tailor so the key resolution lives once.
+export async function userGenerator(userId: string): Promise<LessonGenerator> {
   const cred = await db.query.providerCredentials.findFirst({
     where: and(
-      eq(providerCredentials.userId, input.ownerUserId),
+      eq(providerCredentials.userId, userId),
       eq(providerCredentials.provider, 'openai'),
     ),
   })
-
   const apiKey = pickOpenAiKey(cred ?? null, process.env.OPENAI_API_KEY)
-  const generator = openAiGenerator(apiKey, { model: process.env.OPENAI_MODEL })
+  return openAiGenerator(apiKey, { model: process.env.OPENAI_MODEL })
+}
+
+// End-to-end: resolve an OpenAI key, generate a course, persist it.
+export async function enrollAndGenerate(input: EnrollInput): Promise<string> {
+  const generator = await userGenerator(input.ownerUserId)
 
   // Time the generation so the Generate-course progress bar can show a
   // data-driven ETA (running average of recorded durations).
