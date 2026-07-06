@@ -122,6 +122,63 @@ describe('parseGeneratedCourse', () => {
     expect(parsed.lessons[0].segments[0].type).toBe('reading')
     expect(parsed.lessons[0].segments[0].questions[0].type).toBe('mcq')
   })
+  it('accepts a practice segment carrying a runnable exercise', () => {
+    const parsed = parseGeneratedCourse({
+      topic: 'JavaScript',
+      difficulty: 'beginner',
+      lessons: [
+        {
+          title: 'L',
+          estMinutes: 5,
+          segments: [
+            {
+              title: 'Write double',
+              type: 'practice',
+              body: 'Implement double(n).',
+              estMinutes: 4,
+              questions: [],
+              exercise: {
+                prompt: 'Return n doubled.',
+                starterCode: 'function double(n) {}',
+                tests: [
+                  { name: 'double(4)', expression: 'double(4)', expected: 8 },
+                ],
+                solution: 'function double(n){return n*2}',
+                hint: 'multiply by 2',
+              },
+            },
+          ],
+        },
+      ],
+    })
+    const ex = parsed.lessons[0].segments[0].exercise
+    expect(ex?.starterCode).toBe('function double(n) {}')
+    expect(ex?.tests[0].expected).toBe(8)
+  })
+  it('drops a malformed exercise (no tests) without failing the course', () => {
+    const parsed = parseGeneratedCourse({
+      topic: 'JavaScript',
+      difficulty: 'beginner',
+      lessons: [
+        {
+          title: 'L',
+          estMinutes: 5,
+          segments: [
+            {
+              title: 'S',
+              type: 'practice',
+              body: 'x',
+              estMinutes: 2,
+              questions: [],
+              // empty tests → the exercise sub-schema fails → dropped to undefined
+              exercise: { prompt: 'p', starterCode: 's', tests: [] },
+            },
+          ],
+        },
+      ],
+    })
+    expect(parsed.lessons[0].segments[0].exercise).toBeUndefined()
+  })
 })
 
 describe('buildGenerationPrompt', () => {
@@ -140,6 +197,14 @@ describe('buildGenerationPrompt', () => {
     expect(p).toMatch(/at least 120 words/)
     expect(p).toMatch(/inline example/i)
     expect(p).toMatch(/unacceptable/i)
+  })
+  it('describes runnable exercises (starterCode + tests) for practice segments', () => {
+    const p = buildGenerationPrompt({ topic: 'JavaScript', difficulty: 'beginner' })
+    expect(p).toMatch(/exercise/i)
+    expect(p).toContain('starterCode')
+    expect(p).toContain('tests')
+    // and it must gate exercises to JS-friendly topics, not force them everywhere
+    expect(p).toMatch(/JavaScript function task would be contrived/i)
   })
   it('threads a customization request into the full-course prompt', () => {
     const p = buildGenerationPrompt({

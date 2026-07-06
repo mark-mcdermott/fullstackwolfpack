@@ -66,6 +66,48 @@ describe('generatedToSeedCourse', () => {
     expect(generatedToSeedCourse('docker', 'beginner', gen)).toEqual(seed)
   })
 
+  it('leaves exercise undefined when the segment has none', () => {
+    expect(seed.lessons[0].segments[0].exercise).toBeUndefined()
+  })
+
+  it('carries a runnable exercise through with a derived, slug-scoped id', () => {
+    const withEx: GeneratedCourse = {
+      topic: 'JavaScript',
+      difficulty: 'beginner',
+      lessons: [
+        {
+          title: 'Functions',
+          estMinutes: 5,
+          glossary: [],
+          segments: [
+            {
+              title: 'Write double',
+              type: 'practice',
+              body: 'Implement it.',
+              estMinutes: 4,
+              questions: [],
+              exercise: {
+                prompt: 'Return n doubled.',
+                starterCode: 'function double(n) {}',
+                tests: [
+                  { name: 'double(4)', expression: 'double(4)', expected: 8 },
+                ],
+                solution: 'function double(n){return n*2}',
+                hint: 'multiply by 2',
+              },
+            },
+          ],
+        },
+      ],
+    }
+    const ex = generatedToSeedCourse('javascript', 'beginner', withEx)
+      .lessons[0].segments[0].exercise
+    expect(ex?.id).toBe('builtin-javascript-l1-s1-ex1')
+    expect(ex?.starterCode).toBe('function double(n) {}')
+    expect(ex?.tests[0].expected).toBe(8)
+    expect(ex?.solution).toBe('function double(n){return n*2}')
+  })
+
   it('drops ungradeable short-answers (no expectedAnswer) but keeps others', () => {
     const withBad: GeneratedCourse = {
       topic: 'Docker',

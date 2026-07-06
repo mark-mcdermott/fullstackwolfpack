@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { exerciseTestSchema } from './exercise'
 
 // The AI lesson-generation pipeline, defined against two seams so the
 // orchestration is testable with fakes:
@@ -26,6 +27,18 @@ export const generatedQuestionSchema = z.object({
   explanation: z.string().optional(),
 })
 
+// A runnable Phase-4 code exercise the model may attach to a "practice" segment.
+// Mirrors SeedExercise (the mapper derives the id); `tests` reuse the engine's
+// own schema — an `expression` evaluated in the learner's scope and deep-compared
+// to `expected`. Requires >=1 test so a "runnable" exercise is actually runnable.
+export const generatedExerciseSchema = z.object({
+  prompt: z.string(),
+  starterCode: z.string(),
+  tests: z.array(exerciseTestSchema).min(1),
+  solution: z.string().default(''),
+  hint: z.string().default(''),
+})
+
 export const generatedSegmentSchema = z.object({
   title: z.string(),
   type: lenientEnum(['reading', 'code', 'practice', 'quiz']),
@@ -37,6 +50,10 @@ export const generatedSegmentSchema = z.object({
   // of failing the parse.
   estMinutes: z.number().int().positive().catch(2),
   questions: z.array(generatedQuestionSchema).default([]),
+  // Optional runnable exercise. A malformed one (e.g. no tests) is dropped to
+  // undefined so it never fails an otherwise-valid course; an absent one stays
+  // undefined.
+  exercise: generatedExerciseSchema.optional().catch(undefined),
 })
 
 export const generatedLessonSchema = z.object({
@@ -130,6 +147,7 @@ const DEPTH_GUIDANCE = [
   '- Every "reading" segment must actually teach: at least 120 words (2-4 substantial paragraphs) that explain the concept, include a concrete inline example (a short code snippet or a worked scenario), and note when/why you would use it plus a common pitfall. One- or two-sentence "X is a tool that does Y" segments are unacceptable.',
   '- "code" segments must include a real, runnable, commented snippet the learner can study and modify — not pseudocode.',
   '- "practice" segments pose an applied task tied to the reading.',
+  '- Only when the topic naturally supports small, self-contained JavaScript function tasks (e.g. JavaScript, TypeScript, algorithms, data structures, functional programming), attach a runnable "exercise" to a "practice" segment (see the "exercise" shape below): a function the learner implements, with "starterCode", 2-4 "tests", a correct "solution" that passes every test, and a "hint". Prefer deterministic pure functions. Aim for at least two such exercises across the course. For topics where a JavaScript function task would be contrived (e.g. Git, Docker, CSS, shell/CLI), do NOT invent one — omit "exercise".',
   '- "quiz" segments carry a lesson check-in; give each a short one-line body introducing it, plus its questions.',
   '- Assume the reader is a developer: use correct terminology, real commands/APIs, and realistic scenarios. Honor the difficulty — go deeper and skip hand-holding for intermediate/advanced.',
   '- Set each segment estMinutes to honestly reflect its length (a 3-minute reading is several substantial paragraphs, not one line).',
@@ -139,8 +157,9 @@ const GLOSSARY_GUIDANCE =
   'For each lesson also produce a "glossary": an array of 3-8 key technical terms it introduces (short, written exactly as they appear in the lesson) — used to link the learner to further reading.'
 
 const LESSON_JSON_SHAPE = [
-  '{ "topic", "difficulty", "lessons": [{ "title", "estMinutes", "glossary": ["term", ...], "segments": [{ "title", "type", "body", "estMinutes", "questions": [{ "type", "prompt", "options"?, "correctIndex"?, "expectedAnswer"?, "explanation"? }] }] }] }',
+  '{ "topic", "difficulty", "lessons": [{ "title", "estMinutes", "glossary": ["term", ...], "segments": [{ "title", "type", "body", "estMinutes", "questions": [{ "type", "prompt", "options"?, "correctIndex"?, "expectedAnswer"?, "explanation"? }], "exercise"?: { "prompt", "starterCode", "tests": [{ "name", "expression", "expected" }], "solution", "hint" } }] }] }',
   'segment.type is one of: reading | code | practice | quiz. question.type is one of: mcq | short_answer. "body" is markdown.',
+  'An "exercise" is a runnable JavaScript task: "starterCode" is a function stub the learner completes; each test\'s "expression" is JavaScript evaluated in the learner\'s scope (it may call a function the learner defines) whose result is deep-compared to "expected" (a JSON value). "solution" must be a correct implementation that passes every test; "hint" nudges without giving it away.',
 ]
 
 export function buildGenerationPrompt(input: GenerationInput): string {
