@@ -106,6 +106,7 @@ export const topicTrackSchema = z.object({
 export const topicTracksSchema = z.object({
   topicSlug: z.string(),
   activeDifficulty: difficultySchema.nullable(),
+  activeOwned: z.boolean(), // active track is the user's own course → can append
   tracks: z.array(topicTrackSchema),
 })
 export type TopicTracks = z.infer<typeof topicTracksSchema>
@@ -120,6 +121,22 @@ export const setDifficultyResultSchema = z.object({
   generated: z.boolean(), // true if a new course was generated for this level
 })
 export type SetDifficultyResult = z.infer<typeof setDifficultyResultSchema>
+
+// Tailor a topic's course from a free-text instruction. `append` adds lessons to
+// the user's own course; `rebuild` regenerates it with the instruction baked in.
+export const tailorModeSchema = z.enum(['append', 'rebuild'])
+export type TailorMode = z.infer<typeof tailorModeSchema>
+export const tailorRequest = z.object({
+  topicSlug: z.string().min(1),
+  mode: tailorModeSchema,
+  instructions: z.string().trim().min(1).max(2000),
+})
+export const tailorResultSchema = z.object({
+  courseId: z.string(),
+  mode: tailorModeSchema,
+  lessonsAdded: z.number().int().nonnegative(),
+})
+export type TailorResult = z.infer<typeof tailorResultSchema>
 
 // Expected course-generation duration (ms) + how many samples it averages —
 // drives the ETA on the Generate-course progress bar.

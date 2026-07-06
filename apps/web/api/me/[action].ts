@@ -14,6 +14,7 @@ import {
   openAiKeyRequest,
   resetTopicRequest,
   setDifficultyRequest,
+  tailorRequest,
 } from '../../src/core/schemas'
 import { db } from '../../src/db'
 import { topics, users } from '../../src/db/schema'
@@ -50,6 +51,7 @@ import {
 } from '../../src/server/learning'
 import { getAdaptiveState } from '../../src/server/adaptive'
 import { getTopicTracks, setActiveDifficulty } from '../../src/server/tracks'
+import { tailorCourse } from '../../src/server/tailor'
 import { runTutor } from '../../src/server/tutor'
 import { getDueReviews, gradeReview } from '../../src/server/review'
 import { json } from '../_lib/http'
@@ -342,6 +344,25 @@ export async function POST(req: Request): Promise<Response> {
       } catch (err) {
         const message =
           err instanceof Error ? err.message : 'could not switch difficulty'
+        return json({ error: message }, { status: 400 })
+      }
+    }
+
+    case 'tailor-course': {
+      const parsed = await parseBody(tailorRequest, req)
+      if (!parsed.ok) return parsed.response
+      try {
+        const result = await tailorCourse(
+          userId,
+          parsed.data.topicSlug,
+          parsed.data.mode,
+          parsed.data.instructions,
+        )
+        if (!result) return json({ error: 'unknown topic' }, { status: 404 })
+        return json(result)
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : 'could not tailor course'
         return json({ error: message }, { status: 400 })
       }
     }

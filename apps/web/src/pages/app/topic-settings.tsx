@@ -1,5 +1,5 @@
 import { ArrowLeft } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { api } from '@/api-client'
 import { AsyncView, EmptyState } from '@/components/layout/async-view'
@@ -8,52 +8,68 @@ import { PageHeading, Panel, ProgressMeter, SectionLabel } from '@fw/ui'
 import { DIFFICULTIES } from '@/core/adaptive'
 import type { TopicProgress } from '@/core/app-data'
 import { DEFAULT_GENERATION_ETA_MS, type Difficulty } from '@/core/generation'
-import type { TopicTracks } from '@/core/schemas'
+import type { TailorMode, TopicTracks } from '@/core/schemas'
 import { useAsync } from '@/hooks/use-async'
 import { topicCoursePath } from '@/lib/open-course'
 import { cn } from '@/lib/utils'
 
-// Switch the topic's active difficulty track. A level with an existing course
-// switches instantly (its own progress preserved); a new level is generated (~20s).
-function DifficultyPanel({
-  topicSlug,
-  onChange,
-}: {
-  topicSlug: string
-  onChange: () => void
-}) {
-  const [tracks, setTracks] = useState<TopicTracks | null>(null)
-  const [busy, setBusy] = useState<Difficulty | null>(null)
-  const [generating, setGenerating] = useState(false)
+// Ease a progress value toward 95% over the expected generation time. Snaps back
+// to 0 when inactive; the caller reloads and re-renders on completion.
+function useEaseProgress(active: boolean, etaMs: number) {
   const [progress, setProgress] = useState(0)
-  const [etaMs, setEtaMs] = useState(DEFAULT_GENERATION_ETA_MS)
-  const [error, setError] = useState<string | null>(null)
-
   useEffect(() => {
-    let active = true
-    api.courses
-      .tracks(topicSlug)
-      .then((t) => active && setTracks(t))
-      .catch(() => {})
-    api.courses
-      .generationEta()
-      .then((r) => active && setEtaMs(r.etaMs))
-      .catch(() => {})
-    return () => {
-      active = false
+    if (!active) {
+      setProgress(0)
+      return
     }
-  }, [topicSlug])
-
-  // Ease the bar toward 95% over the expected generation time; snaps away on done.
-  useEffect(() => {
-    if (!generating) return
     const startedAt = performance.now()
     const id = setInterval(() => {
       const elapsed = performance.now() - startedAt
       setProgress(Math.min(95, (elapsed / Math.max(etaMs, 1)) * 100))
     }, 120)
     return () => clearInterval(id)
-  }, [generating, etaMs])
+  }, [active, etaMs])
+  return progress
+}
+
+function GenBar({ progress, label }: { progress: number; label: string }) {
+  return (
+    <div
+      className="relative mt-3 h-9 overflow-hidden border border-primary/50"
+      role="progressbar"
+      aria-label={label}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(progress)}
+    >
+      <div
+        className="absolute inset-y-0 left-0 bg-primary/25 transition-[width] duration-150 ease-linear"
+        style={{ width: `${progress}%` }}
+      />
+      <span className="absolute inset-0 flex items-center justify-center font-mono text-[10px] tracking-widest text-primary uppercase">
+        {label}… {Math.round(progress)}%
+      </span>
+    </div>
+  )
+}
+
+// Switch the topic's active difficulty track. An existing level switches instantly
+// (its own progress intact); a new level is generated (~20s).
+function DifficultyPanel({
+  slug,
+  tracks,
+  etaMs,
+  onChanged,
+}: {
+  slug: string
+  tracks: TopicTracks | null
+  etaMs: number
+  onChanged: () => void
+}) {
+  const [busy, setBusy] = useState<Difficulty | null>(null)
+  const [generating, setGenerating] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const progress = useEaseProgress(generating, etaMs)
 
   async function choose(difficulty: Difficulty) {
     if (busy || tracks?.activeDifficulty === difficulty) return
@@ -61,18 +77,15 @@ function DifficultyPanel({
       ?.exists
     setBusy(difficulty)
     setGenerating(willGenerate)
-    setProgress(0)
     setError(null)
     try {
-      await api.courses.setDifficulty(topicSlug, difficulty)
-      setTracks(await api.courses.tracks(topicSlug))
-      onChange()
+      await api.courses.setDifficulty(slug, difficulty)
+      onChanged()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not change difficulty')
     } finally {
       setBusy(null)
       setGenerating(false)
-      setProgress(0)
     }
   }
 
@@ -109,22 +122,7 @@ function DifficultyPanel({
         })}
       </div>
       {busy && generating ? (
-        <div
-          className="relative mt-3 h-9 overflow-hidden border border-primary/50"
-          role="progressbar"
-          aria-label={`Generating ${busy} course`}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={Math.round(progress)}
-        >
-          <div
-            className="absolute inset-y-0 left-0 bg-primary/25 transition-[width] duration-150 ease-linear"
-            style={{ width: `${progress}%` }}
-          />
-          <span className="absolute inset-0 flex items-center justify-center font-mono text-[10px] tracking-widest text-primary uppercase">
-            Generating {busy}… {Math.round(progress)}%
-          </span>
-        </div>
+        <GenBar progress={progress} label={`Generating ${busy}`} />
       ) : busy ? (
         <p className="mt-3 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
           Switching to {busy}…
@@ -138,6 +136,135 @@ function DifficultyPanel({
             </span>
           </p>
         )
+      )}
+      {error && (
+        <p className="mt-2 font-mono text-[10px] text-destructive">{error}</p>
+      )}
+    </Panel>
+  )
+}
+
+const TAILOR_MODES: { key: TailorMode; label: string; hint: string }[] = [
+  {
+    key: 'append',
+    label: 'Add lessons',
+    hint: 'Extend the current course — keeps your progress.',
+  },
+  {
+    key: 'rebuild',
+    label: 'Rebuild',
+    hint: 'Regenerate the whole course — resets this track.',
+  },
+]
+
+// Tailor the active course from a free-text instruction: append lessons (owned
+// courses only) or rebuild it. Both regenerate content (~20s).
+function TailorPanel({
+  slug,
+  tracks,
+  etaMs,
+  onChanged,
+}: {
+  slug: string
+  tracks: TopicTracks | null
+  etaMs: number
+  onChanged: () => void
+}) {
+  const canAppend = tracks?.activeOwned ?? false
+  const [mode, setMode] = useState<TailorMode>('append')
+  const [instructions, setInstructions] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
+  const progress = useEaseProgress(busy, etaMs)
+
+  // Append needs a course the user generated; fall back to rebuild otherwise.
+  useEffect(() => {
+    if (!canAppend && mode === 'append') setMode('rebuild')
+  }, [canAppend, mode])
+
+  async function submit() {
+    const text = instructions.trim()
+    if (busy || text === '') return
+    setBusy(true)
+    setError(null)
+    setNotice(null)
+    try {
+      const r = await api.courses.tailor(slug, mode, text)
+      setNotice(
+        r.mode === 'append'
+          ? `Added ${r.lessonsAdded} lesson${r.lessonsAdded === 1 ? '' : 's'}.`
+          : `Rebuilt with ${r.lessonsAdded} lessons.`,
+      )
+      setInstructions('')
+      onChanged()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not tailor the course')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Panel>
+      <SectionLabel>Tailor lessons</SectionLabel>
+      <p className="mt-2 font-mono text-xs text-muted-foreground">
+        Tell the generator what to add or emphasize, then add it to the current
+        course or rebuild the whole thing.
+      </p>
+      <div className="mt-4 flex divide-x divide-border border border-border">
+        {TAILOR_MODES.map((m) => {
+          const disabled = m.key === 'append' && !canAppend
+          return (
+            <button
+              key={m.key}
+              type="button"
+              onClick={() => setMode(m.key)}
+              disabled={busy || disabled}
+              aria-pressed={mode === m.key}
+              className={cn(
+                'flex-1 py-2 font-mono text-[10px] tracking-widest uppercase transition-colors disabled:cursor-not-allowed disabled:opacity-40',
+                mode === m.key
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:bg-muted',
+              )}
+            >
+              {m.label}
+            </button>
+          )
+        })}
+      </div>
+      <p className="mt-2 font-mono text-[10px] leading-relaxed tracking-wide text-muted-foreground">
+        {TAILOR_MODES.find((m) => m.key === mode)?.hint}
+        {!canAppend && ' Adding needs a course you generated — rebuild first.'}
+      </p>
+      <textarea
+        value={instructions}
+        onChange={(e) => setInstructions(e.target.value)}
+        disabled={busy}
+        rows={3}
+        placeholder="e.g. Add lessons covering IIFEs and promises"
+        className="mt-3 w-full resize-y border border-border bg-transparent px-3 py-2 font-mono text-xs outline-none focus:border-muted-foreground disabled:opacity-60"
+      />
+      {busy ? (
+        <GenBar
+          progress={progress}
+          label={mode === 'append' ? 'Adding lessons' : 'Rebuilding'}
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={submit}
+          disabled={instructions.trim() === ''}
+          className="mt-3 bg-primary px-4 py-2 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {mode === 'append' ? 'Add lessons →' : 'Rebuild course →'}
+        </button>
+      )}
+      {notice && (
+        <p className="mt-2 font-mono text-[10px] tracking-widest text-primary uppercase">
+          ✓ {notice}
+        </p>
       )}
       {error && (
         <p className="mt-2 font-mono text-[10px] text-destructive">{error}</p>
@@ -213,11 +340,34 @@ function ResetPanel({
 
 export function TopicSettingsPage() {
   const { slug = '' } = useParams()
-  const state = useAsync(() => api.data.topics())
+  const topicsState = useAsync(() => api.data.topics())
+  const [tracks, setTracks] = useState<TopicTracks | null>(null)
+  const [etaMs, setEtaMs] = useState(DEFAULT_GENERATION_ETA_MS)
+
+  const reloadTracks = useCallback(() => {
+    api.courses
+      .tracks(slug)
+      .then(setTracks)
+      .catch(() => {})
+  }, [slug])
+
+  const { reload: reloadTopics } = topicsState
+  const onChanged = useCallback(() => {
+    reloadTracks()
+    reloadTopics()
+  }, [reloadTracks, reloadTopics])
+
+  useEffect(() => {
+    reloadTracks()
+    api.courses
+      .generationEta()
+      .then((r) => setEtaMs(r.etaMs))
+      .catch(() => {})
+  }, [reloadTracks])
 
   return (
     <div>
-      <AsyncView state={state}>
+      <AsyncView state={topicsState}>
         {(topics) => {
           const topic = topics.find((t) => t.slug === slug)
           if (!topic) {
@@ -252,8 +402,19 @@ export function TopicSettingsPage() {
                     <ProgressMeter value={topic.pct} />
                   </div>
                 </Panel>
-                <DifficultyPanel topicSlug={topic.slug} onChange={state.reload} />
-                <ResetPanel topic={topic} onReset={state.reload} />
+                <DifficultyPanel
+                  slug={topic.slug}
+                  tracks={tracks}
+                  etaMs={etaMs}
+                  onChanged={onChanged}
+                />
+                <TailorPanel
+                  slug={topic.slug}
+                  tracks={tracks}
+                  etaMs={etaMs}
+                  onChanged={onChanged}
+                />
+                <ResetPanel topic={topic} onReset={onChanged} />
               </div>
             </div>
           )

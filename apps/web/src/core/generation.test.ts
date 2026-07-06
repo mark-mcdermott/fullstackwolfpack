@@ -5,6 +5,7 @@ import {
   COURSE_TARGET,
   DEFAULT_GENERATION_ETA_MS,
   parseGeneratedCourse,
+  runAppend,
   runGeneration,
   type CourseStore,
   type GeneratedCourse,
@@ -139,6 +140,30 @@ describe('buildGenerationPrompt', () => {
     expect(p).toMatch(/inline example/i)
     expect(p).toMatch(/unacceptable/i)
   })
+  it('threads a customization request into the full-course prompt', () => {
+    const p = buildGenerationPrompt({
+      topic: 'JavaScript',
+      difficulty: 'beginner',
+      customization: 'cover IIFEs and promises',
+    })
+    expect(p).toContain('cover IIFEs and promises')
+    expect(p).toMatch(/learner request/i)
+  })
+  it('switches to an append prompt when existingTitles are given', () => {
+    const p = buildGenerationPrompt({
+      topic: 'JavaScript',
+      difficulty: 'beginner',
+      customization: 'add promises',
+      existingTitles: ['Variables', 'Functions'],
+    })
+    expect(p).toMatch(/EXTENDING/i)
+    expect(p).toMatch(/NEW lessons only/i)
+    expect(p).toContain('Variables')
+    expect(p).toContain('Functions')
+    expect(p).toContain('add promises')
+    // and it must warn against repeating what's already covered
+    expect(p).toMatch(/do NOT repeat/i)
+  })
 })
 
 describe('averageEtaMs', () => {
@@ -199,5 +224,30 @@ describe('runGeneration', () => {
     )
     expect(calls.failed).toBe(true)
     expect(calls.ready).toBe(false)
+  })
+})
+
+describe('runAppend', () => {
+  it('adds the generated lessons after the current last one, without touching course status', async () => {
+    const { store, calls } = fakeStore()
+    const twoLessons: GeneratedCourse = {
+      lessons: [validCourse.lessons[0], validCourse.lessons[0]],
+    }
+    const orders: number[] = []
+    store.addLesson = async (_id, order) => {
+      calls.lessons++
+      orders.push(order)
+    }
+    const generator: LessonGenerator = { generate: async () => twoLessons }
+    const added = await runAppend(
+      { generator, store },
+      'course-1',
+      { topic: 'React', difficulty: 'beginner', existingTitles: ['Intro'] },
+      5,
+    )
+    expect(added).toBe(2)
+    expect(orders).toEqual([5, 6]) // appended after the existing lessons
+    expect(calls.ready).toBe(false) // append never re-marks the course
+    expect(calls.failed).toBe(false)
   })
 })
