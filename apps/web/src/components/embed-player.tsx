@@ -1,6 +1,7 @@
 import { GraduationCap, LogOut, Play } from 'lucide-react'
 import { useState } from 'react'
 import { Panel, Pill, SectionLabel } from '@fw/ui'
+import { usePlaytimeTracker } from '@/hooks/use-playtime-tracker'
 import { embedGameUrl, type EmbedEntry } from '@/lib/embed-catalog'
 
 // Plays a self-hosted HTML5 game (the embed lane) in a sandboxed iframe.
@@ -18,6 +19,7 @@ export function EmbedPlayer({
   onExit: () => void
 }) {
   const [lessonOpen, setLessonOpen] = useState(false)
+  usePlaytimeTracker(game)
 
   return (
     <div className="flex flex-col gap-5">

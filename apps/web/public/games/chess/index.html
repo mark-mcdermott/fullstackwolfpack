@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chess</title>
+  <link rel="stylesheet" href="chessboard.css" />
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #0b0b0d;
+      color: #e8e8ea;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    }
+    .wrap {
+      min-height: 100%;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 20px;
+    }
+    #board { width: min(88vw, 82vh, 560px); }
+    #status {
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      min-height: 1.4em;
+      color: #b9b9be;
+    }
+    #reset {
+      background: #e5484d;
+      color: #fff;
+      border: 0;
+      padding: 9px 18px;
+      font: inherit;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    #reset:hover { background: #ec5d62; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div id="board"></div>
+    <div id="status">White to move</div>
+    <button id="reset" type="button">Reset</button>
+  </div>
+
+  <script src="jquery.min.js"></script>
+  <script src="chessboard.js"></script>
+  <script src="chess.js"></script>
+  <script>
+    // Local two-player chess: chessboard.js draws the board, chess.js enforces
+    // the rules (legal moves only, alternating turns). No engine/AI — hotseat.
+    var game = new Chess()
+    var board
+    var statusEl = document.getElementById('status')
+
+    function onDragStart(source, piece) {
+      if (game.game_over()) return false
+      // Only let the side to move pick up its own pieces.
+      if (
+        (game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+        (game.turn() === 'b' && piece.search(/^w/) !== -1)
+      ) {
+        return false
+      }
+    }
+
+    function onDrop(source, target) {
+      var move = game.move({ from: source, to: target, promotion: 'q' })
+      if (move === null) return 'snapback'
+      updateStatus()
+    }
+
+    // Keep the board in sync after castling / en-passant / promotion.
+    function onSnapEnd() {
+      board.position(game.fen())
+    }
+
+    function updateStatus() {
+      var moving = game.turn() === 'w' ? 'White' : 'Black'
+      if (game.in_checkmate()) {
+        statusEl.textContent =
+          (moving === 'White' ? 'Black' : 'White') + ' wins by checkmate'
+      } else if (game.in_draw()) {
+        statusEl.textContent = 'Draw'
+      } else {
+        statusEl.textContent =
+          moving + ' to move' + (game.in_check() ? ' — in check' : '')
+      }
+    }
+
+    board = Chessboard('board', {
+      draggable: true,
+      position: 'start',
+      pieceTheme: 'img/chesspieces/wikipedia/{piece}.png',
+      onDragStart: onDragStart,
+      onDrop: onDrop,
+      onSnapEnd: onSnapEnd,
+    })
+
+    document.getElementById('reset').addEventListener('click', function () {
+      game.reset()
+      board.start()
+      updateStatus()
+    })
+  </script>
+</body>
+</html>

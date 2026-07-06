@@ -1,0 +1,9 @@
+Modifications to the vendored copy of Astray (github.com/wwwtyro/Astray):
+
+- index.html: changed three absolute texture paths to relative so the game
+  loads its own textures from this folder inside the sandboxed iframe:
+    '/ball.png'     -> 'ball.png'
+    '/concrete.png' -> 'concrete.png'
+    '/brick.png'    -> 'brick.png'
+
+No other changes. Astray is released into the public domain (Unlicense).

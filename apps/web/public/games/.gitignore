@@ -12,3 +12,11 @@
 !/hextris/
 # HexGL — MIT (Thibaut Despoulain) + PD/CC-BY audio; GA stripped
 !/hexgl/
+# Underrun — MIT (Dominic Szablewski); no trackers, drop-in
+!/underrun/
+# Astray — Unlicense/PD (wwwtyro); absolute texture paths made relative
+!/astray/
+# Hauberk — MIT (Bob Nystrom); prebuilt gh-pages app, Google Fonts link stripped
+!/hauberk/
+# Chess — MIT (chessboard.js) + BSD-2 (chess.js) + MIT (jQuery) + BSD-3 (Cburnett pieces)
+!/chess/

@@ -62,6 +62,10 @@ vi.mock('@/api-client', () => ({
       enroll: async () => ({ courseId: 'course-1' }),
       generationEta: async () => ({ etaMs: 20000, samples: 0 }),
     },
+    arcade: {
+      playtime: async () => [],
+      recordPlaytime: async () => ({ seconds: 0 }),
+    },
     preferences: {
       get: async () => ({
         askSkillLevel: false,

@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { type ComponentProps } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { EMBED_CATALOG } from '@/lib/embed-catalog'
+import { type GamePlaytime, gameKey } from '@/core/playtime'
 import { ROM_CATALOG, uploadedRomFromFile } from '@/lib/rom-catalog'
 import { SYSTEM_META } from '@/core/roms'
 import { RomGallery } from './rom-gallery'
@@ -17,7 +18,13 @@ function renderGallery(props: Partial<ComponentProps<typeof RomGallery>> = {}) {
     onUpload: props.onUpload ?? vi.fn(),
     onDelete: props.onDelete ?? vi.fn(),
   }
-  render(<RomGallery uploads={props.uploads ?? []} {...handlers} />)
+  render(
+    <RomGallery
+      uploads={props.uploads ?? []}
+      playtimeByGame={props.playtimeByGame ?? new Map()}
+      {...handlers}
+    />,
+  )
   return handlers
 }
 
@@ -131,6 +138,33 @@ describe('RomGallery', () => {
     }
     // The upload (ROM) tile is hidden on the Web tab.
     expect(screen.queryByText('Add your ROM')).not.toBeInTheDocument()
+  })
+
+  it('shows a played total and floats a recently-played title to the front of its lane', () => {
+    const lastRom = ROM_CATALOG[ROM_CATALOG.length - 1]
+    const playtimeByGame = new Map<string, GamePlaytime>([
+      [
+        gameKey(lastRom),
+        {
+          gameId: gameKey(lastRom),
+          source: 'catalog',
+          title: lastRom.title,
+          seconds: 2520,
+          lastPlayedAt: '2026-07-05T12:00:00.000Z',
+        },
+      ],
+    ])
+    renderGallery({ playtimeByGame })
+
+    // The played tile surfaces its running total…
+    expect(screen.getByText('42m played')).toBeInTheDocument()
+
+    // …and floats ahead of the first (unplayed) catalog ROM in DOM order.
+    const played = screen.getByRole('heading', { name: lastRom.title })
+    const first = screen.getByRole('heading', { name: firstRom.title })
+    expect(
+      played.compareDocumentPosition(first) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
   })
 
   it('rejects an unsupported upload and shows an error', () => {

@@ -1,6 +1,12 @@
-import { Play, Search, Trash2, Upload } from 'lucide-react'
+import { Clock, Play, Search, Trash2, Upload } from 'lucide-react'
 import { useId, useMemo, useState } from 'react'
 import { Panel, Pill } from '@fw/ui'
+import {
+  formatPlaytime,
+  type GamePlaytime,
+  gameKey,
+  type PlaytimeSource,
+} from '@/core/playtime'
 import {
   ACCEPTED_EXTENSIONS,
   type RomSystem,
@@ -40,6 +46,7 @@ function GameTile({
   subtitle,
   badge,
   description,
+  playedSeconds,
   onPlay,
   onDelete,
 }: {
@@ -48,6 +55,7 @@ function GameTile({
   subtitle: string
   badge: string
   description: string
+  playedSeconds?: number
   onPlay: () => void
   onDelete?: () => void
 }) {
@@ -77,6 +85,12 @@ function GameTile({
           {subtitle}
         </p>
       </div>
+      {playedSeconds !== undefined && playedSeconds > 0 && (
+        <p className="flex items-center gap-1.5 font-mono text-[10px] tracking-widest text-primary/80 uppercase">
+          <Clock className="size-3" />
+          {formatPlaytime(playedSeconds)} played
+        </p>
+      )}
       <p className="line-clamp-3 font-mono text-xs text-muted-foreground">
         {description}
       </p>
@@ -153,16 +167,38 @@ function matches(query: string, ...fields: string[]): boolean {
   return fields.some((f) => f.toLowerCase().includes(query))
 }
 
+// Float titles the user has played to the front of their lane (most recent
+// first); everything unplayed keeps its original order behind them. ISO
+// timestamps sort lexicographically, so a string compare is a time compare.
+function sortByRecentlyPlayed<T extends { source: PlaytimeSource; id: string }>(
+  items: T[],
+  byGame: Map<string, GamePlaytime>,
+): T[] {
+  return items
+    .map((item, index) => ({ item, index }))
+    .sort((a, b) => {
+      const pa = byGame.get(gameKey(a.item))
+      const pb = byGame.get(gameKey(b.item))
+      if (pa && pb) return pb.lastPlayedAt.localeCompare(pa.lastPlayedAt)
+      if (pa) return -1
+      if (pb) return 1
+      return a.index - b.index
+    })
+    .map((x) => x.item)
+}
+
 export function RomGallery({
   onSelect,
   uploads,
   onUpload,
   onDelete,
+  playtimeByGame,
 }: {
   onSelect: (game: PlayableGame) => void
   uploads: UploadedRom[]
   onUpload: (file: File, system: RomSystem) => void
   onDelete: (id: string) => void
+  playtimeByGame: Map<string, GamePlaytime>
 }) {
   const [filter, setFilter] = useState<Filter>(null)
   const [query, setQuery] = useState('')
@@ -173,31 +209,40 @@ export function RomGallery({
     () =>
       filter === 'web'
         ? []
-        : uploads.filter(
-            (rom) =>
-              (!filter || rom.system === filter) && matches(q, rom.title),
+        : sortByRecentlyPlayed(
+            uploads.filter(
+              (rom) =>
+                (!filter || rom.system === filter) && matches(q, rom.title),
+            ),
+            playtimeByGame,
           ),
-    [uploads, filter, q],
+    [uploads, filter, q, playtimeByGame],
   )
 
   const embeds = useMemo<EmbedEntry[]>(
     () =>
       filter !== null && filter !== 'web'
         ? []
-        : EMBED_CATALOG.filter((g) => matches(q, g.title, g.author)),
-    [filter, q],
+        : sortByRecentlyPlayed(
+            EMBED_CATALOG.filter((g) => matches(q, g.title, g.author)),
+            playtimeByGame,
+          ),
+    [filter, q, playtimeByGame],
   )
 
   const roms = useMemo<RomEntry[]>(
     () =>
       filter === 'web'
         ? []
-        : ROM_CATALOG.filter(
-            (rom) =>
-              (!filter || rom.system === filter) &&
-              matches(q, rom.title, rom.author),
+        : sortByRecentlyPlayed(
+            ROM_CATALOG.filter(
+              (rom) =>
+                (!filter || rom.system === filter) &&
+                matches(q, rom.title, rom.author),
+            ),
+            playtimeByGame,
           ),
-    [filter, q],
+    [filter, q, playtimeByGame],
   )
 
   return (
@@ -238,6 +283,7 @@ export function RomGallery({
             subtitle={`${game.author} · ${game.license}`}
             badge="Web"
             description={game.description}
+            playedSeconds={playtimeByGame.get(gameKey(game))?.seconds}
             onPlay={() => onSelect(game)}
           />
         ))}
@@ -249,6 +295,7 @@ export function RomGallery({
             subtitle={`${rom.author} · ${rom.license}`}
             badge={SYSTEM_META[rom.system].label}
             description={rom.description}
+            playedSeconds={playtimeByGame.get(gameKey(rom))?.seconds}
             onPlay={() => onSelect(rom)}
           />
         ))}
@@ -260,6 +307,7 @@ export function RomGallery({
             subtitle="Your library · on this device"
             badge={SYSTEM_META[rom.system].label}
             description="Your own ROM — stored on this device, never uploaded."
+            playedSeconds={playtimeByGame.get(gameKey(rom))?.seconds}
             onPlay={() => onSelect(rom)}
             onDelete={() => onDelete(rom.id)}
           />
