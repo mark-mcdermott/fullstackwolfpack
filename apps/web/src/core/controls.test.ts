@@ -4,11 +4,13 @@ import {
   BUTTON_META,
   DEFAULT_GAMEPAD_BINDS,
   DEFAULT_KEYBOARD_BINDS,
+  dpadDirections,
   formatRetroKey,
   gamepadBindsToConfig,
   keyboardBindsToConfig,
   RETROPAD_BUTTONS,
   retroKeyFromCode,
+  touchButtonsForSystem,
 } from './controls'
 
 describe('defaults', () => {
@@ -79,5 +81,58 @@ describe('binds → retroarch config', () => {
     )
     expect(config.input_player1_a).toBe('x')
     expect(config.input_player1_a_btn).toBe('1')
+  })
+})
+
+describe('dpadDirections', () => {
+  it('is neutral inside the dead zone', () => {
+    expect(dpadDirections(0, 0)).toEqual([])
+    expect(dpadDirections(0.2, -0.2)).toEqual([])
+  })
+
+  it('reads a single cardinal past the threshold', () => {
+    expect(dpadDirections(0, -0.8)).toEqual(['up'])
+    expect(dpadDirections(0, 0.8)).toEqual(['down'])
+    expect(dpadDirections(-0.8, 0)).toEqual(['left'])
+    expect(dpadDirections(0.8, 0)).toEqual(['right'])
+  })
+
+  it('reads a diagonal when both axes clear the threshold', () => {
+    expect(dpadDirections(0.8, -0.8).sort()).toEqual(['right', 'up'])
+    expect(dpadDirections(-0.8, 0.8).sort()).toEqual(['down', 'left'])
+  })
+
+  it('never yields opposing directions at once', () => {
+    const dirs = dpadDirections(0, -0.9)
+    expect(dirs).not.toContain('down')
+  })
+})
+
+describe('touchButtonsForSystem', () => {
+  it('gives a Game Boy two face buttons and no shoulders', () => {
+    expect(touchButtonsForSystem('gb')).toEqual({ face: ['b', 'a'], shoulders: [] })
+    expect(touchButtonsForSystem('nes').shoulders).toEqual([])
+  })
+
+  it('gives a SNES the four-button diamond plus shoulders', () => {
+    const { face, shoulders } = touchButtonsForSystem('snes')
+    expect(face).toEqual(['y', 'x', 'b', 'a'])
+    expect(shoulders).toEqual(['l', 'r'])
+  })
+
+  it('gives a GBA two face buttons plus shoulders', () => {
+    expect(touchButtonsForSystem('gba')).toEqual({
+      face: ['b', 'a'],
+      shoulders: ['l', 'r'],
+    })
+  })
+
+  it('only ever names real RetroPad buttons', () => {
+    for (const system of ['nes', 'gb', 'gbc', 'gba', 'genesis', 'snes'] as const) {
+      const { face, shoulders } = touchButtonsForSystem(system)
+      for (const b of [...face, ...shoulders]) {
+        expect(RETROPAD_BUTTONS).toContain(b)
+      }
+    }
   })
 })

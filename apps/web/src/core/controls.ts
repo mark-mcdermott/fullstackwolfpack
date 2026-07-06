@@ -2,6 +2,8 @@
 // keyboard/gamepad bindings, and the translation into RetroArch config keys
 // (`input_player1_*`) that Nostalgist understands. No DOM, no storage.
 
+import type { RomSystem } from './roms'
+
 export const RETROPAD_BUTTONS = [
   'up',
   'down',
@@ -41,6 +43,46 @@ export const BUTTON_META: Record<
 
 export type KeyboardBinds = Record<RetroButton, string>
 export type GamepadBinds = Record<RetroButton, number>
+
+// The four D-pad directions — always shown on the touch overlay.
+export const DPAD_BUTTONS = ['up', 'down', 'left', 'right'] as const
+
+// Directions a normalized D-pad touch engages. `dx`/`dy` are the touch offset
+// from the pad centre in −1..1 (fraction of the half-width). Past the threshold
+// on both axes yields a diagonal (two directions); within it on both is the
+// neutral dead zone.
+export function dpadDirections(
+  dx: number,
+  dy: number,
+  threshold = 0.3,
+): RetroButton[] {
+  const dirs: RetroButton[] = []
+  if (dy < -threshold) dirs.push('up')
+  if (dy > threshold) dirs.push('down')
+  if (dx < -threshold) dirs.push('left')
+  if (dx > threshold) dirs.push('right')
+  return dirs
+}
+
+// Which face + shoulder buttons the on-screen touch gamepad shows for a system.
+// The D-pad and Start/Select are universal; only the face/shoulder set differs
+// (a Game Boy has two face buttons, a SNES four plus shoulders). Extra buttons
+// a core ignores are simply not drawn, so the pad matches the hardware.
+export type TouchLayout = { face: RetroButton[]; shoulders: RetroButton[] }
+
+export function touchButtonsForSystem(system: RomSystem): TouchLayout {
+  switch (system) {
+    case 'snes':
+    case 'genesis':
+      // Diamond order (Y left · X top · B bottom · A right) + shoulders.
+      return { face: ['y', 'x', 'b', 'a'], shoulders: ['l', 'r'] }
+    case 'gba':
+      return { face: ['b', 'a'], shoulders: ['l', 'r'] }
+    default:
+      // nes, gb, gbc — two face buttons, no shoulders.
+      return { face: ['b', 'a'], shoulders: [] }
+  }
+}
 
 // RetroArch's built-in keyboard defaults (RetroPad → key name).
 export const DEFAULT_KEYBOARD_BINDS: KeyboardBinds = {

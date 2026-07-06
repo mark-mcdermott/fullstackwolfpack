@@ -27,7 +27,13 @@ const uploadRom: UploadedRom = {
 }
 
 function fakeSession(): EmulatorSession {
-  return { pause: vi.fn(), resume: vi.fn(), stop: vi.fn() }
+  return {
+    pause: vi.fn(),
+    resume: vi.fn(),
+    stop: vi.fn(),
+    pressDown: vi.fn(),
+    pressUp: vi.fn(),
+  }
 }
 
 function stubOkFetch() {

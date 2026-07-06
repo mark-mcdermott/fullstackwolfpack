@@ -4,6 +4,8 @@ const launch = vi.fn()
 const pause = vi.fn()
 const resume = vi.fn()
 const exit = vi.fn()
+const pressDown = vi.fn()
+const pressUp = vi.fn()
 
 vi.mock('nostalgist', () => ({
   Nostalgist: { launch: (opts: unknown) => launch(opts) },
@@ -11,7 +13,7 @@ vi.mock('nostalgist', () => ({
 
 beforeEach(() => {
   vi.clearAllMocks()
-  launch.mockResolvedValue({ pause, resume, exit })
+  launch.mockResolvedValue({ pause, resume, exit, pressDown, pressUp })
 })
 
 describe('launchRom adapter', () => {
@@ -31,9 +33,13 @@ describe('launchRom adapter', () => {
     session.pause()
     session.resume()
     session.stop()
+    session.pressDown('a')
+    session.pressUp('a')
     expect(pause).toHaveBeenCalledOnce()
     expect(resume).toHaveBeenCalledOnce()
     expect(exit).toHaveBeenCalledOnce()
+    expect(pressDown).toHaveBeenCalledWith('a')
+    expect(pressUp).toHaveBeenCalledWith('a')
   })
 
   it('omits retroarchConfig when not provided', async () => {
