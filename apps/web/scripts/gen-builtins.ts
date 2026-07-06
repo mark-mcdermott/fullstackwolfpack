@@ -7,6 +7,7 @@ import { generatedToSeedCourse } from '../src/db/generated-to-seed'
 import { BUILTIN_COURSES, type SeedCourse } from '../src/db/seed-content'
 import { GENERATED_BUILTIN_COURSES } from '../src/db/seed-content.generated'
 import { SEED_TOPICS } from '../src/db/seed-data'
+import { anthropicGenerator } from '../src/server/anthropic-generator'
 import { openAiGenerator } from '../src/server/openai-generator'
 
 // Topics whose learners actually write JavaScript — the only place a JS-runner
@@ -53,9 +54,11 @@ function pruneExercises(
 //   npm run gen:builtins docker python   # (re)generate just these slugs
 //   npm run gen:builtins all             # regenerate every non-hand-authored topic
 //
-// Needs OPENAI_API_KEY in .env (npm run loads it). OPENAI_MODEL overrides the
-// model — defaults to gpt-4o here (higher quality than the per-user gpt-4o-mini,
-// since this content ships to every user and is generated once).
+// Provider (in .env; npm run loads it): prefers Claude when ANTHROPIC_API_KEY is
+// set — it's far better at emitting correct runnable exercises — else OpenAI.
+// Force with GEN_PROVIDER=anthropic|openai. Models: ANTHROPIC_GEN_MODEL (default
+// claude-opus-4-8) / OPENAI_MODEL (default gpt-4o). This content ships to every
+// user and is generated once, so it uses the strongest model, not the cheap tier.
 
 const OUT_PATH = fileURLToPath(
   new URL('../src/db/seed-content.generated.ts', import.meta.url),
@@ -71,13 +74,32 @@ import type { SeedCourse } from './seed-content'
 export const GENERATED_BUILTIN_COURSES: SeedCourse[] = `
 
 async function main() {
-  const apiKey = process.env.OPENAI_API_KEY
-  if (!apiKey) {
-    console.error('OPENAI_API_KEY is not set (add it to apps/web/.env).')
-    process.exit(1)
+  // Prefer Claude — it's far stronger at emitting correct runnable exercises
+  // (gpt-4o's were ~57% broken here). Falls back to OpenAI; force either with
+  // GEN_PROVIDER=anthropic|openai. Models override via ANTHROPIC_GEN_MODEL /
+  // OPENAI_MODEL.
+  const anthropicKey = process.env.ANTHROPIC_API_KEY
+  const openaiKey = process.env.OPENAI_API_KEY
+  const provider =
+    process.env.GEN_PROVIDER ?? (anthropicKey ? 'anthropic' : 'openai')
+
+  let generator
+  let model: string
+  if (provider === 'anthropic') {
+    if (!anthropicKey) {
+      console.error('ANTHROPIC_API_KEY is not set (add it to apps/web/.env).')
+      process.exit(1)
+    }
+    model = process.env.ANTHROPIC_GEN_MODEL ?? 'claude-opus-4-8'
+    generator = anthropicGenerator(anthropicKey, { model })
+  } else {
+    if (!openaiKey) {
+      console.error('OPENAI_API_KEY is not set (add it to apps/web/.env).')
+      process.exit(1)
+    }
+    model = process.env.OPENAI_MODEL ?? 'gpt-4o'
+    generator = openAiGenerator(openaiKey, { model })
   }
-  const model = process.env.OPENAI_MODEL ?? 'gpt-4o'
-  const generator = openAiGenerator(apiKey, { model })
 
   const rawArgs = process.argv.slice(2)
   const forceAll = rawArgs.some(
@@ -124,36 +146,48 @@ async function main() {
   for (const slug of targets) {
     const topic = bySlug.get(slug)!
     process.stdout.write(`  • ${topic.name} (${slug})… `)
-    try {
-      // Re-roll up to MAX_ATTEMPTS for depth — the model sometimes under-delivers
-      // on lesson count. Keep the deepest attempt; accept early once it hits the
-      // target. Drop exercises whose solution fails its own tests on each attempt.
-      let best: SeedCourse | null = null
-      let bestKept = 0
-      let bestDropped = 0
-      for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    // Re-roll up to MAX_ATTEMPTS. Each attempt is independent: a generation or
+    // JSON-parse failure (the model occasionally emits malformed JSON on large
+    // code-heavy courses) just moves to the next attempt rather than failing the
+    // whole topic. Otherwise keep the deepest attempt, accepting early once it
+    // hits the lesson target. Exercises whose solution fails their own tests are
+    // dropped on each attempt.
+    let best: SeedCourse | null = null
+    let bestKept = 0
+    let bestDropped = 0
+    let lastErr: unknown = null
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      let course: SeedCourse
+      try {
         const raw = await generator.generate({
           topic: topic.name,
           difficulty: 'beginner',
         })
-        const course = generatedToSeedCourse(slug, 'beginner', raw)
-        const { kept, dropped } = pruneExercises(course, JS_EXERCISE_SLUGS.has(slug))
-        if (!best || course.lessons.length > best.lessons.length) {
-          best = course
-          bestKept = kept
-          bestDropped = dropped
-        }
-        if (course.lessons.length >= COURSE_TARGET.minLessons) break
+        course = generatedToSeedCourse(slug, 'beginner', raw)
+      } catch (err) {
+        lastErr = err
+        continue
       }
-      generated.set(slug, best!)
+      const { kept, dropped } = pruneExercises(course, JS_EXERCISE_SLUGS.has(slug))
+      if (!best || course.lessons.length > best.lessons.length) {
+        best = course
+        bestKept = kept
+        bestDropped = dropped
+      }
+      if (course.lessons.length >= COURSE_TARGET.minLessons) break
+    }
+    if (best) {
+      generated.set(slug, best)
       const exNote =
         bestKept || bestDropped
           ? `, ${bestKept} exercise(s)${bestDropped ? ` (+${bestDropped} broken dropped)` : ''}`
           : ''
-      console.log(`ok (${best!.lessons.length} lessons${exNote})`)
-    } catch (err) {
+      console.log(`ok (${best.lessons.length} lessons${exNote})`)
+    } else {
       failed.push(slug)
-      console.log(`FAILED — ${err instanceof Error ? err.message : String(err)}`)
+      console.log(
+        `FAILED — ${lastErr instanceof Error ? lastErr.message : String(lastErr)}`,
+      )
     }
   }
 
