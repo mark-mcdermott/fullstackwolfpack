@@ -55,7 +55,8 @@ Routes are gated client-side by `RequireAuth` (UX) and server-side by the sessio
 - `npm run dev` / `build` / `preview` — Vite (`dev` also serves `api/` via the dev plugin).
 - `npm run db:push` / `db:generate` / `db:migrate` / `db:studio` — Drizzle.
 - `npm run tauri <cmd>` — Tauri CLI (e.g. `tauri dev`, `tauri build`).
-- `npm run cap <cmd>` — Capacitor CLI.
+- `npm run cap <cmd>` — Capacitor CLI; `npm run cap:sync` builds `dist` then syncs the native shells.
+- `npm run cap:sync:prod` / `npm run tauri:build:prod` — prod native builds that point the shell at the deployed origin (`CAP_SERVER_URL` / `VITE_API_BASE`, default `https://app.fullstackwolfpack.com`, override via env). See `apps/web/.env.example`.
 
 ## Setup TODO
 

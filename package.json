@@ -23,8 +23,10 @@
     "db:push": "npm run db:push -w @fw/web",
     "db:studio": "npm run db:studio -w @fw/web",
     "tauri": "npm run tauri -w @fw/web",
+    "tauri:build:prod": "npm run tauri:build:prod -w @fw/web",
     "cap": "npm run cap -w @fw/web",
-    "cap:sync": "npm run cap:sync -w @fw/web"
+    "cap:sync": "npm run cap:sync -w @fw/web",
+    "cap:sync:prod": "npm run cap:sync:prod -w @fw/web"
   },
   "devDependencies": {
     "concurrently": "^10.0.3"
