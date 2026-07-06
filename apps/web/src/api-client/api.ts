@@ -16,6 +16,7 @@ import {
   tailorResultSchema,
   topicTracksSchema,
   totpSetupSchema,
+  userPreferencesSchema,
   type BillingRedirect,
   type EnrollResult,
   type FocusSessionInput,
@@ -28,6 +29,7 @@ import {
   type TailorResult,
   type TopicTracks,
   type TotpSetup,
+  type UserPreferences,
 } from '@/core/schemas'
 import type { Difficulty } from '@/core/generation'
 import {
@@ -333,6 +335,23 @@ export function createApi({ http, passkeys }: Adapters) {
     },
   }
 
+  // Global lesson preferences (Settings → Lesson preferences).
+  const preferences = {
+    async get(): Promise<UserPreferences> {
+      return userPreferencesSchema.parse(
+        await http.request('/api/me/preferences'),
+      )
+    },
+    async save(patch: Partial<UserPreferences>): Promise<UserPreferences> {
+      return userPreferencesSchema.parse(
+        await http.request('/api/me/preferences', {
+          method: 'POST',
+          body: JSON.stringify(patch),
+        }),
+      )
+    },
+  }
+
   // Focus sessions (timed play/learn cycles). Returns the XP granted.
   const focus = {
     async record(input: FocusSessionInput): Promise<FocusSessionResult> {
@@ -383,6 +402,7 @@ export function createApi({ http, passkeys }: Adapters) {
     data,
     integrations,
     courses,
+    preferences,
     focus,
     billing,
     admin,

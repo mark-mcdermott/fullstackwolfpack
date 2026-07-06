@@ -168,6 +168,16 @@ export const focusSessionResultSchema = z.object({
 })
 export type FocusSessionResult = z.infer<typeof focusSessionResultSchema>
 
+// Global lesson preferences (Settings → Lesson preferences). All opt-in; the
+// server fills defaults for a user with no row yet. Saved as a partial patch.
+export const userPreferencesSchema = z.object({
+  askSkillLevel: z.boolean(),
+  askCoverage: z.boolean(),
+  linkifyTerms: z.boolean(),
+})
+export type UserPreferences = z.infer<typeof userPreferencesSchema>
+export const userPreferencesPatch = userPreferencesSchema.partial()
+
 // Admin — change a user's role/tier (both optional; at least one meaningful).
 export const adminUpdateRequest = z.object({
   userId: z.string().min(1),
