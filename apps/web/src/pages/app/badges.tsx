@@ -1,32 +1,22 @@
 import { api } from '@/api-client'
+import { PixelBadge } from '@/components/badge/pixel-badge'
 import { AsyncView, EmptyState } from '@/components/layout/async-view'
 import type { AchievementItem } from '@/core/app-data'
 import { PageHeading, Panel, ProgressMeter } from '@fw/ui'
 import { useAsync } from '@/hooks/use-async'
-import { badgeIcon } from '@/lib/badge-icons'
-import { cn } from '@/lib/utils'
 
 type Badge = AchievementItem & { earned: boolean }
 
 function BadgeCard({ badge }: { badge: Badge }) {
-  const Icon = badgeIcon(badge.slug)
   const pct =
     badge.target > 0
       ? Math.min(100, Math.round((badge.current / badge.target) * 100))
       : 0
+  const state = badge.earned ? 'earned' : badge.current > 0 ? 'progress' : 'locked'
 
   return (
     <Panel className="flex flex-col items-center gap-3 text-center">
-      <div
-        className={cn(
-          'flex size-14 items-center justify-center rounded-full border',
-          badge.earned
-            ? 'border-primary/40 bg-primary/10 text-primary'
-            : 'border-border bg-muted/40 text-muted-foreground',
-        )}
-      >
-        <Icon className="size-7" />
-      </div>
+      <PixelBadge slug={badge.slug} state={state} size={64} />
       <div>
         <h3 className="text-sm font-bold uppercase">{badge.name}</h3>
         <p className="mt-1 font-mono text-[10px] text-muted-foreground">
