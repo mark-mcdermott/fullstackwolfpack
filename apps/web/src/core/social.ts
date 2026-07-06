@@ -73,3 +73,17 @@ export const sendMessageBody = z.object({
   toUserId: z.string().min(1),
   body: z.string().trim().min(1).max(2000),
 })
+
+// ---- Realtime (optional Ably push layer) ----
+
+// The Ably token-request response. `enabled: false` when ABLY_API_KEY is unset,
+// so the client falls back to polling. `tokenRequest` is the opaque Ably token
+// request (passed straight to the Realtime client's auth callback).
+export const ablyTokenSchema = z.object({
+  enabled: z.boolean(),
+  tokenRequest: z.unknown().optional(),
+})
+export type AblyTokenResponse = z.infer<typeof ablyTokenSchema>
+
+// Event pushed to a user's channel when a DM involving them is sent.
+export type RealtimeMessage = { type: 'message'; fromUserId: string }

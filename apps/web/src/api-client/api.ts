@@ -43,9 +43,11 @@ import {
   leaderboardViewSchema,
 } from '@/core/leaderboard'
 import {
+  ablyTokenSchema,
   conversationSchema,
   friendsViewSchema,
   userSearchViewSchema,
+  type AblyTokenResponse,
   type Conversation,
   type FriendsView,
   type UserSearchView,
@@ -497,6 +499,9 @@ export function createApi({ http, passkeys }: Adapters) {
     },
     async heartbeat(): Promise<void> {
       await http.request('/api/me/heartbeat', { method: 'POST', body: '{}' })
+    },
+    async ablyToken(): Promise<AblyTokenResponse> {
+      return ablyTokenSchema.parse(await http.request('/api/me/ably-token'))
     },
   }
 

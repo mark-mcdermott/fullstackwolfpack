@@ -60,6 +60,11 @@ import {
   touchPresence,
 } from '../../src/server/social'
 import {
+  createUserTokenRequest,
+  isRealtimeEnabled,
+  publishToUser,
+} from '../../src/server/realtime'
+import {
   hasOpenAiKey,
   saveOpenAiKey,
 } from '../../src/server/provider-credentials'
@@ -129,6 +134,13 @@ export async function GET(req: Request): Promise<Response> {
       if (!withUserId) return json({ error: 'missing with' }, { status: 400 })
       return json(await getConversation(userId, withUserId))
     }
+
+    case 'ably-token':
+      if (!isRealtimeEnabled()) return json({ enabled: false })
+      return json({
+        enabled: true,
+        tokenRequest: await createUserTokenRequest(userId),
+      })
 
     case 'generation-eta':
       return json(await getGenerationEta())
@@ -330,9 +342,23 @@ export async function POST(req: Request): Promise<Response> {
       const parsed = await parseBody(sendMessageBody, req)
       if (!parsed.ok) return parsed.response
       try {
-        return json(
-          await sendMessage(userId, parsed.data.toUserId, parsed.data.body),
+        const result = await sendMessage(
+          userId,
+          parsed.data.toUserId,
+          parsed.data.body,
         )
+        // Realtime push (fire-and-forget): notify the recipient, and the
+        // sender's other devices. Each event names the *other* party in the
+        // affected conversation.
+        void publishToUser(parsed.data.toUserId, {
+          type: 'message',
+          fromUserId: userId,
+        })
+        void publishToUser(userId, {
+          type: 'message',
+          fromUserId: parsed.data.toUserId,
+        })
+        return json(result)
       } catch (err) {
         const message = err instanceof Error ? err.message : 'request failed'
         return json({ error: message }, { status: 400 })
