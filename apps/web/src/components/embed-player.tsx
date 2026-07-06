@@ -1,8 +1,10 @@
-import { GraduationCap, LogOut, Play } from 'lucide-react'
+import { GraduationCap, LogOut, Maximize, Minimize, Play } from 'lucide-react'
 import { useState } from 'react'
 import { Panel, Pill, SectionLabel } from '@fw/ui'
+import { useFullscreen } from '@/hooks/use-fullscreen'
 import { usePlaytimeTracker } from '@/hooks/use-playtime-tracker'
 import { embedGameUrl, type EmbedEntry } from '@/lib/embed-catalog'
+import { cn } from '@/lib/utils'
 
 // Plays a self-hosted HTML5 game (the embed lane) in a sandboxed iframe.
 //
@@ -19,6 +21,7 @@ export function EmbedPlayer({
   onExit: () => void
 }) {
   const [lessonOpen, setLessonOpen] = useState(false)
+  const fs = useFullscreen<HTMLDivElement>()
   usePlaytimeTracker(game)
 
   return (
@@ -41,7 +44,13 @@ export function EmbedPlayer({
       </div>
 
       <Panel className="overflow-hidden p-0">
-        <div className="relative aspect-video w-full bg-black">
+        <div
+          ref={fs.ref}
+          className={cn(
+            'relative w-full bg-black',
+            fs.isFullscreen ? 'h-full' : 'aspect-video',
+          )}
+        >
           <iframe
             title={game.title}
             src={embedGameUrl(game)}
@@ -76,13 +85,29 @@ export function EmbedPlayer({
       </Panel>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <button
-          type="button"
-          onClick={() => setLessonOpen(true)}
-          className="flex items-center justify-center gap-2 bg-primary px-4 py-2.5 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
-        >
-          <GraduationCap className="size-4" /> Pause for lesson
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setLessonOpen(true)}
+            className="flex items-center justify-center gap-2 bg-primary px-4 py-2.5 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+          >
+            <GraduationCap className="size-4" /> Pause for lesson
+          </button>
+          {fs.supported && (
+            <button
+              type="button"
+              onClick={fs.toggle}
+              className="flex items-center justify-center gap-2 border border-border px-4 py-2.5 font-mono text-xs tracking-widest uppercase hover:bg-muted"
+            >
+              {fs.isFullscreen ? (
+                <Minimize className="size-4" />
+              ) : (
+                <Maximize className="size-4" />
+              )}
+              {fs.isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+            </button>
+          )}
+        </div>
         {/* Attribution at play time — satisfies the keep-the-notice / credit obligation. */}
         <p className="font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
           {game.author} ·{' '}

@@ -42,4 +42,26 @@ describe('EmbedPlayer', () => {
     await userEvent.click(screen.getByRole('button', { name: /resume game/i }))
     expect(screen.queryByText(/time to learn/i)).not.toBeInTheDocument()
   })
+
+  it('requests fullscreen from the toolbar when the API is available', async () => {
+    // jsdom has no Fullscreen API — stub just enough for the hook to light up.
+    const requestFullscreen = vi.fn(() => Promise.resolve())
+    Object.defineProperty(document, 'fullscreenEnabled', {
+      configurable: true,
+      value: true,
+    })
+    Object.defineProperty(HTMLElement.prototype, 'requestFullscreen', {
+      configurable: true,
+      value: requestFullscreen,
+    })
+    try {
+      render(<EmbedPlayer game={game} onExit={vi.fn()} />)
+      await userEvent.click(screen.getByRole('button', { name: /^fullscreen$/i }))
+      expect(requestFullscreen).toHaveBeenCalledTimes(1)
+    } finally {
+      delete (document as { fullscreenEnabled?: boolean }).fullscreenEnabled
+      delete (HTMLElement.prototype as { requestFullscreen?: unknown })
+        .requestFullscreen
+    }
+  })
 })
