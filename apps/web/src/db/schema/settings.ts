@@ -42,6 +42,9 @@ export const userSettings = pgTable('user_settings', {
   dataRetention: text('data_retention').notNull().default('forever'),
   shareAnalytics: boolean('share_analytics').notNull().default(true),
   enableRecommendations: boolean('enable_recommendations').notNull().default(true),
+  // Public leaderboard consent — off by default. Only opted-in users appear in
+  // the global ranking (and only then is their name/level/XP shown publicly).
+  leaderboardOptIn: boolean('leaderboard_opt_in').notNull().default(false),
   updatedAt: timestamp('updated_at', { withTimezone: true })
     .notNull()
     .defaultNow(),

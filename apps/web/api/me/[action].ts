@@ -7,6 +7,7 @@ import { can } from '../../src/core/access'
 import { reviewGradeRequestSchema } from '../../src/core/review-view'
 import { tutorRequestSchema } from '../../src/core/tutor'
 import { playtimeRecordRequest } from '../../src/core/playtime'
+import { leaderboardOptInRequest } from '../../src/core/leaderboard'
 import {
   adminUpdateRequest,
   anthropicKeyRequest,
@@ -39,6 +40,10 @@ import {
 import { enrollAndGenerate } from '../../src/server/enroll'
 import { recordFocusSession } from '../../src/server/focus'
 import { getPlaytime, recordPlaytime } from '../../src/server/playtime'
+import {
+  getLeaderboard,
+  setLeaderboardOptIn,
+} from '../../src/server/leaderboard'
 import { getGenerationEta } from '../../src/server/generation-timing'
 import {
   hasOpenAiKey,
@@ -198,6 +203,9 @@ export async function GET(req: Request): Promise<Response> {
     case 'playtime':
       return json({ playtime: await getPlaytime(userId) })
 
+    case 'leaderboard':
+      return json(await getLeaderboard(userId))
+
     case 'admin-users': {
       const forbidden = await requireAdmin(userId)
       if (forbidden) return forbidden
@@ -322,6 +330,12 @@ export async function POST(req: Request): Promise<Response> {
       const parsed = await parseBody(playtimeRecordRequest, req)
       if (!parsed.ok) return parsed.response
       return json(await recordPlaytime(userId, parsed.data))
+    }
+
+    case 'leaderboard': {
+      const parsed = await parseBody(leaderboardOptInRequest, req)
+      if (!parsed.ok) return parsed.response
+      return json(await setLeaderboardOptIn(userId, parsed.data.optIn))
     }
 
     case 'answer': {
