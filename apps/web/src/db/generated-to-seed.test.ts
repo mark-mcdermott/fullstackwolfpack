@@ -9,6 +9,7 @@ const gen: GeneratedCourse = {
     {
       title: 'Containers 101',
       estMinutes: 6,
+      glossary: ['container', 'image'],
       segments: [
         {
           title: 'Why containers',
@@ -73,6 +74,7 @@ describe('generatedToSeedCourse', () => {
         {
           title: 'L',
           estMinutes: 5,
+          glossary: [],
           segments: [
             {
               title: 'Quiz',

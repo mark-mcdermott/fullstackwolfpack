@@ -22,4 +22,35 @@ describe('LessonMarkdown', () => {
     expect(screen.getByText('one')).toBeInTheDocument()
     expect(screen.getByText('two')).toBeInTheDocument()
   })
+
+  it('hyperlinks a glossary term to Wikipedia when terms are provided', () => {
+    render(
+      <LessonMarkdown terms={['closures']}>
+        {'JavaScript closures are powerful.'}
+      </LessonMarkdown>,
+    )
+    const link = screen.getByRole('link', { name: 'closures' })
+    expect(link).toHaveAttribute(
+      'href',
+      'https://en.wikipedia.org/wiki/Special:Search?search=closures',
+    )
+    expect(link).toHaveAttribute('target', '_blank')
+    expect(link).toHaveAttribute('rel', expect.stringContaining('noopener'))
+  })
+
+  it('does not linkify a term that appears inside inline code', () => {
+    render(
+      <LessonMarkdown terms={['await']}>
+        {'Type `await` in code, then await the value in prose.'}
+      </LessonMarkdown>,
+    )
+    // Only the prose occurrence is linked — the one inside <code> stays text.
+    const links = screen.getAllByRole('link', { name: 'await' })
+    expect(links).toHaveLength(1)
+  })
+
+  it('adds no links when no terms are given', () => {
+    render(<LessonMarkdown>{'Plain closures text.'}</LessonMarkdown>)
+    expect(screen.queryByRole('link')).toBeNull()
+  })
 })

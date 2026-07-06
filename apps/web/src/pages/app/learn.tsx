@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowRight, RotateCcw, Settings, TrendingDown, TrendingUp, Trophy } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { api } from '@/api-client'
 import { CodeExercise } from '@/components/learn/code-exercise'
@@ -38,6 +38,19 @@ function LessonPlayer({ lesson }: { lesson: LessonView }) {
   const [quizXp, setQuizXp] = useState(0)
   const [completion, setCompletion] = useState<LessonCompletion | null>(null)
   const [completing, setCompleting] = useState(false)
+  const [linkify, setLinkify] = useState(false)
+
+  // Hyperlink key terms only when the reader opted in (global lesson pref).
+  useEffect(() => {
+    let active = true
+    api.preferences
+      .get()
+      .then((p) => active && setLinkify(p.linkifyTerms))
+      .catch(() => {})
+    return () => {
+      active = false
+    }
+  }, [])
 
   const totalQuestions = useMemo(
     () => lesson.segments.reduce((n, s) => n + s.questions.length, 0),
@@ -130,7 +143,9 @@ function LessonPlayer({ lesson }: { lesson: LessonView }) {
             {segment.type} · {segment.estMinutes} min
           </Pill>
         </div>
-        <LessonMarkdown>{segment.markdown}</LessonMarkdown>
+        <LessonMarkdown terms={linkify ? lesson.glossary : undefined}>
+          {segment.markdown}
+        </LessonMarkdown>
         {segment.exercise && <CodeExercise exercise={segment.exercise} />}
         {segment.questions.length > 0 && (
           <QuizSegment

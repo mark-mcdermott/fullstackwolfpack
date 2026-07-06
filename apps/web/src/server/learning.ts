@@ -49,6 +49,7 @@ export async function getLessonView(lessonId: string): Promise<LessonView | null
       courseId: lessons.courseId,
       title: lessons.title,
       estMinutes: lessons.estMinutes,
+      glossary: lessons.glossary,
       topic: topics.name,
       topicSlug: topics.slug,
     })
@@ -119,6 +120,7 @@ export async function getLessonView(lessonId: string): Promise<LessonView | null
     topicSlug: head.topicSlug,
     title: head.title,
     estMinutes: head.estMinutes,
+    glossary: head.glossary ?? [],
     segments,
   }
 }

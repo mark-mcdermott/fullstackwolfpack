@@ -19,6 +19,7 @@ const validCourse: GeneratedCourse = {
     {
       title: 'Intro',
       estMinutes: 5,
+      glossary: [],
       segments: [
         {
           title: 'Hello',

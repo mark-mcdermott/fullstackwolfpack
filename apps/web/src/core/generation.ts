@@ -43,6 +43,9 @@ export const generatedLessonSchema = z.object({
   title: z.string(),
   estMinutes: z.number().int().positive().catch(5),
   segments: z.array(generatedSegmentSchema).min(1),
+  // Key terms introduced in the lesson (for further-reading links). Optional so
+  // an older model/output that omits it doesn't fail a paid generation.
+  glossary: z.array(z.string()).default([]),
 })
 
 export const generatedCourseSchema = z.object({
@@ -132,8 +135,11 @@ const DEPTH_GUIDANCE = [
   '- Set each segment estMinutes to honestly reflect its length (a 3-minute reading is several substantial paragraphs, not one line).',
 ]
 
+const GLOSSARY_GUIDANCE =
+  'For each lesson also produce a "glossary": an array of 3-8 key technical terms it introduces (short, written exactly as they appear in the lesson) — used to link the learner to further reading.'
+
 const LESSON_JSON_SHAPE = [
-  '{ "topic", "difficulty", "lessons": [{ "title", "estMinutes", "segments": [{ "title", "type", "body", "estMinutes", "questions": [{ "type", "prompt", "options"?, "correctIndex"?, "expectedAnswer"?, "explanation"? }] }] }] }',
+  '{ "topic", "difficulty", "lessons": [{ "title", "estMinutes", "glossary": ["term", ...], "segments": [{ "title", "type", "body", "estMinutes", "questions": [{ "type", "prompt", "options"?, "correctIndex"?, "expectedAnswer"?, "explanation"? }] }] }] }',
   'segment.type is one of: reading | code | practice | quiz. question.type is one of: mcq | short_answer. "body" is markdown.',
 ]
 
@@ -154,7 +160,11 @@ export function buildGenerationPrompt(input: GenerationInput): string {
       `Additionally, honor this specific learner request throughout the course: "${custom}".`,
     )
   }
-  lines.push('Respond with JSON only, shaped as:', ...LESSON_JSON_SHAPE)
+  lines.push(
+    GLOSSARY_GUIDANCE,
+    'Respond with JSON only, shaped as:',
+    ...LESSON_JSON_SHAPE,
+  )
   return lines.join('\n')
 }
 
@@ -171,6 +181,7 @@ function buildAppendPrompt(input: GenerationInput): string {
       : 'Add new lessons that cover the next most valuable material beyond what already exists.',
     `Produce 1-4 NEW lessons only, each with ${t.minSegments}-${t.maxSegments} segments and at least ${t.minQuizPerLesson} quiz questions.`,
     ...DEPTH_GUIDANCE,
+    GLOSSARY_GUIDANCE,
     'Respond with JSON only, shaped as:',
     ...LESSON_JSON_SHAPE,
   ].join('\n')
