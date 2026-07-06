@@ -64,6 +64,12 @@ describe('builtin courses', () => {
         expect(
           gitSolutionSatisfiesGoals(ex.setup, ex.solution, ex.goals),
         ).toBe(true)
+      } else if (ex.language === 'python') {
+        // Python solutions are executed + validated in python-exercises.test.ts
+        // (which loads Pyodide) and by the gen:builtins ship gate — kept out of
+        // this fast, Pyodide-free suite.
+        expect(ex.tests.length).toBeGreaterThan(0)
+        expect(ex.starterCode).toBeTruthy()
       } else {
         expect(ex.tests.length).toBeGreaterThan(0)
         expect(ex.starterCode).toBeTruthy()

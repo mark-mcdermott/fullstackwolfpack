@@ -36,8 +36,9 @@ export const generatedJsExerciseSchema = z.object({
   kind: z.literal('js').optional(), // absent ⇒ js
   prompt: z.string(),
   starterCode: z.string(),
-  // Authoring language; the runner type-strips 'ts' to JS. Omit ⇒ 'js'.
-  language: lenientEnum(['js', 'ts']).optional(),
+  // Authoring language: 'ts' is type-stripped to JS, 'python' runs on Pyodide.
+  // Omit ⇒ 'js'.
+  language: lenientEnum(['js', 'ts', 'python']).optional(),
   tests: z.array(exerciseTestSchema).min(1),
   solution: z.string().default(''),
   hint: z.string().default(''),
@@ -213,6 +214,11 @@ export function buildGenerationPrompt(input: GenerationInput): string {
   if (/\btypescript\b/i.test(input.topic)) {
     lines.push(
       'This is a TypeScript course: every "exercise" MUST be TypeScript — set "language": "ts" and write genuinely typed TypeScript in "starterCode" and "solution" (explicit parameter and return type annotations, plus interfaces / generics / union types where they fit the task). Do NOT emit plain untyped JavaScript exercises.',
+    )
+  }
+  if (/\bpython\b/i.test(input.topic)) {
+    lines.push(
+      'This is a Python course: every "exercise" MUST be Python — set "language": "python" and write idiomatic Python in "starterCode" and "solution" (the learner implements a function). Each test\'s "expression" is a Python expression that calls the function (e.g. "double(4)") whose result is deep-compared to "expected" (a JSON value: number, string, boolean, list, or dict). Use only the Python standard library; no input()/printing/file or network I/O. Do NOT emit JavaScript.',
     )
   }
   if (/\bgit\b/i.test(input.topic)) {
