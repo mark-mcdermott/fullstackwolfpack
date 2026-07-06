@@ -1,9 +1,11 @@
 import { Gamepad2, GraduationCap, LogOut, Pause, Play, X } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { ControlsReference } from '@/components/controls/controls-reference'
+import { TouchControls } from '@/components/controls/touch-controls'
 import { Panel, Pill, SectionLabel } from '@fw/ui'
-import { bindsToRetroarchConfig } from '@/core/controls'
+import { bindsToRetroarchConfig, type RetroButton } from '@/core/controls'
+import { useCoarsePointer } from '@/hooks/use-coarse-pointer'
 import { coreForSystem, SYSTEM_META } from '@/core/roms'
 import { usePlaytimeTracker } from '@/hooks/use-playtime-tracker'
 import { loadGamepadBinds, loadKeyboardBinds } from '@/lib/controls-store'
@@ -64,7 +66,15 @@ export function RomPlayer({
   const [paused, setPaused] = useState(false)
   const [lessonOpen, setLessonOpen] = useState(false)
   const [controlsOpen, setControlsOpen] = useState(false)
+  const coarsePointer = useCoarsePointer()
   usePlaytimeTracker(rom)
+
+  const pressButton = useCallback((button: RetroButton) => {
+    sessionRef.current?.pressDown(button)
+  }, [])
+  const releaseButton = useCallback((button: RetroButton) => {
+    sessionRef.current?.pressUp(button)
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -265,6 +275,14 @@ export function RomPlayer({
           onClick={() => setControlsOpen((open) => !open)}
         />
       </div>
+
+      {coarsePointer && status === 'playing' && !lessonOpen && (
+        <TouchControls
+          system={rom.system}
+          onDown={pressButton}
+          onUp={releaseButton}
+        />
+      )}
     </div>
   )
 }

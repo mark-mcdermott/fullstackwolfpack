@@ -6,6 +6,10 @@ export interface EmulatorSession {
   pause(): void
   resume(): void
   stop(): void
+  // Programmatic RetroPad input for the on-screen touch gamepad. `button` is a
+  // RetroPad name ('up', 'a', 'start', …) — the RETROPAD_BUTTONS set.
+  pressDown(button: string): void
+  pressUp(button: string): void
 }
 
 export interface LaunchOptions {
@@ -39,5 +43,7 @@ export const launchRom: Launcher = async ({
     pause: () => nostalgist.pause(),
     resume: () => nostalgist.resume(),
     stop: () => nostalgist.exit(),
+    pressDown: (button) => nostalgist.pressDown(button),
+    pressUp: (button) => nostalgist.pressUp(button),
   }
 }
