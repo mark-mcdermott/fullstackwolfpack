@@ -41,6 +41,8 @@ export const users = pgTable('users', {
   // TOTP fallback secret (encrypt at rest in production).
   totpSecret: text('totp_secret'),
   totpEnabled: boolean('totp_enabled').notNull().default(false),
+  // Presence: bumped by the client heartbeat; drives "online" in Community.
+  lastActiveAt: timestamp('last_active_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),

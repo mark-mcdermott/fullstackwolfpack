@@ -1,10 +1,12 @@
 import { Outlet } from 'react-router'
 import { FocusTimerDock } from '@/components/focus/focus-timer-dock'
+import { usePresenceHeartbeat } from '@/hooks/use-presence-heartbeat'
 import { AppHeader } from './app-header'
 import { Sidebar } from './sidebar'
 import { SiteFooter } from './site-footer'
 
 export function AppLayout() {
+  usePresenceHeartbeat()
   return (
     <div className="flex min-h-svh flex-col">
       <div className="flex flex-1">

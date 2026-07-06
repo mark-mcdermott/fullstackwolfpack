@@ -43,6 +43,14 @@ import {
   leaderboardViewSchema,
 } from '@/core/leaderboard'
 import {
+  conversationSchema,
+  friendsViewSchema,
+  userSearchViewSchema,
+  type Conversation,
+  type FriendsView,
+  type UserSearchView,
+} from '@/core/social'
+import {
   achievementsViewSchema,
   adminUsersSchema,
   courseOutlineSchema,
@@ -451,6 +459,47 @@ export function createApi({ http, passkeys }: Adapters) {
     },
   }
 
+  // Community: friends + DMs + presence. All poll-based (no realtime service).
+  const social = {
+    async friends(): Promise<FriendsView> {
+      return friendsViewSchema.parse(await http.request('/api/me/friends'))
+    },
+    async findUsers(q: string): Promise<UserSearchView> {
+      return userSearchViewSchema.parse(
+        await http.request(`/api/me/find-users?q=${encodeURIComponent(q)}`),
+      )
+    },
+    async conversation(withUserId: string): Promise<Conversation> {
+      return conversationSchema.parse(
+        await http.request(`/api/me/messages?with=${encodeURIComponent(withUserId)}`),
+      )
+    },
+    async requestFriend(toUserId: string): Promise<void> {
+      await http.request('/api/me/friend-request', {
+        method: 'POST',
+        body: JSON.stringify({ toUserId }),
+      })
+    },
+    async respondFriend(
+      requestId: string,
+      action: 'accept' | 'decline',
+    ): Promise<void> {
+      await http.request('/api/me/friend-respond', {
+        method: 'POST',
+        body: JSON.stringify({ requestId, action }),
+      })
+    },
+    async sendMessage(toUserId: string, body: string): Promise<void> {
+      await http.request('/api/me/send-message', {
+        method: 'POST',
+        body: JSON.stringify({ toUserId, body }),
+      })
+    },
+    async heartbeat(): Promise<void> {
+      await http.request('/api/me/heartbeat', { method: 'POST', body: '{}' })
+    },
+  }
+
   return {
     auth,
     totp,
@@ -464,6 +513,7 @@ export function createApi({ http, passkeys }: Adapters) {
     leaderboard,
     billing,
     admin,
+    social,
   }
 }
 

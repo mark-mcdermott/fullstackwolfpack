@@ -8,6 +8,7 @@ import { ArcadePage } from '@/pages/app/arcade'
 import { BadgesPage } from '@/pages/app/badges'
 import { CreditsPage } from '@/pages/app/credits'
 import { DashboardPage } from '@/pages/app/dashboard'
+import { FriendsPage } from '@/pages/app/friends'
 import { LeaderboardPage } from '@/pages/app/leaderboard'
 import { LearnPage } from '@/pages/app/learn'
 import { ProgressPage } from '@/pages/app/progress'
@@ -40,6 +41,7 @@ function App() {
           <Route path="/app" element={<DashboardPage />} />
           <Route path="/app/sessions" element={<SessionsPage />} />
           <Route path="/app/arcade" element={<ArcadePage />} />
+          <Route path="/app/friends" element={<FriendsPage />} />
           <Route path="/app/credits" element={<CreditsPage />} />
           <Route path="/app/topics" element={<TopicsPage />} />
           <Route
