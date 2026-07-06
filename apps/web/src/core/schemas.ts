@@ -78,10 +78,12 @@ export const anthropicKeyRequest = z.object({
     ),
 })
 
-// Enroll in a topic → generate an AI course for it.
+// Enroll in a topic → generate an AI course for it. `customization` is the
+// optional free-text coverage request from the pre-generation intake.
 export const enrollRequest = z.object({
   topicSlug: z.string().min(1),
   difficulty: z.enum(['beginner', 'intermediate', 'advanced']),
+  customization: z.string().trim().max(2000).optional(),
 })
 export const enrollResultSchema = z.object({ courseId: z.string() })
 export type EnrollResult = z.infer<typeof enrollResultSchema>

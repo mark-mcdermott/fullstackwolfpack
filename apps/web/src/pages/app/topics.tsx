@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import { api } from '@/api-client'
 import { AsyncView, EmptyState } from '@/components/layout/async-view'
+import { IntakeDialog } from '@/components/topics/intake-dialog'
 import { PageHeading, Panel, ProgressMeter } from '@fw/ui'
 import { DIFFICULTIES } from '@/core/adaptive'
 import type { TopicProgress } from '@/core/app-data'
@@ -29,16 +30,21 @@ function TopicCard({
   topic,
   highlighted = false,
   etaMs = DEFAULT_GENERATION_ETA_MS,
+  askSkillLevel = false,
+  askCoverage = false,
 }: {
   topic: TopicProgress
   highlighted?: boolean
   etaMs?: number
+  askSkillLevel?: boolean
+  askCoverage?: boolean
 }) {
   const navigate = useNavigate()
   const hasCourse = topic.lessonsTotal > 0
   const [busy, setBusy] = useState<null | 'generating' | 'opening'>(null)
   const [error, setError] = useState<string | null>(null)
   const [progress, setProgress] = useState(0)
+  const [intakeOpen, setIntakeOpen] = useState(false)
   const [level, setLevel] = useState<Difficulty>(
     isLevel(topic.difficulty) ? topic.difficulty : 'beginner',
   )
@@ -76,12 +82,12 @@ function TopicCard({
     }
   }
 
-  async function generate() {
+  async function runGenerate(difficulty: Difficulty, customization?: string) {
     setBusy('generating')
     setError(null)
     setProgress(0)
     try {
-      await api.courses.enroll(topic.slug, level)
+      await api.courses.enroll(topic.slug, difficulty, customization)
       setProgress(100)
       navigate(await nextLessonPath(topic.slug)) // straight into the fresh course
     } catch (e) {
@@ -89,6 +95,13 @@ function TopicCard({
       setProgress(0)
       setError(e instanceof Error ? e.message : 'Generation failed')
     }
+  }
+
+  // With intake prefs on, collect difficulty/coverage first; otherwise generate
+  // straight away at the level toggle's choice.
+  function onStartGenerate() {
+    if (askSkillLevel || askCoverage) setIntakeOpen(true)
+    else void runGenerate(level)
   }
 
   return (
@@ -183,7 +196,7 @@ function TopicCard({
       ) : (
         <button
           type="button"
-          onClick={generate}
+          onClick={onStartGenerate}
           className="mt-1 bg-primary py-2 font-mono text-[10px] tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
         >
           Start learning →
@@ -192,6 +205,18 @@ function TopicCard({
       {error && (
         <p className="font-mono text-[10px] text-destructive">{error}</p>
       )}
+      <IntakeDialog
+        open={intakeOpen}
+        onOpenChange={setIntakeOpen}
+        topicSlug={topic.slug}
+        topicName={topic.name}
+        askSkillLevel={askSkillLevel}
+        askCoverage={askCoverage}
+        defaultDifficulty={level}
+        onComplete={({ difficulty, customization }) =>
+          runGenerate(difficulty, customization)
+        }
+      />
     </Panel>
   )
 }
@@ -202,15 +227,30 @@ export function TopicsPage() {
   const [params] = useSearchParams()
   const focusSlug = params.get('topic')
   const [etaMs, setEtaMs] = useState(DEFAULT_GENERATION_ETA_MS)
+  const [intake, setIntake] = useState({
+    askSkillLevel: false,
+    askCoverage: false,
+  })
   const state = useAsync(() => api.data.topics())
 
-  // Prefetch the expected generation duration so the progress bar's ETA is
-  // ready before any card is generated. Falls back to the default on failure.
+  // Prefetch the generation ETA (progress bar) + the user's intake preferences
+  // (whether to run the pre-generation skill/coverage step). Both degrade to off.
   useEffect(() => {
     let active = true
     api.courses
       .generationEta()
       .then((r) => active && setEtaMs(r.etaMs))
+      .catch(() => {})
+    api.preferences
+      .get()
+      .then(
+        (p) =>
+          active &&
+          setIntake({
+            askSkillLevel: p.askSkillLevel,
+            askCoverage: p.askCoverage,
+          }),
+      )
       .catch(() => {})
     return () => {
       active = false
@@ -268,6 +308,8 @@ export function TopicsPage() {
                   topic={t}
                   highlighted={t.slug === focusSlug}
                   etaMs={etaMs}
+                  askSkillLevel={intake.askSkillLevel}
+                  askCoverage={intake.askCoverage}
                 />
               ))}
             </div>

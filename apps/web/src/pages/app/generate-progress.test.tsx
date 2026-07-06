@@ -44,6 +44,13 @@ vi.mock('@/api-client', () => ({
       enroll: hoisted.enroll,
       generationEta: hoisted.generationEta,
     },
+    preferences: {
+      get: async () => ({
+        askSkillLevel: false,
+        askCoverage: false,
+        linkifyTerms: false,
+      }),
+    },
   },
 }))
 
