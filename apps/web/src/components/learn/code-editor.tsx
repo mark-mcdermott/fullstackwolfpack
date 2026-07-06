@@ -1,4 +1,5 @@
 import { javascript } from '@codemirror/lang-javascript'
+import { python } from '@codemirror/lang-python'
 import { EditorView, basicSetup } from 'codemirror'
 import { useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
@@ -10,10 +11,12 @@ import { cn } from '@/lib/utils'
 export function CodeEditor({
   value,
   onChange,
+  language = 'js',
   className,
 }: {
   value: string
   onChange: (value: string) => void
+  language?: 'js' | 'ts' | 'python'
   className?: string
 }) {
   const host = useRef<HTMLDivElement>(null)
@@ -28,7 +31,7 @@ export function CodeEditor({
       parent: host.current,
       extensions: [
         basicSetup,
-        javascript({ typescript: true }),
+        language === 'python' ? python() : javascript({ typescript: true }),
         EditorView.updateListener.of((u) => {
           if (u.docChanged) onChangeRef.current(u.state.doc.toString())
         }),

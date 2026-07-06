@@ -114,7 +114,8 @@ export async function getLessonView(lessonId: string): Promise<LessonView | null
         kind: 'js',
         id: e.id,
         prompt: e.prompt,
-        language: e.language === 'ts' ? 'ts' : 'js',
+        language:
+          e.language === 'ts' ? 'ts' : e.language === 'python' ? 'python' : 'js',
         starterCode: e.starterCode ?? '',
         tests: parseExerciseTests(e.tests),
         hint: e.hint ?? null,

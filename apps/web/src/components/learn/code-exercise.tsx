@@ -3,6 +3,7 @@ import { lazy, Suspense, useState } from 'react'
 import { summarizeOutcomes, type TestOutcome } from '@/core/exercise'
 import type { JsExerciseView } from '@/core/lesson-view'
 import { runExercise } from '@/lib/run-exercise'
+import { runPython } from '@/lib/run-python'
 import { cn } from '@/lib/utils'
 import { LessonMarkdown } from './lesson-markdown'
 
@@ -28,7 +29,10 @@ export function CodeExercise({
     if (running) return
     setRunning(true)
     setError(null)
-    const res = await runExercise(code, exercise.tests, exercise.language)
+    const res =
+      exercise.language === 'python'
+        ? await runPython(code, exercise.tests)
+        : await runExercise(code, exercise.tests, exercise.language)
     if (res.ok) {
       setOutcomes(res.outcomes)
       if (summarizeOutcomes(res.outcomes).allPassed) onSolved?.()
@@ -50,7 +54,7 @@ export function CodeExercise({
     <div className="flex flex-col gap-3">
       <LessonMarkdown>{exercise.prompt}</LessonMarkdown>
 
-      <CodeEditorLazy value={code} onChange={setCode} />
+      <CodeEditorLazy value={code} onChange={setCode} language={exercise.language} />
 
       <div className="flex flex-wrap items-center gap-2">
         <button
@@ -137,7 +141,11 @@ const CodeEditor = lazy(() =>
   import('./code-editor').then((m) => ({ default: m.CodeEditor })),
 )
 
-function CodeEditorLazy(props: { value: string; onChange: (v: string) => void }) {
+function CodeEditorLazy(props: {
+  value: string
+  onChange: (v: string) => void
+  language?: 'js' | 'ts' | 'python'
+}) {
   return (
     <Suspense
       fallback={

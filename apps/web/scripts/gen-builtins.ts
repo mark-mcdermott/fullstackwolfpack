@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { solutionPassesTests } from '../src/core/exercise'
 import { COURSE_TARGET } from '../src/core/generation'
 import { gitSolutionSatisfiesGoals } from '../src/core/git-sim'
+import { pythonSolutionPasses } from '../src/server/python-gate'
 import { generatedToSeedCourse } from '../src/db/generated-to-seed'
 import { BUILTIN_COURSES, type SeedCourse } from '../src/db/seed-content'
 import { GENERATED_BUILTIN_COURSES } from '../src/db/seed-content.generated'
@@ -23,27 +24,35 @@ const JS_EXERCISE_SLUGS = new Set([
 ])
 // Topics where a terminal/git exercise (core/git-sim.ts) belongs.
 const GIT_EXERCISE_SLUGS = new Set(['git-github'])
+// Topics whose exercises run on Pyodide.
+const PYTHON_EXERCISE_SLUGS = new Set(['python'])
 
 // Prune a course's exercises by topic + validity: keep a js/ts exercise only on a
-// JS topic whose solution passes its tests, and a git exercise only on a git topic
-// whose solution satisfies its goals — so the committed built-ins always pass the
-// seed-content ship gate. Mutates.
-function pruneExercises(
+// JS topic whose solution passes its tests, a git exercise only on a git topic
+// whose solution satisfies its goals, and a python exercise only on a python topic
+// whose solution passes (executed on Pyodide) — so the committed built-ins always
+// pass the ship gates. Mutates.
+async function pruneExercises(
   course: SeedCourse,
   slug: string,
-): { kept: number; dropped: number } {
+): Promise<{ kept: number; dropped: number }> {
   const allowJs = JS_EXERCISE_SLUGS.has(slug)
   const allowGit = GIT_EXERCISE_SLUGS.has(slug)
+  const allowPython = PYTHON_EXERCISE_SLUGS.has(slug)
   let kept = 0
   let dropped = 0
   for (const lesson of course.lessons) {
     for (const seg of lesson.segments) {
       if (!seg.exercise) continue
       const ex = seg.exercise
-      const ok =
-        ex.kind === 'git'
-          ? allowGit && gitSolutionSatisfiesGoals(ex.setup, ex.solution, ex.goals)
-          : allowJs && solutionPassesTests(ex.solution, ex.tests, ex.language)
+      let ok: boolean
+      if (ex.kind === 'git') {
+        ok = allowGit && gitSolutionSatisfiesGoals(ex.setup, ex.solution, ex.goals)
+      } else if (ex.language === 'python') {
+        ok = allowPython && (await pythonSolutionPasses(ex.solution, ex.tests))
+      } else {
+        ok = allowJs && solutionPassesTests(ex.solution, ex.tests, ex.language)
+      }
       if (ok) kept++
       else {
         delete seg.exercise
@@ -176,7 +185,7 @@ async function main() {
         lastErr = err
         continue
       }
-      const { kept, dropped } = pruneExercises(course, slug)
+      const { kept, dropped } = await pruneExercises(course, slug)
       if (!best || course.lessons.length > best.lessons.length) {
         best = course
         bestKept = kept

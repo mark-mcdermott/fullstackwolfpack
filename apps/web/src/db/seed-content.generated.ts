@@ -5085,80 +5085,106 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
     "lessons": [
       {
         "id": "builtin-python-l1",
-        "title": "Getting Started: Variables, Types, and the REPL",
+        "title": "Values, Variables, and Types",
         "estMinutes": 18,
         "glossary": [
-          "REPL",
           "dynamic typing",
           "f-string",
-          "type()",
-          "immutability"
+          "int",
+          "str",
+          "type coercion",
+          "REPL"
         ],
         "segments": [
           {
             "id": "builtin-python-l1-s1",
             "type": "reading",
-            "title": "Why Python feels like a cheat code",
-            "markdown": "If you've fought with C++ build systems or Java boilerplate, Python feels like enabling god mode. There's no compile step, no type declarations, and you can prototype an idea in the time it takes a match to load. That speed is the whole point: Python optimizes for *your* time, not the machine's.\n\nStart with the **REPL** (Read-Eval-Print Loop). Type `python3` in your terminal and you get an interactive prompt where every line runs immediately. This is your scratchpad — try `2 ** 10` and it prints `1024`. Variables need no declaration keyword:\n\n```python\nhp = 100\nname = \"Kratos\"\nprint(f\"{name} has {hp} HP\")  # f-string interpolation\n```\n\nPython uses **dynamic typing**: a variable is just a name bound to an object, and you can rebind it to a different type anytime (`hp = \"full\"` is legal). Check a value's type with `type(hp)`. Use the REPL to explore any unfamiliar object — `dir(obj)` lists its methods.\n\n**Pitfall:** dynamic typing means typos become silent bugs. Assigning `helth = 50` doesn't error; you just created a new variable. IDEs and linters catch these, so lean on them.",
-            "estMinutes": 2,
+            "title": "Why Python feels different",
+            "markdown": "If you're coming from a language with a compile step and verbose type declarations, Python's speed of iteration is the hook. You type an expression, hit enter, and see the result — no build, no boilerplate. That tight feedback loop is why Python dominates scripting, data work, and automation.\n\nPython is **dynamically typed**: variables are just names bound to objects, and the object carries the type, not the variable. `x = 5` makes `x` refer to an integer object; `x = \"hi\"` immediately rebinds it to a string. There is no declaration syntax like `int x`. You can inspect any value with `type(value)`.\n\n```python\nx = 42\nprint(type(x))      # <class 'int'>\nx = \"forty-two\"\nprint(type(x))      # <class 'str'>\n```\n\nUse dynamic typing to prototype fast, but beware the pitfall: because nothing stops you rebinding a name to a different type, a typo or logic error can silently change a variable's meaning and only blow up later with a `TypeError`. Reach for type hints (a later lesson) when a script grows past a page.",
+            "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l1-s2",
             "type": "code",
-            "title": "Numbers, strings, and f-strings in practice",
-            "markdown": "Run this and modify the values — notice how operators behave differently per type.",
+            "title": "Strings and f-strings",
+            "markdown": "String formatting is something you'll do constantly. Modern Python uses **f-strings** — string literals prefixed with `f` where `{expr}` is replaced by the evaluated expression.\n\n```python\nname = \"Ada\"\nlevel = 7\nhp = 92.5\n\n# f-strings interpolate any expression inside braces\nprint(f\"{name} reached level {level}\")\n\n# format specifiers go after a colon\nprint(f\"HP: {hp:.1f}\")        # HP: 92.5  (one decimal place)\nprint(f\"Level x2 = {level * 2}\")  # arithmetic inline\n\n# = inside braces prints the expression AND its value (great for debugging)\nprint(f\"{level=}\")            # level=7\n```\n\nTry changing `hp` to `92.567` and the `.1f` to `.2f` to see rounding behavior.",
             "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l1-s3",
-            "type": "code",
-            "title": "Play with core types",
-            "markdown": "```python\n# Integers have unlimited precision - no overflow!\nbig = 2 ** 100\nprint(big)  # 1267650600228229401496703205376\n\n# Division always yields a float; // is floor division\nprint(7 / 2)   # 3.5\nprint(7 // 2)  # 3\nprint(7 % 2)   # 1  (modulo/remainder)\n\n# Strings are immutable sequences\ngamer = \"speedrunner\"\nprint(gamer.upper())      # SPEEDRUNNER\nprint(gamer[0:5])         # speed  (slicing)\nprint(len(gamer))         # 11\n\n# f-strings can run expressions inside braces\nscore = 4200\nprint(f\"Score: {score:,} ({score / 60:.1f}/min)\")\n# Score: 4,200 (70.0/min)\n```",
-            "estMinutes": 4,
+            "type": "reading",
+            "title": "Numbers and coercion",
+            "markdown": "Python has two everyday numeric types: `int` (arbitrary precision — no overflow) and `float` (double-precision). Arithmetic mostly does what you expect, with two operators worth memorizing: `/` is *true division* and always returns a float, while `//` is *floor division* and truncates toward negative infinity.\n\n```python\nprint(7 / 2)    # 3.5   (float, always)\nprint(7 // 2)   # 3     (floor division)\nprint(7 % 2)    # 1     (remainder / modulo)\nprint(2 ** 10)  # 1024  (exponent)\n```\n\nPython does *not* silently coerce strings and numbers together — `\"3\" + 4` raises `TypeError`, unlike JavaScript. You must convert explicitly with `int(\"3\")` or `str(4)`. This is a common early stumble when reading user input, which always arrives as a string.\n\nThe pitfall to watch: floats are inexact. `0.1 + 0.2` yields `0.30000000000000004`. For money or exact decimals, use the `decimal.Decimal` type instead of `float`.",
+            "estMinutes": 3,
             "questions": []
           },
           {
             "id": "builtin-python-l1-s4",
             "type": "practice",
-            "title": "Reformat a scoreboard line",
-            "markdown": "Using an f-string, print a line for a player named `Ada` with `13337` points formatted with thousands separators, and her rank as a float with one decimal (rank = points / 1000). Expected output: `Ada: 13,337 pts (rank 13.3)`. Try it in the REPL, then tweak the format specifiers to see what `:.2f` or `:>10` do.",
-            "estMinutes": 4,
-            "questions": []
+            "title": "Convert and compute",
+            "markdown": "Implement `total_cost(price_str, qty_str)` that takes a price and quantity **as strings**, converts them, and returns the total as a float rounded to 2 decimal places. Example: `total_cost(\"1.5\", \"3\")` should return `4.5`.",
+            "estMinutes": 5,
+            "questions": [],
+            "exercise": {
+              "id": "builtin-python-l1-s4-ex1",
+              "prompt": "Parse the string inputs, multiply, and round to 2 decimals.",
+              "language": "python",
+              "starterCode": "def total_cost(price_str, qty_str):\n    # convert price_str to float, qty_str to int, multiply, round to 2 dp\n    pass",
+              "tests": [
+                {
+                  "name": "basic multiply",
+                  "expression": "total_cost(\"1.5\", \"3\")",
+                  "expected": 4.5
+                },
+                {
+                  "name": "rounds to two dp",
+                  "expression": "total_cost(\"2.335\", \"3\")",
+                  "expected": 7
+                },
+                {
+                  "name": "single item",
+                  "expression": "total_cost(\"9.99\", \"1\")",
+                  "expected": 9.99
+                }
+              ],
+              "solution": "def total_cost(price_str, qty_str):\n    return round(float(price_str) * int(qty_str), 2)",
+              "hint": "Use float() for the price, int() for the quantity, and round(value, 2) for the result."
+            }
           },
           {
             "id": "builtin-python-l1-s5",
             "type": "quiz",
             "title": "Check-in",
-            "markdown": "Quick check on types and the REPL.",
-            "estMinutes": 3,
+            "markdown": "Quick check on types and coercion.",
+            "estMinutes": 2,
             "questions": [
               {
                 "id": "builtin-python-l1-s5-q1",
                 "type": "mcq",
-                "prompt": "What does `7 // 2` evaluate to in Python 3?",
+                "prompt": "What is the result and type of `7 / 2` in Python 3?",
                 "options": [
-                  "3.5",
-                  "3",
-                  "4",
-                  "2"
+                  "3, an int",
+                  "3.5, a float",
+                  "3, a float",
+                  "raises TypeError"
                 ],
                 "correctIndex": 1,
-                "explanation": "`//` is floor division, returning the integer quotient 3. Regular `/` would give 3.5."
+                "explanation": "The `/` operator always performs true division and returns a float, so `7 / 2` is `3.5`."
               },
               {
                 "id": "builtin-python-l1-s5-q2",
                 "type": "mcq",
-                "prompt": "Why can assigning `helth = 50` (a typo for `health`) be dangerous?",
+                "prompt": "Why does `\"3\" + 4` raise an error in Python?",
                 "options": [
-                  "It raises a NameError",
-                  "It silently creates a new variable, so the bug is invisible",
-                  "It changes the type of health",
-                  "It crashes the REPL"
+                  "Strings can't hold digits",
+                  "Python won't implicitly coerce a str and an int together",
+                  "4 must be written as 4.0",
+                  "The + operator only works on numbers"
                 ],
                 "correctIndex": 1,
-                "explanation": "Dynamic typing means any assignment creates a binding; typos become new variables rather than errors, so linters are essential."
+                "explanation": "Python requires explicit conversion between strings and numbers; there is no implicit coercion like in JavaScript."
               }
             ]
           }
@@ -5166,81 +5192,106 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-python-l2",
-        "title": "Collections: Lists, Tuples, Dicts, and Sets",
-        "estMinutes": 22,
+        "title": "Control Flow and Truthiness",
+        "estMinutes": 19,
         "glossary": [
-          "list",
-          "tuple",
-          "dict",
-          "set",
-          "mutability",
-          "list comprehension"
+          "truthiness",
+          "conditional expression",
+          "elif",
+          "short-circuit evaluation",
+          "range",
+          "while loop"
         ],
         "segments": [
           {
             "id": "builtin-python-l2-s1",
             "type": "reading",
-            "title": "The four containers you'll use every day",
-            "markdown": "Most real programs are just moving data through containers. Python gives you four built-in workhorses, and picking the right one is half of writing clean code.\n\nA **list** is an ordered, mutable sequence: `inventory = [\"sword\", \"shield\"]`. Append, index, slice, sort — it grows and shrinks freely. A **tuple** is an ordered but *immutable* sequence: `coord = (10, 20)`. Use tuples for fixed records where meaning comes from position, and because immutability makes them hashable (usable as dict keys).\n\nA **dict** maps keys to values: `stats = {\"hp\": 100, \"mp\": 30}`. Lookup by key is O(1) and is how you model records or lookup tables. A **set** is an unordered collection of unique items: `set([1, 1, 2]) == {1, 2}`. Sets shine for membership tests and deduplication.\n\n```python\nseen = set()\nfor score in [10, 10, 20]:\n    seen.add(score)\nprint(seen)  # {10, 20}\n```\n\n**Pitfall:** lists are mutable, so `b = a` copies the *reference*, not the data — mutating `b` mutates `a`. Use `a.copy()` or `list(a)` for a shallow copy when you need independence.",
-            "estMinutes": 2,
+            "title": "Branching without braces",
+            "markdown": "Control flow is where Python's indentation-as-syntax becomes real: there are no braces, and a colon plus consistent indentation defines a block. Get the indentation wrong and you get an `IndentationError` rather than a silent bug — an underrated feature.\n\nPython uses `if` / `elif` / `else`. `elif` is a single keyword (not `else if`). Conditions rely on **truthiness**: any object can be tested for truth. Empty collections (`[]`, `{}`, `\"\"`), `0`, and `None` are *falsy*; almost everything else is *truthy*.\n\n```python\nitems = []\nif items:\n    print(\"has items\")\nelif len(items) == 0:\n    print(\"empty\")   # this runs\nelse:\n    print(\"never\")\n```\n\nUse truthiness idiomatically — `if items:` is preferred over `if len(items) > 0:`. The pitfall: `if x == None:` works but the idiomatic and faster form is `if x is None:`, because `is` checks identity and `None` is a singleton.",
+            "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l2-s2",
-            "type": "reading",
-            "title": "Comprehensions: the Pythonic loop",
-            "markdown": "Once you're comfortable with containers, **list comprehensions** are the idiom that makes Python code look Pythonic. Instead of building a list with an explicit loop and `.append()`, you express the transformation in one expression.\n\n```python\n# Verbose\nsquares = []\nfor n in range(5):\n    squares.append(n * n)\n\n# Pythonic\nsquares = [n * n for n in range(5)]  # [0, 1, 4, 9, 16]\n```\n\nYou can add a filter clause: `[n for n in range(10) if n % 2 == 0]` yields even numbers. The same syntax works for dicts (`{k: v for ...}`) and sets (`{x for ...}`). Comprehensions are usually faster than manual loops because the iteration happens in optimized C.\n\n**When to use / pitfall:** reach for a comprehension when you're transforming or filtering one iterable into another collection. Avoid cramming heavy logic or side effects (like printing) into them — if it needs more than a filter and a transform, a regular loop is more readable. Nested comprehensions read left-to-right in loop order, which trips up nearly everyone at first.",
-            "estMinutes": 5,
+            "type": "code",
+            "title": "Boolean operators and expressions",
+            "markdown": "Python's `and`/`or` **short-circuit** and return one of their operands (not a plain bool), which enables concise defaulting.\n\n```python\n# 'or' returns the first truthy operand, else the last\nname = \"\" or \"Anonymous\"\nprint(name)   # Anonymous\n\n# 'and' returns the first falsy operand, else the last\nresult = [] and \"unused\"\nprint(result)  # []  (the empty list is falsy)\n\n# conditional (ternary) expression: value_if_true if cond else value_if_false\nage = 20\nstatus = \"adult\" if age >= 18 else \"minor\"\nprint(status)  # adult\n\n# chained comparison — reads like math\nx = 5\nprint(0 < x < 10)  # True\n```\n\nModify `age` and `x` to watch each expression change.",
+            "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l2-s3",
-            "type": "code",
-            "title": "Manipulating a dict of stats",
-            "markdown": "```python\nparty = {\n    \"Aloy\": {\"hp\": 90, \"level\": 12},\n    \"Kratos\": {\"hp\": 150, \"level\": 20},\n}\n\n# Safe lookup with a default (no KeyError if missing)\nprint(party.get(\"Ellie\", {}).get(\"hp\", 0))  # 0\n\n# Iterate keys + values together\nfor name, stats in party.items():\n    print(f\"{name}: lvl {stats['level']}\")\n\n# Comprehension: names of level-15+ members\nveterans = [n for n, s in party.items() if s[\"level\"] >= 15]\nprint(veterans)  # ['Kratos']\n\n# Total HP across the party\ntotal_hp = sum(s[\"hp\"] for s in party.values())\nprint(total_hp)  # 240\n```",
-            "estMinutes": 5,
+            "type": "reading",
+            "title": "Loops that count and repeat",
+            "markdown": "Python has `for` and `while`. The `for` loop iterates over any iterable, so you rarely manage an index by hand. To count, use `range(start, stop, step)` — `stop` is exclusive.\n\n```python\nfor i in range(3):      # 0, 1, 2\n    print(i)\n\nfor i in range(2, 10, 2):  # 2, 4, 6, 8\n    print(i)\n```\n\nWhen you need both index and value, use `enumerate(iterable)`. To loop until a condition changes, use `while`. Both loops support `break` (exit now) and `continue` (skip to next iteration), and — unusually — an `else` clause that runs only if the loop finished *without* breaking.\n\n```python\nfor n in [4, 6, 9]:\n    if n % 2 != 0:\n        break\nelse:\n    print(\"all even\")   # skipped because 9 broke the loop\n```\n\nCommon pitfall: modifying a list while iterating over it causes skipped elements. Iterate over a copy (`for x in items[:]`) or build a new list instead.",
+            "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l2-s4",
             "type": "practice",
-            "title": "Dedupe and transform",
-            "markdown": "Given a list with duplicate integers, write a JavaScript function `uniqueSquares` that returns the squares of the *distinct* values, in ascending order of the original value. This mirrors the Python `sorted({...})` pattern you just learned.",
+            "title": "FizzBuzz, the classic",
+            "markdown": "Implement `fizzbuzz(n)` returning a list of strings for numbers 1..n: `\"Fizz\"` if divisible by 3, `\"Buzz\"` if by 5, `\"FizzBuzz\"` if both, otherwise the number as a string. Example: `fizzbuzz(5)` → `[\"1\",\"2\",\"Fizz\",\"4\",\"Buzz\"]`.",
             "estMinutes": 5,
-            "questions": []
+            "questions": [],
+            "exercise": {
+              "id": "builtin-python-l2-s4-ex1",
+              "prompt": "Build a list over range(1, n+1) applying the FizzBuzz rules.",
+              "language": "python",
+              "starterCode": "def fizzbuzz(n):\n    # return a list of strings for 1..n\n    pass",
+              "tests": [
+                {
+                  "name": "up to 5",
+                  "expression": "fizzbuzz(5)",
+                  "expected": [
+                    "1",
+                    "2",
+                    "Fizz",
+                    "4",
+                    "Buzz"
+                  ]
+                },
+                {
+                  "name": "fizzbuzz at 15",
+                  "expression": "fizzbuzz(15)[14]",
+                  "expected": "FizzBuzz"
+                },
+                {
+                  "name": "length matches",
+                  "expression": "len(fizzbuzz(3))",
+                  "expected": 3
+                }
+              ],
+              "solution": "def fizzbuzz(n):\n    out = []\n    for i in range(1, n + 1):\n        if i % 15 == 0:\n            out.append(\"FizzBuzz\")\n        elif i % 3 == 0:\n            out.append(\"Fizz\")\n        elif i % 5 == 0:\n            out.append(\"Buzz\")\n        else:\n            out.append(str(i))\n    return out",
+              "hint": "Check divisibility by 15 first, then 3, then 5, else convert the number with str()."
+            }
           },
           {
             "id": "builtin-python-l2-s5",
             "type": "quiz",
             "title": "Check-in",
-            "markdown": "Test your container instincts.",
-            "estMinutes": 3,
+            "markdown": "Test your grasp of truthiness and loops.",
+            "estMinutes": 2,
             "questions": [
               {
                 "id": "builtin-python-l2-s5-q1",
                 "type": "mcq",
-                "prompt": "You need a collection to use as dictionary keys representing (x, y) grid positions. Which fits best?",
+                "prompt": "What does `\"\" or \"default\"` evaluate to?",
                 "options": [
-                  "list",
-                  "tuple",
-                  "set",
-                  "dict"
+                  "True",
+                  "\"\"",
+                  "\"default\"",
+                  "None"
                 ],
-                "correctIndex": 1,
-                "explanation": "Tuples are immutable and therefore hashable, so `(x, y)` can serve as a dict key. Lists and sets are mutable/unhashable."
+                "correctIndex": 2,
+                "explanation": "`or` returns the first truthy operand; the empty string is falsy, so it returns \"default\"."
               },
               {
                 "id": "builtin-python-l2-s5-q2",
-                "type": "mcq",
-                "prompt": "What is the result of `[n for n in range(6) if n % 3 == 0]`?",
-                "options": [
-                  "[0, 3]",
-                  "[3]",
-                  "[0, 3, 6]",
-                  "[3, 6]"
-                ],
-                "correctIndex": 0,
-                "explanation": "`range(6)` yields 0-5; only 0 and 3 are divisible by 3, giving `[0, 3]`."
+                "type": "short_answer",
+                "prompt": "What does a `for...else` clause's `else` block do?",
+                "expectedAnswer": "It runs only if the loop completes without hitting a break.",
+                "explanation": "The loop's else executes when iteration finishes normally; a break skips it."
               }
             ]
           }
@@ -5248,75 +5299,114 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-python-l3",
-        "title": "Control Flow and Functions",
+        "title": "Collections: Lists, Dicts, Sets, Tuples",
         "estMinutes": 22,
         "glossary": [
-          "truthiness",
-          "default argument",
-          "*args",
-          "**kwargs",
-          "return",
-          "docstring"
+          "list comprehension",
+          "dictionary",
+          "set",
+          "tuple",
+          "mutable",
+          "slice",
+          "hashable"
         ],
         "segments": [
           {
             "id": "builtin-python-l3-s1",
             "type": "reading",
-            "title": "Branching without the boilerplate",
-            "markdown": "Control flow is where logic lives. Python's `if/elif/else` is familiar, but two things surprise newcomers: significant indentation (no braces — the indentation *is* the block) and **truthiness**.\n\nIn a boolean context, Python treats empty containers, `0`, `None`, and `\"\"` as falsy; everything else is truthy. So `if items:` means \"if items is non-empty\", which is idiomatic and cleaner than `if len(items) > 0:`.\n\n```python\ndef describe(items):\n    if not items:\n        return \"empty inventory\"\n    elif len(items) == 1:\n        return f\"just a {items[0]}\"\n    else:\n        return f\"{len(items)} items\"\n```\n\nLoops come in two flavors: `for x in iterable` (the common one) and `while condition`. Use `break` to exit early and `continue` to skip to the next iteration. A lesser-known feature is `for/else`: the `else` block runs only if the loop finished without hitting `break` — handy for search patterns.\n\n**Pitfall:** relying on truthiness with numbers can bite you. `if count:` is `False` when `count == 0`, which may not be your intent if 0 is a valid value. Be explicit with `if count is not None:` when needed.",
-            "estMinutes": 2,
+            "title": "Picking the right container",
+            "markdown": "Choosing the right built-in collection saves you from reinventing data structures. Python gives you four core types: **list** (ordered, mutable), **tuple** (ordered, immutable), **dict** (key→value mapping), and **set** (unordered unique elements).\n\nLists are your default sequence. Dicts are the workhorse for lookups — O(1) average access by key. Sets are for membership tests and deduplication. Tuples signal 'this group of values won't change' and, being **hashable**, can serve as dict keys or set members where lists cannot.\n\n```python\nscores = [90, 85, 88]          # list\nplayer = {\"name\": \"Ada\", \"lvl\": 7}  # dict\ntags = {\"rpg\", \"co-op\", \"rpg\"}   # set -> {\"rpg\", \"co-op\"}\npoint = (3, 4)                   # tuple\nprint(point in {(3, 4): \"start\"})  # True — tuple is hashable\n```\n\nPitfall: `{}` creates an empty *dict*, not a set. Use `set()` for an empty set. And never use a mutable list as a dict key — it raises `TypeError: unhashable type`.",
+            "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l3-s2",
-            "type": "reading",
-            "title": "Functions that flex: defaults and *args",
-            "markdown": "Functions are how you name and reuse behavior. Beyond the basics, Python's parameter system is remarkably flexible.\n\n**Default arguments** let callers omit parameters: `def attack(damage, crit=False):`. **`*args`** collects extra positional arguments into a tuple, and **`**kwargs`** collects extra keyword arguments into a dict:\n\n```python\ndef log_event(event, *tags, **meta):\n    print(event, tags, meta)\n\nlog_event(\"kill\", \"boss\", \"combo\", weapon=\"axe\", xp=500)\n# kill ('boss', 'combo') {'weapon': 'axe', 'xp': 500}\n```\n\nAlways give functions a **docstring** — a string literal right after the `def` — describing what it does; tools and `help()` read it.\n\n**Critical pitfall:** never use a mutable default like `def add(item, bag=[]):`. That list is created *once* at definition time and shared across all calls, so it accumulates state between calls. The fix is `def add(item, bag=None):` then `if bag is None: bag = []` inside. This is one of Python's most infamous gotchas and shows up in interviews constantly.",
-            "estMinutes": 5,
+            "type": "code",
+            "title": "Slicing and indexing",
+            "markdown": "Slicing extracts subsequences with `seq[start:stop:step]`. `stop` is exclusive, indices can be negative (counting from the end), and any part can be omitted.\n\n```python\nnums = [0, 1, 2, 3, 4, 5]\nprint(nums[1:4])    # [1, 2, 3]  (stop exclusive)\nprint(nums[:3])     # [0, 1, 2]  (from start)\nprint(nums[-2:])    # [4, 5]     (last two)\nprint(nums[::2])    # [0, 2, 4]  (every other)\nprint(nums[::-1])   # [5, 4, 3, 2, 1, 0]  (reversed)\n\n# slicing returns a NEW list (shallow copy)\ncopy = nums[:]\ncopy.append(99)\nprint(nums)  # unchanged\n```\n\nSlicing works on strings and tuples too. Change the step or use negatives to explore.",
+            "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l3-s3",
-            "type": "code",
-            "title": "A small combat function",
-            "markdown": "```python\ndef resolve_attack(attacker_dmg, defender_hp, crit=False, *, armor=0):\n    \"\"\"Return defender's remaining HP after one attack.\n\n    crit doubles damage; armor is a keyword-only reduction.\n    \"\"\"\n    dmg = attacker_dmg * (2 if crit else 1)\n    dmg = max(0, dmg - armor)   # never heal the defender\n    return max(0, defender_hp - dmg)\n\nprint(resolve_attack(30, 100))               # 70\nprint(resolve_attack(30, 100, crit=True))    # 40\nprint(resolve_attack(30, 100, armor=25))     # 95\n# The bare * forces armor to be passed by keyword only.\n```",
+            "type": "reading",
+            "title": "Comprehensions",
+            "markdown": "A **list comprehension** builds a list from an iterable in one expressive line, replacing the common `for`+`append` pattern. The shape is `[expr for item in iterable if condition]`.\n\n```python\nsquares = [n * n for n in range(6)]        # [0,1,4,9,16,25]\nevens = [n for n in range(10) if n % 2 == 0]  # [0,2,4,6,8]\n```\n\nThe same syntax builds dicts and sets: `{k: v for ...}` and `{expr for ...}`. Comprehensions are idiomatic and usually faster than manual loops because the iteration happens in optimized C.\n\n```python\nprices = {\"sword\": 100, \"shield\": 50}\ndiscounted = {item: p * 0.9 for item, p in prices.items()}\n```\n\nPitfall: don't cram complex logic or side effects into a comprehension. If you need a nested loop plus a condition plus a transformation, a comprehension becomes unreadable — a plain loop is clearer. Comprehensions are for building a collection, not for looping with side effects (use a regular `for` loop for that).",
             "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l3-s4",
             "type": "practice",
-            "title": "Implement FizzBuzz cleanly",
-            "markdown": "Write the classic in JavaScript so you internalize the branching order. Return an array where multiples of 3 become 'Fizz', of 5 'Buzz', of both 'FizzBuzz', else the number itself.",
+            "title": "Deduplicate and sort",
+            "markdown": "Implement `unique_sorted(words)` that returns a list of the distinct words, sorted alphabetically, all lowercased. Example: `unique_sorted([\"Fig\",\"apple\",\"fig\",\"Apple\"])` → `[\"apple\",\"fig\"]`.",
             "estMinutes": 5,
-            "questions": []
+            "questions": [],
+            "exercise": {
+              "id": "builtin-python-l3-s4-ex1",
+              "prompt": "Lowercase each word, remove duplicates, and return them sorted.",
+              "language": "python",
+              "starterCode": "def unique_sorted(words):\n    # return sorted list of distinct lowercased words\n    pass",
+              "tests": [
+                {
+                  "name": "dedupes case-insensitively",
+                  "expression": "unique_sorted([\"Fig\",\"apple\",\"fig\",\"Apple\"])",
+                  "expected": [
+                    "apple",
+                    "fig"
+                  ]
+                },
+                {
+                  "name": "already unique",
+                  "expression": "unique_sorted([\"c\",\"a\",\"b\"])",
+                  "expected": [
+                    "a",
+                    "b",
+                    "c"
+                  ]
+                },
+                {
+                  "name": "empty",
+                  "expression": "unique_sorted([])",
+                  "expected": []
+                }
+              ],
+              "solution": "def unique_sorted(words):\n    return sorted({w.lower() for w in words})",
+              "hint": "A set comprehension of lowercased words removes duplicates; wrap it in sorted()."
+            }
           },
           {
             "id": "builtin-python-l3-s5",
             "type": "quiz",
             "title": "Check-in",
-            "markdown": "Functions and flow.",
-            "estMinutes": 3,
+            "markdown": "Confirm your collection instincts.",
+            "estMinutes": 2,
             "questions": [
               {
                 "id": "builtin-python-l3-s5-q1",
                 "type": "mcq",
-                "prompt": "Why is `def add(item, bag=[]):` considered a bug?",
+                "prompt": "Which literal creates an empty set?",
                 "options": [
-                  "Lists can't be default arguments",
-                  "The default list is created once and shared across all calls",
-                  "It raises a SyntaxError",
-                  "bag is read-only"
+                  "{}",
+                  "set()",
+                  "[]",
+                  "()"
                 ],
                 "correctIndex": 1,
-                "explanation": "Default arguments evaluate once at definition time; a mutable default persists and accumulates state across calls. Use None as the sentinel instead."
+                "explanation": "`{}` makes an empty dict; you must call `set()` for an empty set."
               },
               {
                 "id": "builtin-python-l3-s5-q2",
-                "type": "short_answer",
-                "prompt": "What does the `for/else` construct's `else` block do?",
-                "expectedAnswer": "It runs only if the loop completed without hitting a break.",
-                "explanation": "The else executes when the loop exhausts its iterable normally; a break skips it, which is useful for search-and-not-found logic."
+                "type": "mcq",
+                "prompt": "Why can a tuple be a dict key but a list cannot?",
+                "options": [
+                  "Tuples are shorter",
+                  "Tuples are immutable and therefore hashable",
+                  "Lists use too much memory",
+                  "Dicts only accept numbers"
+                ],
+                "correctIndex": 1,
+                "explanation": "Dict keys must be hashable; tuples are immutable and hashable, while lists are mutable and unhashable."
               }
             ]
           }
@@ -5324,81 +5414,107 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-python-l4",
-        "title": "Errors, Files, and Context Managers",
-        "estMinutes": 20,
+        "title": "Functions and Scope",
+        "estMinutes": 21,
         "glossary": [
-          "exception",
-          "try/except",
-          "raise",
-          "with statement",
-          "context manager",
-          "EAFP"
+          "positional argument",
+          "keyword argument",
+          "default argument",
+          "*args",
+          "**kwargs",
+          "closure",
+          "mutable default argument"
         ],
         "segments": [
           {
             "id": "builtin-python-l4-s1",
             "type": "reading",
-            "title": "When things go wrong (and they will)",
-            "markdown": "Robust programs anticipate failure: missing files, bad input, network hiccups. Python handles this with **exceptions** and the `try/except` block.\n\nPython culture favors **EAFP** — \"Easier to Ask Forgiveness than Permission.\" Rather than checking whether an operation *might* fail, you attempt it and catch the exception:\n\n```python\ntry:\n    hp = stats[\"hp\"]\nexcept KeyError:\n    hp = 0            # sensible default\nfinally:\n    print(\"lookup done\")  # always runs\n```\n\nCatch *specific* exceptions (`KeyError`, `ValueError`, `FileNotFoundError`), not a bare `except:`, which also swallows `KeyboardInterrupt` and hides real bugs. You can raise your own with `raise ValueError(\"level must be positive\")`.\n\n**Pitfall:** don't use exceptions for ordinary control flow you can express with a normal check, and never silently `except: pass` — at minimum log the error. The `finally` clause runs whether or not an exception occurred, making it the right place for cleanup that must always happen.",
-            "estMinutes": 2,
+            "title": "Functions as first-class tools",
+            "markdown": "Functions organize logic into reusable, testable units — and in Python they're first-class objects you can pass around, store in lists, and return from other functions. Define one with `def`, return with `return` (a function with no `return` yields `None`).\n\nPython's argument system is rich. Parameters can be passed **positionally** or by **keyword**, and can have **default values**. Defaults let callers omit common arguments.\n\n```python\ndef greet(name, greeting=\"Hello\"):\n    return f\"{greeting}, {name}!\"\n\nprint(greet(\"Ada\"))                    # Hello, Ada!\nprint(greet(\"Ada\", greeting=\"Hi\"))     # Hi, Ada!\n```\n\nA critical pitfall: **never use a mutable default argument** like `def f(items=[])`. The default list is created once and shared across all calls, so it accumulates state between calls. The fix is to default to `None` and create the list inside: `items = items if items is not None else []`.",
+            "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l4-s2",
-            "type": "reading",
-            "title": "Files and the with statement",
-            "markdown": "Reading and writing files is a daily task, and the **`with` statement** (backed by **context managers**) is how you do it safely. A context manager guarantees setup and teardown even if an error occurs mid-block — for files, that means the file handle is always closed.\n\n```python\n# Preferred: file auto-closes even if an exception fires\nwith open(\"save.txt\", \"w\", encoding=\"utf-8\") as f:\n    f.write(\"level=12\\n\")\n\nwith open(\"save.txt\", encoding=\"utf-8\") as f:\n    for line in f:            # streams line by line, memory-friendly\n        print(line.strip())\n```\n\nWithout `with`, you'd have to remember `f.close()` and wrap it in `try/finally` yourself — the `with` statement does exactly that behind the scenes. Always pass `encoding=\"utf-8\"` explicitly; relying on the platform default causes cross-machine bugs.\n\n**When/pitfall:** use `with` for anything that acquires a resource — files, locks, database connections, network sockets. A common mistake is reading a huge file with `f.read()` into one string; iterating line by line keeps memory flat for large files.",
-            "estMinutes": 5,
+            "type": "code",
+            "title": "*args and **kwargs",
+            "markdown": "To accept a variable number of arguments, use `*args` (extra positionals as a tuple) and `**kwargs` (extra keywords as a dict).\n\n```python\ndef summarize(label, *args, **kwargs):\n    print(f\"label={label}\")\n    print(f\"args={args}\")     # a tuple\n    print(f\"kwargs={kwargs}\") # a dict\n\nsummarize(\"stats\", 1, 2, 3, unit=\"ms\", verbose=True)\n# label=stats\n# args=(1, 2, 3)\n# kwargs={'unit': 'ms', 'verbose': True}\n\n# The * also unpacks when CALLING\nnums = [10, 20, 30]\nprint(max(*nums))   # same as max(10, 20, 30) -> 30\n\n# ** unpacks a dict into keyword args\ndef point(x, y):\n    return (x, y)\ncoords = {\"x\": 1, \"y\": 2}\nprint(point(**coords))  # (1, 2)\n```",
+            "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l4-s3",
-            "type": "code",
-            "title": "Robust integer parsing",
-            "markdown": "```python\ndef parse_score(raw, default=0):\n    \"\"\"Convert user input to an int, falling back to default.\"\"\"\n    try:\n        return int(raw)\n    except (ValueError, TypeError):\n        # ValueError: 'abc'; TypeError: None\n        return default\n\nprint(parse_score(\"42\"))    # 42\nprint(parse_score(\"oops\"))  # 0\nprint(parse_score(None))    # 0\nprint(parse_score(\" 7 \"))   # 7  (int() strips whitespace)\n```\n\nThis EAFP pattern is far cleaner than manually checking whether every character is a digit.",
+            "type": "reading",
+            "title": "Scope and closures",
+            "markdown": "Python resolves names using the LEGB rule: **Local**, **Enclosing**, **Global**, **Built-in** — searched in that order. Assigning to a name inside a function makes it local unless you declare otherwise with `global` or `nonlocal`.\n\nA **closure** captures variables from its enclosing scope, letting an inner function 'remember' state after the outer function returns:\n\n```python\ndef make_counter(start=0):\n    count = start\n    def increment():\n        nonlocal count   # rebind the enclosing variable\n        count += 1\n        return count\n    return increment\n\nc = make_counter()\nprint(c(), c(), c())  # 1 2 3\n```\n\nWithout `nonlocal`, the `count += 1` would try to create a new local `count` and raise `UnboundLocalError`. The common pitfall is expecting a variable read inside a function to be writable — reading an outer variable is fine, but reassigning it requires `nonlocal` (for enclosing) or `global` (for module level).",
             "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l4-s4",
             "type": "practice",
-            "title": "Safe division helper",
-            "markdown": "Implement a JavaScript function that mirrors the try/except fallback idea: divide two numbers but return a fallback when the divisor is zero.",
-            "estMinutes": 4,
-            "questions": []
+            "title": "Build a memoizer",
+            "markdown": "Implement `make_adder(n)` that returns a function which adds `n` to its argument. Example: `add5 = make_adder(5); add5(10)` returns `15`. This exercises closures.",
+            "estMinutes": 5,
+            "questions": [],
+            "exercise": {
+              "id": "builtin-python-l4-s4-ex1",
+              "prompt": "Return an inner function that closes over n and adds it to its argument.",
+              "language": "python",
+              "starterCode": "def make_adder(n):\n    # return a function that adds n to its argument\n    pass",
+              "tests": [
+                {
+                  "name": "add 5",
+                  "expression": "make_adder(5)(10)",
+                  "expected": 15
+                },
+                {
+                  "name": "add 0",
+                  "expression": "make_adder(0)(7)",
+                  "expected": 7
+                },
+                {
+                  "name": "add negative",
+                  "expression": "make_adder(-3)(3)",
+                  "expected": 0
+                }
+              ],
+              "solution": "def make_adder(n):\n    def adder(x):\n        return x + n\n    return adder",
+              "hint": "Define an inner function that takes x and returns x + n, then return that inner function (do not call it)."
+            }
           },
           {
             "id": "builtin-python-l4-s5",
             "type": "quiz",
             "title": "Check-in",
-            "markdown": "Exceptions and resources.",
-            "estMinutes": 3,
+            "markdown": "Verify your understanding of arguments and scope.",
+            "estMinutes": 2,
             "questions": [
               {
                 "id": "builtin-python-l4-s5-q1",
                 "type": "mcq",
-                "prompt": "What is the main advantage of using `with open(...)` over a plain `open(...)`?",
+                "prompt": "Why is `def add(item, bucket=[])` dangerous?",
                 "options": [
-                  "It reads files faster",
-                  "It automatically closes the file even if an exception occurs",
-                  "It converts text to UTF-8 automatically",
-                  "It allows writing to read-only files"
+                  "Lists can't be defaults",
+                  "The default list is created once and shared across all calls",
+                  "It's slower than a tuple",
+                  "bucket must be positional"
                 ],
                 "correctIndex": 1,
-                "explanation": "The with statement is a context manager that guarantees the file is closed on block exit, including when an exception is raised."
+                "explanation": "Default arguments are evaluated once at definition; the same list persists and accumulates across calls."
               },
               {
                 "id": "builtin-python-l4-s5-q2",
                 "type": "mcq",
-                "prompt": "Why avoid a bare `except:` clause?",
+                "prompt": "What keyword lets an inner function rebind a variable from its enclosing function?",
                 "options": [
-                  "It's slower than a specific except",
-                  "It catches everything including KeyboardInterrupt and hides real bugs",
-                  "It's a syntax error in Python 3",
-                  "It cannot be combined with finally"
+                  "global",
+                  "static",
+                  "nonlocal",
+                  "extern"
                 ],
-                "correctIndex": 1,
-                "explanation": "A bare except swallows all exceptions, including system-exiting ones, masking genuine problems. Catch specific exception types instead."
+                "correctIndex": 2,
+                "explanation": "`nonlocal` targets the nearest enclosing scope; `global` targets module scope."
               }
             ]
           }
@@ -5406,82 +5522,106 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-python-l5",
-        "title": "Classes and Object-Oriented Python",
-        "estMinutes": 24,
+        "title": "Errors and Exceptions",
+        "estMinutes": 19,
         "glossary": [
-          "class",
-          "__init__",
-          "self",
-          "instance attribute",
-          "dunder method",
-          "dataclass",
-          "inheritance"
+          "exception",
+          "try/except",
+          "raise",
+          "finally",
+          "context manager",
+          "EAFP"
         ],
         "segments": [
           {
             "id": "builtin-python-l5-s1",
             "type": "reading",
-            "title": "Bundling state and behavior",
-            "markdown": "When you find several functions all passing the same dict around, that's a signal to reach for a **class**. A class bundles data (attributes) with the behavior (methods) that operates on it.\n\n```python\nclass Character:\n    def __init__(self, name, hp=100):\n        self.name = name        # instance attribute\n        self.hp = hp\n\n    def take_damage(self, amount):\n        self.hp = max(0, self.hp - amount)\n        return self.hp\n\nhero = Character(\"Aloy\", 90)\nhero.take_damage(30)\nprint(hero.hp)  # 60\n```\n\nThe **`__init__`** method is the constructor, run when you create an instance. **`self`** is the explicit reference to the current instance — Python passes it automatically, but you must declare it as the first parameter of every method. Each object gets its own **instance attributes**.\n\n**Pitfall:** attributes assigned at *class* level (outside `__init__`) are *shared* by all instances, like static fields. If that shared value is mutable (a list), every instance mutates the same one — the same trap as mutable default arguments. Keep per-instance state inside `__init__`.",
-            "estMinutes": 2,
+            "title": "EAFP: ask forgiveness, not permission",
+            "markdown": "Errors are inevitable — files go missing, users type garbage, networks drop. Python's philosophy is **EAFP**: 'Easier to Ask Forgiveness than Permission.' Rather than checking every precondition (LBYL — 'Look Before You Leap'), you attempt the operation and handle the exception if it fails.\n\n```python\n# LBYL — racy and verbose\nif \"lvl\" in player:\n    lvl = player[\"lvl\"]\nelse:\n    lvl = 1\n\n# EAFP — idiomatic Python\ntry:\n    lvl = player[\"lvl\"]\nexcept KeyError:\n    lvl = 1\n```\n\nCatch *specific* exceptions, not a bare `except:`. A bare except swallows everything — including `KeyboardInterrupt` and typos that raise `NameError` — hiding bugs. Catch the narrowest exception that represents the failure you expect, such as `KeyError`, `ValueError`, or `FileNotFoundError`. This is the single most common beginner pitfall.",
+            "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l5-s2",
-            "type": "reading",
-            "title": "Dunder methods make objects feel native",
-            "markdown": "**Dunder methods** (double-underscore, e.g. `__repr__`, `__eq__`, `__len__`) let your objects integrate with Python's syntax and built-ins. Define `__repr__` and `print(obj)` becomes readable; define `__eq__` and `==` works meaningfully; define `__len__` and `len(obj)` works.\n\n```python\nclass Vector:\n    def __init__(self, x, y):\n        self.x, self.y = x, y\n    def __repr__(self):\n        return f\"Vector({self.x}, {self.y})\"\n    def __add__(self, other):\n        return Vector(self.x + other.x, self.y + other.y)\n\nprint(Vector(1, 2) + Vector(3, 4))  # Vector(4, 6)\n```\n\nFor plain data containers, the `@dataclass` decorator generates `__init__`, `__repr__`, and `__eq__` for you from type-annotated fields — far less boilerplate. **Inheritance** lets a subclass extend or specialize a parent (`class Boss(Character):`), calling `super().__init__(...)` to reuse the parent's setup.\n\n**When/pitfall:** favor composition over deep inheritance hierarchies; they get brittle. Reach for a `@dataclass` before hand-writing a class whose only job is holding fields.",
-            "estMinutes": 5,
+            "type": "code",
+            "title": "try / except / else / finally",
+            "markdown": "The full structure has four clauses. `else` runs when *no* exception occurred; `finally` always runs (cleanup).\n\n```python\ndef parse_age(text):\n    try:\n        age = int(text)\n    except ValueError:\n        print(\"not a number\")\n        return None\n    else:\n        # runs only if int() succeeded\n        print(\"parsed successfully\")\n        return age\n    finally:\n        # always runs, error or not\n        print(\"done attempting parse\")\n\nprint(parse_age(\"42\"))\n# parsed successfully / done attempting parse / 42\nprint(parse_age(\"oops\"))\n# not a number / done attempting parse / None\n\n# You can capture the exception object and raise your own\ntry:\n    int(\"x\")\nexcept ValueError as e:\n    print(f\"failed: {e}\")\n```",
+            "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l5-s3",
-            "type": "code",
-            "title": "A dataclass in action",
-            "markdown": "```python\nfrom dataclasses import dataclass, field\n\n@dataclass\nclass Item:\n    name: str\n    weight: float = 1.0\n    tags: list = field(default_factory=list)  # safe mutable default\n\n    def is_heavy(self):\n        return self.weight > 5\n\nsword = Item(\"Broadsword\", 7.5, [\"weapon\"])\nprint(sword)              # Item(name='Broadsword', weight=7.5, tags=['weapon'])\nprint(sword.is_heavy())   # True\nprint(sword == Item(\"Broadsword\", 7.5, [\"weapon\"]))  # True (auto __eq__)\n\n# field(default_factory=list) avoids the shared-mutable-default trap:\n# every Item gets its own fresh list.\n```",
-            "estMinutes": 5,
+            "type": "reading",
+            "title": "Raising and custom exceptions",
+            "markdown": "Use `raise` to signal an error yourself. Raise a built-in when one fits (`ValueError` for bad values, `TypeError` for wrong types) and define your own subclass of `Exception` for domain-specific failures — this lets callers catch exactly your error.\n\n```python\nclass InsufficientGold(Exception):\n    pass\n\ndef buy(gold, cost):\n    if cost > gold:\n        raise InsufficientGold(f\"need {cost}, have {gold}\")\n    return gold - cost\n\ntry:\n    buy(50, 100)\nexcept InsufficientGold as e:\n    print(e)   # need 100, have 50\n```\n\nFor resource cleanup, prefer a **context manager** with the `with` statement over `finally`. `with open(path) as f:` guarantees the file closes even if the block raises. The pitfall to avoid is re-raising with a bare `raise` inside the wrong scope, or catching an exception only to `raise Exception(str(e))`, which discards the original traceback — use `raise ... from e` to preserve the chain.",
+            "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l5-s4",
             "type": "practice",
-            "title": "Model a stack",
-            "markdown": "Implement a simple stack as a JavaScript class-like factory to reinforce encapsulating state with behavior (mirroring how a Python class bundles data + methods).",
+            "title": "Safe division",
+            "markdown": "Implement `safe_divide(a, b)` that returns `a / b`, but returns the string `\"undefined\"` when `b` is zero. Use try/except (not an `if`). Example: `safe_divide(6, 2)` → `3.0`, `safe_divide(1, 0)` → `\"undefined\"`.",
             "estMinutes": 5,
-            "questions": []
+            "questions": [],
+            "exercise": {
+              "id": "builtin-python-l5-s4-ex1",
+              "prompt": "Attempt the division; catch ZeroDivisionError and return the string.",
+              "language": "python",
+              "starterCode": "def safe_divide(a, b):\n    # return a / b, or \"undefined\" if b is zero\n    pass",
+              "tests": [
+                {
+                  "name": "normal",
+                  "expression": "safe_divide(6, 2)",
+                  "expected": 3
+                },
+                {
+                  "name": "divide by zero",
+                  "expression": "safe_divide(1, 0)",
+                  "expected": "undefined"
+                },
+                {
+                  "name": "float result",
+                  "expression": "safe_divide(7, 2)",
+                  "expected": 3.5
+                }
+              ],
+              "solution": "def safe_divide(a, b):\n    try:\n        return a / b\n    except ZeroDivisionError:\n        return \"undefined\"",
+              "hint": "Wrap `a / b` in try; the exception you want is ZeroDivisionError."
+            }
           },
           {
             "id": "builtin-python-l5-s5",
             "type": "quiz",
             "title": "Check-in",
-            "markdown": "Objects and dataclasses.",
-            "estMinutes": 3,
+            "markdown": "Confirm exception handling instincts.",
+            "estMinutes": 2,
             "questions": [
               {
                 "id": "builtin-python-l5-s5-q1",
                 "type": "mcq",
-                "prompt": "What does defining `__repr__` on a class accomplish?",
+                "prompt": "Why avoid a bare `except:` clause?",
                 "options": [
-                  "Makes instances iterable",
-                  "Provides a readable string when the object is printed or inspected",
-                  "Allows == comparisons",
-                  "Enables inheritance"
+                  "It's slower",
+                  "It swallows every exception including KeyboardInterrupt and hides bugs",
+                  "It only works in functions",
+                  "It can't capture the error object"
                 ],
                 "correctIndex": 1,
-                "explanation": "__repr__ controls the object's textual representation used by repr() and the REPL/print, making debugging far easier."
+                "explanation": "A bare except catches everything, masking unexpected errors and control-flow signals. Catch specific exceptions."
               },
               {
                 "id": "builtin-python-l5-s5-q2",
                 "type": "mcq",
-                "prompt": "Why use `field(default_factory=list)` in a dataclass instead of `tags: list = []`?",
+                "prompt": "When does the `else` clause of a try statement run?",
                 "options": [
-                  "It's required syntax for all lists",
-                  "It gives each instance its own fresh list, avoiding a shared mutable default",
-                  "It makes the list immutable",
-                  "It's faster"
+                  "Always",
+                  "Only when an exception occurred",
+                  "Only when no exception occurred in the try block",
+                  "Only after finally"
                 ],
-                "correctIndex": 1,
-                "explanation": "A bare `= []` default would be shared across all instances (the mutable-default trap); default_factory produces a new list per instance."
+                "correctIndex": 2,
+                "explanation": "The else block runs only if the try block completed without raising."
               }
             ]
           }
@@ -5489,82 +5629,113 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-python-l6",
-        "title": "Iterators, Generators, and Comprehension Power",
+        "title": "Classes and Objects",
         "estMinutes": 22,
         "glossary": [
-          "iterable",
-          "iterator",
-          "generator",
-          "yield",
-          "lazy evaluation",
-          "enumerate",
-          "zip"
+          "class",
+          "instance",
+          "__init__",
+          "self",
+          "dunder method",
+          "dataclass",
+          "instance attribute"
         ],
         "segments": [
           {
             "id": "builtin-python-l6-s1",
             "type": "reading",
-            "title": "Laziness as a superpower",
-            "markdown": "You've been using iteration since lesson 2, but understanding the machinery unlocks big memory and performance wins. An **iterable** is anything you can loop over (list, dict, file). Calling `iter()` on it produces an **iterator** — an object with a `__next__` method that yields one item at a time and raises `StopIteration` when exhausted.\n\nThe payoff is **lazy evaluation**: values are produced on demand rather than all upfront. A **generator** is the easiest way to build a lazy iterator — a function that uses **`yield`** instead of `return`:\n\n```python\ndef countdown(n):\n    while n > 0:\n        yield n      # pauses here, resumes on next()\n        n -= 1\n\nfor x in countdown(3):\n    print(x)  # 3, 2, 1\n```\n\nEach `yield` hands a value to the caller and freezes the function's state until the next iteration. This means you can represent infinite or huge sequences without ever materializing them in memory.\n\n**Pitfall:** a generator is single-use — once exhausted, looping again yields nothing. If you need to iterate twice, either recreate it or materialize with `list(gen)`.",
-            "estMinutes": 2,
+            "title": "Modeling state and behavior",
+            "markdown": "Once your scripts juggle several related values and the functions that operate on them, bundling them into a class clarifies intent. A **class** is a blueprint; an **instance** is a concrete object built from it. The `__init__` method initializes each new instance, and `self` is the conventional name for the instance passed automatically to methods.\n\n```python\nclass Player:\n    def __init__(self, name, hp=100):\n        self.name = name      # instance attribute\n        self.hp = hp\n\n    def take_damage(self, amount):\n        self.hp = max(0, self.hp - amount)\n        return self.hp\n\np = Player(\"Ada\")\np.take_damage(30)\nprint(p.hp)   # 70\n```\n\nEvery method's first parameter is `self` — forgetting it is the classic beginner error, producing `TypeError: method takes 0 positional arguments but 1 was given`. Attributes set on `self` in `__init__` belong to each instance individually.",
+            "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l6-s2",
-            "type": "reading",
-            "title": "enumerate, zip, and generator expressions",
-            "markdown": "Two built-ins eliminate clunky index bookkeeping. **`enumerate`** gives you index and value together, so you never write `for i in range(len(items))` again. **`zip`** iterates multiple sequences in lockstep:\n\n```python\nnames = [\"Aloy\", \"Kratos\"]\nlevels = [12, 20]\nfor i, (name, lvl) in enumerate(zip(names, levels), start=1):\n    print(f\"{i}. {name} lvl {lvl}\")\n# 1. Aloy lvl 12\n# 2. Kratos lvl 20\n```\n\nA **generator expression** looks like a list comprehension but with parentheses, and it's lazy: `sum(x*x for x in range(1000000))` never builds a million-element list — it streams. Prefer it over a list comprehension whenever you're feeding a consumer like `sum`, `any`, `all`, or `max` that reads once.\n\n**When/pitfall:** `zip` stops at the *shortest* input, silently dropping trailing elements of longer ones. If that's not what you want, use `itertools.zip_longest`. Use generator expressions for large pipelines; use list comprehensions when you genuinely need a reusable list.",
-            "estMinutes": 5,
+            "type": "code",
+            "title": "Dunder methods",
+            "markdown": "'Dunder' (double-underscore) methods hook into Python's built-in behaviors — they let your objects work with operators, `print`, `len`, and comparisons.\n\n```python\nclass Vector:\n    def __init__(self, x, y):\n        self.x, self.y = x, y\n\n    def __repr__(self):\n        # unambiguous, dev-facing representation\n        return f\"Vector({self.x}, {self.y})\"\n\n    def __add__(self, other):\n        # enables the + operator\n        return Vector(self.x + other.x, self.y + other.y)\n\n    def __eq__(self, other):\n        return (self.x, self.y) == (other.x, other.y)\n\na = Vector(1, 2)\nb = Vector(3, 4)\nprint(a + b)          # Vector(4, 6)\nprint(a == Vector(1, 2))  # True\n```\n\nDefine `__repr__` on every class you debug — it makes `print()` and REPL output readable instead of `<__main__.Vector object at 0x...>`.",
+            "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l6-s3",
-            "type": "code",
-            "title": "A generator pipeline",
-            "markdown": "```python\ndef read_scores(lines):\n    \"\"\"Lazily parse valid integer scores from raw text lines.\"\"\"\n    for line in lines:\n        line = line.strip()\n        if line.isdigit():\n            yield int(line)\n\nraw = [\"100\", \"oops\", \" 250 \", \"\", \"75\"]\n\n# Chain lazily: nothing is computed until we consume it\nscores = read_scores(raw)\nhigh = (s for s in scores if s >= 100)\nprint(list(high))  # [100, 250]\n\n# Note: isdigit() is False for ' 250 ' before strip and for negatives.\n# strip() runs first here so '250' passes; '' and 'oops' are skipped.\n```",
-            "estMinutes": 5,
+            "type": "reading",
+            "title": "Dataclasses cut the boilerplate",
+            "markdown": "Writing `__init__`, `__repr__`, and `__eq__` by hand gets tedious for simple data holders. The `dataclasses` module generates them from annotated fields.\n\n```python\nfrom dataclasses import dataclass\n\n@dataclass\nclass Item:\n    name: str\n    price: float\n    qty: int = 1   # default value\n\nsword = Item(\"sword\", 100.0)\nprint(sword)               # Item(name='sword', price=100.0, qty=1)\nprint(sword == Item(\"sword\", 100.0))  # True — value equality for free\n```\n\nUse a dataclass whenever a class is mostly a typed bundle of fields. It gives you a constructor, a readable repr, and value-based equality automatically. The pitfall mirrors the mutable-default trap from functions: you cannot use a mutable default like `[]` directly for a field — use `field(default_factory=list)` instead, or Python raises a `ValueError` at class-definition time.",
+            "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l6-s4",
             "type": "practice",
-            "title": "Running totals generator",
-            "markdown": "Implement the lazy 'accumulate' idea as a plain JavaScript function returning an array of running sums — the eager equivalent of what a generator would stream.",
-            "estMinutes": 4,
-            "questions": []
+            "title": "A bank account class",
+            "markdown": "Implement `BankAccount` with an `__init__(self, balance=0)`, a `deposit(amount)` method, and a `withdraw(amount)` method that returns `False` (without changing balance) if the withdrawal exceeds the balance, else deducts and returns `True`. The test calls methods and reads `.balance`.",
+            "estMinutes": 6,
+            "questions": [],
+            "exercise": {
+              "id": "builtin-python-l6-s4-ex1",
+              "prompt": "Build a BankAccount class tracking balance with deposit/withdraw methods.",
+              "language": "python",
+              "starterCode": "class BankAccount:\n    def __init__(self, balance=0):\n        # store the starting balance\n        pass\n\n    def deposit(self, amount):\n        # increase balance\n        pass\n\n    def withdraw(self, amount):\n        # deduct if possible; return True/False\n        pass\n\ndef run_scenario():\n    acct = BankAccount(100)\n    acct.deposit(50)          # 150\n    ok = acct.withdraw(200)   # False, unchanged\n    acct.withdraw(30)         # 120\n    return [acct.balance, ok]",
+              "tests": [
+                {
+                  "name": "final balance and rejected withdrawal",
+                  "expression": "run_scenario()",
+                  "expected": [
+                    120,
+                    false
+                  ]
+                },
+                {
+                  "name": "deposit only",
+                  "expression": "(lambda a: (a.deposit(25), a.balance)[1])(BankAccount())",
+                  "expected": 25
+                },
+                {
+                  "name": "exact withdrawal succeeds",
+                  "expression": "(lambda a: (a.withdraw(100), a.balance))(BankAccount(100))",
+                  "expected": [
+                    true,
+                    0
+                  ]
+                }
+              ],
+              "solution": "class BankAccount:\n    def __init__(self, balance=0):\n        self.balance = balance\n\n    def deposit(self, amount):\n        self.balance += amount\n\n    def withdraw(self, amount):\n        if amount > self.balance:\n            return False\n        self.balance -= amount\n        return True\n\ndef run_scenario():\n    acct = BankAccount(100)\n    acct.deposit(50)\n    ok = acct.withdraw(200)\n    acct.withdraw(30)\n    return [acct.balance, ok]",
+              "hint": "Store balance on self in __init__. In withdraw, compare amount to self.balance before deducting and return the appropriate boolean."
+            }
           },
           {
             "id": "builtin-python-l6-s5",
             "type": "quiz",
             "title": "Check-in",
-            "markdown": "Iterators and laziness.",
-            "estMinutes": 3,
+            "markdown": "Object-oriented fundamentals check.",
+            "estMinutes": 2,
             "questions": [
               {
                 "id": "builtin-python-l6-s5-q1",
                 "type": "mcq",
-                "prompt": "What happens when you loop over the same generator a second time after it's been fully consumed?",
+                "prompt": "What does `self` refer to inside an instance method?",
                 "options": [
-                  "It restarts from the beginning",
-                  "It raises StopIteration immediately on the first next",
-                  "The loop body never executes because it's exhausted",
-                  "It re-runs and yields the same values"
+                  "The class itself",
+                  "The current instance the method was called on",
+                  "A copy of the arguments",
+                  "The module"
                 ],
-                "correctIndex": 2,
-                "explanation": "Generators are single-use; once exhausted they yield nothing, so a second for-loop body simply never runs. Recreate the generator to iterate again."
+                "correctIndex": 1,
+                "explanation": "`self` is the instance; Python passes it automatically when you call obj.method()."
               },
               {
                 "id": "builtin-python-l6-s5-q2",
                 "type": "mcq",
-                "prompt": "Why prefer `sum(x*x for x in data)` over `sum([x*x for x in data])` for large data?",
+                "prompt": "Which dunder method should you define to control how `print(obj)` and REPL output look for debugging?",
                 "options": [
-                  "The generator version is more accurate",
-                  "The generator version streams without building a full list, saving memory",
-                  "The list version raises an error",
-                  "They are identical in every way"
+                  "__str__ only",
+                  "__init__",
+                  "__repr__",
+                  "__call__"
                 ],
-                "correctIndex": 1,
-                "explanation": "The generator expression is lazy and produces values on demand, so no intermediate list of all squares is materialized — important for large inputs."
+                "correctIndex": 2,
+                "explanation": "__repr__ provides the developer-facing representation and is the fallback for print when __str__ is absent."
               }
             ]
           }
@@ -5572,82 +5743,114 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-python-l7",
-        "title": "Modules, Packages, and the Standard Library",
-        "estMinutes": 22,
+        "title": "Modules, Iterators, and Generators",
+        "estMinutes": 23,
         "glossary": [
           "module",
           "import",
-          "package",
-          "__name__",
-          "virtual environment",
-          "pip",
-          "standard library"
+          "iterator",
+          "generator",
+          "yield",
+          "lazy evaluation",
+          "itertools"
         ],
         "segments": [
           {
             "id": "builtin-python-l7-s1",
             "type": "reading",
-            "title": "Escaping the single-file trap",
-            "markdown": "Real projects outgrow one file. A **module** is simply a `.py` file; a **package** is a directory of modules. The `import` statement pulls their names into your namespace.\n\n```python\nimport math                 # whole module\nfrom collections import Counter  # one name\nimport datetime as dt       # aliased\n\nprint(math.sqrt(16))        # 4.0\nprint(Counter(\"mississippi\"))  # Counter({'i': 4, 's': 4, ...})\n```\n\nPrefer explicit imports (`from x import y`) over `from x import *`, which pollutes your namespace and hides where names come from.\n\nEvery module has a `__name__` variable. When run directly it equals `\"__main__\"`; when imported it equals the module's name. That's why you see:\n\n```python\nif __name__ == \"__main__\":\n    main()   # only runs when executed directly, not on import\n```\n\n**Pitfall:** don't name your file the same as a standard-library module (e.g. `random.py` or `email.py`). Python may import *your* file instead of the real one, causing baffling errors.",
-            "estMinutes": 2,
+            "title": "Organizing code with modules",
+            "markdown": "As programs grow, you split them into **modules** — separate `.py` files — and pull in functionality with `import`. The standard library is enormous, so much of 'writing Python' is knowing what to import.\n\n```python\nimport math\nfrom collections import Counter\nimport json as j   # alias\n\nprint(math.sqrt(16))          # 4.0\nprint(Counter(\"banana\"))      # Counter({'a': 3, 'n': 2, 'b': 1})\nprint(j.dumps({\"ok\": True}))  # {\"ok\": true}\n```\n\nA subtle but important idiom is the `if __name__ == \"__main__\":` guard. When a file is imported, Python sets its `__name__` to the module name; when run directly, `__name__` equals `\"__main__\"`. Putting your script's entry logic under that guard means importing the module won't accidentally execute it. The common pitfall is a *circular import* — two modules importing each other — which you resolve by moving shared code to a third module or importing lazily inside a function.",
+            "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l7-s2",
             "type": "reading",
-            "title": "Batteries included: the standard library",
-            "markdown": "Python's tagline is \"batteries included\" — the **standard library** ships with tools for most everyday jobs, so you write less and depend on fewer third-party packages.\n\nA few you'll reach for constantly: `collections` (`Counter`, `defaultdict`, `deque`), `itertools` (combinatorics and infinite iterators), `json` (parse/serialize), `pathlib` (modern filesystem paths), `datetime` (dates and times), and `random`.\n\n```python\nfrom collections import defaultdict\nkills = defaultdict(int)      # missing keys default to 0\nfor player in [\"a\", \"b\", \"a\"]:\n    kills[player] += 1        # no KeyError on first access\nprint(dict(kills))            # {'a': 2, 'b': 1}\n```\n\nFor third-party packages you use **pip** (`pip install requests`), but always inside a **virtual environment** — create one with `python3 -m venv .venv` and activate it. This isolates each project's dependencies so version conflicts between projects can't happen.\n\n**When/pitfall:** before `pip install`-ing something, check the standard library first — the answer is often already there. And never install packages into your system Python; an unactivated venv is the top cause of \"works on my machine\" bugs.",
-            "estMinutes": 5,
+            "title": "Iterators under the hood",
+            "markdown": "Every `for` loop actually calls `iter()` on the object to get an **iterator**, then repeatedly calls `next()` until `StopIteration` is raised. Understanding this demystifies why you can loop over files, dicts, and custom objects the same way.\n\n```python\nnums = [10, 20, 30]\nit = iter(nums)\nprint(next(it))  # 10\nprint(next(it))  # 20\nprint(next(it))  # 30\n# next(it) now raises StopIteration\n```\n\nAn iterator is *consumed* — once exhausted it yields nothing more. This is why `list(zip(a, b))` gives a list but reusing the same zip object twice yields an empty second pass. The pitfall: functions like `map`, `filter`, and `zip` return lazy iterators in Python 3, not lists. If you need to iterate more than once, materialize them with `list()` first.",
+            "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l7-s3",
             "type": "code",
-            "title": "Counting with the stdlib",
-            "markdown": "```python\nfrom collections import Counter\n\nlog = [\"login\", \"attack\", \"attack\", \"login\", \"attack\", \"heal\"]\n\ntally = Counter(log)\nprint(tally)                 # Counter({'attack': 3, 'login': 2, 'heal': 1})\nprint(tally.most_common(2))  # [('attack', 3), ('login', 2)]\nprint(tally[\"missing\"])      # 0  -- no KeyError, returns 0\n\n# Counters support arithmetic\nmore = Counter([\"attack\", \"block\"])\nprint(tally + more)          # combined tallies\n```\n\n`Counter` turns a common counting loop into one line and gives you ranking via `most_common`. This is the kind of thing that's tedious in many languages and trivial here.",
+            "title": "Generators with yield",
+            "markdown": "A **generator** is the easiest way to build an iterator: write a function that uses `yield` instead of `return`. Each `yield` produces a value and pauses; execution resumes on the next `next()`. This gives **lazy evaluation** — values are computed on demand, so you can represent huge or infinite sequences with tiny memory.\n\n```python\ndef fib():\n    a, b = 0, 1\n    while True:          # infinite, but lazy\n        yield a\n        a, b = b, a + b\n\ngen = fib()\nfirst5 = [next(gen) for _ in range(5)]\nprint(first5)   # [0, 1, 1, 2, 3]\n\n# generator expression: like a comprehension but lazy\nsquares = (n * n for n in range(1_000_000))\nprint(next(squares))  # 0  — nothing else computed yet\n```\n\nUse generators for streaming large data, pipelines, and any sequence you consume once. Change `range(5)` to pull more Fibonacci numbers.",
             "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l7-s4",
             "type": "practice",
-            "title": "Word frequency",
-            "markdown": "Reproduce Counter's core behavior in JavaScript: count how many times each word appears and return the result as a plain object.",
+            "title": "Take from an infinite stream",
+            "markdown": "Implement `first_n_squares(n)` that returns a list of the first `n` perfect squares (starting at 0), built using a generator internally. Example: `first_n_squares(4)` → `[0, 1, 4, 9]`. Also handle `n = 0` → `[]`.",
             "estMinutes": 5,
-            "questions": []
+            "questions": [],
+            "exercise": {
+              "id": "builtin-python-l7-s4-ex1",
+              "prompt": "Define a generator that yields squares, then take the first n into a list.",
+              "language": "python",
+              "starterCode": "def first_n_squares(n):\n    # use a generator internally; return the first n squares as a list\n    pass",
+              "tests": [
+                {
+                  "name": "four squares",
+                  "expression": "first_n_squares(4)",
+                  "expected": [
+                    0,
+                    1,
+                    4,
+                    9
+                  ]
+                },
+                {
+                  "name": "zero",
+                  "expression": "first_n_squares(0)",
+                  "expected": []
+                },
+                {
+                  "name": "one",
+                  "expression": "first_n_squares(1)",
+                  "expected": [
+                    0
+                  ]
+                }
+              ],
+              "solution": "def first_n_squares(n):\n    def squares():\n        i = 0\n        while True:\n            yield i * i\n            i += 1\n    gen = squares()\n    return [next(gen) for _ in range(n)]",
+              "hint": "Write an inner generator with `while True: yield i*i`, then collect n values with next() in a comprehension over range(n)."
+            }
           },
           {
             "id": "builtin-python-l7-s5",
             "type": "quiz",
             "title": "Check-in",
-            "markdown": "Modules and environments.",
-            "estMinutes": 3,
+            "markdown": "Iterators and generators check-in.",
+            "estMinutes": 2,
             "questions": [
               {
                 "id": "builtin-python-l7-s5-q1",
                 "type": "mcq",
-                "prompt": "What is the purpose of `if __name__ == \"__main__\":`?",
+                "prompt": "What does calling `next()` on an exhausted iterator do?",
                 "options": [
-                  "It defines the program's entry class",
-                  "It runs the enclosed code only when the file is executed directly, not when imported",
-                  "It's required in every Python file",
-                  "It imports the main module"
+                  "Returns None",
+                  "Restarts from the beginning",
+                  "Raises StopIteration",
+                  "Returns an empty list"
                 ],
-                "correctIndex": 1,
-                "explanation": "`__name__` is '__main__' only when the file is run directly; this guard prevents script code from executing on import, so the module stays reusable."
+                "correctIndex": 2,
+                "explanation": "Exhausted iterators raise StopIteration, which the for loop catches to end iteration."
               },
               {
                 "id": "builtin-python-l7-s5-q2",
                 "type": "mcq",
-                "prompt": "Why create and activate a virtual environment before `pip install`?",
+                "prompt": "What is the main advantage of a generator over building a full list?",
                 "options": [
-                  "It makes pip faster",
-                  "It isolates project dependencies, avoiding version conflicts between projects and the system Python",
-                  "It's required to import the standard library",
-                  "It compiles packages to C"
+                  "It's always faster to write",
+                  "Lazy evaluation — values are produced on demand with low memory",
+                  "It can be indexed like a list",
+                  "It never raises exceptions"
                 ],
                 "correctIndex": 1,
-                "explanation": "A venv gives each project its own isolated set of packages, preventing conflicting versions and keeping the system Python clean."
+                "explanation": "Generators compute values lazily, allowing huge or infinite sequences without holding everything in memory."
               }
             ]
           }

@@ -21,8 +21,8 @@ export type SeedJsExercise = {
   id: string
   kind?: 'js' // default; absent ⇒ 'js'
   prompt: string
-  // Authoring language; the runner type-strips 'ts' to JS. Absent ⇒ 'js'.
-  language?: 'js' | 'ts'
+  // Authoring language: 'ts' type-strips to JS, 'python' runs on Pyodide. Absent ⇒ 'js'.
+  language?: 'js' | 'ts' | 'python'
   starterCode: string
   tests: { name: string; expression: string; expected: unknown }[]
   solution: string
