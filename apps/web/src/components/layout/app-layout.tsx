@@ -1,4 +1,5 @@
 import { Outlet } from 'react-router'
+import { FocusTimerDock } from '@/components/focus/focus-timer-dock'
 import { AppHeader } from './app-header'
 import { Sidebar } from './sidebar'
 import { SiteFooter } from './site-footer'
@@ -16,6 +17,7 @@ export function AppLayout() {
         </div>
       </div>
       <SiteFooter />
+      <FocusTimerDock />
     </div>
   )
 }

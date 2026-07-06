@@ -1,15 +1,29 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { MemoryRouter } from 'react-router'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const h = vi.hoisted(() => ({ record: vi.fn(async () => ({ xp: 40 })) }))
 vi.mock('@/api-client', () => ({ api: { focus: { record: h.record } } }))
 
+import { TimerProvider } from '@/hooks/timer-provider'
 import { FocusSession } from './focus-session'
 
+function renderSession() {
+  return render(
+    <MemoryRouter>
+      <TimerProvider>
+        <FocusSession />
+      </TimerProvider>
+    </MemoryRouter>,
+  )
+}
+
 describe('FocusSession', () => {
+  beforeEach(() => localStorage.clear())
+
   it('offers a config + start button while idle', () => {
-    render(<FocusSession />)
+    renderSession()
     expect(
       screen.getByRole('button', { name: /start session/i }),
     ).toBeInTheDocument()
@@ -19,7 +33,7 @@ describe('FocusSession', () => {
   })
 
   it('runs the play/learn cycles to completion and records the session', async () => {
-    render(<FocusSession />)
+    renderSession()
     await userEvent.click(
       screen.getByRole('button', { name: /start session/i }),
     )

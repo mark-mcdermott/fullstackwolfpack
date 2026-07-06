@@ -97,6 +97,152 @@ export function focusResult(
   }
 }
 
+// A session in progress, anchored to the wall clock so it survives navigation
+// and page reloads without drift. Times are epoch milliseconds. `endsAt` is when
+// the current phase hits zero while running; it's `null` while paused, and
+// `pausedSecondsLeft` then holds the frozen remainder. `donePlay`/`doneLearn`
+// bank the seconds from phases already finished (fully or partially skipped).
+export type ActiveFocusSession = {
+  config: FocusConfig
+  plan: FocusStep[]
+  stepIndex: number
+  endsAt: number | null
+  pausedSecondsLeft: number
+  donePlay: number
+  doneLearn: number
+}
+
+// What a play/learn session yielded once it stopped — fed to `focusResult`.
+export type FocusTally = { playSeconds: number; learnSeconds: number }
+
+// Either the session advanced and is still going, or it finished with a tally.
+export type FocusStepResult =
+  | { done: false; session: ActiveFocusSession }
+  | { done: true; tally: FocusTally }
+
+export function startFocusSession(
+  config: FocusConfig,
+  now: number,
+): ActiveFocusSession {
+  const plan = buildFocusPlan(config)
+  return {
+    config,
+    plan,
+    stepIndex: 0,
+    endsAt: now + plan[0].seconds * 1000,
+    pausedSecondsLeft: 0,
+    donePlay: 0,
+    doneLearn: 0,
+  }
+}
+
+// Whole seconds left in the current phase (frozen value while paused).
+export function secondsLeftIn(session: ActiveFocusSession, now: number): number {
+  if (session.endsAt === null) return session.pausedSecondsLeft
+  return Math.max(0, Math.ceil((session.endsAt - now) / 1000))
+}
+
+function bank(
+  session: ActiveFocusSession,
+  phase: FocusPhase,
+  seconds: number,
+): Pick<ActiveFocusSession, 'donePlay' | 'doneLearn'> {
+  return {
+    donePlay: session.donePlay + (phase === 'play' ? seconds : 0),
+    doneLearn: session.doneLearn + (phase === 'learn' ? seconds : 0),
+  }
+}
+
+// Roll a running session forward through every phase that has fully elapsed by
+// `now` — one tick under normal use, but several at once after the tab was
+// backgrounded or reloaded. Each elapsed phase banks its full planned seconds;
+// running out of plan ends the session. A paused session never advances.
+export function reconcileFocusSession(
+  session: ActiveFocusSession,
+  now: number,
+): FocusStepResult {
+  if (session.endsAt === null) return { done: false, session }
+  let { stepIndex, endsAt, donePlay, doneLearn } = session
+  while (endsAt <= now) {
+    const step = session.plan[stepIndex]
+    if (step.phase === 'play') donePlay += step.seconds
+    else doneLearn += step.seconds
+    stepIndex += 1
+    if (stepIndex >= session.plan.length) {
+      return { done: true, tally: { playSeconds: donePlay, learnSeconds: doneLearn } }
+    }
+    endsAt += session.plan[stepIndex].seconds * 1000
+  }
+  return {
+    done: false,
+    session: { ...session, stepIndex, endsAt, donePlay, doneLearn },
+  }
+}
+
+export function pauseFocusSession(
+  session: ActiveFocusSession,
+  now: number,
+): ActiveFocusSession {
+  if (session.endsAt === null) return session
+  return {
+    ...session,
+    endsAt: null,
+    pausedSecondsLeft: secondsLeftIn(session, now),
+  }
+}
+
+export function resumeFocusSession(
+  session: ActiveFocusSession,
+  now: number,
+): ActiveFocusSession {
+  if (session.endsAt !== null) return session
+  return {
+    ...session,
+    endsAt: now + session.pausedSecondsLeft * 1000,
+    pausedSecondsLeft: 0,
+  }
+}
+
+// Skip the rest of the current phase — its elapsed time still counts — and move
+// to the next (or finish). Preserves the paused/running state into the next phase.
+export function skipFocusPhase(
+  session: ActiveFocusSession,
+  now: number,
+): FocusStepResult {
+  const step = session.plan[session.stepIndex]
+  const elapsed = step.seconds - secondsLeftIn(session, now)
+  const banked = bank(session, step.phase, elapsed)
+  const next = session.stepIndex + 1
+  if (next >= session.plan.length) {
+    return {
+      done: true,
+      tally: { playSeconds: banked.donePlay, learnSeconds: banked.doneLearn },
+    }
+  }
+  const paused = session.endsAt === null
+  return {
+    done: false,
+    session: {
+      ...session,
+      ...banked,
+      stepIndex: next,
+      endsAt: paused ? null : now + session.plan[next].seconds * 1000,
+      pausedSecondsLeft: paused ? session.plan[next].seconds : 0,
+    },
+  }
+}
+
+// End the session now, banking the current phase's elapsed time.
+export function endFocusSession(
+  session: ActiveFocusSession,
+  now: number,
+): FocusTally {
+  const step = session.plan[session.stepIndex]
+  const elapsed = step.seconds - secondsLeftIn(session, now)
+  const banked = bank(session, step.phase, elapsed)
+  return { playSeconds: banked.donePlay, learnSeconds: banked.doneLearn }
+}
+
 export function formatClock(seconds: number): string {
   const total = Math.max(0, Math.floor(seconds))
   const mins = Math.floor(total / 60)

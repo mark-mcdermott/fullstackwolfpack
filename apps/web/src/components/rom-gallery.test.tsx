@@ -1,8 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { type ComponentProps } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { EMBED_CATALOG } from '@/lib/embed-catalog'
-import { ROM_CATALOG } from '@/lib/rom-catalog'
+import { ROM_CATALOG, uploadedRomFromFile } from '@/lib/rom-catalog'
 import { SYSTEM_META } from '@/core/roms'
 import { RomGallery } from './rom-gallery'
 
@@ -10,9 +11,19 @@ import { RomGallery } from './rom-gallery'
 // meaningful as the curated Green-bucket set grows/shrinks.
 const firstRom = ROM_CATALOG[0]
 
+function renderGallery(props: Partial<ComponentProps<typeof RomGallery>> = {}) {
+  const handlers = {
+    onSelect: props.onSelect ?? vi.fn(),
+    onUpload: props.onUpload ?? vi.fn(),
+    onDelete: props.onDelete ?? vi.fn(),
+  }
+  render(<RomGallery uploads={props.uploads ?? []} {...handlers} />)
+  return handlers
+}
+
 describe('RomGallery', () => {
   it('renders every catalog tile and the upload tile', () => {
-    render(<RomGallery onSelect={vi.fn()} />)
+    renderGallery()
     for (const rom of ROM_CATALOG) {
       expect(screen.getByText(rom.title)).toBeInTheDocument()
     }
@@ -21,7 +32,7 @@ describe('RomGallery', () => {
 
   it('filters by system tab', async () => {
     const user = userEvent.setup()
-    render(<RomGallery onSelect={vi.fn()} />)
+    renderGallery()
 
     // Selecting a system tab shows that system's titles and hides the rest.
     await user.click(
@@ -39,7 +50,7 @@ describe('RomGallery', () => {
 
   it('filters by search query', async () => {
     const user = userEvent.setup()
-    render(<RomGallery onSelect={vi.fn()} />)
+    renderGallery()
 
     await user.type(screen.getByLabelText('Search games'), firstRom.title)
     expect(screen.getByText(firstRom.title)).toBeInTheDocument()
@@ -52,8 +63,7 @@ describe('RomGallery', () => {
 
   it('selects a catalog game on Play', async () => {
     const user = userEvent.setup()
-    const onSelect = vi.fn()
-    render(<RomGallery onSelect={onSelect} />)
+    const { onSelect } = renderGallery()
 
     await user.click(
       screen.getByRole('button', { name: `Play ${firstRom.title}` }),
@@ -64,28 +74,38 @@ describe('RomGallery', () => {
     )
   })
 
-  it('accepts a valid uploaded ROM', async () => {
+  it('hands a valid upload to onUpload for persistence', async () => {
     const user = userEvent.setup()
-    const onSelect = vi.fn()
-    render(<RomGallery onSelect={onSelect} />)
+    const { onUpload } = renderGallery()
 
     const file = new File([new Uint8Array([1, 2, 3, 4])], 'my-game.gba')
     await user.upload(screen.getByLabelText('Choose file'), file)
 
-    expect(onSelect).toHaveBeenCalledWith(
-      expect.objectContaining({
-        source: 'upload',
-        system: 'gba',
-        title: 'My Game',
-        file,
-      }),
+    expect(onUpload).toHaveBeenCalledWith(file, 'gba')
+  })
+
+  it('renders stored uploads and can play or remove them', async () => {
+    const user = userEvent.setup()
+    const rom = uploadedRomFromFile(
+      new File([new Uint8Array([1, 2, 3, 4])], 'my-rom.gba'),
+      'gba',
     )
+    const { onSelect, onDelete } = renderGallery({ uploads: [rom] })
+
+    expect(screen.getByText('My Rom')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Play My Rom' }))
+    expect(onSelect).toHaveBeenCalledWith(
+      expect.objectContaining({ source: 'upload', id: rom.id }),
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Remove My Rom' }))
+    expect(onDelete).toHaveBeenCalledWith(rom.id)
   })
 
   it('renders embed (web) games and selects one on Play', async () => {
     const user = userEvent.setup()
-    const onSelect = vi.fn()
-    render(<RomGallery onSelect={onSelect} />)
+    const { onSelect } = renderGallery()
 
     const firstEmbed = EMBED_CATALOG[0]
     expect(screen.getByText(firstEmbed.title)).toBeInTheDocument()
@@ -100,7 +120,7 @@ describe('RomGallery', () => {
 
   it('the Web tab hides ROMs and shows only embed games', async () => {
     const user = userEvent.setup()
-    render(<RomGallery onSelect={vi.fn()} />)
+    renderGallery()
 
     await user.click(screen.getByRole('button', { name: 'Web' }))
     for (const rom of ROM_CATALOG) {
@@ -114,8 +134,7 @@ describe('RomGallery', () => {
   })
 
   it('rejects an unsupported upload and shows an error', () => {
-    const onSelect = vi.fn()
-    render(<RomGallery onSelect={onSelect} />)
+    const { onUpload } = renderGallery()
 
     // fireEvent bypasses the input's `accept` filter, exercising the same
     // guard that protects users who override the file picker.
@@ -124,7 +143,7 @@ describe('RomGallery', () => {
       target: { files: [file] },
     })
 
-    expect(onSelect).not.toHaveBeenCalled()
+    expect(onUpload).not.toHaveBeenCalled()
     expect(screen.getByRole('alert')).toHaveTextContent(/unsupported/i)
   })
 })
