@@ -1,4 +1,5 @@
 import * as Ably from 'ably'
+import { PRESENCE_CHANNEL } from '../core/social'
 
 // Optional realtime push layer over the Neon-backed Community foundation. If
 // ABLY_API_KEY is unset the whole feature is dormant and the client stays on
@@ -24,13 +25,18 @@ function rest(): Ably.Rest {
   return restClient
 }
 
-// A token that lets the client subscribe to its own channel only (no publish).
+// A token scoped to: subscribe to the user's own DM channel (no publish), and
+// subscribe + enter presence on the shared presence channel. `clientId` fixes
+// the presence identity to the user id so peers see who's online.
 export async function createUserTokenRequest(
   userId: string,
 ): Promise<Ably.TokenRequest> {
   return rest().auth.createTokenRequest({
     clientId: userId,
-    capability: JSON.stringify({ [userChannel(userId)]: ['subscribe'] }),
+    capability: JSON.stringify({
+      [userChannel(userId)]: ['subscribe'],
+      [PRESENCE_CHANNEL]: ['subscribe', 'presence'],
+    }),
   })
 }
 
