@@ -52,8 +52,9 @@ export function FriendsPage() {
   }, [])
 
   // Realtime: any DM event refreshes the friends view (unread badges) and nudges
-  // the open conversation to reload. Falls back to polling when not connected.
-  const live = useRealtime(
+  // the open conversation to reload; `online` is the live presence set. Falls
+  // back to polling + lastActiveAt when not connected.
+  const { connected: live, online } = useRealtime(
     user?.id,
     useCallback(() => {
       loadFriends()
@@ -82,12 +83,15 @@ export function FriendsPage() {
             view={view}
             selectedId={selected?.userId ?? null}
             onSelect={setSelected}
+            live={live}
+            online={online}
           />
         </div>
         <ChatPane
           friend={selected}
           onSent={loadFriends}
           live={live}
+          online={online}
           nudge={rtNudge}
         />
       </div>
@@ -227,14 +231,24 @@ function Requests({
   )
 }
 
+// Effective online status: the live presence set when realtime is connected,
+// else the polled lastActiveAt-derived flag.
+function isUp(f: Friend, live: boolean, online: Set<string>): boolean {
+  return live ? online.has(f.userId) : f.online
+}
+
 function FriendList({
   view,
   selectedId,
   onSelect,
+  live,
+  online,
 }: {
   view: FriendsView | null
   selectedId: string | null
   onSelect: (f: Friend) => void
+  live: boolean
+  online: Set<string>
 }) {
   return (
     <Panel>
@@ -247,7 +261,9 @@ function FriendList({
         </p>
       ) : (
         <ul className="mt-3 flex flex-col">
-          {view.friends.map((f) => (
+          {view.friends.map((f) => {
+            const up = isUp(f, live, online)
+            return (
             <li key={f.userId}>
               <button
                 type="button"
@@ -257,11 +273,11 @@ function FriendList({
                   selectedId === f.userId && 'bg-primary/10',
                 )}
               >
-                <PresenceDot online={f.online} />
+                <PresenceDot online={up} />
                 <span className="min-w-0 flex-1 truncate">
                   <span className="font-semibold">{f.displayName}</span>
                   <span className="block font-mono text-[10px] text-muted-foreground">
-                    {f.online ? 'online' : relativeSeen(f.lastActiveAt)}
+                    {up ? 'online' : relativeSeen(f.lastActiveAt)}
                   </span>
                 </span>
                 {f.unread > 0 && (
@@ -271,7 +287,8 @@ function FriendList({
                 )}
               </button>
             </li>
-          ))}
+            )
+          })}
         </ul>
       )}
     </Panel>
@@ -282,11 +299,13 @@ function ChatPane({
   friend,
   onSent,
   live,
+  online,
   nudge,
 }: {
   friend: Friend | null
   onSent: () => void
   live: boolean
+  online: Set<string>
   nudge: number
 }) {
   const [convo, setConvo] = useState<Conversation | null>(null)
@@ -350,10 +369,12 @@ function ChatPane({
   return (
     <Panel className="flex min-h-[24rem] flex-col p-0">
       <div className="flex items-center gap-2 border-b border-border px-4 py-3">
-        <PresenceDot online={friend.online} />
+        <PresenceDot online={isUp(friend, live, online)} />
         <span className="text-sm font-semibold">{friend.displayName}</span>
         <span className="font-mono text-[10px] text-muted-foreground">
-          {friend.online ? 'online' : relativeSeen(friend.lastActiveAt)}
+          {isUp(friend, live, online)
+            ? 'online'
+            : relativeSeen(friend.lastActiveAt)}
         </span>
         {live && (
           <span

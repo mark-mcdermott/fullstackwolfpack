@@ -87,3 +87,10 @@ export type AblyTokenResponse = z.infer<typeof ablyTokenSchema>
 
 // Event pushed to a user's channel when a DM involving them is sent.
 export type RealtimeMessage = { type: 'message'; fromUserId: string }
+
+// Shared Ably presence channel. Every signed-in client enters it (clientId =
+// userId) so friends' online status is instant; the client filters the present
+// set to friends for display. (A shared channel exposes the opaque online-user
+// id set to any authed client — acceptable here; a per-friend channel topology
+// would scope it further at the cost of dynamic per-friend token capability.)
+export const PRESENCE_CHANNEL = 'presence:community'
