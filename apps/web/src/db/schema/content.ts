@@ -102,10 +102,14 @@ export const exercises = pgTable('exercises', {
     .notNull()
     .references(() => lessonSegments.id, { onDelete: 'cascade' }),
   prompt: text('prompt').notNull(),
-  // Authoring language ('js' | 'ts'); the runner type-strips 'ts' to JS.
+  // 'js' (default) or 'git' — a terminal/git-simulator exercise.
+  kind: text('kind').notNull().default('js'),
+  // Authoring language for js/ts exercises; the runner type-strips 'ts' to JS.
   language: text('language').notNull().default('js'),
   starterCode: text('starter_code'),
   tests: jsonb('tests').$type<Record<string, unknown>[]>(),
+  // Git exercises store { setup?, goals, solution } here (null for js/ts).
+  config: jsonb('config').$type<Record<string, unknown>>(),
   solution: text('solution'),
   hint: text('hint'),
 })

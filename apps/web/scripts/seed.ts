@@ -120,18 +120,35 @@ async function main() {
         }
 
         if (seg.exercise) {
+          const ex = seg.exercise
+          const base = {
+            id: ex.id,
+            segmentId: seg.id,
+            prompt: ex.prompt,
+            hint: ex.hint,
+          }
+          const values =
+            ex.kind === 'git'
+              ? {
+                  ...base,
+                  kind: 'git' as const,
+                  config: {
+                    setup: ex.setup ?? [],
+                    goals: ex.goals,
+                    solution: ex.solution,
+                  },
+                }
+              : {
+                  ...base,
+                  kind: 'js' as const,
+                  language: ex.language ?? 'js',
+                  starterCode: ex.starterCode,
+                  tests: ex.tests,
+                  solution: ex.solution,
+                }
           await db
             .insert(exercises)
-            .values({
-              id: seg.exercise.id,
-              segmentId: seg.id,
-              prompt: seg.exercise.prompt,
-              language: seg.exercise.language ?? 'js',
-              starterCode: seg.exercise.starterCode,
-              tests: seg.exercise.tests,
-              solution: seg.exercise.solution,
-              hint: seg.exercise.hint,
-            })
+            .values(values)
             .onConflictDoNothing({ target: exercises.id })
         }
       }

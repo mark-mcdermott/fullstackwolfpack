@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { exerciseTestSchema } from './exercise'
+import { gitGoalSchema } from './git-sim'
 
 // The lesson-player's data contract — pure zod, shared by the server function that
 // will back `/api/me/lesson` (a `lesson` action on api/me/[action].ts) and the
@@ -25,7 +26,8 @@ export type QuestionView = z.infer<typeof questionViewSchema>
 // A code exercise rendered by the in-browser runner (Phase 4). `tests` and
 // `solution` reach the client because they run/reveal client-side by design (this
 // is practice, not a graded exam); `hint`/`solution` are shown only on request.
-export const exerciseViewSchema = z.object({
+export const jsExerciseViewSchema = z.object({
+  kind: z.literal('js'),
   id: z.string(),
   prompt: z.string(),
   starterCode: z.string(),
@@ -35,6 +37,26 @@ export const exerciseViewSchema = z.object({
   hint: z.string().nullable(),
   solution: z.string().nullable(),
 })
+export type JsExerciseView = z.infer<typeof jsExerciseViewSchema>
+
+// A terminal/git exercise run against core/git-sim.ts. `goals` are the success
+// criteria (checked client-side against the sim state); `solution` is the command
+// sequence, `setup` pre-runs before the learner.
+export const gitExerciseViewSchema = z.object({
+  kind: z.literal('git'),
+  id: z.string(),
+  prompt: z.string(),
+  setup: z.array(z.string()).default([]),
+  goals: z.array(gitGoalSchema),
+  solution: z.array(z.string()),
+  hint: z.string().nullable(),
+})
+export type GitExerciseView = z.infer<typeof gitExerciseViewSchema>
+
+export const exerciseViewSchema = z.discriminatedUnion('kind', [
+  jsExerciseViewSchema,
+  gitExerciseViewSchema,
+])
 export type ExerciseView = z.infer<typeof exerciseViewSchema>
 
 export const segmentViewSchema = z.object({

@@ -1,6 +1,7 @@
 import { and, eq, inArray, sql, sum } from 'drizzle-orm'
 import type { CourseOutline } from '../core/app-data'
 import { parseExerciseTests } from '../core/exercise'
+import { gitGoalSchema } from '../core/git-sim'
 import {
   gradeMcqAnswer,
   lessonScore,
@@ -93,15 +94,33 @@ export async function getLessonView(lessonId: string): Promise<LessonView | null
     .where(inArray(exercises.segmentId, segIds))
   const exBySegment = new Map<string, ExerciseView>()
   for (const e of exRows) {
-    exBySegment.set(e.segmentId, {
-      id: e.id,
-      prompt: e.prompt,
-      language: e.language === 'ts' ? 'ts' : 'js',
-      starterCode: e.starterCode ?? '',
-      tests: parseExerciseTests(e.tests),
-      hint: e.hint ?? null,
-      solution: e.solution ?? null,
-    })
+    if (e.kind === 'git') {
+      const cfg = (e.config ?? {}) as {
+        setup?: string[]
+        goals?: unknown[]
+        solution?: string[]
+      }
+      exBySegment.set(e.segmentId, {
+        kind: 'git',
+        id: e.id,
+        prompt: e.prompt,
+        setup: cfg.setup ?? [],
+        goals: gitGoalSchema.array().catch([]).parse(cfg.goals ?? []),
+        solution: cfg.solution ?? [],
+        hint: e.hint ?? null,
+      })
+    } else {
+      exBySegment.set(e.segmentId, {
+        kind: 'js',
+        id: e.id,
+        prompt: e.prompt,
+        language: e.language === 'ts' ? 'ts' : 'js',
+        starterCode: e.starterCode ?? '',
+        tests: parseExerciseTests(e.tests),
+        hint: e.hint ?? null,
+        solution: e.solution ?? null,
+      })
+    }
   }
 
   const segments: SegmentView[] = segRows.map((s) => ({

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { runTestCases, summarizeOutcomes } from '../core/exercise'
+import { gitSolutionSatisfiesGoals } from '../core/git-sim'
 import { BUILTIN_COURSES } from './seed-content'
 import { SEED_TOPICS } from './seed-data'
 
@@ -57,10 +58,18 @@ describe('builtin courses', () => {
       ),
     )
     for (const ex of exs) {
-      expect(ex.tests.length).toBeGreaterThan(0)
-      expect(ex.starterCode).toBeTruthy()
-      const outcomes = runTestCases(ex.solution, ex.tests, ex.language)
-      expect(summarizeOutcomes(outcomes).allPassed).toBe(true)
+      if (ex.kind === 'git') {
+        expect(ex.goals.length).toBeGreaterThan(0)
+        expect(ex.solution.length).toBeGreaterThan(0)
+        expect(
+          gitSolutionSatisfiesGoals(ex.setup, ex.solution, ex.goals),
+        ).toBe(true)
+      } else {
+        expect(ex.tests.length).toBeGreaterThan(0)
+        expect(ex.starterCode).toBeTruthy()
+        const outcomes = runTestCases(ex.solution, ex.tests, ex.language)
+        expect(summarizeOutcomes(outcomes).allPassed).toBe(true)
+      }
     }
   })
 })
