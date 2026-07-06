@@ -12,4 +12,11 @@ interface ImportMetaEnv {
   readonly VITE_API_BASE?: string
   /** Opt-in dev-mode role switcher in non-dev builds. */
   readonly VITE_ENABLE_DEV_MODE?: string
+  /**
+   * Dedicated origin to serve the embed-lane games (`public/games/`) from, for
+   * full cross-frame isolation. Empty (default) = same-origin (the iframe keeps
+   * `allow-same-origin`). Set to a separate sandbox origin serving the same
+   * static files (e.g. `https://games.example.com`) to drop `allow-same-origin`.
+   */
+  readonly VITE_GAMES_ORIGIN?: string
 }

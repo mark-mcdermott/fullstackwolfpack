@@ -3,16 +3,22 @@ import { useState } from 'react'
 import { Panel, Pill, SectionLabel } from '@fw/ui'
 import { useFullscreen } from '@/hooks/use-fullscreen'
 import { usePlaytimeTracker } from '@/hooks/use-playtime-tracker'
-import { embedGameUrl, type EmbedEntry } from '@/lib/embed-catalog'
+import {
+  embedGameUrl,
+  embedGamesCrossOrigin,
+  type EmbedEntry,
+} from '@/lib/embed-catalog'
 import { cn } from '@/lib/utils'
 
 // Plays a self-hosted HTML5 game (the embed lane) in a sandboxed iframe.
 //
-// Sandbox: `allow-scripts allow-same-origin` lets these vetted, source-reviewed,
-// first-party static games use canvas/WebGL/storage and run reliably. It does
-// trade away cross-frame isolation; the hardening path (tracked in the roadmap)
-// is to serve `public/games/` from a separate origin so `allow-same-origin` can
-// be dropped. No `allow-forms`/`allow-popups`/`allow-top-navigation`.
+// Sandbox: always `allow-scripts allow-pointer-lock` (never `allow-forms` /
+// `allow-popups` / `allow-top-navigation` / `allow-modals`). `allow-same-origin`
+// is added ONLY when games are served same-origin (the default) — vetted static
+// games need it for canvas/WebGL/storage. Set VITE_GAMES_ORIGIN to serve them
+// from a separate sandbox origin; then `allow-same-origin` is dropped and the
+// game code gets full cross-origin isolation. `referrerpolicy="no-referrer"`
+// keeps the parent URL out of the frame either way.
 export function EmbedPlayer({
   game,
   onExit,
@@ -23,6 +29,10 @@ export function EmbedPlayer({
   const [lessonOpen, setLessonOpen] = useState(false)
   const fs = useFullscreen<HTMLDivElement>()
   usePlaytimeTracker(game)
+
+  const sandbox = embedGamesCrossOrigin()
+    ? 'allow-scripts allow-pointer-lock'
+    : 'allow-scripts allow-same-origin allow-pointer-lock'
 
   return (
     <div className="flex flex-col gap-5">
@@ -55,8 +65,9 @@ export function EmbedPlayer({
             title={game.title}
             src={embedGameUrl(game)}
             className="absolute inset-0 h-full w-full border-0"
-            sandbox="allow-scripts allow-same-origin allow-pointer-lock"
+            sandbox={sandbox}
             allow="autoplay; gamepad; fullscreen"
+            referrerPolicy="no-referrer"
           />
 
           {lessonOpen && (
