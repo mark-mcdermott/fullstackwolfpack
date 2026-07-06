@@ -39,6 +39,10 @@ import {
   playtimeRecordResultSchema,
 } from '@/core/playtime'
 import {
+  type LeaderboardView,
+  leaderboardViewSchema,
+} from '@/core/leaderboard'
+import {
   achievementsViewSchema,
   adminUsersSchema,
   courseOutlineSchema,
@@ -399,6 +403,23 @@ export function createApi({ http, passkeys }: Adapters) {
     },
   }
 
+  // Global leaderboard — an opt-in public XP ranking.
+  const leaderboard = {
+    async get(): Promise<LeaderboardView> {
+      return leaderboardViewSchema.parse(
+        await http.request('/api/me/leaderboard'),
+      )
+    },
+    async setOptIn(optIn: boolean): Promise<LeaderboardView> {
+      return leaderboardViewSchema.parse(
+        await http.request('/api/me/leaderboard', {
+          method: 'POST',
+          body: JSON.stringify({ optIn }),
+        }),
+      )
+    },
+  }
+
   // Stripe billing. Each returns a hosted URL the caller redirects to.
   const billing = {
     async checkout(): Promise<BillingRedirect> {
@@ -440,6 +461,7 @@ export function createApi({ http, passkeys }: Adapters) {
     preferences,
     focus,
     arcade,
+    leaderboard,
     billing,
     admin,
   }

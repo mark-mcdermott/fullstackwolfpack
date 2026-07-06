@@ -5,6 +5,7 @@ import {
   Layers,
   LineChart,
   type LucideIcon,
+  Medal,
   Repeat,
   Settings,
   ShieldCheck,
@@ -31,6 +32,7 @@ export const NAV: NavItem[] = [
   { to: '/app/stats', label: 'Stats', icon: LineChart },
   { to: '/app/achievements', label: 'Achievements', icon: Trophy },
   { to: '/app/badges', label: 'Badges', icon: ShieldCheck },
+  { to: '/app/leaderboard', label: 'Leaderboard', icon: Medal },
   { to: '/app/settings', label: 'Settings', icon: Settings },
 ]
 
