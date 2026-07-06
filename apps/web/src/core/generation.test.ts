@@ -152,8 +152,41 @@ describe('parseGeneratedCourse', () => {
       ],
     })
     const ex = parsed.lessons[0].segments[0].exercise
-    expect(ex?.starterCode).toBe('function double(n) {}')
-    expect(ex?.tests[0].expected).toBe(8)
+    if (!ex || ex.kind === 'git') throw new Error('expected a js exercise')
+    expect(ex.starterCode).toBe('function double(n) {}')
+    expect(ex.tests[0].expected).toBe(8)
+  })
+  it('accepts a git terminal exercise (kind: git)', () => {
+    const parsed = parseGeneratedCourse({
+      topic: 'Git',
+      difficulty: 'beginner',
+      lessons: [
+        {
+          title: 'L',
+          estMinutes: 5,
+          segments: [
+            {
+              title: 'S',
+              type: 'practice',
+              body: 'x',
+              estMinutes: 3,
+              questions: [],
+              exercise: {
+                kind: 'git',
+                prompt: 'commit a file',
+                goals: [{ type: 'commitCountAtLeast', count: 1 }],
+                solution: ['git init', 'echo a > f', 'git add f', 'git commit -m c'],
+                hint: 'h',
+              },
+            },
+          ],
+        },
+      ],
+    })
+    const ex = parsed.lessons[0].segments[0].exercise
+    if (!ex || ex.kind !== 'git') throw new Error('expected a git exercise')
+    expect(ex.goals).toHaveLength(1)
+    expect(ex.solution).toContain('git init')
   })
   it('drops a malformed exercise (no tests) without failing the course', () => {
     const parsed = parseGeneratedCourse({
@@ -203,8 +236,14 @@ describe('buildGenerationPrompt', () => {
     expect(p).toMatch(/exercise/i)
     expect(p).toContain('starterCode')
     expect(p).toContain('tests')
-    // and it must gate exercises to JS-friendly topics, not force them everywhere
-    expect(p).toMatch(/JavaScript function task would be contrived/i)
+    // and it must still gate exercises off topics where they don't fit
+    expect(p).toMatch(/omit "exercise"/i)
+  })
+  it('adds terminal/git exercise guidance for a git course', () => {
+    const p = buildGenerationPrompt({ topic: 'Git & GitHub', difficulty: 'beginner' })
+    expect(p).toMatch(/git \/ command-line course/i)
+    expect(p).toContain('"kind": "git"')
+    expect(p).toContain('mergedInto')
   })
   it('threads a customization request into the full-course prompt', () => {
     const p = buildGenerationPrompt({

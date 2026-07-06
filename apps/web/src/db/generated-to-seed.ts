@@ -55,15 +55,26 @@ export function generatedToSeedCourse(
             // generated exercise fails that gate before it can ship.
             ...(seg.exercise
               ? {
-                  exercise: {
-                    id: `${segId}-ex1`,
-                    prompt: seg.exercise.prompt,
-                    language: seg.exercise.language,
-                    starterCode: seg.exercise.starterCode,
-                    tests: seg.exercise.tests,
-                    solution: seg.exercise.solution,
-                    hint: seg.exercise.hint,
-                  },
+                  exercise:
+                    seg.exercise.kind === 'git'
+                      ? {
+                          id: `${segId}-ex1`,
+                          kind: 'git' as const,
+                          prompt: seg.exercise.prompt,
+                          setup: seg.exercise.setup,
+                          goals: seg.exercise.goals,
+                          solution: seg.exercise.solution,
+                          hint: seg.exercise.hint,
+                        }
+                      : {
+                          id: `${segId}-ex1`,
+                          prompt: seg.exercise.prompt,
+                          language: seg.exercise.language,
+                          starterCode: seg.exercise.starterCode,
+                          tests: seg.exercise.tests,
+                          solution: seg.exercise.solution,
+                          hint: seg.exercise.hint,
+                        },
                 }
               : {}),
           }
