@@ -147,7 +147,24 @@ export const EMBED_CATALOG: EmbedEntry[] = [
   },
 ]
 
-// URL of an embed game's entry file, served from `public/games/`.
+// Optional dedicated origin to serve `public/games/` from, for full cross-frame
+// isolation of third-party game code. Empty (default) ⇒ same-origin under
+// BASE_URL, which requires the iframe to keep `allow-same-origin`. Set
+// VITE_GAMES_ORIGIN to a separate sandbox origin (e.g. https://games.example.com,
+// serving the same static files) to drop `allow-same-origin`. Read at call time
+// so it's stub-testable.
+function gamesOrigin(): string {
+  const v = import.meta.env.VITE_GAMES_ORIGIN as string | undefined
+  return v ? v.replace(/\/+$/, '') : ''
+}
+
+// URL of an embed game's entry file (from the games origin, else same-origin).
 export function embedGameUrl(entry: EmbedEntry): string {
-  return `${import.meta.env.BASE_URL}games/${entry.slug}/${entry.entry}`
+  return `${gamesOrigin()}${import.meta.env.BASE_URL}games/${entry.slug}/${entry.entry}`
+}
+
+// True when games are served from a separate origin — the iframe can then drop
+// `allow-same-origin` for full cross-origin isolation of the game code.
+export function embedGamesCrossOrigin(): boolean {
+  return gamesOrigin() !== ''
 }
