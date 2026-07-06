@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 // A tiny, deterministic git + shell simulator for the terminal/git exercise lane
 // (docs/terminal-lane-plan.md). Pure and self-contained: no Date/Math.random, no
 // I/O — so it runs identically in the browser, in tests, and in the gen:builtins
@@ -400,17 +402,25 @@ export function runSession(
 
 // ---- Goals (success criteria) ----
 
-export type GitGoal =
-  | { type: 'initialized' }
-  | { type: 'commitCountAtLeast'; count: number }
-  | { type: 'branchExists'; name: string }
-  | { type: 'currentBranch'; name: string }
-  | { type: 'fileStaged'; path: string }
-  | { type: 'fileTracked'; path: string }
-  | { type: 'committedFileEquals'; path: string; content: string }
-  | { type: 'commitMessageContains'; text: string }
-  | { type: 'workingTreeClean' }
-  | { type: 'mergedInto'; branch: string; from: string }
+// Zod is the single source of truth so the same shape validates the seeded
+// exercise config and the client lesson-view. `GitGoal` is inferred from it.
+export const gitGoalSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('initialized') }),
+  z.object({ type: z.literal('commitCountAtLeast'), count: z.number().int() }),
+  z.object({ type: z.literal('branchExists'), name: z.string() }),
+  z.object({ type: z.literal('currentBranch'), name: z.string() }),
+  z.object({ type: z.literal('fileStaged'), path: z.string() }),
+  z.object({ type: z.literal('fileTracked'), path: z.string() }),
+  z.object({
+    type: z.literal('committedFileEquals'),
+    path: z.string(),
+    content: z.string(),
+  }),
+  z.object({ type: z.literal('commitMessageContains'), text: z.string() }),
+  z.object({ type: z.literal('workingTreeClean') }),
+  z.object({ type: z.literal('mergedInto'), branch: z.string(), from: z.string() }),
+])
+export type GitGoal = z.infer<typeof gitGoalSchema>
 
 export type GoalOutcome = { met: boolean; label: string }
 

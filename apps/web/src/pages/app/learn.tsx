@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { api } from '@/api-client'
 import { CodeExercise } from '@/components/learn/code-exercise'
+import { TerminalExercise } from '@/components/learn/terminal-exercise'
 import { LessonMarkdown } from '@/components/learn/lesson-markdown'
 import { QuizSegment } from '@/components/learn/quiz-segment'
 import { TutorPanel } from '@/components/learn/tutor-panel'
@@ -155,7 +156,12 @@ function LessonPlayer({ lesson }: { lesson: LessonView }) {
         <LessonMarkdown terms={linkify ? lesson.glossary : undefined}>
           {segment.markdown}
         </LessonMarkdown>
-        {segment.exercise && <CodeExercise exercise={segment.exercise} />}
+        {segment.exercise &&
+          (segment.exercise.kind === 'git' ? (
+            <TerminalExercise exercise={segment.exercise} />
+          ) : (
+            <CodeExercise exercise={segment.exercise} />
+          ))}
         {segment.questions.length > 0 && (
           <QuizSegment
             questions={segment.questions}

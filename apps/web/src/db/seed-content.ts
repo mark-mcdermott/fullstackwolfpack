@@ -1,3 +1,4 @@
+import type { GitGoal } from '../core/git-sim'
 import { GENERATED_BUILTIN_COURSES } from './seed-content.generated'
 
 // Built-in starter course(s), seeded as shared courses (ownerUserId = null) so
@@ -16,8 +17,9 @@ export type SeedQuestion = {
 
 // A Phase 4 code exercise. `tests` match core/exercise.ts (evaluate `expression`
 // against the learner's code and deep-compare to `expected`).
-export type SeedExercise = {
+export type SeedJsExercise = {
   id: string
+  kind?: 'js' // default; absent ⇒ 'js'
   prompt: string
   // Authoring language; the runner type-strips 'ts' to JS. Absent ⇒ 'js'.
   language?: 'js' | 'ts'
@@ -26,6 +28,21 @@ export type SeedExercise = {
   solution: string
   hint: string
 }
+
+// A terminal/git exercise (core/git-sim.ts): the learner types shell commands,
+// success is `goals` asserted against the final repo state, `solution` is the
+// command sequence that satisfies them, `setup` pre-runs before the learner.
+export type SeedGitExercise = {
+  id: string
+  kind: 'git'
+  prompt: string
+  setup?: string[]
+  goals: GitGoal[]
+  solution: string[]
+  hint: string
+}
+
+export type SeedExercise = SeedJsExercise | SeedGitExercise
 
 export type SeedSegment = {
   id: string
@@ -100,6 +117,33 @@ export const BUILTIN_COURSES: SeedCourse[] = [
               },
             ],
           },
+          {
+            id: 'builtin-git-l1-s4',
+            type: 'practice',
+            title: 'Make your first commit',
+            estMinutes: 3,
+            markdown:
+              'Try it in the terminal below. Initialize a repository, create `hello.txt` with some content, stage it, and commit it.',
+            questions: [],
+            exercise: {
+              id: 'builtin-git-l1-ex1',
+              kind: 'git',
+              prompt: 'Initialize a repo, then create and commit `hello.txt`.',
+              goals: [
+                { type: 'initialized' },
+                { type: 'commitCountAtLeast', count: 1 },
+                { type: 'fileTracked', path: 'hello.txt' },
+                { type: 'workingTreeClean' },
+              ],
+              solution: [
+                'git init',
+                'echo "hello git" > hello.txt',
+                'git add hello.txt',
+                'git commit -m "Add hello.txt"',
+              ],
+              hint: 'git init → create the file with `echo … > hello.txt` → `git add hello.txt` → `git commit -m "message"`.',
+            },
+          },
         ],
       },
       {
@@ -137,6 +181,42 @@ export const BUILTIN_COURSES: SeedCourse[] = [
                   'Merging integrates the other branch’s history into your current branch.',
               },
             ],
+          },
+          {
+            id: 'builtin-git-l2-s3',
+            type: 'practice',
+            title: 'Branch, commit, and merge',
+            estMinutes: 4,
+            markdown:
+              'The repo below already has a first commit on `main`. Create a branch called `feature`, add a commit on it, switch back to `main`, and merge `feature` in.',
+            questions: [],
+            exercise: {
+              id: 'builtin-git-l2-ex1',
+              kind: 'git',
+              prompt:
+                'On a new `feature` branch, commit a change; then merge `feature` into `main`.',
+              setup: [
+                'git init',
+                'echo "# Project" > README.md',
+                'git add README.md',
+                'git commit -m "Initial commit"',
+              ],
+              goals: [
+                { type: 'branchExists', name: 'feature' },
+                { type: 'currentBranch', name: 'main' },
+                { type: 'mergedInto', branch: 'main', from: 'feature' },
+                { type: 'commitCountAtLeast', count: 2 },
+              ],
+              solution: [
+                'git switch -c feature',
+                'echo "feature work" > feature.txt',
+                'git add feature.txt',
+                'git commit -m "Add feature"',
+                'git switch main',
+                'git merge feature',
+              ],
+              hint: 'git switch -c feature → make a commit → git switch main → git merge feature.',
+            },
           },
         ],
       },

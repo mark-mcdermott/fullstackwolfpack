@@ -1,7 +1,7 @@
 import { CheckCircle2, Lightbulb, Play, RotateCcw, XCircle } from 'lucide-react'
 import { lazy, Suspense, useState } from 'react'
 import { summarizeOutcomes, type TestOutcome } from '@/core/exercise'
-import type { ExerciseView } from '@/core/lesson-view'
+import type { JsExerciseView } from '@/core/lesson-view'
 import { runExercise } from '@/lib/run-exercise'
 import { cn } from '@/lib/utils'
 import { LessonMarkdown } from './lesson-markdown'
@@ -12,7 +12,7 @@ export function CodeExercise({
   exercise,
   onSolved,
 }: {
-  exercise: ExerciseView
+  exercise: JsExerciseView
   onSolved?: () => void
 }) {
   const [code, setCode] = useState(exercise.starterCode)

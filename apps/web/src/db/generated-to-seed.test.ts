@@ -121,10 +121,13 @@ describe('generatedToSeedCourse', () => {
     }
     const ex = generatedToSeedCourse('javascript', 'beginner', withEx)
       .lessons[0].segments[0].exercise
-    expect(ex?.id).toBe('builtin-javascript-l1-s1-ex1')
-    expect(ex?.starterCode).toBe('function double(n) {}')
-    expect(ex?.tests[0].expected).toBe(8)
-    expect(ex?.solution).toBe('function double(n){return n*2}')
+    // The generator only ever produces js/ts exercises (never git).
+    expect(ex?.kind).not.toBe('git')
+    if (!ex || ex.kind === 'git') throw new Error('expected a js exercise')
+    expect(ex.id).toBe('builtin-javascript-l1-s1-ex1')
+    expect(ex.starterCode).toBe('function double(n) {}')
+    expect(ex.tests[0].expected).toBe(8)
+    expect(ex.solution).toBe('function double(n){return n*2}')
   })
 
   it('drops ungradeable short-answers (no expectedAnswer) but keeps others', () => {
