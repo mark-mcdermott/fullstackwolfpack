@@ -20,6 +20,9 @@ export function generatedToSeedCourse(
         id: lessonId,
         title: lesson.title,
         estMinutes: lesson.estMinutes,
+        // Carry the generated key-terms glossary through (omit when empty for
+        // clean diffs); seed.ts writes it to lessons.glossary for linkify.
+        ...(lesson.glossary.length ? { glossary: lesson.glossary } : {}),
         segments: lesson.segments.map((seg, si) => {
           const segId = `${lessonId}-s${si + 1}`
           return {

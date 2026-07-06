@@ -1,11 +1,49 @@
-import { writeFile } from 'node:fs/promises'
+import { rename, writeFile } from 'node:fs/promises'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
+import { solutionPassesTests } from '../src/core/exercise'
+import { COURSE_TARGET } from '../src/core/generation'
 import { generatedToSeedCourse } from '../src/db/generated-to-seed'
 import { BUILTIN_COURSES, type SeedCourse } from '../src/db/seed-content'
 import { GENERATED_BUILTIN_COURSES } from '../src/db/seed-content.generated'
 import { SEED_TOPICS } from '../src/db/seed-data'
 import { openAiGenerator } from '../src/server/openai-generator'
+
+// Topics whose learners actually write JavaScript — the only place a JS-runner
+// exercise belongs. The prompt asks the model to omit exercises elsewhere, but it
+// occasionally ignores that (e.g. a JS exercise in a Python course), so enforce it.
+const JS_EXERCISE_SLUGS = new Set([
+  'javascript',
+  'typescript',
+  'react',
+  'nodejs',
+  'nextjs',
+])
+
+// Prune a course's exercises: on non-JS topics drop them all; elsewhere keep only
+// those whose model-written solution passes its own tests, so the committed
+// built-ins always satisfy the seed-content ship gate. Mutates.
+function pruneExercises(
+  course: SeedCourse,
+  allowExercises: boolean,
+): { kept: number; dropped: number } {
+  let kept = 0
+  let dropped = 0
+  for (const lesson of course.lessons) {
+    for (const seg of lesson.segments) {
+      if (!seg.exercise) continue
+      const ok =
+        allowExercises &&
+        solutionPassesTests(seg.exercise.solution, seg.exercise.tests)
+      if (ok) kept++
+      else {
+        delete seg.exercise
+        dropped++
+      }
+    }
+  }
+  return { kept, dropped }
+}
 
 // Generate beginner "dive-in" starter courses for topics that lack a built-in
 // one, then write them to src/db/seed-content.generated.ts for review + commit.
@@ -81,17 +119,38 @@ async function main() {
   console.log(`Generating ${targets.length} course(s) with ${model}…`)
   const generated = new Map<string, SeedCourse>()
   const failed: string[] = []
+  const MAX_ATTEMPTS = 4
 
   for (const slug of targets) {
     const topic = bySlug.get(slug)!
     process.stdout.write(`  • ${topic.name} (${slug})… `)
     try {
-      const course = await generator.generate({
-        topic: topic.name,
-        difficulty: 'beginner',
-      })
-      generated.set(slug, generatedToSeedCourse(slug, 'beginner', course))
-      console.log(`ok (${course.lessons.length} lessons)`)
+      // Re-roll up to MAX_ATTEMPTS for depth — the model sometimes under-delivers
+      // on lesson count. Keep the deepest attempt; accept early once it hits the
+      // target. Drop exercises whose solution fails its own tests on each attempt.
+      let best: SeedCourse | null = null
+      let bestKept = 0
+      let bestDropped = 0
+      for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+        const raw = await generator.generate({
+          topic: topic.name,
+          difficulty: 'beginner',
+        })
+        const course = generatedToSeedCourse(slug, 'beginner', raw)
+        const { kept, dropped } = pruneExercises(course, JS_EXERCISE_SLUGS.has(slug))
+        if (!best || course.lessons.length > best.lessons.length) {
+          best = course
+          bestKept = kept
+          bestDropped = dropped
+        }
+        if (course.lessons.length >= COURSE_TARGET.minLessons) break
+      }
+      generated.set(slug, best!)
+      const exNote =
+        bestKept || bestDropped
+          ? `, ${bestKept} exercise(s)${bestDropped ? ` (+${bestDropped} broken dropped)` : ''}`
+          : ''
+      console.log(`ok (${best!.lessons.length} lessons${exNote})`)
     } catch (err) {
       failed.push(slug)
       console.log(`FAILED — ${err instanceof Error ? err.message : String(err)}`)
@@ -108,7 +167,12 @@ async function main() {
     (c): c is SeedCourse => c !== undefined,
   )
 
-  await writeFile(OUT_PATH, HEADER + JSON.stringify(ordered, null, 2) + '\n')
+  // Write atomically (temp + rename) so an interrupted run can never leave the
+  // committed file truncated — which would brick the next run, since this script
+  // imports GENERATED_BUILTIN_COURSES from it at startup.
+  const tmpPath = `${OUT_PATH}.tmp`
+  await writeFile(tmpPath, HEADER + JSON.stringify(ordered, null, 2) + '\n')
+  await rename(tmpPath, OUT_PATH)
   console.log(`\nWrote ${ordered.length} course(s) to ${OUT_PATH}`)
   console.log('Review the content, then `npm run lint` + commit.')
   if (failed.length > 0) {
