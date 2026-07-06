@@ -52,6 +52,13 @@ vi.mock('@/api-client', () => ({
     courses: {
       generationEta: async () => ({ etaMs: 20000, samples: 0 }),
     },
+    preferences: {
+      get: async () => ({
+        askSkillLevel: false,
+        askCoverage: false,
+        linkifyTerms: false,
+      }),
+    },
   },
 }))
 

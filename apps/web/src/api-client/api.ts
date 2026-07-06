@@ -73,6 +73,7 @@ import {
   type TutorReply,
 } from '@/core/tutor'
 import { adaptiveStateSchema, type AdaptiveState } from '@/core/adaptive'
+import { diagnosticSchema, type Diagnostic } from '@/core/diagnostic'
 import type { Adapters } from './types'
 
 // Surface-agnostic API. Construct it once with a surface's adapters
@@ -276,12 +277,21 @@ export function createApi({ http, passkeys }: Adapters) {
     async enroll(
       topicSlug: string,
       difficulty: Difficulty,
+      customization?: string,
     ): Promise<EnrollResult> {
       return enrollResultSchema.parse(
         await http.request('/api/me/enroll', {
           method: 'POST',
-          body: JSON.stringify({ topicSlug, difficulty }),
+          body: JSON.stringify({ topicSlug, difficulty, customization }),
         }),
+      )
+    },
+    // A short AI placement quiz for the pre-generation intake (skill-level pref).
+    async diagnostic(topicSlug: string): Promise<Diagnostic> {
+      return diagnosticSchema.parse(
+        await http.request(
+          `/api/me/diagnostic?topic=${encodeURIComponent(topicSlug)}`,
+        ),
       )
     },
     // Reset the user's progress for a topic back to zero (keeps XP/streak).

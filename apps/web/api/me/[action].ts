@@ -54,6 +54,7 @@ import { getAdaptiveState } from '../../src/server/adaptive'
 import { getTopicTracks, setActiveDifficulty } from '../../src/server/tracks'
 import { tailorCourse } from '../../src/server/tailor'
 import { getPreferences, savePreferences } from '../../src/server/preferences'
+import { generateDiagnostic } from '../../src/server/diagnostic'
 import { runTutor } from '../../src/server/tutor'
 import { getDueReviews, gradeReview } from '../../src/server/review'
 import { json } from '../_lib/http'
@@ -99,6 +100,22 @@ export async function GET(req: Request): Promise<Response> {
 
     case 'preferences':
       return json(await getPreferences(userId))
+
+    case 'diagnostic': {
+      const slug = new URL(req.url).searchParams.get('topic')
+      if (!slug) return json({ error: 'missing topic' }, { status: 400 })
+      const topic = await db.query.topics.findFirst({
+        where: eq(topics.slug, slug),
+      })
+      if (!topic) return json({ error: 'unknown topic' }, { status: 404 })
+      try {
+        return json(await generateDiagnostic(userId, topic.name))
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : 'could not build a diagnostic'
+        return json({ error: message }, { status: 400 })
+      }
+    }
 
     case 'openai-key':
       return json({ hasKey: await hasOpenAiKey(userId) })
@@ -243,7 +260,7 @@ export async function POST(req: Request): Promise<Response> {
     case 'enroll': {
       const parsed = await parseBody(enrollRequest, req)
       if (!parsed.ok) return parsed.response
-      const { topicSlug, difficulty } = parsed.data
+      const { topicSlug, difficulty, customization } = parsed.data
 
       const topic = await db.query.topics.findFirst({
         where: eq(topics.slug, topicSlug),
@@ -256,6 +273,7 @@ export async function POST(req: Request): Promise<Response> {
           topicId: topic.id,
           difficulty,
           ownerUserId: userId,
+          customization,
         })
         return json({ courseId })
       } catch (err) {
