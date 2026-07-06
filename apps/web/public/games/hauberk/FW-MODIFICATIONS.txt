@@ -1,0 +1,10 @@
+Modifications to the vendored copy of Hauberk (github.com/munificent/hauberk,
+prebuilt static app from the gh-pages branch):
+
+- index.html: removed a <link> to the Google Fonts CDN (Buenard) so the game
+  makes no third-party network requests. The body font falls back to the
+  already-declared "Georgia, serif".
+- Excluded the gh-pages `debug/` subtree (compiled test pages) — not needed to
+  play.
+
+No other changes. Hauberk is MIT-licensed (Bob Nystrom); see LICENSE.

@@ -79,6 +79,72 @@ export const EMBED_CATALOG: EmbedEntry[] = [
     modifications:
       'Removed the bundled Google Analytics snippet and de-hotlinked the favicon.',
   },
+  {
+    source: 'embed',
+    id: 'underrun',
+    slug: 'underrun',
+    entry: 'index.html',
+    title: 'Underrun',
+    author: 'Dominic Szablewski',
+    license: 'MIT',
+    licenseUrl: 'https://github.com/phoboslab/underrun/blob/master/LICENSE.md',
+    sourceUrl: 'https://github.com/phoboslab/underrun',
+    description:
+      'A neon twin-stick shooter — carve through a derelict facility before the reactor blows. (js13k 2018.)',
+    accent: 'text-rose-400',
+  },
+  {
+    source: 'embed',
+    id: 'astray',
+    slug: 'astray',
+    entry: 'index.html',
+    title: 'Astray',
+    author: 'Rye Terrell (wwwtyro)',
+    license: 'Unlicense',
+    licenseUrl: 'https://github.com/wwwtyro/Astray/blob/master/License.md',
+    sourceUrl: 'https://github.com/wwwtyro/Astray',
+    description:
+      'Roll a marble through a first-person 3D maze and hunt down the exit — a tiny WebGL classic.',
+    accent: 'text-emerald-400',
+    modifications:
+      'Changed three absolute texture paths (/ball.png etc.) to relative so it loads inside the sandboxed iframe.',
+  },
+  {
+    source: 'embed',
+    id: 'hauberk',
+    slug: 'hauberk',
+    entry: 'index.html',
+    title: 'Hauberk',
+    author: 'Bob Nystrom',
+    license: 'MIT',
+    licenseUrl: 'https://github.com/munificent/hauberk/blob/master/COPYRIGHT',
+    sourceUrl: 'https://github.com/munificent/hauberk',
+    description:
+      'A deep ASCII roguelike — descend a procedurally-generated dungeon, grab loot, and try not to die. (Keyboard; best on desktop.)',
+    accent: 'text-orange-400',
+    modifications:
+      'Removed a Google Fonts CDN link so the game makes no third-party requests (falls back to a system serif).',
+  },
+  {
+    source: 'embed',
+    id: 'chess',
+    slug: 'chess',
+    entry: 'index.html',
+    title: 'Chess',
+    author: 'Chris Oakman (chessboard.js)',
+    license: 'MIT',
+    licenseUrl: 'https://github.com/oakmac/chessboardjs/blob/master/LICENSE.md',
+    sourceUrl: 'https://github.com/oakmac/chessboardjs',
+    description:
+      'Local two-player chess — legal moves enforced, alternating turns. Pass-and-play on one screen.',
+    accent: 'text-sky-400',
+    // Assembled from four permissive components (see the bundled LICENSE).
+    credits: [
+      'Rules engine: chess.js by Jeff Hlywa (BSD 2-Clause)',
+      'DOM library: jQuery (MIT, OpenJS Foundation)',
+      'Piece art: Colin M.L. Burnett / Cburnett (3-clause BSD)',
+    ],
+  },
 ]
 
 // URL of an embed game's entry file, served from `public/games/`.

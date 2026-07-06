@@ -37,11 +37,11 @@ Include a title only if compliance is a **concrete one-time step**:
 | **2048** | MIT | Spotless, tiny, swipe-native. **Bundled.** |
 | **Hextris** | GPL-3.0 | Addictive, mobile-perfect. Ship source (its repo). **Bundled** (ads stripped). |
 | **HexGL** | MIT + PD/CC-BY audio | AAA-feel 3D racer; the showpiece. **Bundled** (GA stripped; 3 CC-BY sound credits). |
-| **Underrun** | MIT | Neon twin-stick shooter; procedural assets. |
-| **Astray** | Unlicense (PD) | 3D tilt maze. |
-| **cube-composer** | MIT | Functional-programming puzzle (on-brand). |
-| **Hauberk** | MIT | Deep roguelike (desktop/keyboard). |
-| **Chess** | MIT + BSD | chessboard.js + chess.js, local 2-player. |
+| **Underrun** | MIT | Neon twin-stick shooter; procedural assets. **Bundled** (drop-in; entry renamed). |
+| **Astray** | Unlicense (PD) | 3D tilt maze. **Bundled** (3 absolute texture paths made relative). |
+| **cube-composer** | MIT | Functional-programming puzzle (on-brand). *Deferred* — needs a PureScript/pulp/bower build + 3 externals stripped. |
+| **Hauberk** | MIT | Deep roguelike (desktop/keyboard). **Bundled** (prebuilt gh-pages app; Google-Fonts `<link>` stripped). |
+| **Chess** | MIT + BSD | chessboard.js (MIT) + chess.js (BSD-2) + jQuery (MIT), local 2-player. **Bundled** (assembled; piece art is Cburnett, used under his 3-clause BSD grant). |
 
 ### 🟢 Interactive fiction / text (self-contained HTML, no interpreter)
 - Interpreters (all MIT/BSD/zlib): **Parchment/ZVM/Quixe** (Z-machine/Glulx),

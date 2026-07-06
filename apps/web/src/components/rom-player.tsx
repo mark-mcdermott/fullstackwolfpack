@@ -5,6 +5,7 @@ import { ControlsReference } from '@/components/controls/controls-reference'
 import { Panel, Pill, SectionLabel } from '@fw/ui'
 import { bindsToRetroarchConfig } from '@/core/controls'
 import { coreForSystem, SYSTEM_META } from '@/core/roms'
+import { usePlaytimeTracker } from '@/hooks/use-playtime-tracker'
 import { loadGamepadBinds, loadKeyboardBinds } from '@/lib/controls-store'
 import {
   type EmulatorSession,
@@ -63,6 +64,7 @@ export function RomPlayer({
   const [paused, setPaused] = useState(false)
   const [lessonOpen, setLessonOpen] = useState(false)
   const [controlsOpen, setControlsOpen] = useState(false)
+  usePlaytimeTracker(rom)
 
   useEffect(() => {
     let cancelled = false

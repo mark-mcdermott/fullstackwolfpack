@@ -1,0 +1,7 @@
+Modifications to the vendored copy of Underrun (github.com/phoboslab/underrun):
+
+- Renamed the multi-file debug entry `index-debug.html` -> `index.html` (the
+  drop-in, no-build version that loads `source/*.js` + `m/*.png` relatively).
+  The single-file minified `build/` output is not vendored.
+
+No other changes. Underrun is MIT-licensed (Dominic Szablewski); see LICENSE.

@@ -6,6 +6,7 @@ import {
 import { can } from '../../src/core/access'
 import { reviewGradeRequestSchema } from '../../src/core/review-view'
 import { tutorRequestSchema } from '../../src/core/tutor'
+import { playtimeRecordRequest } from '../../src/core/playtime'
 import {
   adminUpdateRequest,
   anthropicKeyRequest,
@@ -37,6 +38,7 @@ import {
 } from '../../src/server/billing'
 import { enrollAndGenerate } from '../../src/server/enroll'
 import { recordFocusSession } from '../../src/server/focus'
+import { getPlaytime, recordPlaytime } from '../../src/server/playtime'
 import { getGenerationEta } from '../../src/server/generation-timing'
 import {
   hasOpenAiKey,
@@ -193,6 +195,9 @@ export async function GET(req: Request): Promise<Response> {
     case 'review':
       return json(await getDueReviews(userId))
 
+    case 'playtime':
+      return json({ playtime: await getPlaytime(userId) })
+
     case 'admin-users': {
       const forbidden = await requireAdmin(userId)
       if (forbidden) return forbidden
@@ -311,6 +316,12 @@ export async function POST(req: Request): Promise<Response> {
       const parsed = await parseBody(focusSessionRequest, req)
       if (!parsed.ok) return parsed.response
       return json(await recordFocusSession(userId, parsed.data))
+    }
+
+    case 'playtime': {
+      const parsed = await parseBody(playtimeRecordRequest, req)
+      if (!parsed.ok) return parsed.response
+      return json(await recordPlaytime(userId, parsed.data))
     }
 
     case 'answer': {

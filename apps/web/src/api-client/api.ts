@@ -33,6 +33,12 @@ import {
 } from '@/core/schemas'
 import type { Difficulty } from '@/core/generation'
 import {
+  type GamePlaytime,
+  type PlaytimeRecordInput,
+  playtimeListSchema,
+  playtimeRecordResultSchema,
+} from '@/core/playtime'
+import {
   achievementsViewSchema,
   adminUsersSchema,
   courseOutlineSchema,
@@ -374,6 +380,25 @@ export function createApi({ http, passkeys }: Adapters) {
     },
   }
 
+  // Arcade playtime telemetry — per-title minutes, flushed from the player as
+  // the user plays and read back to light up the gallery.
+  const arcade = {
+    async playtime(): Promise<GamePlaytime[]> {
+      return playtimeListSchema.parse(await http.request('/api/me/playtime'))
+        .playtime
+    },
+    async recordPlaytime(
+      input: PlaytimeRecordInput,
+    ): Promise<{ seconds: number }> {
+      return playtimeRecordResultSchema.parse(
+        await http.request('/api/me/playtime', {
+          method: 'POST',
+          body: JSON.stringify(input),
+        }),
+      )
+    },
+  }
+
   // Stripe billing. Each returns a hosted URL the caller redirects to.
   const billing = {
     async checkout(): Promise<BillingRedirect> {
@@ -414,6 +439,7 @@ export function createApi({ http, passkeys }: Adapters) {
     courses,
     preferences,
     focus,
+    arcade,
     billing,
     admin,
   }
