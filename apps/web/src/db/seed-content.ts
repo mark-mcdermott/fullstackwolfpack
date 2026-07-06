@@ -39,6 +39,9 @@ export type SeedLesson = {
   id: string
   title: string
   estMinutes: number
+  // Key terms the lesson introduces — linkified to further reading when the user
+  // opts into "hyperlink key terms". Absent ⇒ no links (matches lessons.glossary).
+  glossary?: string[]
   segments: SeedSegment[]
 }
 

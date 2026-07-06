@@ -23,6 +23,21 @@ import {
 async function main() {
   console.log('Seeding catalog…')
 
+  // `--refresh-builtins` wipes the shared built-in courses first (cascades to
+  // their lessons/segments/exercises/questions AND any user progress on them),
+  // so the insert-only seed below re-creates them from the current seed content.
+  // Use after regenerating seed-content.generated.ts to push new built-in
+  // content (e.g. exercises/glossaries) live. Owned AI courses are untouched.
+  if (process.argv.includes('--refresh-builtins')) {
+    const deleted = await db
+      .delete(courses)
+      .where(eq(courses.source, 'builtin'))
+      .returning({ id: courses.id })
+    console.log(
+      `Refresh: deleted ${deleted.length} existing built-in course(s) before reseed.`,
+    )
+  }
+
   await db
     .insert(topics)
     .values(SEED_TOPICS)
@@ -69,6 +84,7 @@ async function main() {
           orderIndex: lessonOrder++,
           title: lesson.title,
           estMinutes: lesson.estMinutes,
+          glossary: lesson.glossary ?? null,
         })
         .onConflictDoNothing({ target: lessons.id })
 

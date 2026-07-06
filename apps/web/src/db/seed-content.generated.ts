@@ -13,67 +13,112 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
     "lessons": [
       {
         "id": "builtin-react-l1",
-        "title": "Introduction to React and Components",
-        "estMinutes": 30,
+        "title": "Introduction to React and JSX",
+        "estMinutes": 45,
+        "glossary": [
+          "React",
+          "JSX",
+          "Components"
+        ],
         "segments": [
           {
             "id": "builtin-react-l1-s1",
             "type": "reading",
             "title": "Why React?",
-            "markdown": "React has revolutionized the way developers build user interfaces. Its component-based architecture allows you to create reusable UI elements, making complex interfaces more manageable and efficient. React is particularly advantageous when building single-page applications (SPAs), where dynamic data management and stateful interactions are crucial. Consider a scenario where you're developing a real-time dashboard displaying live data. Without React, managing updates and maintaining clear separation of concerns can become overwhelming. React streamlines these tasks, but it's important to remember that integrating React into existing static sites or applications that don't benefit from dynamic UI may add unnecessary complexity.",
+            "markdown": "As web applications grow in functionality and complexity, maintaining a simple state and view synchronization becomes challenging. React addresses this by enabling developers to build user interfaces composed of reusable components, each maintaining its own state. Components allow for modular code, enhancing readability and maintainability. Consider a news website: each article, comment, and sidebar component could be independent React components insularly maintaining their own content and behavior. However, be aware that as applications scale, keeping track of components and their states might become daunting, requiring thoughtful structure.",
             "estMinutes": 5,
-            "questions": []
+            "questions": [
+              {
+                "id": "builtin-react-l1-s1-q1",
+                "type": "mcq",
+                "prompt": "What problem does React primarily aim to solve?",
+                "options": [
+                  "Synchronizing complex styles across applications.",
+                  "Maintaining synchronous user interface and state updates.",
+                  "Improving performance of server-side applications."
+                ],
+                "correctIndex": 1,
+                "explanation": "React focuses on simplifying the synchronization between the user interface and state, providing a structured way to handle complex UI updates."
+              },
+              {
+                "id": "builtin-react-l1-s1-q2",
+                "type": "short_answer",
+                "prompt": "Explain one advantage of using components in React.",
+                "expectedAnswer": "Components promote code reusability and separation of concerns by encapsulating functionality and state within modular entities.",
+                "explanation": ""
+              }
+            ]
           },
           {
             "id": "builtin-react-l1-s2",
             "type": "reading",
-            "title": "Understanding Components",
-            "markdown": "Components are the heart of React—it allows developers to split the UI into independent, reusable pieces. A component in React is essentially a JavaScript function or class that optionally accepts inputs, i.e., 'props', and returns a React element describing how a section of the UI should appear. Consider a button component that renders different styles based on the received props. Components should be used whenever you need to reuse a piece of UI or maintain its state separately. A common pitfall occurs when trying to update a component state incorrectly outside the React lifecycle methods, which can lead to state inconsistencies and unpredictable UI behavior.",
-            "estMinutes": 6,
-            "questions": []
+            "title": "Understanding JSX Syntax",
+            "markdown": "JSX is a syntax extension for JavaScript used in React to describe UI structure. Instead of separating technologies, JSX bridges JavaScript and HTML-like syntax for creating elements — improving readability, and aiding in complex UIs. For instance, JSX lets you write `<h1>Hello, World</h1>` directly within JavaScript. It's intuitive but requires transpilation via tools like Babel as browsers don't understand JSX out of the box. A common mistake while using JSX is forgetting that it still adheres to JavaScript rules; thus, using reserved keywords or mistyping elements can lead to errors.",
+            "estMinutes": 7,
+            "questions": [
+              {
+                "id": "builtin-react-l1-s2-q1",
+                "type": "short_answer",
+                "prompt": "Why do you need Babel when using JSX?",
+                "expectedAnswer": "Babel transpiles JSX into regular JavaScript, which browsers can understand and execute since they don't support JSX natively.",
+                "explanation": ""
+              }
+            ]
           },
           {
             "id": "builtin-react-l1-s3",
             "type": "code",
-            "title": "Hello World: Your First Component",
-            "markdown": "```javascript\nimport React from 'react';\nfunction HelloWorld() {\n  return <h1>Hello, World!</h1>;\n}\nexport default HelloWorld;\n```\nThis simple component renders a 'Hello, World!' message. Here, `HelloWorld` is a functional component that returns a React element. Use React components by importing and rendering them within other components or ReactDOM in your application.",
-            "estMinutes": 5,
-            "questions": []
+            "title": "Creating Simple Components",
+            "markdown": "Components are the building blocks in React. A React component can be defined with regular JavaScript functions or ES6 classes. Here’s a simple function-based component:\n\n```javascript\nfunction Welcome(props) {\n  return <h1>Hello, {props.name}!</h1>;\n}\n```\n\nThis `Welcome` component receives `props` as an argument and uses it to render content dynamically. You can use this component within a parent by `<Welcome name=\"Alice\" />`. Mistakenly ignoring prop types when designing complex components can lead to bugs, such as rendering issues or runtime exceptions.",
+            "estMinutes": 8,
+            "questions": [
+              {
+                "id": "builtin-react-l1-s3-q1",
+                "type": "mcq",
+                "prompt": "How do you pass data into a React Component?",
+                "options": [
+                  "Through HTML attributes.",
+                  "Using function arguments directly.",
+                  "Props passed within tags."
+                ],
+                "correctIndex": 2,
+                "explanation": "Props are used to pass data into components using syntax similar to HTML attributes."
+              }
+            ]
           },
           {
             "id": "builtin-react-l1-s4",
             "type": "practice",
-            "title": "Building a Reusable Button Component",
-            "markdown": "Create a React component named `CustomButton` that renders a button. Use props to pass a label and a click handler function to the button. Ensure that the button renders the label correctly and executes the handler upon click.",
-            "estMinutes": 6,
+            "title": "Practice Creating Components",
+            "markdown": "Create a custom React component named `Greeting` that accepts a `name` prop and displays a greeting message.",
+            "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-react-l1-s5",
             "type": "quiz",
-            "title": "Check Your Understanding",
-            "markdown": "",
-            "estMinutes": 8,
+            "title": "Component and JSX Quiz",
+            "markdown": "Test your knowledge on React components and JSX syntax with the following questions.",
+            "estMinutes": 5,
             "questions": [
               {
                 "id": "builtin-react-l1-s5-q1",
                 "type": "mcq",
-                "prompt": "What is a key advantage of using components in React?",
+                "prompt": "Which of the following is an example of JSX?",
                 "options": [
-                  "Improves performance by using more memory",
-                  "Enables reusable and isolated UI building blocks",
-                  "Reduces the need for JavaScript in the project",
-                  "Directly integrates with backend APIs"
+                  "document.createElement('div');",
+                  "`<div>Hello, World!</div>`",
+                  "console.log(<div>Hello, World!<div>);"
                 ],
                 "correctIndex": 1,
-                "explanation": "Components allow developers to encapsulate and reuse UI parts, streamlining development and maintenance."
+                "explanation": "JSX uses syntax similar to HTML but is compiled into JavaScript function calls."
               },
               {
                 "id": "builtin-react-l1-s5-q2",
                 "type": "short_answer",
-                "prompt": "What problem might occur if component states are not updated using the React lifecycle methods?",
-                "expectedAnswer": "Inconsistent state and unpredictable UI behavior.",
-                "explanation": "Manipulating component state outside React’s lifecycle can cause state mismatches that lead to unexpected UI."
+                "prompt": "What is a practical benefit of using JSX over traditional JavaScript for UI development?",
+                "expectedAnswer": "JSX improves readability by integrating HTML-like syntax directly into JavaScript, promoting easier composition of complex UIs.",
+                "explanation": ""
               }
             ]
           }
@@ -81,67 +126,105 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-react-l2",
-        "title": "JSX and Rendering Elements",
-        "estMinutes": 28,
+        "title": "Understanding State and Props",
+        "estMinutes": 50,
+        "glossary": [
+          "State",
+          "Props",
+          "useState"
+        ],
         "segments": [
           {
             "id": "builtin-react-l2-s1",
             "type": "reading",
-            "title": "The Power of JSX",
-            "markdown": "JSX, or JavaScript XML, is a syntax extension that makes writing HTML elements in JavaScript easier and more readable. By allowing HTML structures within JavaScript code, JSX provides an intuitive way to build React components, turning complex DOM manipulations into elegant snippets. For instance, consider rendering a list of items. Using JSX, you can dynamically build and inject elements directly from arrays. However, one must ensure JSX is transpiled using tools like Babel, as browsers cannot natively interpret JSX code.",
-            "estMinutes": 5,
-            "questions": []
+            "title": "State vs. Props",
+            "markdown": "In React, components handle data through state and props, both of which determine what renders on screen. **Props** (short for properties) are immutable data passed down from a parent component to a child. They are crucial for maintaining a unidirectional data flow. Conversely, **state** is local and mutable, allowing components to manage their own data internally and respond to user actions or changes over time. Consider a todo list: the list items might be passed as props, while the input value could be a local state of the component handling new entries. Avoid overusing state in favor of props to minimize complexity.",
+            "estMinutes": 8,
+            "questions": [
+              {
+                "id": "builtin-react-l2-s1-q1",
+                "type": "mcq",
+                "prompt": "How are props different from state in a React component?",
+                "options": [
+                  "Props are immutable, while state can change over time.",
+                  "State is passed to components, while props are not.",
+                  "Both props and state are mutable."
+                ],
+                "correctIndex": 0,
+                "explanation": "Props are immutable inputs to a component, whereas state is mutable and controlled by the component itself."
+              }
+            ]
           },
           {
             "id": "builtin-react-l2-s2",
-            "type": "reading",
-            "title": "Rendering Dynamic Content",
-            "markdown": "Rendering in React involves syncing your UI with state and props. For example, suppose you're creating a digital storefront. As users add items to their cart, you need the cart view to update dynamically based on user actions. React enables this through efficient diffing algorithms, ensuring minimal updates to the actual DOM. However, careless use of keys or failing to use them in a list can lead to incorrect UI updates, where components are misidentified, leading to unexpected behavior.",
-            "estMinutes": 5,
-            "questions": []
+            "type": "code",
+            "title": "Using useState for Managing State",
+            "markdown": "The `useState` hook is a fundamental part of React for managing state in function components. Invoked at the top level of a component, it returns an array containing the state variable and a setter function. Here's an example:\n\n```javascript\nimport React, { useState } from 'react';\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n\n  return (\n    <div>\n      <p>Count: {count}</p>\n      <button onClick={() => setCount(count + 1)}>\n        Increment\n      </button>\n    </div>\n  );\n}\n```\n\nIn this scenario, clicking the button updates `count`, triggering a re-render. It's important to utilize the setter function rather than mutating the state value directly to ensure React tracks changes efficiently.",
+            "estMinutes": 12,
+            "questions": [
+              {
+                "id": "builtin-react-l2-s2-q1",
+                "type": "mcq",
+                "prompt": "What does the `useState` hook return?",
+                "options": [
+                  "An object with a state property.",
+                  "A function that updates props.",
+                  "An array with a state variable and a setter function."
+                ],
+                "correctIndex": 2,
+                "explanation": "`useState` returns an array consisting of the current state and a function to update it, which facilitates direct state management inside functional components."
+              }
+            ]
           },
           {
             "id": "builtin-react-l2-s3",
-            "type": "code",
-            "title": "Dynamic List Rendering with JSX",
-            "markdown": "```javascript\nconst fruits = ['Apple', 'Banana', 'Cherry'];\nfunction FruitList() {\n  return (\n    <ul>\n      {fruits.map((fruit, index) => (\n        <li key={index}>{fruit}</li>\n      ))}\n    </ul>\n  );\n}\nexport default FruitList;\n```\nThis code creates a component that takes an array of fruits and renders each item dynamically into a list. Note the use of `key` to uniquely identify each list item, which helps React optimize rendering effectively.",
-            "estMinutes": 6,
+            "type": "practice",
+            "title": "Practice with useState",
+            "markdown": "Implement a simple toggle component using `useState`. The component should display an 'ON' or 'OFF' text depending on the state.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-react-l2-s4",
-            "type": "practice",
-            "title": "Implementing Conditional Rendering",
-            "markdown": "Enhance the `FruitList` component to render a message 'No fruits available' when the list is empty. Ensure your solution handles both filled and empty list scenarios efficiently.",
-            "estMinutes": 6,
-            "questions": []
+            "type": "reading",
+            "title": "Working with Both Props and State",
+            "markdown": "A common scenario in application development is using both state and props together. Props are used to pass static (or parent-managed dynamic) data into a component, whereas state allows components to internally manage and store changes over time. Synchronizing these effectively can prevent unwanted re-renders and ensure your application maintains data coherency. In a task manager app, the tasks can be passed as props, while the filtering criteria and input states could be internally managed by state. A pitfall to watch for is inadvertently modifying props inside components, as it goes against React's design.",
+            "estMinutes": 10,
+            "questions": [
+              {
+                "id": "builtin-react-l2-s4-q1",
+                "type": "short_answer",
+                "prompt": "How can props and state coexist in a React component?",
+                "expectedAnswer": "Props provide component inputs set by parent elements, while state allows components to independently track and handle internal changes, like user inputs or toggles.",
+                "explanation": ""
+              }
+            ]
           },
           {
             "id": "builtin-react-l2-s5",
             "type": "quiz",
-            "title": "Quiz on JSX and Rendering",
-            "markdown": "",
-            "estMinutes": 6,
+            "title": "State and Props Quiz",
+            "markdown": "Complete the quiz to verify your understanding of state and props in React.",
+            "estMinutes": 5,
             "questions": [
               {
                 "id": "builtin-react-l2-s5-q1",
                 "type": "mcq",
-                "prompt": "Why is using keys important when rendering lists in React?",
+                "prompt": "Which statement is true regarding props and state?",
                 "options": [
-                  "Keys help in adding new elements in lists automatically",
-                  "Keys improve component performance by identifying elements",
-                  "Keys simplify writing JSX templates",
-                  "Keys allow browsers to interpret JSX directly"
+                  "State can be changed directly, while props cannot.",
+                  "Props are managed within the component.",
+                  "State is read-only, while props can be changed."
                 ],
-                "correctIndex": 1,
-                "explanation": "Keys enable React to identify which items have changed, improving performance by updating only necessary components."
+                "correctIndex": 0,
+                "explanation": "State should be changed using its setter function, while props are immutable and passed down from the component's parent."
               },
               {
                 "id": "builtin-react-l2-s5-q2",
                 "type": "short_answer",
-                "prompt": "What will happen if JSX code is not transpiled?",
-                "expectedAnswer": "The browser will not be able to interpret and execute the JSX code.",
-                "explanation": "JSX must be converted to standard JavaScript by a transpiler as browsers do not natively support JSX."
+                "prompt": "Why should props not be modified within a component?",
+                "expectedAnswer": "Props should not be modified as they are meant to be immutable inputs, maintaining a unidirectional data flow from parent to child components.",
+                "explanation": ""
               }
             ]
           }
@@ -149,67 +232,92 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-react-l3",
-        "title": "State and Lifecycle in React",
-        "estMinutes": 34,
+        "title": "Component Lifecycle and Effects",
+        "estMinutes": 55,
+        "glossary": [
+          "useEffect",
+          "Lifecycle",
+          "Unmounting"
+        ],
         "segments": [
           {
             "id": "builtin-react-l3-s1",
             "type": "reading",
-            "title": "Understanding State",
-            "markdown": "State is a built-in object that stores property values that belong to a component and informs React of changes, triggering re-renders to update the UI accordingly. In a task management app, state could hold the current list of to-dos or their completion status. State should be localized to the component that owns it and only shared through props when necessary. One often encounters a challenge when trying to directly modify the state or using state outside its designated functions, leading to unexpected behaviors.",
-            "estMinutes": 6,
-            "questions": []
+            "title": "Understanding Component Lifecycle",
+            "markdown": "React components go through a lifecycle of events: mounting, updating, and unmounting. During each phase, specific functions and operations are available and often necessary. For example, when a component is mounted, you may want to initiate API calls or subscriptions. Such operations are generally cleaned up during the unmounting phase to prevent memory leaks. A profound understanding of component lifecycle is critical as it directly affects application behavior and performance, especially in real-time data scenarios or animations.",
+            "estMinutes": 8,
+            "questions": [
+              {
+                "id": "builtin-react-l3-s1-q1",
+                "type": "short_answer",
+                "prompt": "Describe why the component lifecycle is important in React applications.",
+                "expectedAnswer": "The lifecycle provides hooks for developers to manage how components mount, update, and unmount, helping avoid memory leaks or suboptimal performance.",
+                "explanation": ""
+              }
+            ]
           },
           {
             "id": "builtin-react-l3-s2",
             "type": "reading",
-            "title": "Lifecycle Methods Explained",
-            "markdown": "React components have lifecycle phases, including mounting, updating, and unmounting. Each phase triggers specific methods—like `componentDidMount`, which runs after initial rendering, and `componentWillUnmount`, where cleanup or resource release should occur. Let's say you’re fetching data from an API. The correct approach involves placing the fetch logic in `componentDidMount` to ensure the data is requested after the component mounts. Failing to manage lifecycle methods properly, such as by neglecting to clear timers in `componentWillUnmount`, can result in memory leaks.",
-            "estMinutes": 7,
-            "questions": []
+            "title": "Using useEffect Hook",
+            "markdown": "The `useEffect` hook lets function components perform side effects, mimicking the behavior of lifecycle methods. It's often used for data fetching, subscriptions, or manual DOM updates. `useEffect` accepts two arguments: a function containing side-effect logic and an optional array of dependencies determining when the effect should rerun. Here's an example:\n\n```javascript\nimport React, { useEffect } from 'react';\n\nfunction DataFetcher() {\n  useEffect(() => {\n    console.log('Fetching data');\n    // Your fetching logic here\n    return () => console.log('Cleanup on unmount');\n  }, []);\n\n  return <div>Check console for logs.</div>;\n}\n```\n\nThe cleanup function helps avoid memory leaks by cleaning up subscriptions or event listeners on unmount. Forgetting to specify dependencies can lead to infinite loops if the effect modifies values that it depends on.",
+            "estMinutes": 12,
+            "questions": [
+              {
+                "id": "builtin-react-l3-s2-q1",
+                "type": "mcq",
+                "prompt": "What does the `useEffect` hook's cleanup function handle?",
+                "options": [
+                  "It fetches new data during component re-renders.",
+                  "It cleans up non-serializable props.",
+                  "It removes subscriptions and prevents memory leaks."
+                ],
+                "correctIndex": 2,
+                "explanation": "The cleanup function in `useEffect` efficiently manages cleanup operations like removing subscriptions or event listeners to avoid memory leaks upon unmounting."
+              }
+            ]
           },
           {
             "id": "builtin-react-l3-s3",
             "type": "code",
-            "title": "Using React State and Lifecycle",
-            "markdown": "```javascript\nimport React, { Component } from 'react';\nclass Clock extends Component {\n  constructor(props) {\n    super(props);\n    this.state = { date: new Date() };\n  }\n  componentDidMount() {\n    this.timerID = setInterval(() => this.tick(), 1000);\n  }\n  componentWillUnmount() {\n    clearInterval(this.timerID);\n  }\n  tick() {\n    this.setState({ date: new Date() });\n  }\n  render() {\n    return <h2>It is {this.state.date.toLocaleTimeString()}.</h2>;\n  }\n}\nexport default Clock;\n```\nThis example shows a clock component updating every second, demonstrating the use of lifecycle methods and state for time management.",
-            "estMinutes": 8,
+            "title": "Code Example Using useEffect",
+            "markdown": "Here's a `Clock` component using `useEffect` to update the time every second:\n\n```javascript\nimport React, { useState, useEffect } from 'react';\n\nfunction Clock() {\n  const [time, setTime] = useState(new Date());\n\n  useEffect(() => {\n    const timerID = setInterval(() => setTime(new Date()), 1000);\n\n    return () => clearInterval(timerID);\n  }, []);\n\n  return <div>Current time: {time.toLocaleTimeString()}</div>;\n}\n```\n\nThe `Clock` component initializes with the current time and updates every second, illustrating a side effect that also needs cleanup: clearing the interval when the component unmounts.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-react-l3-s4",
             "type": "practice",
-            "title": "Enhance a State-Dependent Component",
-            "markdown": "Add a button to the `Clock` component that allows users to start and stop the clock. Use state to manage whether the clock should be running.",
-            "estMinutes": 7,
+            "title": "Practice with useEffect",
+            "markdown": "Utilize the `useEffect` hook to create a component that tracks the window's width and logs it to the console whenever it changes.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-react-l3-s5",
             "type": "quiz",
-            "title": "Quiz on State and Lifecycle",
-            "markdown": "",
-            "estMinutes": 6,
+            "title": "Lifecycle and Effects Quiz",
+            "markdown": "Evaluate your grasp on lifecycle management and side effects with the following questions.",
+            "estMinutes": 5,
             "questions": [
               {
                 "id": "builtin-react-l3-s5-q1",
                 "type": "mcq",
-                "prompt": "Which lifecycle method is best suited to make initial AJAX calls?",
+                "prompt": "When using `useEffect`, when will a cleanup function execute?",
                 "options": [
-                  "constructor",
-                  "componentDidMount",
-                  "render",
-                  "componentWillUnmount"
+                  "Only during initial render.",
+                  "Before re-running the effect and on component unmount.",
+                  "Whenever state changes."
                 ],
                 "correctIndex": 1,
-                "explanation": "The `componentDidMount` method allows side-effects like AJAX calls to execute post the initial render."
+                "explanation": "The cleanup function of `useEffect` executes before the next iteration of the effect and during component unmount."
               },
               {
                 "id": "builtin-react-l3-s5-q2",
                 "type": "short_answer",
-                "prompt": "What might occur if state is altered directly rather than using `setState`?",
-                "expectedAnswer": "Direct modification will bypass lifecycle methods and updates, leaving the UI unaffected.",
-                "explanation": "React relies on `setState` to manage state changes and trigger re-renders, which direct mutations do not cause."
+                "prompt": "Why is it critical to include a dependency array with `useEffect`?",
+                "expectedAnswer": "Omitting a dependency array could cause the effect to run more often than necessary, leading to performance issues or infinite loops.",
+                "explanation": ""
               }
             ]
           }
@@ -217,67 +325,76 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-react-l4",
-        "title": "Handling Events with React",
-        "estMinutes": 24,
+        "title": "Introduction to React Router",
+        "estMinutes": 40,
+        "glossary": [
+          "React Router",
+          "Link",
+          "Route"
+        ],
         "segments": [
           {
             "id": "builtin-react-l4-s1",
             "type": "reading",
-            "title": "React Events: More than Standard",
-            "markdown": "Event handling in React is similar yet distinct from DOM event handling, with notable differences such as case sensitivity (`onClick` vs. `onclick`). React events are lightweight, synthetic events that effectively standardize and cross-browser handles real DOM events. Imagine an application that requires precise user interactions like a drawing tool; React events provide consistency across all browsers, unlike native events. Developers often falter by using non-standard event properties or incorrect bindings, losing component scope (like `this`) within handlers.",
-            "estMinutes": 5,
-            "questions": []
+            "title": "Routing in React",
+            "markdown": "In Single Page Applications (SPAs), routing is essential for managing different views and URLs within the same page. Enter **React Router**, a robust library that facilitates client-side routing using declarative techniques. This library allows developers to render various components based on URL paths, making URL updates reflect component changes without causing full-page reloads. Imagine building a dashboard: React Router will help navigate between user profile, settings, and analytics views while maintaining application state. Always plan routes and nested paths carefully; an overly complex pattern can hinder performance and maintainability.",
+            "estMinutes": 10,
+            "questions": [
+              {
+                "id": "builtin-react-l4-s1-q1",
+                "type": "mcq",
+                "prompt": "What is the primary purpose of React Router?",
+                "options": [
+                  "To enhance security in React applications.",
+                  "To manage page titles and metadata.",
+                  "To enable client-side routing and navigation within SPAs."
+                ],
+                "correctIndex": 2,
+                "explanation": "React Router enables dynamic routing in SPAs, allowing components to update based on URLs without full page reloads."
+              }
+            ]
           },
           {
             "id": "builtin-react-l4-s2",
-            "type": "reading",
-            "title": "Binding Event Handlers",
-            "markdown": "Binding event handlers in React ensures methods have the correct `this` context. In a React component, method binding is crucial as JavaScript classes do not bind `this` automatically. Consider a button that updates component state via a click; without binding, `this.setState` would be undefined, causing errors in DOM manipulations. Avoid pitfalls by correctly using `.bind(this)` in constructors or employing class properties initialized with arrow functions for clean `this` context handling.",
-            "estMinutes": 5,
+            "type": "code",
+            "title": "Basic Routing Example",
+            "markdown": "Here is a simple setup using React Router:\n\n```javascript\nimport React from 'react';\nimport { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom';\n\nfunction Home() { return <h2>Home</h2>; }\nfunction About() { return <h2>About</h2>; }\n\nfunction App() {\n  return (\n    <Router>\n      <nav>\n        <ul>\n          <li><Link to=\"/\">Home</Link></li>\n          <li><Link to=\"/about\">About</Link></li>\n        </ul>\n      </nav>\n\n      <Switch>\n        <Route path=\"/about\"><About /></Route>\n        <Route path=\"/\"><Home /></Route>\n      </Switch>\n    </Router>\n  );\n}\n```\n\nIn this example, users can navigate between the \"Home\" and \"About\" routes using `<Link>` components. `<Route>` elements define the UI for each path, while a `<Switch>` ensures only one path renders at a time. A common oversight is not wrapping components within a `<Router>`, which leads to runtime errors.",
+            "estMinutes": 12,
             "questions": []
           },
           {
             "id": "builtin-react-l4-s3",
-            "type": "code",
-            "title": "Implementing a Click Counter",
-            "markdown": "```javascript\nimport React, { Component } from 'react';\nclass ClickCounter extends Component {\n  constructor(props) {\n    super(props);\n    this.state = { count: 0 };\n    this.handleClick = this.handleClick.bind(this);\n  }\n  handleClick() {\n    this.setState(prevState => ({\n      count: prevState.count + 1\n    }));\n  }\n  render() {\n    return (\n      <button onClick={this.handleClick}>\n        Clicked {this.state.count} times\n      </button>\n    );\n  }\n}\nexport default ClickCounter;\n```\nHere’s a `ClickCounter` component implementing event binding to increment the stateful count each time its button is clicked.",
-            "estMinutes": 6,
+            "type": "practice",
+            "title": "Practice with React Router",
+            "markdown": "Set up a simple navigation with React Router that includes \"Home\", \"Services\", and \"Contact\" routes.",
+            "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-react-l4-s4",
-            "type": "practice",
-            "title": "Practice Event Binding",
-            "markdown": "Modify the `ClickCounter` to reset the count to zero every ten clicks. Ensure event binding continues to handle state updates correctly.",
-            "estMinutes": 5,
-            "questions": []
-          },
-          {
-            "id": "builtin-react-l4-s5",
             "type": "quiz",
-            "title": "Quiz on React Event Handling",
-            "markdown": "",
-            "estMinutes": 3,
+            "title": "React Router Quiz",
+            "markdown": "Check your understanding of routing concepts in React by answering these questions.",
+            "estMinutes": 5,
             "questions": [
               {
-                "id": "builtin-react-l4-s5-q1",
+                "id": "builtin-react-l4-s4-q1",
                 "type": "mcq",
-                "prompt": "What crucial aspect distinguishes React event handling from standard DOM events?",
+                "prompt": "How does React Router differ from traditional server-side routing?",
                 "options": [
-                  "Case sensitivity of events is irrelevant",
-                  "Events are automatically categorized",
-                  "Events are based on standard DOM properties",
-                  "Events are wrapped in a SyntheticEvent for consistency"
+                  "React Router triggers server requests for every navigation.",
+                  "It updates the view using JavaScript without reloading the whole page.",
+                  "Server-side routing performs faster URL changes."
                 ],
-                "correctIndex": 3,
-                "explanation": "React’s SyntheticEvent ensures consistent behavior across different browsers by wrapping native events."
+                "correctIndex": 1,
+                "explanation": "React Router allows for seamless view transitions within SPAs, without the need for server round-trips, improving the user experience."
               },
               {
-                "id": "builtin-react-l4-s5-q2",
+                "id": "builtin-react-l4-s4-q2",
                 "type": "short_answer",
-                "prompt": "Why might an `onClick` handler function not correctly alter component state in a React component?",
-                "expectedAnswer": "The handler function might lack the correct `this` binding.",
-                "explanation": "Without proper `this` context, methods cannot access component properties or `setState` effectively."
+                "prompt": "Why should you include the `<Switch>` component in React Router?",
+                "expectedAnswer": "The `<Switch>` component ensures that only the first matching `<Route>` among its children will be rendered, preventing multiple route renderings.",
+                "explanation": ""
               }
             ]
           }
@@ -285,67 +402,71 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-react-l5",
-        "title": "Props and Component Hierarchies",
-        "estMinutes": 25,
+        "title": "Managing Global State with Context API",
+        "estMinutes": 50,
+        "glossary": [
+          "Context API",
+          "useContext",
+          "Provider"
+        ],
         "segments": [
           {
             "id": "builtin-react-l5-s1",
             "type": "reading",
-            "title": "Props for Communication",
-            "markdown": "In React, props are used to pass data from parent components to children, allowing for component interactions and data flow. For example, in a user profile application, a header component can receive the user's name and profile picture through props, thus rendering relevant details automatically. This method strengthens component isolation while allowing dynamic data control. Developers often struggle with attempting to alter props directly, forgetting that props are read-only and meant to facilitate data passing, not modification.",
-            "estMinutes": 5,
-            "questions": []
+            "title": "The Need for Global State Management",
+            "markdown": "As React applications scale, managing state across deeply nested components without \"prop drilling\" can become cumbersome. **Context API** addresses this by providing a way to share values between components without passing props explicitly through every level of the tree. It's perfect for global settings, themes, or user authentication data. For instance, in a theming feature, Context API allows all components to access the theme data directly, ensuring consistent styling updates across the application. Care should be taken to avoid performance issues caused by unnecessary re-renders; this can be mitigated by wisely structuring the context.",
+            "estMinutes": 8,
+            "questions": [
+              {
+                "id": "builtin-react-l5-s1-q1",
+                "type": "short_answer",
+                "prompt": "What problem does Context API solve in React?",
+                "expectedAnswer": "It eliminates the need for prop drilling by allowing state to be shared directly across the component tree, simplifying the structure of larger applications.",
+                "explanation": ""
+              }
+            ]
           },
           {
             "id": "builtin-react-l5-s2",
-            "type": "reading",
-            "title": "Component Composition and Hierarchies",
-            "markdown": "React facilitates the composition of complex UIs by nesting components into hierarchies, from parent to child. Imagine you're building a commenting feature, where a `CommentList` contains multiple `Comment` components. Each comment component might further decompose into parts for the author, text, and date. This structured composition promotes reusable and manageable code, but it’s easy to misuse by spreading props unnecessarily or failing to optimize performance through memoization or pure components where appropriate.",
-            "estMinutes": 6,
+            "type": "code",
+            "title": "Basic Use of Context API",
+            "markdown": "Here's how you can implement Context for managing a theme setting:\n\n```javascript\nimport React, { useContext, useState } from 'react';\n\nconst ThemeContext = React.createContext();\n\nfunction ThemeProvider({ children }) {\n  const [theme, setTheme] = useState('light');\n\n  return (\n    <ThemeContext.Provider value={{ theme, setTheme }}>\n      {children}\n    </ThemeContext.Provider>\n  );\n}\n\nfunction ThemedComponent() {\n  const { theme, setTheme } = useContext(ThemeContext);\n\n  return (\n    <div>\n      <p>Current theme: {theme}</p>\n      <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>\n        Toggle Theme\n      </button>\n    </div>\n  );\n}\n\nexport { ThemeProvider, ThemedComponent };\n```\n\nIn this example, `ThemeProvider` is used to define the context and provide the theme variable to its children. `useContext` allows `ThemedComponent` to access and update the theme. Remember, changing context values forces re-renders on all consuming components, impacting performance.",
+            "estMinutes": 15,
             "questions": []
           },
           {
             "id": "builtin-react-l5-s3",
-            "type": "code",
-            "title": "Constructing a Nested Component Structure",
-            "markdown": "```javascript\nfunction Comment(props) {\n  return (\n    <div className=\"comment\">\n      <h3>{props.author}</h3>\n      <p>{props.text}</p>\n    </div>\n  );\n}\nfunction CommentList() {\n  const comments = [\n    { author: 'Alice', text: 'React is great!' },\n    { author: 'Bob', text: 'I prefer Vue.js.' }\n  ];\n  return (\n    <div>\n      {comments.map((comment, index) => <Comment key={index} {...comment} />)}\n    </div>\n  );\n}\nexport default CommentList;\n```\nIn this example, a `CommentList` receives an array of comment objects and maps them into `Comment` components, utilizing props to distribute data.",
-            "estMinutes": 7,
+            "type": "practice",
+            "title": "Creating Context in Practice",
+            "markdown": "Create a context for managing user authentication status and provide this context to a component that shows \"logged in\" or \"logged out\" based on the state.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-react-l5-s4",
-            "type": "practice",
-            "title": "Enhancing Component Reusability",
-            "markdown": "Refactor the `Comment` component to include a timestamp prop. Ensure the `CommentList` correctly passes and utilizes this additional data point.",
-            "estMinutes": 4,
-            "questions": []
-          },
-          {
-            "id": "builtin-react-l5-s5",
             "type": "quiz",
-            "title": "Quiz on Props and Component Hierarchies",
-            "markdown": "",
-            "estMinutes": 3,
+            "title": "Context and Provider Quiz",
+            "markdown": "Confirm your understanding of Context API through the following questions.",
+            "estMinutes": 5,
             "questions": [
               {
-                "id": "builtin-react-l5-s5-q1",
+                "id": "builtin-react-l5-s4-q1",
                 "type": "mcq",
-                "prompt": "What is the correct way to handle data passing from parent to child components?",
+                "prompt": "Which component is necessary to use the React Context API?",
                 "options": [
-                  "Direct data assignment",
-                  "Using state across all components",
-                  "Passing data through props",
-                  "Global variable storage"
+                  "Reducer",
+                  "Router",
+                  "Provider"
                 ],
                 "correctIndex": 2,
-                "explanation": "Props are the ideal mechanism for passing data within the component hierarchy in React."
+                "explanation": "The Provider component allows the context to be available to all its child elements."
               },
               {
-                "id": "builtin-react-l5-s5-q2",
+                "id": "builtin-react-l5-s4-q2",
                 "type": "short_answer",
-                "prompt": "Why shouldn’t props be modified directly?",
-                "expectedAnswer": "Props are read-only and implementing changes should involve state updates.",
-                "explanation": "Direct modification breaks React's unidirectional data flow and component reactivity principles."
+                "prompt": "What potential issue might occur using Context for widespread state management?",
+                "expectedAnswer": "Using context can lead to performance issues due to re-renders if not managed carefully, as changing context values trigger a re-render of all consumer components.",
+                "explanation": ""
               }
             ]
           }
@@ -353,67 +474,97 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-react-l6",
-        "title": "Conditional Rendering and Forms",
-        "estMinutes": 33,
+        "title": "Building Forms and Handling Events",
+        "estMinutes": 50,
+        "glossary": [
+          "Event Handling",
+          "Controlled Components",
+          "Form"
+        ],
         "segments": [
           {
             "id": "builtin-react-l6-s1",
             "type": "reading",
-            "title": "Conditional Rendering in Practice",
-            "markdown": "Conditional rendering in React refers to rendering components or elements dynamically based on specific conditions, often involving state or props. Consider a user authentication setup: if a user is signed in, you show a dashboard; otherwise, you show a login page. This approach can optimize UX by presenting relevant content only when needed. A common challenge is maintaining readability and performance, as overly complex conditions within render methods can degrade both. It also risks falling into logical traps or performance pitfalls if not structured well, such as when mistakenly using conditional logic that triggers unnecessary renders.",
-            "estMinutes": 6,
-            "questions": []
+            "title": "Handling Events in React",
+            "markdown": "React uses a syntactic sugar over native browser events, allowing you to work with events similarly but with added benefits and functionality. React elements handle events through camelCase syntax passed as functions, optimizing applications by leveraging synthetic events. For example, to handle a click event:\n\n```javascript\nfunction handleClick() {\n  alert('Button clicked!');\n}\n\n<button onClick={handleClick}>Click Me</button>\n```\n\nThis structure makes it easy to add dynamic behavior to elements without manually attaching events through the DOM API. A common pitfall is not considering the asynchronous nature of React's synthetic events, which might retain values differently than expected post-event handling.",
+            "estMinutes": 10,
+            "questions": [
+              {
+                "id": "builtin-react-l6-s1-q1",
+                "type": "mcq",
+                "prompt": "How do you attach events in React?",
+                "options": [
+                  "Through event attributes, e.g., onclick.",
+                  "By using camelCase syntax with functions, e.g., onClick.",
+                  "Using external event libraries."
+                ],
+                "correctIndex": 1,
+                "explanation": "React employs camelCase syntax (e.g., onClick) for event handlers, alongside syntactic sugar over native events for consistent behaviors."
+              }
+            ]
           },
           {
             "id": "builtin-react-l6-s2",
             "type": "reading",
-            "title": "Decoding React Forms",
-            "markdown": "Forms in React require controlled components, where form data is handled by React component state. This model leverages the single source of truth within your UI, ensuring consistency between user inputs and displayed data. Consider a profile edit form: each field updates state values, reflecting immediately in the rendered content. A typical error is mismatching controlled and uncontrolled components, leading to potential data inconsistencies and unpredictable inputs. Also, neglecting the performance considerations of form rendering, like debouncing, can cause unnecessary re-renders and lag.",
-            "estMinutes": 6,
-            "questions": []
+            "title": "Controlled vs. Uncontrolled Components",
+            "markdown": "Forms can be a fundamental part of many applications, and React provides two ways to handle form data: controlled and uncontrolled components. **Controlled components** are those where form data is handled by the React component's state. For example:\n\n```javascript\nfunction MyForm() {\n  const [value, setValue] = useState('');\n  const handleChange = (e) => setValue(e.target.value);\n\n  return <input type=\"text\" value={value} onChange={handleChange} />;\n}\n```\n\nIn contrast, **uncontrolled components** rely on the DOM to manage form inputs, accessing the data with refs. Controlled components often provide more predictable data flows but can clutter components with state logic. Opt for controlled components to enhance validation and complex form management. However, uncontrolled components might be simpler for straightforward, less dynamic forms.",
+            "estMinutes": 12,
+            "questions": [
+              {
+                "id": "builtin-react-l6-s2-q1",
+                "type": "mcq",
+                "prompt": "What differentiates controlled from uncontrolled components in React forms?",
+                "options": [
+                  "Controlled forms use refs, while uncontrolled rely on state.",
+                  "Controlled components handle form data via state. Uncontrolled through refs.",
+                  "Both managed using the same approach."
+                ],
+                "correctIndex": 1,
+                "explanation": "Controlled components use state for managing form data, giving more control over the user's input compared to uncontrolled which rely on the DOM."
+              }
+            ]
           },
           {
             "id": "builtin-react-l6-s3",
             "type": "code",
-            "title": "Implementing Conditional Logic and Forms",
-            "markdown": "```javascript\nimport React, { useState } from 'react';\nfunction LoginForm() {\n  const [isLoggedIn, setIsLoggedIn] = useState(false);\n  const [username, setUsername] = useState('');\n  const handleLogin = () => setIsLoggedIn(true);\n  return isLoggedIn ? (\n    <h1>Welcome, {username}!</h1>\n  ) : (\n    <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>\n      <input\n        type=\"text\"\n        value={username}\n        onChange={(e) => setUsername(e.target.value)}\n        placeholder=\"Enter username\"\n      />\n      <button type=\"submit\">Login</button>\n    </form>\n  );\n}\nexport default LoginForm;\n```\nThis `LoginForm` component demonstrates conditionally rendering the login form or a welcome message based on user actions.",
+            "title": "Form Handling in Practical",
+            "markdown": "Here's how to build a simple form using controlled components in React:\n\n```javascript\nimport React, { useState } from 'react';\n\nfunction SignupForm() {\n  const [email, setEmail] = useState('');\n\n  const handleSubmit = (event) => {\n    event.preventDefault();\n    console.log(`Email submitted: ${email}`);\n  };\n\n  return (\n    <form onSubmit={handleSubmit}>\n      <label>\n        Email:\n        <input type=\"email\" value={email} onChange={(e) => setEmail(e.target.value)} />\n      </label>\n      <button type=\"submit\">Sign Up</button>\n    </form>\n  );\n}\n```\n\nThis example captures user input through the email state and handles form submission with a controlled input. Ensure to prevent default browser behavior during submissions to control form processing fully.",
             "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-react-l6-s4",
             "type": "practice",
-            "title": "Implement Form Validation Logic",
-            "markdown": "Enhance the `LoginForm` by adding simple validation logic that requires users to enter at least 5 characters in the username before enabling the login button.",
-            "estMinutes": 6,
+            "title": "Form and Event Practice",
+            "markdown": "Build a login form using controlled components. Capture username and password inputs and log them to the console on form submission.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-react-l6-s5",
             "type": "quiz",
-            "title": "Quiz on Conditional Rendering and Forms",
-            "markdown": "",
+            "title": "Events and Forms Quiz",
+            "markdown": "Demonstrate your knowledge of event handling and form management by answering the following.",
             "estMinutes": 5,
             "questions": [
               {
                 "id": "builtin-react-l6-s5-q1",
                 "type": "mcq",
-                "prompt": "When should conditional rendering be used in React?",
+                "prompt": "What is a benefit of using controlled components for handling form inputs?",
                 "options": [
-                  "Whenever a new component is created",
-                  "To decide whether to mount a React DOM",
-                  "To improve component rendering speed",
-                  "For rendering UI based on state/props conditions"
+                  "Less verbose codebase.",
+                  "Higher performance.",
+                  "Simplified integrated validation and change control."
                 ],
-                "correctIndex": 3,
-                "explanation": "Conditional rendering enables dynamic display logic based on the component's current state or received props."
+                "correctIndex": 2,
+                "explanation": "Controlled components facilitate validation and state control by tying form elements to controlled React state, thus allowing more direct management of user inputs."
               },
               {
                 "id": "builtin-react-l6-s5-q2",
                 "type": "short_answer",
-                "prompt": "Why is using controlled components beneficial for form handling in React?",
-                "expectedAnswer": "It ensures that form data is managed by React's state, providing consistency and single source of truth.",
-                "explanation": "React and component state management permit seamless and predictable updates in UI, matching user inputs."
+                "prompt": "How can event handling be optimized in React for better performance?",
+                "expectedAnswer": "By using memoized callbacks (e.g., `useCallback`) and minimizing unnecessary state updates or re-renders in component trees.",
+                "explanation": ""
               }
             ]
           }
@@ -429,72 +580,72 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       {
         "id": "builtin-typescript-l1",
         "title": "Introduction to TypeScript",
-        "estMinutes": 45,
+        "estMinutes": 25,
+        "glossary": [
+          "TypeScript",
+          "JavaScript",
+          "type system",
+          "static typing"
+        ],
         "segments": [
           {
             "id": "builtin-typescript-l1-s1",
             "type": "reading",
-            "title": "Why TypeScript Matters",
-            "markdown": "As modern web applications grow in complexity, maintaining code quality becomes crucial. TypeScript is a typed superset of JavaScript that introduces static typing to catch errors early on in your development process. This can save countless hours spent debugging runtime errors. Imagine a scenario where you have a large codebase with functions expecting specific object properties. JavaScript won't warn you about a missing or incorrect property until execution, perhaps deep into a user interaction. TypeScript, on the other hand, checks these types for you during development, offering a layer of security that JavaScript lacks. A common pitfall when migrating to TypeScript is underestimating the initial learning curve, which can be steep if transitioning from untyped JavaScript. However, the benefits, especially in larger projects, are substantial.",
+            "title": "Why TypeScript?",
+            "markdown": "TypeScript is like a superhero sidekick for JavaScript that helps you catch bugs early, making your code more reliable and easier to understand. Unlike JavaScript, TypeScript introduces a type system that allows you to define data types in your code before you run it. This reduces runtime errors and clarifies how data should be handled.\n\nConsider a scenario where you sum two numbers in JavaScript: `function add(a, b) { return a + b; }`. If someone calls `add('2', '3')`, it would return `'23'` instead of `5` because JavaScript treats them as strings. With TypeScript, you can define the parameters as numbers, preventing incorrect usage: `function add(a: number, b: number): number { return a + b; }`.\n\nTypeScript is useful when you want to handle larger codebases where knowing what functions expect and return can prevent many misunderstandings and logic errors. A common pitfall is assuming TypeScript is only about types; it also offers modern JavaScript features, making your code future-ready!",
             "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-typescript-l1-s2",
             "type": "code",
-            "title": "Installing TypeScript",
-            "markdown": "```bash\n# To get started with TypeScript, you need to install it via npm.\n# Run the following command in your terminal:\nnpm install -g typescript\n\n# To verify the installation, check the TypeScript version:\ntsc --version\n\n# Once installed, you can compile a TS file like this:\ntsc myFile.ts\n# This command generates a JavaScript file, 'myFile.js', from 'myFile.ts'.\n```\n\nThe TypeScript compiler (tsc) is a command-line tool that converts TypeScript files into JavaScript. This step is essential, as browsers can't execute TypeScript directly. Be aware of the global installation (`-g`), which may require appropriate permissions on some systems.",
+            "title": "Setting Up TypeScript",
+            "markdown": "To start using TypeScript, you first need to install it. Use the following command to download TypeScript via npm, the Node package manager:\n\n```bash\nnpm install -g typescript\n```\n\nVerify the installation by running:\n\n```bash\ntsc --version\n```\n\nCreate a simple TypeScript file `app.ts`:\n\n```typescript\nfunction greet(name: string) {\n  console.log('Hello, ' + name + '!');\n}\ngreet('World');\n```\n\nCompile it to JavaScript using the TypeScript Compiler (`tsc`):\n\n```bash\ntsc app.ts\n```\n\nThis will generate an `app.js` file that can be run with Node.js or in any compatible JavaScript environment. Always remember that TypeScript must be compiled to JavaScript to run.",
             "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-typescript-l1-s3",
             "type": "reading",
-            "title": "TypeScript Basics",
-            "markdown": "TypeScript builds upon JavaScript by adding static types. This means you can define types for variables, function parameters, and return values. Consider this example:\n\n```typescript\nlet greeting: string = 'Hello, World!';\nfunction greet(name: string): string {\n  return `${greeting} ${name}`;\n}\nconsole.log(greet('Developer'));\n```\n\nIn this snippet, `greeting` is explicitly typed as a `string`, and the `greet` function both accepts a `string` and returns a `string`. This explicitness prevents passing an unintended type, such as a number or object, leading to potential errors. You'll often use TypeScript's typings to document and enforce the contracts of your functions and interfaces, thus promoting software robustness. A common mistake is ignoring type warnings, which negates the advantages TypeScript offers.",
-            "estMinutes": 7,
+            "title": "Basic Type Annotations",
+            "markdown": "TypeScript introduces type annotations, allowing you to explicitly declare the type of a variable. This reduces ambiguities in your code and helps catch errors early. For example, in JavaScript you might declare `let count = 5;`. In TypeScript, you can specify `let count: number = 5;`, which declares `count` as a `number`.\n\nType annotations aren't limited to simple data types like `number`, `string`, or `boolean`. You can annotate more complex types like arrays and objects. Consider this array: `let fruits: string[] = ['apple', 'banana'];`. This declaration ensures `fruits` is an array of strings and nothing else.\n\nUsing type annotations helps in understanding how variables and functions are used throughout the codebase. However, it's important to avoid over-annotating your code. Let TypeScript's ability to infer types from context reduce unnecessary annotations and keep your code clean and maintainable.",
+            "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-typescript-l1-s4",
             "type": "practice",
-            "title": "Your First TypeScript Program",
-            "markdown": "Create a `hello.ts` file that accepts a user's name as an argument and returns a greeting. Use TypeScript's type annotations to ensure the input is always a string and the output is as well. Compile and run it using the `tsc` command, and check if the greeting is correctly outputted.",
+            "title": "Annotate Variables Practice",
+            "markdown": "Declare a variable `username` that should be a string and a variable `age` that should be a number. Assign them appropriate values and output them using a console statement.",
             "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-typescript-l1-s5",
             "type": "quiz",
-            "title": "Checking Progress with a Quiz",
-            "markdown": "Test your understanding of TypeScript's basics and benefits.",
+            "title": "Checking Understanding",
+            "markdown": "Let's confirm your understanding of basic TypeScript concepts.",
             "estMinutes": 5,
             "questions": [
               {
                 "id": "builtin-typescript-l1-s5-q1",
                 "type": "mcq",
-                "prompt": "What is the primary purpose of TypeScript?",
+                "prompt": "What is a primary benefit of using TypeScript over JavaScript?",
                 "options": [
-                  "To replace JavaScript",
-                  "To add types and catches errors during development",
-                  "To add new syntax that isn't valid in JavaScript",
-                  "To run faster in the browser"
+                  "It runs faster in the browser.",
+                  "It provides static typing to catch errors early.",
+                  "It eliminates the need for a JavaScript engine.",
+                  "It allows you to write assembly code."
                 ],
                 "correctIndex": 1,
-                "explanation": "TypeScript adds static types to JavaScript, which helps catch errors during development."
+                "explanation": "The main advantage of TypeScript is static typing, which helps identify potential errors during development rather than at runtime."
               },
               {
                 "id": "builtin-typescript-l1-s5-q2",
-                "type": "mcq",
-                "prompt": "Which command compiles a TypeScript file?",
-                "options": [
-                  "compile-ts",
-                  "run-ts",
-                  "ts-compile",
-                  "tsc"
-                ],
-                "correctIndex": 3,
-                "explanation": "`tsc` is the TypeScript compiler command used to compile TypeScript files into JavaScript."
+                "type": "short_answer",
+                "prompt": "How does TypeScript help when working with larger codebases?",
+                "expectedAnswer": "TypeScript's type system adds clarity and reduces errors, making it easier to manage and understand complex codebases.",
+                "explanation": "In larger projects, knowing what data types to expect and return helps reduce misunderstandings and logic errors, enhances code maintainability."
               }
             ]
           }
@@ -502,67 +653,66 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-typescript-l2",
-        "title": "Understanding Type Annotations",
-        "estMinutes": 50,
+        "title": "Core TypeScript Types",
+        "estMinutes": 30,
+        "glossary": [
+          "number",
+          "string",
+          "boolean",
+          "array",
+          "tuple"
+        ],
         "segments": [
           {
             "id": "builtin-typescript-l2-s1",
             "type": "reading",
-            "title": "Diving into Type Annotations",
-            "markdown": "Type annotations are the foundation of TypeScript, providing the language with the ability to enforce types. They are akin to HTML tags for types, providing structure and rules for your code. Consider how valuable these annotations are when dealing with function parameters and return values. For example:\n\n```typescript\nfunction add(a: number, b: number): number {\n  return a + b;\n}\n```\n\nHere, TypeScript ensures that both `a` and `b` are numbers, making errors from unexpected values a thing of the past. This type safety proves invaluable, especially in large teams where codebases often become unwieldy. However, one common pitfall is assuming type inference can always guess the right type—being explicit is often the safer bet.",
-            "estMinutes": 7,
+            "title": "Numbers, Strings, and Booleans",
+            "markdown": "Let's explore the primitive types available in TypeScript: numbers, strings, and booleans.\n\n`number` in TypeScript is a data type used for both integer and floating-point values. It behaves similarly to the number type in JavaScript. For example, `let height: number = 5.7;`.\n\n`string` is used to represent text. You can use single, double, or backticks (template literals) to denote strings. For instance, `let message: string = 'Hello, TypeScript!';` ensures that `message` will always be a text value.\n\n`boolean` represents logical entities and can have two values: `true` or `false`. A typical case of using booleans is handling conditions: `let isActive: boolean = true;`. TypeScript's strict type checking helps avoid pitfalls like mistakenly assigning a number to a boolean variable, which can occur in JavaScript without errors.",
+            "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-typescript-l2-s2",
             "type": "reading",
-            "title": "Type Inference",
-            "markdown": "TypeScript doesn't always require explicit type annotations thanks to its powerful type inference capabilities. This means TypeScript can automatically determine the type of a variable based on its initial value. For instance:\n\n```typescript\nlet count = 10;\n```\n\nIn this case, TypeScript infers that `count` is a number. While this can speed up development, beware: combining inferred types with explicit any uses (`let item: any`) may lead to unintentional type relaxation, undercutting TypeScript's benefits. When should you use type inference? Only in situations where the inferred type is clear and doesn't result from a complex expression or operation.",
-            "estMinutes": 5,
-            "questions": []
-          },
-          {
-            "id": "builtin-typescript-l2-s3",
-            "type": "code",
-            "title": "Defining Complex Types",
-            "markdown": "```typescript\n// Using type annotations for objects\ninterface User {\n  name: string;\n  age: number;\n  isDeveloper: boolean;\n}\n\n// Function using the User interface\ntype UserPrinter = (user: User) => void;\n\nconst printUserInfo: UserPrinter = (user) => {\n  console.log(`Name: ${user.name}, Age: ${user.age}, Developer: ${user.isDeveloper}`);\n};\n\nconst newUser: User = { name: 'John Doe', age: 25, isDeveloper: true };\nprintUserInfo(newUser);\n```\n\nIn this example, we define a `User` interface and a function `printUserInfo` that enforces the `User` interface's structure. This strong typing brings clarity and consistency to your code. Remember to keep your interfaces updated with codebase changes to prevent mismatches.",
-            "estMinutes": 10,
-            "questions": []
-          },
-          {
-            "id": "builtin-typescript-l2-s4",
-            "type": "practice",
-            "title": "Working with Type Annotations",
-            "markdown": "Define a `Product` interface with properties such as `name`, `price`, and `inStock` (a boolean). Then create a function that prints these details in the console. Use the interface to ensure type safety.",
+            "title": "Working with Arrays and Tuples",
+            "markdown": "Arrays in TypeScript are used to store multiple values of the same type. Declare arrays using the type followed by `[]`, such as `let scores: number[] = [95, 85, 76];`. This ensures every element in `scores` is a `number`.\n\nFor more complex scenarios, TypeScript supports tuples, which are arrays with a fixed number of elements whose types are known. For example, `let user: [string, number] = ['Alice', 30];` ensures the first element is a string and the second is a number. Tuples are especially useful when you want a function to return multiple values of specific types.\n\nA common pitfall is to assume arrays and tuples can be used interchangeably. Tuples are strict in element order and type, whereas arrays are flexible but less strictly typed, even when you specify a type for the array elements.",
             "estMinutes": 8,
             "questions": []
           },
           {
-            "id": "builtin-typescript-l2-s5",
+            "id": "builtin-typescript-l2-s3",
+            "type": "practice",
+            "title": "Define Your Data Practice",
+            "markdown": "Create a tuple named `person` that holds a `string` representing a name and a `number` representing an age. Then, create an array `tasks` with three string values representing task names you're working on.",
+            "estMinutes": 6,
+            "questions": []
+          },
+          {
+            "id": "builtin-typescript-l2-s4",
             "type": "quiz",
-            "title": "Quiz on Type Annotations",
-            "markdown": "Test your knowledge of type annotations and related concepts.",
-            "estMinutes": 5,
+            "title": "Advanced Types Quiz",
+            "markdown": "Let's test your understanding of TypeScript's core types.",
+            "estMinutes": 8,
             "questions": [
               {
-                "id": "builtin-typescript-l2-s5-q1",
-                "type": "short_answer",
-                "prompt": "Why is type inference beneficial when writing TypeScript code?",
-                "expectedAnswer": "Type inference allows TypeScript to automatically determine the type of a variable, reducing the need for explicit annotations and speeding up development.",
-                "explanation": "Type inference saves time by automatically determining types, but should be used cautiously to ensure code clarity."
+                "id": "builtin-typescript-l2-s4-q1",
+                "type": "mcq",
+                "prompt": "Which of the following statements correctly declares a tuple in TypeScript?",
+                "options": [
+                  "`let data = [20, 'John']`",
+                  "`let data: [number, string] = [20, 'John']`",
+                  "`let data: array = [20, 'John']`",
+                  "`let data: {age: number, name: string} = {20, 'John'}`"
+                ],
+                "correctIndex": 1,
+                "explanation": "The correct syntax for declaring a tuple in TypeScript specifies the types for each element in brackets."
               },
               {
-                "id": "builtin-typescript-l2-s5-q2",
-                "type": "mcq",
-                "prompt": "Which of these is NOT a valid TypeScript type annotation?",
-                "options": [
-                  "number",
-                  "boolean",
-                  "void",
-                  "integer"
-                ],
-                "correctIndex": 3,
-                "explanation": "TypeScript does not have a specific 'integer' type; 'number' is used for all numeric values."
+                "id": "builtin-typescript-l2-s4-q2",
+                "type": "short_answer",
+                "prompt": "Why would you use a tuple instead of an array?",
+                "expectedAnswer": "Tuples define a fixed number of elements with specific types, ensuring better structure and type safety when mixing different data types.",
+                "explanation": "Tuples provide more precise control and type safety, especially when you know the number of elements and their types ahead of time."
               }
             ]
           }
@@ -570,67 +720,65 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-typescript-l3",
-        "title": "Advanced TypeScript Features",
-        "estMinutes": 60,
+        "title": "Functions in TypeScript",
+        "estMinutes": 30,
+        "glossary": [
+          "function",
+          "parameter",
+          "return type",
+          "optional parameter"
+        ],
         "segments": [
           {
             "id": "builtin-typescript-l3-s1",
             "type": "reading",
-            "title": "Union and Intersection Types",
-            "markdown": "Union types allow you to work with a variable that can contain more than one type. This is useful when you have a function that can accept multiple data types. For example:\n\n```typescript\ntype NumberOrString = number | string;\n\nfunction printId(id: NumberOrString) {\n  if (typeof id === 'string') {\n    console.log(`ID is a string: ${id.toUpperCase()}`);\n  } else {\n    console.log(`ID is a number: ${id.toFixed(2)}`);\n  }\n}\n```\n\nIntersection types, on the other hand, are used to combine multiple types into one. They are helpful for composing interfaces:\n\n```typescript\ntype Auditable = { auditTimestamp: Date };\ntype UserAudit = User & Auditable;\n```\n\nIn this combined type, you ensure that all UserAudit objects carry the properties of both `User` and `Auditable`. A common mistake is using unions when intersections are required, which can lead to unexpected type errors or loss of required properties.",
-            "estMinutes": 8,
+            "title": "Function Syntax and Return Types",
+            "markdown": "Functions in TypeScript let us bundle scripts into manageable modules. They begin with the `function` keyword, followed by a name, parameters, and a return type. Consider `function add(a: number, b: number): number { return a + b; }`. This indicates that `add` accepts two numbers and returns a number.\n\nSpecifying a return type is crucial for ensuring the function behaves as expected and can help prevent bugs if a different type is returned. TypeScript will trigger an error if you try to return, say, a string.\n\nNeglecting to declare a return type makes TypeScript infer it, which might not always align with your intention. It's a common pitfall to assume inferred types match your expectations, leading to bugs that are hard to track.",
+            "estMinutes": 6,
             "questions": []
           },
           {
             "id": "builtin-typescript-l3-s2",
             "type": "reading",
-            "title": "Generics in TypeScript",
-            "markdown": "Generics allow types to be parameters in TypeScript, promoting reusability in scenarios where the exact type might not be determined until runtime. Think of them as placeholders for types, similar to how function parameters stand in for values.\n\n```typescript\nfunction identity<T>(arg: T): T {\n  return arg;\n}\n\nlet output1 = identity<string>('Hello');\nlet output2 = identity<number>(42);\n```\n\nIn this example, `identity` is a generic function that can operate on any type `T`, with the specific type provided at the call time. This flexibility allows for building robust, adaptable functions without sacrificing type safety. However, overusing generics when unnecessary can lead to convoluted code and diminished readability.",
-            "estMinutes": 7,
+            "title": "Optional and Default Parameters",
+            "markdown": "TypeScript enhances function definition by allowing optional and default parameters. Optional parameters are specified with a `?`, indicating they might be omitted. `function greet(name: string, salutation?: string) {}` lets `salutation` be optional.\n\nDefault parameters allow the specification of a default value if one isn't provided. For example, `function greet(name: string, salutation: string = 'Hi') {}` uses `'Hi'` if no `salutation` is given. This is particularly useful for functions that should behave predictably even when not fully defined by the caller.\n\nA common pitfall is incorrectly ordering parameters, placing a non-optional parameter after an optional one, which leads to syntax errors. Always place optional parameters after required ones.",
+            "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-typescript-l3-s3",
-            "type": "code",
-            "title": "Using TypeScript Generics",
-            "markdown": "```typescript\n// A generic class implementing a stack\nclass Stack<T> {\n  private items: T[] = [];\n\n  push(item: T) {\n    this.items.push(item);\n  }\n\n  pop(): T | undefined {\n    return this.items.pop();\n  }\n\n  peek(): T | undefined {\n    return this.items[this.items.length - 1];\n  }\n}\n\nconst numberStack = new Stack<number>();\nnumberStack.push(10);\nconsole.log(numberStack.peek()); // Outputs: 10\nnumberStack.pop();\n\nconst stringStack = new Stack<string>();\nstringStack.push('TypeScript');\nconsole.log(stringStack.peek()); // Outputs: 'TypeScript'\n```\n\nThis example shows a `Stack` class that operates on any type `T`, enabling reusability. Be sure to use generics where they add value, not just for the sake of using them.",
-            "estMinutes": 10,
+            "type": "practice",
+            "title": "Building a Greeter Practice",
+            "markdown": "Create a `greet` function that takes a `name` as a `string` and an optional `greeting` as a `string`, defaulting to `'Hello'`, and returns a personalized greeting message.",
+            "estMinutes": 6,
             "questions": []
           },
           {
             "id": "builtin-typescript-l3-s4",
-            "type": "practice",
-            "title": "Applying Advanced Features",
-            "markdown": "Create a TypeScript utility function `filterByPropertyValue<T>` that filters an array of objects by a specified property value. Make sure the function is flexible enough to handle objects with various structures by using generics and possibly unions.",
-            "estMinutes": 10,
-            "questions": []
-          },
-          {
-            "id": "builtin-typescript-l3-s5",
             "type": "quiz",
-            "title": "Quiz on Advanced TypeScript Features",
-            "markdown": "Let's see how well you've understood concepts about advanced TypeScript features.",
-            "estMinutes": 5,
+            "title": "Function Quiz",
+            "markdown": "Review your knowledge of TypeScript functions and their parameters.",
+            "estMinutes": 10,
             "questions": [
               {
-                "id": "builtin-typescript-l3-s5-q1",
+                "id": "builtin-typescript-l3-s4-q1",
                 "type": "mcq",
-                "prompt": "Which feature allows you to create flexible interfaces by combining multiple types?",
+                "prompt": "What would happen if you placed a non-optional parameter after an optional parameter?",
                 "options": [
-                  "Union Types",
-                  "Intersection Types",
-                  "Generics",
-                  "Type Aliases"
+                  "It will run without errors.",
+                  "TypeScript will throw a syntax error.",
+                  "The non-optional parameter becomes optional.",
+                  "TypeScript automatically reorders the parameters."
                 ],
                 "correctIndex": 1,
-                "explanation": "Intersection types allow combining multiple types into one, which is useful for composing complex types or interfaces."
+                "explanation": "Optional parameters must always be placed after required ones, otherwise TypeScript will produce a syntax error."
               },
               {
-                "id": "builtin-typescript-l3-s5-q2",
+                "id": "builtin-typescript-l3-s4-q2",
                 "type": "short_answer",
-                "prompt": "When should generics be used in TypeScript?",
-                "expectedAnswer": "Generics should be used when creating code that can work with any data type, allowing for maximum code reuse and flexibility while maintaining type safety.",
-                "explanation": "Generics are best used when you need a function or class to work with multiple, unspecified types, keeping the code flexible yet type safe."
+                "prompt": "How can optional parameters improve function usability?",
+                "expectedAnswer": "They allow for function calls with fewer arguments while maintaining flexibility and backward compatibility.",
+                "explanation": "Optional parameters simplify function calls when not all arguments are needed, enhancing usability and code safety."
               }
             ]
           }
@@ -638,67 +786,65 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-typescript-l4",
-        "title": "Mastering TypeScript with Real-World Patterns",
-        "estMinutes": 55,
+        "title": "Interfaces and Type Aliases",
+        "estMinutes": 30,
+        "glossary": [
+          "interface",
+          "type alias",
+          "object type",
+          "extending interfaces"
+        ],
         "segments": [
           {
             "id": "builtin-typescript-l4-s1",
             "type": "reading",
-            "title": "Understanding Type Guards",
-            "markdown": "A significant feature in TypeScript is type guards, which are functions or expressions that perform runtime checks to determine a value's type. This helps ensure that a piece of code executes only if its type is correct. Take this example:\n\n```typescript\nfunction isNumber(value: any): value is number {\n  return typeof value === 'number';\n}\n\nfunction process(value: number | string) {\n  if (isNumber(value)) {\n    console.log(value.toFixed(2)); // Safe to call since value is a number\n  } else {\n    console.log(value.toUpperCase());\n  }\n}\n```\n\nHere, `isNumber` acts as a guard, securely narrowing down the type of `value`. Be watchful when using type assertions (`as`) without checks, as they can lead you to ignore potential errors.",
+            "title": "Defining and Using Interfaces",
+            "markdown": "Interfaces in TypeScript are contracts for objects, defining what data structure they must have. They assist in creating consistent object shapes, which is particularly useful when working with large datasets or ensuring objects passed to functions adhere to expected formats.\n\nDefine an interface with `interface`, followed by its name and structure: `interface User { name: string; age: number; }`. An object must match this structure to comply: `let user: User = { name: 'Bob', age: 25 };`.\n\nUsing interfaces ensures maintainability and reduces errors by enforcing object conformity. A common pitfall is trying to add properties to an object that don't exist in the interface. TypeScript will flag such attempts as errors.",
             "estMinutes": 6,
             "questions": []
           },
           {
             "id": "builtin-typescript-l4-s2",
             "type": "reading",
-            "title": "Decorators in TypeScript",
-            "markdown": "Decorators are a feature in TypeScript that provide a way to add annotations and meta-programming syntax for class declarations and members. These are essentially functions called on classes, methods, or properties to modify their behavior or add additional functionality at runtime. For instance:\n\n```typescript\nfunction logConstructor(constructor: Function) {\n  console.log(`Constructor: ${constructor.name}`);\n}\n\n@logConstructor\nclass Car {\n  constructor() {\n    console.log('Car instance created.');\n  }\n}\n\nconst myCar = new Car();\n// Outputs:\n// Constructor: Car\n// Car instance created.\n```\n\nDecorators are useful when used to extend libraries or frameworks dynamically. However, using them without a clear understanding can make code difficult to read and debug, so use them judiciously and where benefits significantly outweigh drawbacks.",
+            "title": "Types vs. Interfaces",
+            "markdown": "While both interfaces and type aliases can describe object shapes, they have some differences. A `type alias` introduces new names for existing types, useful for unions or when you need more control over types: `type ID = string | number;`.\n\nInterfaces, however, are ideal for defining the shape of objects, especially when you need to leverage features like extending (inheriting properties from other interfaces). For example: `interface Employee extends User { position: string; }`. This example demonstrates interface extension, allowing code reuse and easier refactoring.\n\nA common mistake is using type aliases when an interface would be more appropriate, especially when extending types. Interfaces are preferred when you plan to build a more hierarchical structure.",
             "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-typescript-l4-s3",
-            "type": "code",
-            "title": "Creating and Using Type Guards",
-            "markdown": "```typescript\ninterface Bird {\n  fly(): void;\n  layEggs(): void;\n}\n\ninterface Fish {\n  swim(): void;\n  layEggs(): void;\n}\n\nfunction getSmallPet(): Bird | Fish {\n  // Imagine fetching from a complex logic or API\n  return Math.random() > 0.5 ? { fly: () => {}, layEggs: () => {} } : { swim: () => {}, layEggs: () => {} };\n}\n\nlet pet = getSmallPet();\n\nfunction isBird(pet: Bird | Fish): pet is Bird {\n  return (pet as Bird).fly !== undefined;\n}\n\nif (isBird(pet)) {\n  pet.fly();\n} else {\n  pet.swim();\n}\n```\n\nThis code demonstrates how to safely distinguish between `Bird` and `Fish` using a type guard. This ensures that each time we call methods like `fly()` or `swim()`, we confirm the method exists. This proactive checking avoids runtime errors.",
-            "estMinutes": 10,
+            "type": "practice",
+            "title": "Design a User Object Practice",
+            "markdown": "Define an `interface` named `Product` that contains properties `id: number`, `name: string`, and `price: number`. Then create an object `exampleProduct` that satisfies this interface and assign appropriate values.",
+            "estMinutes": 6,
             "questions": []
           },
           {
             "id": "builtin-typescript-l4-s4",
-            "type": "practice",
-            "title": "Applying Patterns to Solve Problems",
-            "markdown": "Create a function `isPalindrome` that checks if a string or number is a palindrome. Use type guards to ensure that the input is processed correctly based on its type. Ensure your solution is both efficient and readable.",
-            "estMinutes": 12,
-            "questions": []
-          },
-          {
-            "id": "builtin-typescript-l4-s5",
             "type": "quiz",
-            "title": "Quiz on Type Guards and Decorators",
-            "markdown": "Check your comprehension of TypeScript's real-world patterns with these questions.",
-            "estMinutes": 5,
+            "title": "Interface and Type Quiz",
+            "markdown": "Let's solidify your understanding of interfaces and type aliases.",
+            "estMinutes": 10,
             "questions": [
               {
-                "id": "builtin-typescript-l4-s5-q1",
-                "type": "short_answer",
-                "prompt": "What is a key advantage of using type guards in TypeScript?",
-                "expectedAnswer": "Type guards ensure that operations on a variable are safe by checking its specific type at runtime, preventing type errors.",
-                "explanation": "By confirming types at runtime, type guards ensure that subsequent operations on the variable are valid and will not cause errors."
+                "id": "builtin-typescript-l4-s4-q1",
+                "type": "mcq",
+                "prompt": "Which statement best describes interfaces in TypeScript?",
+                "options": [
+                  "Interfaces can only be used with primitive data types.",
+                  "Interfaces are used to define the structure of objects.",
+                  "Interfaces cannot extend other interfaces.",
+                  "Interfaces are a type of class."
+                ],
+                "correctIndex": 1,
+                "explanation": "Interfaces define the structure of objects by specifying the properties and types they must have."
               },
               {
-                "id": "builtin-typescript-l4-s5-q2",
-                "type": "mcq",
-                "prompt": "Which of these lines correctly describes a decorator's role in TypeScript?",
-                "options": [
-                  "A decorator is used to strictly type variables.",
-                  "A decorator is designed to change variable values at runtime.",
-                  "A decorator provides a way to add annotations and modify behavior for classes and their members.",
-                  "A decorator helps with compiling TypeScript to JavaScript quicker."
-                ],
-                "correctIndex": 2,
-                "explanation": "Decorators provide annotations and meta-programming capabilities, typically to augment or alter classes and their behaviors at runtime."
+                "id": "builtin-typescript-l4-s4-q2",
+                "type": "short_answer",
+                "prompt": "Why might you choose an interface over a type alias?",
+                "expectedAnswer": "Interfaces offer more flexibility with object-oriented features like extension, making them ideal for defining object shapes and building hierarchies.",
+                "explanation": "Interfaces allow for extending, which lets you build upon existing structures, fostering reusable and maintainable code."
               }
             ]
           }
@@ -706,67 +852,65 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-typescript-l5",
-        "title": "Handling Modules and Namespaces",
-        "estMinutes": 50,
+        "title": "Advanced TypeScript: Generics and Enums",
+        "estMinutes": 35,
+        "glossary": [
+          "generics",
+          "enum",
+          "type safety",
+          "reusable code"
+        ],
         "segments": [
           {
             "id": "builtin-typescript-l5-s1",
             "type": "reading",
-            "title": "Using Modules in TypeScript",
-            "markdown": "Modules are a key part of TypeScript that organizes code into reusable units. They enable encapsulation and controlled export of functionality, promoting cleaner architecture especially in large-scale applications. A simple module might look like this:\n\n```typescript\n// mathUtils.ts\nexport function add(a: number, b: number): number {\n  return a + b;\n}\n\n// usage.ts\nimport { add } from './mathUtils';\nconsole.log(add(2, 3)); // Outputs: 5\n```\n\nHere, `add` is defined in `mathUtils.ts` and imported into another file for use. This separation promotes better organization and ensures that modules expose only the necessary parts of their functionality. Watch out for circular dependencies, which can cause modules to fail loading or behave unpredictably.",
+            "title": "Understanding Generics",
+            "markdown": "Generics are a powerful feature in TypeScript that enables you to write flexible, reusable functions and components. They allow you to define a function or a class with one or more placeholder types, known as `T`, enabling you to work with any type while retaining type safety.\n\nConsider a function that returns the first element of an array: `function firstElement<T>(arr: T[]): T { return arr[0]; }`. Here, `T` is a generic type that adapts to the type of array elements, ensuring that the function safely returns the correct type.\n\nGenerics enhance code flexibility and reduce redundancy but can be overused. Avoid making code overly complex with unnecessary generic parameters, which can reduce readability. Keep things simple for maximum maintainability.",
             "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-typescript-l5-s2",
             "type": "reading",
-            "title": "Understanding Namespaces",
-            "markdown": "Namespaces were originally a solution to the lack of native support for modules in JavaScript before ES6. They wrap code in a single scope, lessening the likelihood of naming collisions in your codebase.\n\n```typescript\nnamespace MyMath {\n  const PI = 3.14;\n\n  export function circleArea(radius: number): number {\n    return PI * radius * radius;\n  }\n}\n\nconsole.log(MyMath.circleArea(5)); // Outputs: 78.5\n```\n\nNamespaces are wrapped in the `namespace` keyword and sub-divided using dots (`.`) to form a hierarchy. They provide a structured way to bundle related functionalities together, though in modern TypeScript, ES6 modules are preferred for their broader compatibility across environments.",
-            "estMinutes": 7,
+            "title": "Working with Enums",
+            "markdown": "Enums in TypeScript provide a way to define a collection of related values that can be referenced by names, enhancing code clarity. This is particularly useful for managing constants and known sets of options, like days of the week or status codes.\n\nDefine enums using the `enum` keyword. For instance, `enum Direction { Up, Down, Left, Right }`, creates a set of named constants that are automatically assigned numeric values starting from `0`. You can also set explicit values: `enum Status { Success = 200, NotFound = 404 }`.\n\nEnums improve maintainability and prevent typos when using hardcoded strings or numbers. However, they add overhead compared to using simple constants or objects, so use them when the named set approach adds real value.",
+            "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-typescript-l5-s3",
-            "type": "code",
-            "title": "Implementing Modules",
-            "markdown": "```typescript\n// module1.ts\nexport class User {\n  constructor(public name: string) {}\n}\n\n// module2.ts\nimport { User } from './module1';\n\nconst user = new User('Alice');\nconsole.log(user.name);\n\n// Compile and run\n// tsc --module commonjs module1.ts module2.ts\n// node module2.js\n```\n\nThis code shows how to modularize with class exports and imports. Use modules to separate concerns and maintain organized, readable code—especially important as projects grow in size.",
-            "estMinutes": 10,
+            "type": "practice",
+            "title": "Creating a Filter Function Practice",
+            "markdown": "Write a generic function `filterItems` that takes an array and a callback function. The callback should determine whether an item should be kept in the array.",
+            "estMinutes": 7,
             "questions": []
           },
           {
             "id": "builtin-typescript-l5-s4",
-            "type": "practice",
-            "title": "Practice with Modules and Namespaces",
-            "markdown": "Create a set of calculator functions within a namespace to perform basic operations like add, subtract, multiply, and divide. Later, refactor it into modules using ES6 import/export syntax, and compare both for maintainability and usability.",
-            "estMinutes": 10,
-            "questions": []
-          },
-          {
-            "id": "builtin-typescript-l5-s5",
             "type": "quiz",
-            "title": "Quiz on Modules and Namespaces",
-            "markdown": "Check your understanding of modules and namespaces in TypeScript.",
-            "estMinutes": 5,
+            "title": "Generics and Enums Quiz",
+            "markdown": "Test your knowledge on generics and enums in TypeScript.",
+            "estMinutes": 12,
             "questions": [
               {
-                "id": "builtin-typescript-l5-s5-q1",
-                "type": "short_answer",
-                "prompt": "Why might you prefer using modules over namespaces in TypeScript?",
-                "expectedAnswer": "Modules align with ES6 standards and are supported natively in modern JavaScript environments, promoting compatibility and flexibility.",
-                "explanation": "Modules offer better integration and compatibility in various JavaScript environments, whereas namespaces are more of a TypeScript-specific solution."
-              },
-              {
-                "id": "builtin-typescript-l5-s5-q2",
+                "id": "builtin-typescript-l5-s4-q1",
                 "type": "mcq",
-                "prompt": "What is a potential problem when using modules?",
+                "prompt": "Why are generics useful in TypeScript?",
                 "options": [
-                  "Increased code duplication",
-                  "Circular dependencies",
-                  "Harder to maintain code",
-                  "Lack of privacy for internal logic"
+                  "They allow for dynamic variable declaration.",
+                  "Generics provide type safety while creating flexible and reusable code components.",
+                  "They are useful for inline documentation.",
+                  "Generics increase the speed of JavaScript code execution."
                 ],
                 "correctIndex": 1,
-                "explanation": "Circular dependencies can lead to issues in module loading and behavior, as each module is waiting on the other to complete."
+                "explanation": "Generics provide a way to create components that can work with different data types while ensuring type safety, enhancing reusability and robustness."
+              },
+              {
+                "id": "builtin-typescript-l5-s4-q2",
+                "type": "short_answer",
+                "prompt": "Give an example scenario where enums are preferable over plain constants.",
+                "expectedAnswer": "When you have a set of related values that will be reused across the codebase, such as HTTP status codes or navigation directions, enums provide clear and maintainable naming.",
+                "explanation": "Enums organize related constant values under a single entity, making them easier to manage and understand than isolating constants or using numbers directly."
               }
             ]
           }
@@ -774,69 +918,46 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-typescript-l6",
-        "title": "Mastering Asynchronous Programming with TypeScript",
-        "estMinutes": 60,
+        "title": "TypeScript and Object-Oriented Programming",
+        "estMinutes": 40,
+        "glossary": [
+          "class",
+          "inheritance",
+          "encapsulation",
+          "constructor"
+        ],
         "segments": [
           {
             "id": "builtin-typescript-l6-s1",
             "type": "reading",
-            "title": "Understanding Promises",
-            "markdown": "Promises are a cornerstone of asynchronous programming in JavaScript and TypeScript, providing a way to execute code asynchronously and handle resultant values or errors once available. They represent a value that will be resolved in the future. Consider the basic promise example:\n\n```typescript\nfunction fetchData(): Promise<string> {\n  return new Promise((resolve, reject) => {\n    setTimeout(() => resolve('Data fetched'), 1000);\n  });\n}\n\nfetchData().then(data => console.log(data)).catch(error => console.error(error));\n```\n\nIn this snippet, `fetchData` returns a Promise that resolves with a string after a delay, while a `.then()` method processes the result once available. Promises mitigate callback hell by providing a more readable chain of events and are indispensable in handling data that doesn't have immediate return—such as fetching from a network. A trap to avoid: unhandled promise rejections, which can hide errors in your async flow.",
-            "estMinutes": 8,
+            "title": "Class Basics and Constructors",
+            "markdown": "Classes in TypeScript provide a neat way to create objects with defined properties and methods. They allow the use of constructors—special methods automatically invoked during an object's instantiation—to initialize new objects.\n\nConsider a class `Car` with a constructor to assign `make` and `year`: \n\n```typescript\nclass Car {\n  make: string;\n  year: number;\n\n  constructor(make: string, year: number) {\n    this.make = make;\n    this.year = year;\n  }\n}\n```\n\nUse `new Car('Toyota', 2020)` to create an instance. Constructors guarantee that any required properties are set during object creation.\n\nA common pitfall is forgetting to declare properties in the class body before initializing them in the constructor. TypeScript will throw an error if properties aren't declared.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-typescript-l6-s2",
             "type": "reading",
-            "title": "Async/Await Pattern",
-            "markdown": "The async/await syntax offers a more readable, synchronous-looking means of writing asynchronous code. The `async` keyword declares an async function that returns a promise, while the `await` keyword pauses execution of the function until the promise resolves.\n\n```typescript\nasync function fetchData(): Promise<void> {\n  try {\n    const data = await new Promise<string>((resolve) => {\n      setTimeout(() => resolve('Data fetched'), 1000);\n    });\n    console.log(data);\n  } catch (error) {\n    console.error('Error:', error);\n  }\n}\n\nfetchData();\n```\n\nIn this example, `await` manages the asynchronous operation without the typedef chain of `then` and `catch`, simplifying flow control and reducing error handling complexity. Although async/await makes code cleaner, remember it can only be used inside `async` functions, a restriction that can complicate deeply nested asynchronous logic.",
-            "estMinutes": 7,
+            "title": "Inheritance and Extending Classes",
+            "markdown": "Inheritance is a key concept in OOP allowing one class (the subclass) to inherit features from another (the superclass). This encourages code reuse and more organized code structures. In TypeScript, inheritance is denoted by the `extends` keyword.\n\nLet's extend a `Vehicle` class:\n\n```typescript\nclass Vehicle {\n  wheels: number;\n\n  constructor(wheels: number) {\n    this.wheels = wheels;\n  }\n}\n\nclass Bike extends Vehicle {\n  constructor() {\n    super(2); // Calls the parent constructor\n  }\n}\n```\n\n`Bike` inherits all properties and methods from `Vehicle`. It's important to remember the use of `super()` to call the parent's constructor when extending, as omitting it can lead to runtime errors.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-typescript-l6-s3",
-            "type": "code",
-            "title": "Working with Promises and Async Functions",
-            "markdown": "```typescript\n// Simple example using async/await to fetch data\nasync function fetchApiData(url: string): Promise<void> {\n  try {\n    const response = await fetch(url);\n    if (!response.ok) {\n      throw new Error('Network response was not ok');\n    }\n    const data = await response.json();\n    console.log(data);\n  } catch (error) {\n    console.error('Fetch error:', error);\n  }\n}\n\n// Call the function with a sample URL\nfetchApiData('https://jsonplaceholder.typicode.com/todos/1');\n```\n\nThis code demonstrates fetching API data using async/await, enhancing readability over traditional promise chains. Be cautious about error handling—ensure all promises within async functions are handled to avoid unhandled rejections.",
-            "estMinutes": 12,
+            "type": "reading",
+            "title": "Encapsulation and Access Modifiers",
+            "markdown": "Encapsulation hides an object's internal state and only allows modification through methods. TypeScript supports encapsulation via access modifiers like `public`, `private`, and `protected`.\n\n- `public` is the default and allows access from anywhere.\n- `private` restricts access to within the declaring class, enforcing strict control over the class's internals.\n- `protected` is similar to private but allows access within the subclass.\n\nFor example:\n\n```typescript\nclass BankAccount {\n  private balance: number = 0;\n\n  deposit(amount: number) {\n    this.balance += amount;\n  }\n\n  getBalance(): number {\n    return this.balance;\n  }\n}\n```\n\nHere, `balance` can only be modified via `deposit`, preventing unwanted external modification. A common mistake is misusing access modifiers, inadvertently exposing private data.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-typescript-l6-s4",
             "type": "practice",
-            "title": "Async Code Review",
-            "markdown": "Write a function `getUserData(id: number)` that uses `fetch` to retrieve data from `https://jsonplaceholder.typicode.com/users/<id>`. Implement it using async/await, handle potential errors, and log the user information to the console.",
-            "estMinutes": 13,
+            "title": "Building a Class Practice",
+            "markdown": "Create a `Person` class that encapsulates attributes such as `name` and `age` with private access, and provide methods to retrieve these values. Include a constructor to initialize them.",
+            "estMinutes": 10,
             "questions": []
-          },
-          {
-            "id": "builtin-typescript-l6-s5",
-            "type": "quiz",
-            "title": "Quiz on Asynchronous Programming",
-            "markdown": "Verify your understanding of promises and async/await pattern with these questions.",
-            "estMinutes": 5,
-            "questions": [
-              {
-                "id": "builtin-typescript-l6-s5-q1",
-                "type": "short_answer",
-                "prompt": "What is the primary benefit of using async/await over traditional promise chains?",
-                "expectedAnswer": "Async/await offers clearer, more readable syntax for writing asynchronous code, reducing the complexity inherent in chaining promises.",
-                "explanation": "Async/await eliminates the need for multiple then/catch chains, making async code look synchronous for improved readability."
-              },
-              {
-                "id": "builtin-typescript-l6-s5-q2",
-                "type": "mcq",
-                "prompt": "Which of these statements about promises is false?",
-                "options": [
-                  "A promise can be completed once.",
-                  "Promises help prevent callback hell.",
-                  "Promises must always be resolved or rejected.",
-                  "You can await a promise outside an async function."
-                ],
-                "correctIndex": 3,
-                "explanation": "You cannot use `await` outside an `async` function; it results in a syntax error."
-              }
-            ]
           }
         ]
       }
@@ -850,50 +971,69 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       {
         "id": "builtin-nodejs-l1",
         "title": "Introduction to Node.js",
-        "estMinutes": 15,
+        "estMinutes": 40,
+        "glossary": [
+          "Node.js",
+          "JavaScript runtime",
+          "V8 engine"
+        ],
         "segments": [
           {
             "id": "builtin-nodejs-l1-s1",
             "type": "reading",
-            "title": "Why Node.js?",
-            "markdown": "Node.js has fundamentally changed the way developers approach building web servers and applications. As a platform built on Chrome's V8 JavaScript engine, Node.js enables developers to write server-side code using JavaScript, allowing a unified language across both client and server. This is particularly powerful, as it reduces the context-switching traditionally experienced when dealing with separate languages for server and client code. Moreover, Node.js offers non-blocking I/O operations, which leads to applications that are fast and scalable. By using Node.js, developers can handle numerous client connections concurrently without thread management overhead, making it an excellent choice for real-time applications like gaming dashboards or collaborative online tools. However, a common pitfall when beginning with Node.js is misunderstanding its asynchronous nature, leading to unexpected behaviors if not carefully managed.",
+            "title": "Node.js and Why It Matters",
+            "markdown": "Node.js has revolutionized how developers approach JavaScript, extending its use beyond the browser to server-side applications. This event-driven, non-blocking runtime allows developers to write scalable, high-performance applications. Unlike traditional models where a server needs to handle multiple threads for connections, Node.js uses a single-threaded model, handling many connections concurrently. This architecture is particularly beneficial for I/O-heavy applications. Consider how Netflix, PayPal, and LinkedIn enhance user experience with Node.js by simplifying their server architecture and improving performance. However, it's important to note that CPU-intensive tasks can block the event loop, significantly degrading performance. Therefore, it's crucial to evaluate the workload nature before opting for Node.js.",
             "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-nodejs-l1-s2",
             "type": "code",
-            "title": "Installing Node.js",
-            "markdown": "```bash\n# Install Node.js using Node Version Manager (NVM) for easier version control\ncurl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash\n# Load nvm and install the latest node version\nexport NVM_DIR=\"$([ -z \"${XDG_CONFIG_HOME-}\" ] && printf %s \"${HOME}/.nvm\" || printf %s \"${XDG_CONFIG_HOME}/nvm\")\"\n[ -s \"$NVM_DIR/nvm.sh\" ] && \\. \"$NVM_DIR/nvm.sh\"\n\nnvm install node # install latest node.js version\nnode -v # verify installation\n```\nInstalling Node.js via NVM is advantageous as it allows you to switch between different Node versions effortlessly. This flexibility is useful when working on projects with different Node.js requirements.",
-            "estMinutes": 5,
+            "title": "Setting Up a Node.js Environment",
+            "markdown": "To begin with Node.js, you'll need to set up a local Node environment. First, download and install Node.js from the official site. Once installed, verify your installation by running `node -v` in your terminal, which should output a version number. \n\nHere's a quick snippet to create and run a simple Node.js application:\n\n```javascript\n// hello.js\nconsole.log('Hello, Node.js!');\n```\n\nRun this script using the terminal by entering `node hello.js`. This straightforward example demonstrates Node's capability to execute JavaScript outside of a web browser.",
+            "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-nodejs-l1-s3",
+            "type": "practice",
+            "title": "Practice: Setting Up and Running a Node.js Script",
+            "markdown": "Create a new Node.js script that logs your favorite game to the console. Verify it by running the script from your terminal.",
+            "estMinutes": 10,
+            "questions": []
+          },
+          {
+            "id": "builtin-nodejs-l1-s4",
             "type": "quiz",
-            "title": "Quiz: Node.js Basics",
-            "markdown": "Check your understanding of the fundamental purposes of Node.js.",
-            "estMinutes": 5,
+            "title": "Checking Your Understanding",
+            "markdown": "Let's see how well you've grasped the basic concepts of Node.js.",
+            "estMinutes": 2,
             "questions": [
               {
-                "id": "builtin-nodejs-l1-s3-q1",
+                "id": "builtin-nodejs-l1-s4-q1",
                 "type": "mcq",
-                "prompt": "What makes Node.js ideal for real-time applications?",
+                "prompt": "What makes Node.js particularly suitable for I/O-heavy applications?",
                 "options": [
-                  "Synchronous I/O operations",
-                  "Blocking thread management",
-                  "Non-blocking I/O operations",
-                  "Built-in web server"
+                  "Node.js uses multiple threads for connections.",
+                  "It's an event-driven, non-blocking model.",
+                  "Node.js is single-threaded and synchronous.",
+                  "Node.js requires less server hardware."
                 ],
-                "correctIndex": 2,
-                "explanation": "Node.js utilizes non-blocking I/O operations, making it highly efficient for applications that require real-time updates."
+                "correctIndex": 1,
+                "explanation": "Node.js's non-blocking, event-driven model allows it to handle many I/O operations concurrently using a single thread."
               },
               {
-                "id": "builtin-nodejs-l1-s3-q2",
-                "type": "short_answer",
-                "prompt": "Explain why using Node Version Manager (NVM) is advantageous.",
-                "expectedAnswer": "NVM provides the ability to switch between different Node.js versions easily, which is beneficial when working on projects that have specific version dependencies.",
-                "explanation": "Using NVM allows developers to manage multiple versions of Node.js on the same machine, ensuring compatibility across different projects."
+                "id": "builtin-nodejs-l1-s4-q2",
+                "type": "mcq",
+                "prompt": "Why might CPU-intensive tasks be problematic in Node.js?",
+                "options": [
+                  "They cause excessive logging.",
+                  "They can block the event loop.",
+                  "They require multiple servers.",
+                  "They slow down the JavaScript runtime."
+                ],
+                "correctIndex": 1,
+                "explanation": "CPU-intensive tasks can block the single-threaded event loop, preventing it from responding to other requests efficiently."
               }
             ]
           }
@@ -901,142 +1041,203 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-nodejs-l2",
-        "title": "Understanding the Node.js Event Loop",
-        "estMinutes": 20,
+        "title": "Node.js Modules and npm",
+        "estMinutes": 45,
+        "glossary": [
+          "module",
+          "npm",
+          "require"
+        ],
         "segments": [
           {
             "id": "builtin-nodejs-l2-s1",
             "type": "reading",
-            "title": "The Node.js Event Loop Demystified",
-            "markdown": "The event loop is at the heart of Node.js, driving its asynchronous capabilities. Unlike traditional server models, Node.js uses an event-driven architecture, which means that, instead of handling threads directly, operations in Node are orchestrated via events. When an I/O operation occurs, such as a file read or a network request, it is dispatched to the event loop. The event loop listens for these events and processes callbacks when the operation completes. This results in non-blocking behavior because the rest of your code continues executing while waiting for the I/O operation to finish. Understanding this concept is crucial as it influences how you write your Node.js applications, particularly in handling tasks that require immediate response times. Despite its efficiency, a common pitfall here is overlooking how long-running tasks can block the event loop, making the application unresponsive.",
-            "estMinutes": 5,
+            "title": "Understanding Node.js Modules",
+            "markdown": "Modules are the building blocks of Node.js applications, organizing code into reusable pieces. With modules, you can separate functionality into distinct files and import them as needed in your applications, promoting maintainability and reusability. Node.js includes a rich collection of built-in modules, such as 'fs' for file handling, 'http' for server creation, and many more.\n\nA common idiom in Node.js is to use the `require` function to load these modules:\n\n```javascript\nconst http = require('http');\nhttp.createServer((req, res) => {\n  res.writeHead(200, {'Content-Type': 'text/plain'});\n  res.end('Hello World!');\n}).listen(3000);\n```\n\nThis snippet creates a basic HTTP server using the `http` module. While using modules, be wary of circular dependencies, which occur when two modules depend on each other, as they can lead to unexpected behaviors.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-nodejs-l2-s2",
-            "type": "code",
-            "title": "Hands-on: Exploring Event Loop with a Timer",
-            "markdown": "```javascript\nconsole.log('Start');\n\nsetTimeout(() => {\n  console.log('Timeout 1');\n}, 100);\n\nsetTimeout(() => {\n  console.log('Timeout 2');\n}, 0);\n\nconsole.log('End');\n\n// Expected Output:\n// Start\n// End\n// Timeout 2\n// Timeout 1\n\n// Explanation:\n// Although 'Timeout 2' is set to zero milliseconds, 'End' is logged before it due to the event loop's handling of queued events.\n```",
-            "estMinutes": 5,
+            "type": "reading",
+            "title": "Utilizing npm to Manage Dependencies",
+            "markdown": "Node.js comes with npm (Node Package Manager), a vital tool for managing application packages. npm allows you to install packages from the vast Node community directly into your project, helping you leverage open-source code rather than reinventing the wheel. To use npm, first create a `package.json` file using `npm init`, which holds metadata about your project, including dependencies.\n\nExample of adding a new dependency:\n\n```sh\nnpm install express\n```\n\nThis command adds 'Express', a web framework, to your project. It's always wise to track changes to `package.json` using version control, ensuring other developers can reproduce your environment. A common pitfall is not saving installed packages to `package.json`, done by forgetting the `--save` flag before npm 5.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-nodejs-l2-s3",
             "type": "practice",
-            "title": "Practice: Designing with the Event Loop",
-            "markdown": "Create a simple Node.js application that simulates a basic chat server. It should log a message each time a new user sends a message, demonstrating how the event loop manages multiple asynchronous inputs. Consider using timers to simulate message delays and display how Node handles them.",
-            "estMinutes": 10,
-            "questions": []
-          }
-        ]
-      },
-      {
-        "id": "builtin-nodejs-l3",
-        "title": "Modules and Core Libraries",
-        "estMinutes": 25,
-        "segments": [
-          {
-            "id": "builtin-nodejs-l3-s1",
-            "type": "reading",
-            "title": "Node.js Modules: Building Blocks",
-            "markdown": "Modules in Node.js are akin to building blocks for structuring and organizing your code. Each module encapsulates related functionality and can be exported for use in other parts of your Node.js application using `module.exports`. This modular approach not only promotes code reusability but also aids in maintenance by separating concerns. When you import a module using `require()`, Node.js first checks its cache to see if the module has been loaded before fetching it. This caching mechanism can significantly enhance performance, especially when modules are imported repeatedly in different parts of your application. A typical pitfall when using modules is encountering 'module not found' errors, usually due to incorrect path references or forgotten installations of third-party modules. For improved organization, Node.js supports both built-in modules, like `fs` and `http`, and user-created modules.",
-            "estMinutes": 7,
+            "title": "Experiment: Adding a Module to a Node.js Project",
+            "markdown": "Initialize a new Node.js project with `npm init`. Add a simple dependency like 'lodash' and create a script that utilizes this library to capitalize a string.",
+            "estMinutes": 15,
             "questions": []
           },
           {
-            "id": "builtin-nodejs-l3-s2",
-            "type": "code",
-            "title": "Using Node's Built-in Modules",
-            "markdown": "```javascript\nconst fs = require('fs'); // Import the file system module\n\n// Using the 'fs' module to read a file\nfs.readFile('example.txt', 'utf8', (err, data) => {\n  if (err) {\n    console.error('Error reading the file:', err);\n    return;\n  }\n  console.log('File contents:', data);\n});\n\n// Explanation:\n// Node.js provides the 'fs' module for file operations, allowing asynchronous file reading with non-blocking API.\n```",
-            "estMinutes": 5,
-            "questions": []
-          },
-          {
-            "id": "builtin-nodejs-l3-s3",
+            "id": "builtin-nodejs-l2-s4",
             "type": "quiz",
-            "title": "Quiz: Node.js Modules",
-            "markdown": "Assess your understanding of modules in Node.js.",
-            "estMinutes": 3,
+            "title": "Reinforcing Module Knowledge",
+            "markdown": "Test your understanding of Node.js modules and npm.",
+            "estMinutes": 2,
             "questions": [
               {
-                "id": "builtin-nodejs-l3-s3-q1",
+                "id": "builtin-nodejs-l2-s4-q1",
                 "type": "mcq",
-                "prompt": "What is the purpose of Node.js' module caching?",
+                "prompt": "Which statement about Node.js modules is true?",
                 "options": [
-                  "Ensures modules are loaded in sequential order",
-                  "Improves performance by avoiding redundant module loads",
-                  "Prevents modules from crashing",
-                  "Allows for synchronous loading of modules"
+                  "Modules can only include JavaScript files.",
+                  "Modules are only used for I/O operations.",
+                  "Modules must use the npm registry.",
+                  "Modules help organize and reuse code."
                 ],
-                "correctIndex": 1,
-                "explanation": "Module caching enhances performance by storing the module outcomes for a single instance in memory, reducing redundant processing."
+                "correctIndex": 3,
+                "explanation": "Modules organize code into self-contained files, promoting reusability and maintainability."
               },
               {
-                "id": "builtin-nodejs-l3-s3-q2",
+                "id": "builtin-nodejs-l2-s4-q2",
                 "type": "short_answer",
-                "prompt": "Name one common mistake made when importing modules in Node.js.",
-                "expectedAnswer": "A common mistake is specifying incorrect path references, which leads to 'module not found' errors.",
-                "explanation": "Incorrect path references or missing installations of third-party modules often cause 'module not found' errors."
+                "prompt": "What is the purpose of `package.json` in a Node.js project?",
+                "expectedAnswer": "To manage project metadata and dependencies.",
+                "explanation": "`package.json` defines information about the Node.js project, including its dependencies and scripts."
               }
             ]
           }
         ]
       },
       {
+        "id": "builtin-nodejs-l3",
+        "title": "Asynchronous Programming in Node.js",
+        "estMinutes": 50,
+        "glossary": [
+          "asynchronous",
+          "callback",
+          "Promise"
+        ],
+        "segments": [
+          {
+            "id": "builtin-nodejs-l3-s1",
+            "type": "reading",
+            "title": "The Asynchronous Nature of Node.js",
+            "markdown": "One of Node.js's greatest strengths is its asynchronous programming model, allowing non-blocking execution that is essential for building scalable network applications. In traditional blocking models, each I/O operation halts other operations' progress until completion. In contrast, Node.js uses an event loop architecture, which calls asynchronous functions allowing I/O tasks to continue without stalling. This pattern is less susceptible to I/O bottlenecks, making applications more responsive. However, handling errors in asynchronous code can be tricky, often leading to callback hell, where callbacks are nested excessively. \n\nExample of a simple asynchronous file read:\n\n```javascript\nconst fs = require('fs');\nfs.readFile('file.txt', 'utf8', (err, data) => {\n  if (err) throw err;\n  console.log(data);\n});\n```\n\nHere, `fs.readFile` is non-blocking—execution can proceed while it waits for the file read.",
+            "estMinutes": 10,
+            "questions": []
+          },
+          {
+            "id": "builtin-nodejs-l3-s2",
+            "type": "reading",
+            "title": "Using Promises for Better Flow Control",
+            "markdown": "Promises provide a way to simplify handling asynchronous operations by representing a value that may be available in the future. A promise can either be 'resolved', 'rejected', or 'pending'. Recognizing these states allows chaining of asynchronous tasks without deeply nested callbacks, making code more readable and maintainable. For instance, node core modules and popular libraries offer promise-based APIs for asynchronous operations.\n\nExample of using promises with `fs.promises`:\n\n```javascript\nconst fs = require('fs').promises;\n\nfs.readFile('file.txt', 'utf8')\n  .then(data => console.log(data))\n  .catch(err => console.error(err));\n```\n\nPromises reduce callback nesting and handle errors in a unified way, but watch out for uncaught promise rejections, which can sometimes silently fail.",
+            "estMinutes": 10,
+            "questions": []
+          },
+          {
+            "id": "builtin-nodejs-l3-s3",
+            "type": "practice",
+            "title": "Practice: Converting Callbacks to Promises",
+            "markdown": "Take a Node.js application using callbacks for I/O operations (like reading files) and refactor it to use promises. Ensure that error handling is done using `.catch`.",
+            "estMinutes": 15,
+            "questions": []
+          },
+          {
+            "id": "builtin-nodejs-l3-s4",
+            "type": "quiz",
+            "title": "Validating Asynchronous Understanding",
+            "markdown": "Assess your grasp of asynchronous programming in Node.js.",
+            "estMinutes": 2,
+            "questions": [
+              {
+                "id": "builtin-nodejs-l3-s4-q1",
+                "type": "mcq",
+                "prompt": "What problem in async programming do promises primarily address?",
+                "options": [
+                  "Network latency issues",
+                  "Callback nesting",
+                  "Memory leaks",
+                  "Type coercion"
+                ],
+                "correctIndex": 1,
+                "explanation": "Promises help avoid deeply nested callbacks and improve code clarity by allowing chainable functions."
+              },
+              {
+                "id": "builtin-nodejs-l3-s4-q2",
+                "type": "short_answer",
+                "prompt": "Describe a Promise's life cycle.",
+                "expectedAnswer": "A promise starts pending and transitions to either resolved or rejected.",
+                "explanation": "Promises start in the 'pending' state and can settle as 'resolved' (fulfilled) or 'rejected', capturing potential errors."
+              }
+            ]
+          },
+          {
+            "id": "builtin-nodejs-l3-s5",
+            "type": "practice",
+            "title": "Hands-on Exercise",
+            "markdown": "Let's practice handling I/O with async patterns.",
+            "estMinutes": 10,
+            "questions": []
+          }
+        ]
+      },
+      {
         "id": "builtin-nodejs-l4",
-        "title": "Async Programming in Node.js",
-        "estMinutes": 30,
+        "title": "Building a Simple HTTP Server",
+        "estMinutes": 55,
+        "glossary": [
+          "HTTP server",
+          "request",
+          "response",
+          "middleware"
+        ],
         "segments": [
           {
             "id": "builtin-nodejs-l4-s1",
             "type": "reading",
-            "title": "Promises: Managing Asynchronous Operations",
-            "markdown": "Promises are a foundational concept in managing asynchronous behavior in JavaScript, including Node.js. Unlike traditional callback pattern which can lead to deeply nested callbacks ('callback hell'), promises offer a more structured approach to chaining asynchronous operations. A promise represents a value that may be available now, or in the future, or never. They provide methods such as `.then()`, `.catch()`, and `.finally()` to handle successful outcomes, errors, and clean-up activities, respectively. By allowing us to write asynchronous code that looks synchronous, promises improve code readability and error handling. A typical pitfall when working with promises is mismanaging return statements in chains, leading to unexpected behaviors if a promise isn’t explicitly returned, causing dangling promises.",
-            "estMinutes": 7,
+            "title": "Basics of HTTP in Node.js",
+            "markdown": "Creating a web server is one of the foundational tasks in web development, and Node.js makes this process simple and intuitive. Nodes.js’s `http` module allows you to setup an HTTP server with very few lines of JavaScript. The server handles requests and sends responses. By listening on a network port, it communicates with the client over HTTP, the protocol that underlies all web traffic. \n\nHere is a basic example of an HTTP server implementation:\n\n```javascript\nconst http = require('http');\n\nconst server = http.createServer((req, res) => {\n  if (req.method === 'GET' && req.url === '/') {\n    res.writeHead(200, {'Content-Type': 'text/plain'});\n    res.end('Hello, welcome to our server!');\n  } else {\n    res.writeHead(404, {'Content-Type': 'text/plain'});\n    res.end('Not Found');\n  }\n});\n\nserver.listen(3000, () => {\n  console.log('Server is listening on port 3000');\n});\n```\n\nIn this code, change the URL or method handling, and embrace Node.js’s non-blocking nature to process requests concurrently while ensuring each request gets due attention.",
+            "estMinutes": 15,
             "questions": []
           },
           {
             "id": "builtin-nodejs-l4-s2",
-            "type": "code",
-            "title": "Creating and Using Promises",
-            "markdown": "```javascript\nfunction asyncOperation() {\n  return new Promise((resolve, reject) => {\n    setTimeout(() => {\n      if (Math.random() > 0.5) {\n        resolve('Success!');\n      } else {\n        reject('Failure!');\n      }\n    }, 1000);\n  });\n}\n\nasyncOperation()\n  .then((message) => {\n    console.log('Resolved:', message);\n  })\n  .catch((error) => {\n    console.error('Rejected:', error);\n  });\n\n// Explanation:\n// The function `asyncOperation` returns a promise that resolves or rejects based on a random condition. \n// The `.then()` and `.catch()` methods handle the respective outcomes.\n```",
-            "estMinutes": 5,
+            "type": "reading",
+            "title": "Integrating Middleware with Node.js",
+            "markdown": "Middleware functions are an essential pattern for Node.js applications, particularly when building an HTTP server. They are functions that have access to the request object, response object, and the next middleware function in the application’s request-response cycle. Middleware functions can modify the request and response objects, end the request-response cycle, and call the next middleware function to perform additional operations.\n\nNext.js and Express.js heavily rely on this architecture to build scalable and maintainable applications. Adding middleware in a Node.js application can enhance security, log requests, parse bodies, handle errors, and perform other common tasks:\n\n```javascript\nfunction logRequest(req, res, next) {\n  console.log(`${req.method} ${req.url}`);\n  next();\n}\n```\n\nYou'll often see middleware in frameworks like Express. Be cautious with the order of middleware inclusion, as it processes in sequence. Improper ordering could lead to functionality not executing as intended.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-nodejs-l4-s3",
             "type": "practice",
-            "title": "Practice: Converting Callback to Promises",
-            "markdown": "Take an existing Node.js application or script that uses callback functions to handle asynchronous file reads (`fs.readFile`). Rewrite it to use promises (`fs.promises.readFile`), displaying the content of the file if successful or an error message if reading fails.",
-            "estMinutes": 8,
+            "title": "Creating an HTTP Server with Middleware",
+            "markdown": "Set up a basic HTTP server using Node.js and integrate simple middleware that logs every request. Extend it to handle JSON requests by adding a JSON parsing middleware.",
+            "estMinutes": 20,
             "questions": []
           },
           {
             "id": "builtin-nodejs-l4-s4",
             "type": "quiz",
-            "title": "Quiz: Promises in Node.js",
-            "markdown": "Evaluate your understanding of promises and their role in asynchronous programming.",
-            "estMinutes": 3,
+            "title": "Quiz: Building and Understanding Servers",
+            "markdown": "Assess your knowledge about building HTTP servers with middleware.",
+            "estMinutes": 2,
             "questions": [
               {
                 "id": "builtin-nodejs-l4-s4-q1",
                 "type": "mcq",
-                "prompt": "Which method is used for handling rejected promises?",
+                "prompt": "What is a middleware in an HTTP server setup?",
                 "options": [
-                  "catch()",
-                  "then()",
-                  "finally()",
-                  "attempt()"
+                  "A database abstraction tool",
+                  "A function that executes sequentially",
+                  "A tool to create API endpoints",
+                  "A library included in server responses"
                 ],
-                "correctIndex": 0,
-                "explanation": "The 'catch()' method is specifically used to handle rejected promises, allowing you to manage errors."
+                "correctIndex": 1,
+                "explanation": "Middleware processes in sequence and has access to the req, res, and next middleware function, making it crucial for complex HTTP request and response handling."
               },
               {
                 "id": "builtin-nodejs-l4-s4-q2",
                 "type": "short_answer",
-                "prompt": "What is a common mistake developers make when chaining promises?",
-                "expectedAnswer": "Not returning a promise in a then() block, which can lead to unhandled promise rejections.",
-                "explanation": "Failing to return a promise results in uncontrolled flow of execution and can cause unexpected behaviors."
+                "prompt": "What would happen if you forget to call `next()` in a middleware function?",
+                "expectedAnswer": "The request stalls and further middleware won't execute.",
+                "explanation": "Forgetting `next()` halts flow, preventing subsequent middleware in the request-response cycle from executing."
               }
             ]
           }
@@ -1044,82 +1245,188 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-nodejs-l5",
-        "title": "Working with HTTP in Node.js",
-        "estMinutes": 25,
+        "title": "Working with Node.js Streams",
+        "estMinutes": 60,
+        "glossary": [
+          "stream",
+          "readable",
+          "writable",
+          "duplex",
+          "transform"
+        ],
         "segments": [
           {
             "id": "builtin-nodejs-l5-s1",
             "type": "reading",
-            "title": "Building an HTTP Server",
-            "markdown": "One of Node.js' core strengths is its ability to create HTTP servers with minimal overhead. This is made possible by the built-in `http` module, which provides functionality to easily set up web servers to listen for HTTP requests. Creating a server in Node.js involves specifying callback functions to handle incoming requests and define responses, generally using the `http.createServer()` method. The event-driven architecture allows each HTTP request to be handled asynchronously, thus efficiently managing multiple connections simultaneously. Such flexibility is invaluable for applications requiring dynamic or real-time content delivery. However, a common pitfall developers face is not closing opened connections properly, leading to memory leaks. Therefore, understanding server lifecycle and resource management is crucial for maintaining application performance.",
-            "estMinutes": 7,
+            "title": "Understanding Streams in Node.js",
+            "markdown": "Streams are powerful entities in Node.js, integral for fast and efficient data handling. They allow you to process data piece by piece, pausing and resuming as necessary, rather than loading everything into memory at once. This model is particularly advantageous for working with large files, live video transmissions, or any data that can be broken down into chunks.\n\nNode.js categorizes streams into four types: Readable, Writable, Duplex, and Transform streams. A readable stream lets you read data from a source in chunks, while a writable stream allows you to write data to a destination. Duplex streams can do both simultaneously, and transform streams are duplex streams that also modify the data.\n\nHere's a basic example of using a readable stream:\n\n```javascript\nconst fs = require('fs');\n\nconst readStream = fs.createReadStream('largefile.txt', 'utf8');\n\nreadStream.on('data', chunk => {\n  console.log(chunk);\n});\n\nreadStream.on('end', () => {\n  console.log('Finished reading the file');\n});\n```\n\nWhen using streams, be cautious of handling backpressure — a situation where the writable stream cannot process incoming chunks fast enough, potentially leading to memory issues.",
+            "estMinutes": 15,
             "questions": []
           },
           {
             "id": "builtin-nodejs-l5-s2",
             "type": "code",
-            "title": "HTTP Server Example",
-            "markdown": "```javascript\nconst http = require('http');\n\nconst server = http.createServer((req, res) => {\n  res.statusCode = 200;\n  res.setHeader('Content-Type', 'text/plain');\n  res.end('Hello, World!\\n');\n});\n\nserver.listen(3000, '127.0.0.1', () => {\n  console.log('Server running at http://127.0.0.1:3000/');\n});\n\n// Explanation:\n// This code sets up a basic HTTP server that listens on port 3000.\n// When accessed, it responds with 'Hello, World!'.\n```",
-            "estMinutes": 5,
+            "title": "Implementing Writable Streams",
+            "markdown": "A writable stream in Node.js is used to write data to a destination such as a file or a network socket. When data is written, it may be buffered, and the application can be notified when it’s flushed through the `finish` event. Here’s an example of how to create a writable file stream:\n\n```javascript\nconst fs = require('fs');\n\nconst writableStream = fs.createWriteStream('output.txt');\n\nwritableStream.write('Hello, this is a chunk of data', 'utf8');\nwritableStream.end();\n\nwritableStream.on('finish', () => {\n  console.log('Finished writing data');\n});\n```\n\nThis code creates and writes data to 'output.txt'. Also, always ensure proper stream closure to avoid data corruption and resource leaks.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-nodejs-l5-s3",
             "type": "practice",
-            "title": "Practice: Serving JSON with HTTP",
-            "markdown": "Enhance the provided HTTP server example to respond with a JSON object when a user accesses the endpoint `/json`. Include an additional route `/` to serve a simple plain text message and demonstrate the handling of different types of requests.",
-            "estMinutes": 10,
+            "title": "Stream Experimentation",
+            "markdown": "Experiment with creating a duplex stream that reads from one file and writes to another, implementing error handling at each step.",
+            "estMinutes": 20,
             "questions": []
+          },
+          {
+            "id": "builtin-nodejs-l5-s4",
+            "type": "quiz",
+            "title": "Test Your Knowledge on Streams",
+            "markdown": "Evaluate your understanding of Node.js streams.",
+            "estMinutes": 2,
+            "questions": [
+              {
+                "id": "builtin-nodejs-l5-s4-q1",
+                "type": "mcq",
+                "prompt": "Why are streams advantageous over loading entire data into memory?",
+                "options": [
+                  "They execute faster algorithms.",
+                  "They reduce node.js’s runtime complexity.",
+                  "They process data in chunks, saving memory.",
+                  "They improve the speed of internet connections."
+                ],
+                "correctIndex": 2,
+                "explanation": "Streams handle large datasets efficiently by processing data in chunks, which helps in saving memory usage."
+              },
+              {
+                "id": "builtin-nodejs-l5-s4-q2",
+                "type": "short_answer",
+                "prompt": "What issues arise from not handling backpressure effectively?",
+                "expectedAnswer": "Memory usage increases and performance degrades.",
+                "explanation": "Failing to manage backpressure can cause buffer overflows, leading to increased memory usage and potential crashes."
+              }
+            ]
           }
         ]
       },
       {
         "id": "builtin-nodejs-l6",
-        "title": "Debugging and Error Handling in Node.js",
-        "estMinutes": 20,
+        "title": "Node.js File System and Error Handling",
+        "estMinutes": 50,
+        "glossary": [
+          "file system",
+          "fs module",
+          "error-first callback"
+        ],
         "segments": [
           {
             "id": "builtin-nodejs-l6-s1",
             "type": "reading",
-            "title": "Effective Debugging Strategies",
-            "markdown": "Debugging is an inevitable task in the development lifecycle, and Node.js offers several tools to facilitate this process. One built-in tool is the `node inspect` command, which provides a debugger interface within the command line that lets developers set breakpoints and step through code execution. The use of `console.log()` remains a popular method for quick debugging by logging variable states and flow tracking. Node.js also integrates with advanced debugging tools like Chrome DevTools, which offer an intuitive GUI for handling breakpoints and inspecting application state. However, developers should be wary of over-relying on `console.log()` as it can lead to noisy logs and overlooked errors. A more structured approach involves using logging libraries like Winston or Bunyan for scalable and maintainable logging solutions.",
-            "estMinutes": 7,
+            "title": "Navigating the Node.js File System",
+            "markdown": "Node.js provides a `fs` module to interact with the file system, enabling you to create, read, update, and delete files. The `fs` module offers both synchronous and asynchronous methods. Synchronous methods block execution until they complete, while asynchronous methods take a completion callback, making them preferred in most applications to keep the app responsive.\n\nFor example, creating a file with `fs.writeFile`:\n\n```javascript\nconst fs = require('fs');\n\nfs.writeFile('message.txt', 'Hello World!', (err) => {\n  if (err) throw err;\n  console.log('File has been saved!');\n});\n```\n\nIn contrast, synchronous methods might make sense in scripts or tooling where you want to ensure order. Handle exceptions using try-catch blocks for synchronous operations, and be cautious about potential file locking or incomplete writes due to unhandled errors.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-nodejs-l6-s2",
-            "type": "code",
-            "title": "Handling Errors Gracefully",
-            "markdown": "```javascript\nfunction criticalTask() {\n  try {\n    // Simulate a risky operation\n    throw new Error('Something went wrong!');\n  } catch (error) {\n    console.error('Caught an error:', error);\n    // Handle the error appropriately\n  } finally {\n    console.log('Cleaning up resources...');\n  }\n}\n\ncriticalTask();\n\n// Explanation:\n// Using try-catch allows handlers to catch exceptions and prevent the application from crashing.\n// The 'finally' block ensures that clean-up logic is executed regardless of success or failure.\n```",
-            "estMinutes": 6,
+            "type": "reading",
+            "title": "Error Handling with Callbacks",
+            "markdown": "Error handling is fundamental to creating robust applications. In Node.js, a common pattern is the error-first callback, used throughout the core API. The first argument to the callback is an error object, followed by any results.\n\nExample of reading a file:\n\n```javascript\nfs.readFile('message.txt', 'utf8', (err, data) => {\n  if (err) {\n    console.error(`Error reading file: ${err.message}`);\n    return;\n  }\n  console.log(data);\n});\n```\n\nThis pattern ensures only the happy path code is executed after error verification. It is important always to check errors to avoid uncaught exceptions, which could crash your application.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-nodejs-l6-s3",
+            "type": "practice",
+            "title": "Build a Simple File Operation with Error Handling",
+            "markdown": "Using Node's `fs` module, create a function to read a file and log its contents to console. Implement error handling to deal with non-existent or unreadable files effectively.",
+            "estMinutes": 15,
+            "questions": []
+          },
+          {
+            "id": "builtin-nodejs-l6-s4",
             "type": "quiz",
-            "title": "Quiz: Debugging and Error Handling",
-            "markdown": "Let's see how well you can identify strategies for effective debugging and error handling in Node.js.",
-            "estMinutes": 3,
+            "title": "Quiz on File System and Error Handling",
+            "markdown": "Verify your understanding of Node.js file system operations and error management techniques.",
+            "estMinutes": 2,
             "questions": [
               {
-                "id": "builtin-nodejs-l6-s3-q1",
+                "id": "builtin-nodejs-l6-s4-q1",
                 "type": "mcq",
-                "prompt": "Which of the following is NOT an effective debugging tool in Node.js?",
+                "prompt": "What does an error-first callback pattern achieve in Node.js?",
                 "options": [
-                  "Chrome DevTools",
-                  "console.xlog()",
-                  "node inspect",
-                  "Winston"
+                  "Enhances code readability.",
+                  "Prioritizes speed over safety.",
+                  "Standardizes error handling.",
+                  "Ensures immutability by design."
                 ],
-                "correctIndex": 1,
-                "explanation": "There is no `console.xlog()` in Node.js. Debugging typically involves tools like `node inspect`, Chrome DevTools, and libraries like Winston for logging."
+                "correctIndex": 2,
+                "explanation": "The error-first callback pattern provides a consistent way to handle asynchronous errors, ensuring that results are only processed if no error occurs."
               },
               {
-                "id": "builtin-nodejs-l6-s3-q2",
+                "id": "builtin-nodejs-l6-s4-q2",
                 "type": "short_answer",
-                "prompt": "What is the advantage of using try-catch blocks?",
-                "expectedAnswer": "Try-catch blocks allow developers to handle exceptions gracefully, preventing application crashes and enabling error-specific responses.",
-                "explanation": "They help capture and manage runtime exceptions, ensuring that error conditions are handled appropriately without disrupting user experience."
+                "prompt": "How does the `fs` module's asynchronous API differ from its synchronous API?",
+                "expectedAnswer": "Asynchronous API uses callbacks and does not block the execution; synchronous blocks execution until completion.",
+                "explanation": "Asynchronous file operations in the `fs` module use callbacks, allowing non-blocking execution, unlike synchronous methods which block the Node.js event loop."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "builtin-nodejs-l7",
+        "title": "Conclusion: Building Node.js Applications",
+        "estMinutes": 45,
+        "glossary": [
+          "event loop",
+          "non-blocking",
+          "cluster"
+        ],
+        "segments": [
+          {
+            "id": "builtin-nodejs-l7-s1",
+            "type": "reading",
+            "title": "Bringing It All Together",
+            "markdown": "With Node.js, developers can create everything from simple scripts to complex, scalable enterprise-level applications. No matter the task, using non-blocking, event-driven paradigms allows for responsive, fast-executing software while maintaining code simplicity with tools like modules, npm, and streams. When building real-world applications, remember scalability—with Node.js, clustering can distribute the workload across multiple CPU cores, enhancing performance. For best practices, always consider error handling strategies, asynchronous flows with promises, and leveraging Node.js's non-blocking nature for optimal user experiences. By mastering these concepts, you'll be well-equipped to tackle projects ranging from small utilities to systems handling millions of concurrent connections.",
+            "estMinutes": 10,
+            "questions": []
+          },
+          {
+            "id": "builtin-nodejs-l7-s2",
+            "type": "practice",
+            "title": "Building a Simple Application",
+            "markdown": "As a final project, apply your Node.js skills by building a simple RESTful API that manages a list of your favorite games. Use HTTP methods to read, add, and delete games from the list using the `http` module and in-memory storage. Ensure to implement proper error handling and experiment with middleware to log requests.",
+            "estMinutes": 30,
+            "questions": []
+          },
+          {
+            "id": "builtin-nodejs-l7-s3",
+            "type": "quiz",
+            "title": "Final Quiz",
+            "markdown": "Check your overall understanding and readiness to apply Node.js knowledge.",
+            "estMinutes": 2,
+            "questions": [
+              {
+                "id": "builtin-nodejs-l7-s3-q1",
+                "type": "mcq",
+                "prompt": "Which Node.js feature is crucial for handling thousands of connections concurrently?",
+                "options": [
+                  "Synchronous I/O",
+                  "Single-threaded model",
+                  "Event-driven architecture",
+                  "V8 optimizations"
+                ],
+                "correctIndex": 2,
+                "explanation": "Node.js's event-driven architecture allows it to handle many connections simultaneously without spawning a new thread for each."
+              },
+              {
+                "id": "builtin-nodejs-l7-s3-q2",
+                "type": "short_answer",
+                "prompt": "List two Node.js techniques you can use to scale an application across multiple CPUs.",
+                "expectedAnswer": "Clustering and load balancing.",
+                "explanation": "Clustering lets you fork the Node.js process to use additional CPUs, and load balancing ensures that the workload is evenly distributed."
               }
             ]
           }
@@ -1134,67 +1441,64 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
     "lessons": [
       {
         "id": "builtin-postgresql-l1",
-        "title": "The Essentials of PostgreSQL",
+        "title": "Introduction to PostgreSQL",
         "estMinutes": 25,
+        "glossary": [
+          "PostgreSQL",
+          "Relational Database",
+          "Open Source"
+        ],
         "segments": [
           {
             "id": "builtin-postgresql-l1-s1",
             "type": "reading",
-            "title": "Introduction to Relational Databases and PostgreSQL",
-            "markdown": "PostgreSQL isn't just another database; it's a powerful, open-source relational database system designed to handle a range of workloads, from simple applications to complex, high-performance databases. The need to store, manage, and query data in ways that are efficient and reliable makes understanding databases critical for any developer. PostgreSQL excels at managing relational data, where relationships between data entities are central to your application.\n\nConsider a gaming leaderboard where players, their scores, and play times need to be organized effectively. Using flat files or non-relational databases could complicate both data integrity and querying performance. PostgreSQL, with its ACID compliance, ensures data consistency and high availability. It's popularly used in industries ranging from gaming to finance, where data integrity is paramount.\n\nA common pitfall is underestimating the need for normalization in relational databases. Rushing its design can lead to redundant data and inefficient queries. Start small by understanding how relational databases manage relationships and data integrity.",
-            "estMinutes": 4,
-            "questions": []
+            "title": "What is PostgreSQL?",
+            "markdown": "PostgreSQL is a powerful, open-source object-relational database system known for its reliability, feature robustness, and performance. It's used in a wide range of industries due to its ability to efficiently manage large databases while supporting a wide variety of data types and applications. PostgreSQL's thoughtful design allows for complex queries and supports advanced data types and performance optimization through powerful indexing techniques. If you've ever needed to manage a structured collection of data—like customer information, product inventories, or user activity logs—PostgreSQL can serve as the backbone to handle these tasks efficiently. However, one common pitfall is underestimating the importance of proper database schema design, leading to inefficient data retrieval operations.",
+            "estMinutes": 5,
+            "questions": [
+              {
+                "id": "builtin-postgresql-l1-s1-q1",
+                "type": "mcq",
+                "prompt": "What distinguishes PostgreSQL from other database systems?",
+                "options": [
+                  "Its ability to handle only small datasets",
+                  "Its open-source nature",
+                  "Its lack of indexing support",
+                  "Its incompatibility with SQL standards"
+                ],
+                "correctIndex": 1,
+                "explanation": "PostgreSQL is renowned for being an open-source, feature-rich system."
+              }
+            ]
           },
           {
             "id": "builtin-postgresql-l1-s2",
             "type": "code",
-            "title": "Setting Up PostgreSQL",
-            "markdown": "Before diving deeper, you need to set up your PostgreSQL environment. Follow these steps to install and initialize PostgreSQL on your machine:\n\n```bash\n# Install PostgreSQL on Ubuntu\ndepository update\nsudo apt update\nsudo apt install postgresql postgresql-contrib\n\n# Start PostgreSQL service\nsudo systemctl start postgresql.service\n\n# Check the status of the service\nsudo systemctl status postgresql\n```\n\nAfter installing, create a new database and verify the installation:\n\n```bash\n# Switch to the postgres user\nsudo -i -u postgres\n\n# Create a new database\ncreatedb my_first_database\n\n# Connect to the database\npsql my_first_database\n```\n\nYou can now perform SQL queries within this environment. Remember to always secure your database setup, as leaving default settings can expose security vulnerabilities.",
-            "estMinutes": 6,
+            "title": "Installing PostgreSQL",
+            "markdown": "To start using PostgreSQL, you must first install it on your system. Depending on your operating system, you can use different package managers. For Linux, use `apt`:\n\n```bash\nsudo apt update\nsudo apt install postgresql postgresql-contrib\n```\n\nOn macOS, you can use Homebrew:\n\n```bash\nbrew update\nbrew install postgresql\n```\n\nAn important step after installation on any OS is to start the PostgreSQL service:\n\n```bash\nsudo service postgresql start\n```\n\nA common mistake is forgetting to start the service, which results in connection errors when trying to use the database.",
+            "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-postgresql-l1-s3",
-            "type": "reading",
-            "title": "Creating and Managing Tables",
-            "markdown": "In PostgreSQL, tables are the backbone where data is stored. Designing tables properly is crucial, as they define the structure, constraints, and relationships of your data. Imagine creating a table for storing player information in a multiplayer game. This table could include fields like `player_id`, `username`, and `high_score`.\n\nYou'll create tables using the `CREATE TABLE` statement, making sure to define data types and constraints properly to ensure data integrity:\n\n```sql\nCREATE TABLE players (\n  player_id SERIAL PRIMARY KEY,\n  username VARCHAR(50) UNIQUE NOT NULL,\n  high_score INT DEFAULT 0\n);\n```\n\nWhen managing tables, keep in mind the need for scalability and efficient lookup. Normalization helps reduce redundancy, while indexing accelerates queries but can slow down insert operations. A common mistake to avoid is ignoring datatype choices, which can lead to inefficient storage and slower query performance.",
-            "estMinutes": 3,
-            "questions": []
-          },
-          {
-            "id": "builtin-postgresql-l1-s4",
             "type": "practice",
-            "title": "Creating your first database and table",
-            "markdown": "Task: Use the `psql` command-line interface to create a new database called `game_data`. Inside this database, create a table named `highscores` with columns: `user_id` (primary key), `username` (varchar of 50), and `score` (integer).\n\nYou can refer back to the `CREATE TABLE` example in the reading section if needed. Pay attention to primary key constraints and data types as you define your table.",
-            "estMinutes": 6,
-            "questions": []
-          },
-          {
-            "id": "builtin-postgresql-l1-s5",
-            "type": "quiz",
-            "title": "Lesson Checkpoint",
-            "markdown": "Let’s verify your understanding of PostgreSQL basics with a short quiz.",
-            "estMinutes": 6,
+            "title": "Setting up Your First Database",
+            "markdown": "The next step is to set up your initial database and understand basic commands to manage it. Use the following steps to create and connect to your first database:",
+            "estMinutes": 8,
             "questions": [
               {
-                "id": "builtin-postgresql-l1-s5-q1",
-                "type": "mcq",
-                "prompt": "Which of the following statements about PostgreSQL is true?",
-                "options": [
-                  "PostgreSQL is primarily a NoSQL database used for non-relational data.",
-                  "PostgreSQL supports SQL and is used for relational data management.",
-                  "PostgreSQL does not support transactions or data integrity.",
-                  "PostgreSQL is a closed-source database management system."
-                ],
-                "correctIndex": 1,
-                "explanation": "PostgreSQL is an open-source relational database management system that supports SQL and is known for its data integrity and transaction support."
+                "id": "builtin-postgresql-l1-s3-q1",
+                "type": "short_answer",
+                "prompt": "What command is used to create a new database in PostgreSQL?",
+                "expectedAnswer": "'CREATE DATABASE <name>;' is the SQL command used to create a new database in PostgreSQL.",
+                "explanation": "Database creation is done via SQL commands such as CREATE DATABASE."
               },
               {
-                "id": "builtin-postgresql-l1-s5-q2",
+                "id": "builtin-postgresql-l1-s3-q2",
                 "type": "short_answer",
-                "prompt": "Why is it important to properly define data types when creating tables in PostgreSQL?",
-                "expectedAnswer": "Choosing the appropriate data types helps ensure efficient storage and query performance, reduces storage needs, and maintains data integrity.",
-                "explanation": "Data types affect how data is stored and accessed; incorrect choices can lead to inefficient storage and slow performance."
+                "prompt": "What is the default username for PostgreSQL?",
+                "expectedAnswer": "The default username is 'postgres'.",
+                "explanation": "PostgreSQL installations come with a default user 'postgres'."
               }
             ]
           }
@@ -1202,59 +1506,58 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-postgresql-l2",
-        "title": "Querying the Database",
+        "title": "Introduction to SQL",
         "estMinutes": 30,
+        "glossary": [
+          "SQL",
+          "Query",
+          "DDL",
+          "DML"
+        ],
         "segments": [
           {
             "id": "builtin-postgresql-l2-s1",
             "type": "reading",
-            "title": "Introduction to SQL Queries",
-            "markdown": "Structured Query Language (SQL) is the core of interacting with relational databases, making it essential for any developer working with PostgreSQL. SQL is powerful: it allows you to retrieve specific data, manipulate data, and more.\n\nConsider a scenario where you need to fetch the top scores from your `highscores` table. Efficient querying leads to faster response times and a better user experience. Here’s a basic example of using the `SELECT` statement:\n\n```sql\nSELECT username, score FROM highscores ORDER BY score DESC LIMIT 10;\n```\n\nThis query retrieves usernames and scores, ordering them by the score in descending order and limiting the results to the top 10. A common pitfall is not specifying ordering or conditions, which can lead to unexpected results or performance hits, especially with large datasets. Always consider the indexes and constraints available when querying to optimize performance.",
-            "estMinutes": 4,
-            "questions": []
+            "title": "Basic SQL Commands",
+            "markdown": "Structured Query Language (SQL) is the standard language for relational database management. PostgreSQL uses SQL for defining and manipulating data. Key components include Data Definition Language (DDL) and Data Manipulation Language (DML). DDL lets you create and modify the structure of database objects—like tables—through commands such as `CREATE` and `ALTER`. DML, on the other hand, includes operations like `SELECT`, `INSERT`, `UPDATE`, and `DELETE`, which interact with the data itself. Knowing when and how to use these commands effectively is crucial in database management. A typical pitfall is misusing DML operations within transactions, which can lead to data inconsistency.",
+            "estMinutes": 5,
+            "questions": [
+              {
+                "id": "builtin-postgresql-l2-s1-q1",
+                "type": "mcq",
+                "prompt": "Which SQL command is used to retrieve data from a database?",
+                "options": [
+                  "INSERT",
+                  "SELECT",
+                  "UPDATE",
+                  "DELETE"
+                ],
+                "correctIndex": 1,
+                "explanation": "The 'SELECT' command is used to retrieve data from a database."
+              }
+            ]
           },
           {
             "id": "builtin-postgresql-l2-s2",
             "type": "code",
-            "title": "Writing SELECT Queries",
-            "markdown": "The `SELECT` statement is the most frequently used SQL command, enabling you to extract data from one or more tables. Here’s an example involving some slightly more advanced features:\n\n```sql\nSELECT p.username, p.high_score, g.game_name\nFROM players AS p\nJOIN games AS g ON p.game_id = g.id\nWHERE p.high_score > 1000\nORDER BY p.high_score DESC;\n```\n\nThis query showcases a couple of important concepts: using aliases with `AS` for shorter and more readable query syntax. Also, `JOIN` operators help you combine data from multiple tables based on a related column. An efficient use of joins and conditions can make queries faster and facilitate complex analytics. However, joining too many tables or not using constraints can severely hamper performance.",
-            "estMinutes": 8,
+            "title": "Creating and Managing Tables",
+            "markdown": "Tables are fundamental to organizing data within a database. You can create a table with the `CREATE TABLE` statement:\n\n```sql\nCREATE TABLE employees (\n  id SERIAL PRIMARY KEY,\n  name VARCHAR(100),\n  email VARCHAR(100) UNIQUE,\n  hire_date DATE\n);\n```\n\nThis command creates a table named `employees` with four columns. The `SERIAL` type automatically generates a unique identifier for each record—a common practice to ensure each row can be uniquely addressed. However, one must be cautious of data types to prevent invalid data inserts.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-postgresql-l2-s3",
             "type": "practice",
-            "title": "Practice with SELECT queries",
-            "markdown": "Task: Write a `SELECT` query to retrieve the top 5 players with the highest scores, including their usernames and scores, in descending order. Use the `highscores` table you created earlier.\n\nReflect on indexing for efficiency, and consider how the order of operations in the query can affect performance.",
-            "estMinutes": 8,
-            "questions": []
-          },
-          {
-            "id": "builtin-postgresql-l2-s4",
-            "type": "quiz",
-            "title": "Lesson Checkpoint",
-            "markdown": "Verify your understanding of SQL queries with this quick quiz.",
-            "estMinutes": 6,
+            "title": "Writing Basic Queries",
+            "markdown": "Now that you have a table, practice writing basic queries. For instance, try retrieving all employees hired after 2020 using the `SELECT` command.",
+            "estMinutes": 10,
             "questions": [
               {
-                "id": "builtin-postgresql-l2-s4-q1",
+                "id": "builtin-postgresql-l2-s3-q1",
                 "type": "short_answer",
-                "prompt": "What does the ORDER BY clause do in a SQL query?",
-                "expectedAnswer": "The ORDER BY clause sorts the result set of a query according to one or more columns in ascending or descending order.",
-                "explanation": "Ordering is crucial for ensuring the results are presented in a logical, meaningful order, often based on a column's values."
-              },
-              {
-                "id": "builtin-postgresql-l2-s4-q2",
-                "type": "mcq",
-                "prompt": "Which is a common use of the JOIN operation in SQL?",
-                "options": [
-                  "To delete tables from the database",
-                  "To combine columns from two or more tables based on a related column",
-                  "To change data types of existing columns",
-                  "To create new databases and tables"
-                ],
-                "correctIndex": 1,
-                "explanation": "JOIN operations are used to combine rows from two or more tables based on a related column between them, enabling complex data retrieval."
+                "prompt": "What would a basic SQL query to retrieve all employee names look like?",
+                "expectedAnswer": "It would look like: SELECT name FROM employees;",
+                "explanation": "The SELECT statement followed by columns retrieves data for specified fields from the table."
               }
             ]
           }
@@ -1262,59 +1565,58 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-postgresql-l3",
-        "title": "Inserting, Updating, and Deleting Data",
-        "estMinutes": 28,
+        "title": "Advanced SQL: Joins and Subqueries",
+        "estMinutes": 35,
+        "glossary": [
+          "Join",
+          "Subquery",
+          "INNER JOIN",
+          "LEFT JOIN"
+        ],
         "segments": [
           {
             "id": "builtin-postgresql-l3-s1",
             "type": "reading",
-            "title": "Data Manipulation with SQL",
-            "markdown": "Interacting with databases isn't just about retrieving data; equally important is managing it effectively, which involves adding new data, modifying existing entries, and removing obsolete records. In PostgreSQL, managing data is usually done using three critical commands: `INSERT`, `UPDATE`, and `DELETE`.\n\nImagine you're managing player profiles, and need to update scores or add new players after a game night ends. The `INSERT` command lets you add new records to a table:\n\n```sql\nINSERT INTO players (username, high_score) VALUES ('NewPlayer', 500);\n```\n\nThe `UPDATE` command, meanwhile, modifies existing rows, such as updating a player’s high score:\n\n```sql\nUPDATE players SET high_score = 2000 WHERE username = 'ExistingPlayer';\n```\n\nFinally, the `DELETE` statement is crucial for removing unwanted rows, but always use caution to avoid unintended data loss:\n\n```sql\nDELETE FROM players WHERE username = 'OldPlayer';\n```\n\nA notable pitfall is forgetting to include a `WHERE` clause during `UPDATE` or `DELETE` operations, which can result in unintentional updates or deletions across all rows in the table.",
-            "estMinutes": 5,
-            "questions": []
+            "title": "Using Joins in SQL",
+            "markdown": "Often, you'll need to query data across multiple tables. Joins allow you to do this by combining columns from two or more tables based on a related column. The most common type—`INNER JOIN`—retrieves records with matching values in both tables. Here's a practical example:\n\n```sql\nSELECT employees.name, department.name FROM employees\nINNER JOIN department ON employees.department_id = department.id;\n```\n\nThis query fetches employee names alongside their department names, bridging the gap via `department_id`. Understanding joins is vital for data analysis across tables. A frequent error is neglecting the joining condition, resulting in a Cartesian product—where every row from one table is combined with every row from the other.",
+            "estMinutes": 8,
+            "questions": [
+              {
+                "id": "builtin-postgresql-l3-s1-q1",
+                "type": "mcq",
+                "prompt": "Which SQL keyword is used to combine rows from two or more tables based on a related column?",
+                "options": [
+                  "WHERE",
+                  "JOIN",
+                  "UNION",
+                  "GROUP BY"
+                ],
+                "correctIndex": 1,
+                "explanation": "JOIN is used to combine rows from multiple tables based on a related column."
+              }
+            ]
           },
           {
             "id": "builtin-postgresql-l3-s2",
             "type": "code",
-            "title": "Performing Data Manipulation Tasks",
-            "markdown": "Use these SQL commands to manipulate your player data effectively:\n\n```sql\n-- Adding a new player\nINSERT INTO players (username, high_score) VALUES ('Alice', 1500);\n\n-- Modifying an existing player score\nUPDATE players SET high_score = high_score + 100 WHERE username = 'Alice';\n\n-- Removing a player from the database\nDELETE FROM players WHERE username = 'OldPlayer';\n```\n\nThe above operations illustrate how to perform common data manipulation tasks. Note the importance of conditions in `UPDATE` and `DELETE` statements to target specific records. You can experiment by altering the values or conditions to see how these commands interact with the existing data.",
-            "estMinutes": 7,
+            "title": "Composing Subqueries",
+            "markdown": "Subqueries—queries nested within another SQL query—are powerful tools for building complex logic. They can reside in various clauses like `SELECT`, `FROM`, and `WHERE`. For example:\n\n```sql\nSELECT name FROM employees\nWHERE id IN (SELECT employee_id FROM project_assignments WHERE completed = false);\n```\n\nThis SQL retrieves employees who are assigned to incomplete projects. Subqueries offer flexibility for more refined data retrieval but can hurt performance if overused, especially in the `WHERE` clause. Always consider the impact of complex subqueries on execution efficiency.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-postgresql-l3-s3",
             "type": "practice",
-            "title": "Data Manipulation Practice",
-            "markdown": "Task: Record the completion of a new gaming season by performing these operations:\n1. Add a player named 'Champion' with a score of 3000.\n2. Increase the score of all players with `high_score` below 1000 by 200.\n3. Delete any player with the name 'LegacyUser'.\n\nEnsure to test each step in sequence, watching for unexpected results.",
-            "estMinutes": 8,
-            "questions": []
-          },
-          {
-            "id": "builtin-postgresql-l3-s4",
-            "type": "quiz",
-            "title": "Lesson Checkpoint",
-            "markdown": "Assess your understanding of data manipulation with this quiz.",
-            "estMinutes": 8,
+            "title": "Practice with Joins and Subqueries",
+            "markdown": "Retrieve a list of employees who have not been assigned to any project yet, using joins and subqueries. Consider using `NOT IN` with a subquery.",
+            "estMinutes": 15,
             "questions": [
               {
-                "id": "builtin-postgresql-l3-s4-q1",
-                "type": "mcq",
-                "prompt": "What happens if you run a DELETE statement without a WHERE clause?",
-                "options": [
-                  "Nothing, the table remains unchanged.",
-                  "It deletes all rows from the specified table.",
-                  "It results in an error due to a syntax mistake.",
-                  "Only the first row will be deleted."
-                ],
-                "correctIndex": 1,
-                "explanation": "Omitting a WHERE clause in a DELETE statement removes all rows from the table, which might not always be intentional."
-              },
-              {
-                "id": "builtin-postgresql-l3-s4-q2",
+                "id": "builtin-postgresql-l3-s3-q1",
                 "type": "short_answer",
-                "prompt": "Why is it important to include conditions/filters in SQL data manipulation commands?",
-                "expectedAnswer": "Conditions ensure that SQL commands specifically target the intended rows, preventing unintentional changes or deletions.",
-                "explanation": "Using filters ensures precision in operations like updates and deletions, safeguarding against unintended data changes."
+                "prompt": "How would you fetch employee names who are not in any department?",
+                "expectedAnswer": "Use a LEFT JOIN to identify such records: SELECT employees.name FROM employees LEFT JOIN department ON employees.department_id = department.id WHERE department.id IS NULL;",
+                "explanation": "LEFT JOIN includes unmatched records from the left table; use IS NULL to filter."
               }
             ]
           }
@@ -1322,59 +1624,58 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-postgresql-l4",
-        "title": "Using Functions and Expressions",
-        "estMinutes": 28,
+        "title": "Working with Data Types and Functions",
+        "estMinutes": 30,
+        "glossary": [
+          "Data Types",
+          "Function",
+          "Casting",
+          "Aggregate Functions"
+        ],
         "segments": [
           {
             "id": "builtin-postgresql-l4-s1",
             "type": "reading",
-            "title": "Introduction to SQL Functions",
-            "markdown": "As a developer, leveraging built-in functions in SQL not only simplifies complex operations but can also enhance the efficiency of your queries. PostgreSQL is rich in functions ranging from text processing to aggregate computations such as averages or sums.\n\nImagine needing to calculate the average score of players or convert player usernames to uppercase for standardization. You’d use PostgreSQL functions like `AVG()` for aggregations or `UPPER()` for string manipulation. Here’s how you might use these in a query:\n\n```sql\nSELECT AVG(high_score) as avg_score FROM players;\nSELECT UPPER(username) as uppercase_name FROM players;\n```\n\nThese functions encapsulate common operations within your SQL queries, making them concise and easy to read. Utilize these extensively to simplify your SQL code. However, overusing functions, especially in large result sets, can degrade performance. Aim to compute requisite values beforehand when possible.",
-            "estMinutes": 4,
-            "questions": []
+            "title": "Understanding PostgreSQL Data Types",
+            "markdown": "PostgreSQL supports a rich set of data types. Ensuring the right choice of data type for each column is crucial for optimal database performance and integrity. Basic types include numeric (integer, bigserial, float), character (char, varchar, text), and date/time. PostgreSQL also includes advanced types like JSON and XML for unstructured data. When storing financial data, choose `numeric` for precise calculations. Careless type selection can lead to constraints violations and unexpected results; for example, inserting text into a numeric field causes crashes without casting. A thoughtful design of table schemas mitigates these issues.",
+            "estMinutes": 8,
+            "questions": [
+              {
+                "id": "builtin-postgresql-l4-s1-q1",
+                "type": "mcq",
+                "prompt": "Which data type is suitable for storing lorem ipsum text passages?",
+                "options": [
+                  "INTEGER",
+                  "VARCHAR",
+                  "NUMERIC",
+                  "BYTEA"
+                ],
+                "correctIndex": 1,
+                "explanation": "VARCHAR is ideal for variable-length text data."
+              }
+            ]
           },
           {
             "id": "builtin-postgresql-l4-s2",
             "type": "code",
-            "title": "Utilizing Expressions and Functions",
-            "markdown": "Let's explore how you can use SQL functions to perform calculations and transformations within your queries:\n\n```sql\n-- Calculate average high scores across all players\nSELECT AVG(high_score) AS average_high_score FROM players;\n\n-- Convert usernames to uppercase\nSELECT username, UPPER(username) AS uppercase_username FROM players;\n\n-- Find maximum score in the players table\nSELECT MAX(high_score) AS top_score FROM players;\n```\n\nThese queries illustrate choosing appropriate functions to derive meaningful insights from your data. Consider situations where you'd use other complex functions, such as `SUM()` or `CONCAT()`, in line with your application needs. Avoiding excessive inline calculations in queries can help maintain efficient performance.",
-            "estMinutes": 6,
+            "title": "Using Functions for Data Manipulation",
+            "markdown": "PostgreSQL comes equipped with a variety of functions to manipulate data. Functions like `AVG()`, `SUM()`, and `COUNT()` are aggregate functions that calculate over a set of rows:\n\n```sql\nSELECT department_id, AVG(salary) FROM employees GROUP BY department_id;\n```\n\nThis command calculates the average salary for each department. Master aggregate functions to conduct meaningful analyses on your data. Caution: Omitting `GROUP BY` in aggregate operations may result in operations across the entire table, which might not be the intended behavior.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-postgresql-l4-s3",
             "type": "practice",
-            "title": "Exploring PostgreSQL Functions",
-            "markdown": "Task: Use SQL functions to:\n1. Find the average score of all players with the column alias `avg_score`.\n2. Generate a list of all usernames in lowercase.\n3. Determine the total number of players using an appropriate SQL function.\n\nExperiment with combining functions to meet additional requirements.",
-            "estMinutes": 9,
-            "questions": []
-          },
-          {
-            "id": "builtin-postgresql-l4-s4",
-            "type": "quiz",
-            "title": "Lesson Checkpoint",
-            "markdown": "Test your understanding of using SQL functions with this quiz.",
-            "estMinutes": 9,
+            "title": "Practice with Data Types and Functions",
+            "markdown": "Imagine a scenario where you need to calculate the total revenue from sales data—ensure each transaction is correctly recorded as a `numeric` type and compute the sum using the `SUM()` function.",
+            "estMinutes": 12,
             "questions": [
               {
-                "id": "builtin-postgresql-l4-s4-q1",
-                "type": "mcq",
-                "prompt": "Which function would you use to calculate the sum of a numeric column in PostgreSQL?",
-                "options": [
-                  "SUM()",
-                  "CONCAT()",
-                  "COUNT()",
-                  "AVG()"
-                ],
-                "correctIndex": 0,
-                "explanation": "SUM() is used to add up all the values in a given numeric column, providing the total sum."
-              },
-              {
-                "id": "builtin-postgresql-l4-s4-q2",
+                "id": "builtin-postgresql-l4-s3-q1",
                 "type": "short_answer",
-                "prompt": "How can using functions in PostgreSQL enhance your database queries?",
-                "expectedAnswer": "Functions simplify query logic, reduce code repetition, and efficiently handle computations and transformations within queries.",
-                "explanation": "Functions enhance queries by encapsulating common logic and operations, making SQL concise and efficient."
+                "prompt": "Write a query to find total sales in currency format.",
+                "expectedAnswer": "Consider a formatting function: SELECT TO_CHAR(SUM(sales), 'FM999,999.00') FROM transactions;",
+                "explanation": "Formatting numeric data as currency enhances readability."
               }
             ]
           }
@@ -1382,59 +1683,58 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-postgresql-l5",
-        "title": "Indexes and Performance Optimization",
+        "title": "Transactions and Indexing",
         "estMinutes": 35,
+        "glossary": [
+          "Transaction",
+          "Index",
+          "ACID",
+          "Concurrency"
+        ],
         "segments": [
           {
             "id": "builtin-postgresql-l5-s1",
             "type": "reading",
-            "title": "Understanding Indexes",
-            "markdown": "As data volume grows, the performance of your database queries can degrade if not properly managed. Indexes are crucial in improving query performance by allowing PostgreSQL to locate data without scanning every row in a table.\n\nThink of an index as a book index: it helps locate information quickly. In a gaming database, indexing a `username` column can make lookups faster, especially in a table with millions of entries:\n\n```sql\nCREATE INDEX idx_username ON players(username);\n```\n\nIndexes enhance search speed dramatically, turning potentially costly operations into swift ones. However, they come with trade-offs: they consume additional disk space and can slow down `INSERT`, `UPDATE`, and `DELETE` operations because the index has to be updated. It’s essential to find the right balance by indexing only when necessary.",
-            "estMinutes": 4,
-            "questions": []
+            "title": "Managing Data with Transactions",
+            "markdown": "Transactions in PostgreSQL ensure that a series of operations either all succeed or none apply, maintaining the integrity and consistency of the database. They adhere to the ACID properties: Atomicity, Consistency, Isolation, and Durability. Use `BEGIN`, `COMMIT`, and `ROLLBACK` to control transactions:\n\n```sql\nBEGIN;\nUPDATE accounts SET balance = balance - 100 WHERE id = 1;\nUPDATE accounts SET balance = balance + 100 WHERE id = 2;\nCOMMIT;\n```\n\nThis example safely transfers money between accounts, ensuring data integrity even if a server crash occurs midway. A common oversight is forgetting `COMMIT`, resulting in uncommitted transactions that may lead to data loss upon session termination.",
+            "estMinutes": 8,
+            "questions": [
+              {
+                "id": "builtin-postgresql-l5-s1-q1",
+                "type": "mcq",
+                "prompt": "What ensures all or none changes are applied in a database?",
+                "options": [
+                  "Isolation",
+                  "Atomicity",
+                  "Durability",
+                  "None"
+                ],
+                "correctIndex": 1,
+                "explanation": "Atomicity is essential for executing operations in full or not at all within transactions."
+              }
+            ]
           },
           {
             "id": "builtin-postgresql-l5-s2",
             "type": "code",
-            "title": "Creating and Implementing Indexes",
-            "markdown": "Creating indexes can optimize your database for read-heavy operations. Here's how to create a few:\n\n```sql\n-- Creating an index for fast searching by username\nCREATE INDEX players_username_idx ON players(username);\n\n-- Composite index for combined search operations\nCREATE INDEX players_username_score_idx ON players(username, high_score);\n\n-- Use the index in a SELECT query\nSELECT * FROM players WHERE username = 'Alice';\n```\n\nIndexes significantly speed up read operations, especially when filtering with conditions. Use `EXPLAIN` to see how a query plan utilizes indexes; this helps measure performance improvement. A balance between too few and too many indexes is crucial, as excessive indexing can affect write operations.",
-            "estMinutes": 9,
+            "title": "Creating and Using Indexes",
+            "markdown": "Indexes improve query performance by enabling quick data retrieval without scanning entire tables. You can create indexes with:\n\n```sql\nCREATE INDEX idx_employee_name ON employees(name);\n```\n\nThis index optimizes search queries for employee names. While indexes significantly boost performance, over-indexing can degrade write performance—be selective and focus on fields frequently used in `WHERE` and `JOIN` conditions. Choosing the right type (e.g., hash, B-tree) according to your queries is vital.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-postgresql-l5-s3",
             "type": "practice",
-            "title": "Deep Dive into Index Optimization",
-            "markdown": "Task: In your `players` table, create an index on `high_score` to optimize queries retrieving players with scores higher than 1000. Verify the improvement using an `EXPLAIN` query to visualize the execution plan.\n\nThink critically about how index choices affect read and write operations. Attempt different indexing strategies to observe impacts.",
-            "estMinutes": 11,
-            "questions": []
-          },
-          {
-            "id": "builtin-postgresql-l5-s4",
-            "type": "quiz",
-            "title": "Lesson Checkpoint",
-            "markdown": "Evaluate your understanding of indexes with this quiz.",
-            "estMinutes": 11,
+            "title": "Practice with Transactions and Indexes",
+            "markdown": "Simulate a transaction to adjust multiple related table entries while maintaining integrity. Additionally, create an index on a frequently queried column and observe its impact on query execution time.",
+            "estMinutes": 17,
             "questions": [
               {
-                "id": "builtin-postgresql-l5-s4-q1",
-                "type": "mcq",
-                "prompt": "What is a major drawback of having too many indexes on a table?",
-                "options": [
-                  "Increased query performance for all operations.",
-                  "Decreased disk usage and more complicated backups.",
-                  "Slower write operations and higher storage requirements.",
-                  "None, as indexes always improve performance."
-                ],
-                "correctIndex": 2,
-                "explanation": "While indexes benefit read performance, they increase storage needs and can slow down write operations as indexes need to be maintained."
-              },
-              {
-                "id": "builtin-postgresql-l5-s4-q2",
+                "id": "builtin-postgresql-l5-s3-q1",
                 "type": "short_answer",
-                "prompt": "Why might you choose to create a composite index?",
-                "expectedAnswer": "Composite indexes are useful for optimizing queries involving multiple columns in WHERE clauses, providing faster retrieval by pre-combining column values.",
-                "explanation": "Composite indexes pre-optimize queries filtering or ordering by multiple columns, enhancing multi-condition search speed."
+                "prompt": "How do indexes affect database performance?",
+                "expectedAnswer": "Indexes speed up data retrieval but can slow down data modification operations like insert or update due to additional maintenance.",
+                "explanation": "Indexes are a trade-off between read and write performance."
               }
             ]
           }
@@ -1442,67 +1742,58 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-postgresql-l6",
-        "title": "Transactions, Locks, and Concurrency",
-        "estMinutes": 32,
+        "title": "Data Security and User Management",
+        "estMinutes": 30,
+        "glossary": [
+          "Authentication",
+          "Role",
+          "Permission",
+          "Encryption"
+        ],
         "segments": [
           {
             "id": "builtin-postgresql-l6-s1",
             "type": "reading",
-            "title": "Understanding Transactions",
-            "markdown": "Transactions are foundational in database management by ensuring data integrity through atomic operations. Making changes to the database without transactions is risky since operations could fail partway, leaving the database in an inconsistent state.\n\nEnvision saving the results of multiple game rounds to your PostgreSQL database. If any SQL command in this series fails, you want to ensure none of the changes are saved—transactions allow this by enforcing an all-or-nothing approach:\n\n```sql\nBEGIN;\nUPDATE players SET high_score = 1500 WHERE username = 'PlayerOne';\nINSERT INTO games (game_name, player_id) VALUES ('Space Adventure', 3);\nCOMMIT;\n```\n\nUsing transactions wraps operations into single units of work, maintaining consistency. However, abandoning `COMMIT` can lead to incomplete operations that aren't saved—watch for this in development and debugging. Practice the judicious use of transactions to ensure robust data management.",
-            "estMinutes": 5,
-            "questions": []
+            "title": "User Authentication and Roles",
+            "markdown": "Ensuring database security is paramount, and PostgreSQL provides robust mechanisms for authentication and authorization. Establish roles to manage user permissions effectively. A role can be thought of as a user or a group:\n\n```sql\nCREATE ROLE data_analyst;\nGRANT SELECT ON ALL TABLES IN SCHEMA public TO data_analyst;\n```\n\nThis command sets up a role with read-only access to all tables in the public schema, suited for non-destructive operations in production environments. Misconfiguring roles can inadvertently expose data or prevent rightful user access, highlighting the importance of meticulous permission planning.",
+            "estMinutes": 10,
+            "questions": [
+              {
+                "id": "builtin-postgresql-l6-s1-q1",
+                "type": "mcq",
+                "prompt": "What is a role in PostgreSQL?",
+                "options": [
+                  "A table manager",
+                  "A database schema",
+                  "A group that defines permissions",
+                  "An unused keyword"
+                ],
+                "correctIndex": 2,
+                "explanation": "Roles define permissions for users or groups in PostgreSQL."
+              }
+            ]
           },
           {
             "id": "builtin-postgresql-l6-s2",
             "type": "code",
-            "title": "Transactions with PostgreSQL",
-            "markdown": "Here's a standard flow of a transactional operation:\n\n```sql\n-- Start transaction block\nBEGIN;\n\n-- Add multiple operations\nINSERT INTO players (username, high_score) VALUES ('Champion', 3000);\nUPDATE players SET high_score = high_score + 100 WHERE username = 'Champion';\n\n-- Commit changes to finalize\nCOMMIT;\n```\n\nTransactions should encapsulate operations that you want to execute as a single unit. If `ROLLBACK` is triggered before `COMMIT`, none of the operations are saved, which is vital for error correction and maintaining integrity. Experiment with different scenarios to learn when transactions fail.",
-            "estMinutes": 6,
+            "title": "Enhancing Security with Encryption",
+            "markdown": "Data security can be further enhanced by encrypting sensitive information. PostgreSQL supports SSL/TLS to encrypt data in transit and offers the `pgcrypto` extension for data encryption at rest. Using SSL involves configuration changes in the `postgresql.conf` and client connection parameters:\n\n```bash\n# Enable SSL in postgresql.conf\nssl = on\n\n# Connect using SSL\npsql \"host=server dbname=mydb user=user sslmode=require\"\n```\n\nHowever, setting SSL improperly can lead to unintentional disabling of encryption, so always verify configurations during deployments.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-postgresql-l6-s3",
-            "type": "reading",
-            "title": "Locking and Concurrency Control",
-            "markdown": "Concurrency occurs when many database transactions are executed simultaneously, often leading to transaction conflicts and the need for locking mechanisms to ensure the integrity of your data.\n\nImagine multiple players updating scores in a table. Without proper locking, data integrity issues like race conditions might arise, where results are inconsistent or corrupted. PostgreSQL uses locks automatically but understanding them helps troubleshoot and optimize concurrency.\n\n```sql\nLOCK TABLE players IN EXCLUSIVE MODE;\n```\n\nThis command prevents further reads or writes until the current transaction completes and is used when explicit locking is essential to ensure transaction isolation. While locks provide power, overusing them can lead to deadlocks, where transactions become stuck waiting for each other to release locks. Careful management of locks helps maintain bottleneck-free database operations.",
-            "estMinutes": 6,
-            "questions": []
-          },
-          {
-            "id": "builtin-postgresql-l6-s4",
             "type": "practice",
-            "title": "Applying Transactions and Locks",
-            "markdown": "Task: Write SQL that uses transactions to add a new player and new game row, ensuring both operations commit together. Introduce a deliberate conflict such as `LOCK` on an already locked table to observe transaction behavior.\n\nExperiment with transaction controls to see how conflicts and resolutions are handled.",
-            "estMinutes": 9,
-            "questions": []
-          },
-          {
-            "id": "builtin-postgresql-l6-s5",
-            "type": "quiz",
-            "title": "Lesson Checkpoint",
-            "markdown": "Assess your transaction and concurrency management understanding with this quiz.",
-            "estMinutes": 6,
+            "title": "Practice User and Permission Management",
+            "markdown": "Create a new database role with limited permissions to specific tables. Then, attempt basic actions such as reading from non-permitted tables (to check for access errors).",
+            "estMinutes": 10,
             "questions": [
               {
-                "id": "builtin-postgresql-l6-s5-q1",
-                "type": "mcq",
-                "prompt": "Which statement about transactions is true?",
-                "options": [
-                  "Transactions are only useful for read operations.",
-                  "A transaction groups multiple SQL statements and ensures atomicity.",
-                  "Transactions automatically retry until successful.",
-                  "They deplete database performance and should be avoided."
-                ],
-                "correctIndex": 1,
-                "explanation": "Transactions ensure all operations within them are completed successfully or not at all, maintaining data integrity."
-              },
-              {
-                "id": "builtin-postgresql-l6-s5-q2",
+                "id": "builtin-postgresql-l6-s3-q1",
                 "type": "short_answer",
-                "prompt": "How does locking help in maintaining data concurrency?",
-                "expectedAnswer": "Locking ensures that multiple transactions do not interfere with each other, maintaining consistent data states during concurrent operations.",
-                "explanation": "Locking prevents conflicts by restricting access to data being updated by other transactions, ensuring accurate and isolated operations."
+                "prompt": "What steps are involved in restricting user access in PostgreSQL?",
+                "expectedAnswer": "Create a role, define permissions, grant role to users, and periodically audit access.",
+                "explanation": "Administration involves setting roles and permissions to enforce security policy."
               }
             ]
           }
@@ -1517,59 +1808,64 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
     "lessons": [
       {
         "id": "builtin-tailwind-l1",
-        "title": "Introduction to Tailwind CSS",
+        "title": "Why Tailwind CSS?",
         "estMinutes": 20,
+        "glossary": [
+          "utility-first",
+          "responsive design",
+          "CSS framework"
+        ],
         "segments": [
           {
             "id": "builtin-tailwind-l1-s1",
             "type": "reading",
-            "title": "Why Tailwind?",
-            "markdown": "Imagine writing CSS without having to come up with class names or jump between stylesheets to make changes. Tailwind CSS offers a way to cut down on your CSS maintenance by using utility-first classes. Each class in Tailwind CSS applies a single or small set of properties, promoting a more structured and simplified way of styling.\n\n**Example:**\n\nIn a traditional CSS setup, creating a card component might look like this:\n```html\n<div class=\"card\">\n  <p class=\"card-title\">Title</p>\n  <p class=\"card-body\">Description...</p>\n</div>\n```\n```css\n.card { padding: 1rem; border: 1px solid #e2e8f0; }\n.card-title { font-weight: bold; }\n```\n\nWith Tailwind, you can achieve this directly in your HTML:\n```html\n<div class=\"p-4 border border-gray-300\">\n  <p class=\"font-bold\">Title</p>\n  <p>Description...</p>\n</div>\n```\n\nThis reduces design inconsistencies and promotes reusability. A common pitfall is the initially unfamiliar syntax, which can lead to messy code if not approached with a disciplined mindset.",
+            "title": "The Problem with Traditional CSS",
+            "markdown": "CSS is a powerful styling language, but it can lead to bloated and hard-to-maintain stylesheets. In large projects, the sheer number of classes, IDs, and styles can become overwhelming, leading to inefficient, repetitive, and complex code. Tailwind CSS aims to solve this by taking a utility-first approach. Unlike other frameworks, which provide pre-designed components, Tailwind CSS offers low-level utility classes that let you build complex layouts without leaving your HTML. Let's imagine a scenario where you want to create a consistent layout across multiple pages. With Tailwind, you only need to focus on functional styles like `text-center`, `bg-blue-500`, and `p-4`. This modular approach not only speeds up development but also makes it easier to maintain your code, as you can immediately see how elements are designed directly in your HTML. A common pitfall is forgetting the utility-first mindset and overcomplicating your Tailwind setup, defeating its purpose of simplicity.",
             "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-tailwind-l1-s2",
             "type": "code",
-            "title": "Setting Up Tailwind CSS",
-            "markdown": "To get started with Tailwind, you can either use a CDN for a quick setup or install via npm for a more scalable solution:\n\n**CDN Approach:**\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <link href=\"https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css\" rel=\"stylesheet\">\n</head>\n<body>\n  <h1 class=\"text-3xl font-bold underline\">Hello world!</h1>\n</body>\n</html>\n```\n**npm Approach:**\nFirst, install Tailwind via npm:\n```bash\nnpm install tailwindcss\n```\nThen, generate a Tailwind config file:\n```bash\nnpx tailwindcss init\n```\nIntegrate Tailwind into your build process to take advantage of customizability.\n\nThe npm setup is preferred for longer projects as it allows for configuration, customization, and optimizations like purging unused styles.",
-            "estMinutes": 7,
+            "title": "Writing CSS: Utility vs. Traditional Approaches",
+            "markdown": "Below is a simple HTML snippet styled traditionally vs. with Tailwind CSS. The Tailwind approach results in leaner styles, reducing redundancy and improving scalability:\n\n```html\n<!-- Traditional CSS -->\n<div class=\"card\">\n  <h1 class=\"title\">Hello, World!</h1>\n</div>\n\n/* styles.css */\n.card { padding: 20px; background-color: blue; color: white; }\n.title { text-align: center; }\n\n<!-- Tailwind CSS -->\n<div class=\"p-5 bg-blue-500 text-white\">\n  <h1 class=\"text-center\">Hello, World!</h1>\n</div>\n```\n\nNotice how Tailwind makes the styles part of the HTML, allowing for quicker site-wide updates and easier design debugging.",
+            "estMinutes": 3,
             "questions": []
           },
           {
             "id": "builtin-tailwind-l1-s3",
-            "type": "reading",
-            "title": "Exploring the Utility-First Paradigm",
-            "markdown": "Using utility-first CSS is fundamentally about composing interfaces using small, atomic, and composable classes. It challenges the notion that separating HTML and CSS is inherently beneficial. Instead, it encourages styling directly within the HTML structure.\n\nFor instance, instead of applying styles in separate CSS sheets, utilities like `flex`, `items-center`, and `justify-center` can achieve the same layout directly in HTML:\n```html\n<div class=\"flex items-center justify-center h-screen\">\n  <p class=\"text-lg\">Centered Text</p>\n</div>\n```\nThis approach provides rapid development and greater design consistency. Common pitfalls include over-reliance on these utilities without understanding flexbox or CSS grid, leading to accidental misalignments or layout shifts.",
-            "estMinutes": 5,
+            "type": "practice",
+            "title": "Practice: Convert to Tailwind",
+            "markdown": "Take an existing CSS file that styles a button and refactor it using Tailwind CSS utilities. Focus on simplifying the design while maintaining the same visual style.",
+            "estMinutes": 7,
             "questions": []
           },
           {
             "id": "builtin-tailwind-l1-s4",
             "type": "quiz",
-            "title": "Check Your Understanding",
-            "markdown": "This short quiz will test your understanding of Tailwind's setup and concept.",
-            "estMinutes": 3,
+            "title": "Lesson Quiz",
+            "markdown": "Check your understanding of the introduction and basic concepts behind Tailwind CSS.",
+            "estMinutes": 5,
             "questions": [
               {
                 "id": "builtin-tailwind-l1-s4-q1",
                 "type": "mcq",
-                "prompt": "What is a primary benefit of using Tailwind CSS?",
+                "prompt": "What is a major advantage of using Tailwind CSS over traditional CSS?",
                 "options": [
-                  "It automatically creates class names for you.",
-                  "It allows CSS to be written directly in JavaScript.",
-                  "It encourages the use of utility classes that are atomic and composable.",
-                  "It bypasses the need for HTML elements."
+                  "It provides pre-made components out of the box.",
+                  "It encourages more succinct and modular styles through utility classes.",
+                  "It is faster to load in the browser.",
+                  "It automatically asserts SEO best practices."
                 ],
-                "correctIndex": 2,
-                "explanation": "Tailwind promotes using utility classes for building designs directly in your HTML, making CSS more manageable and scalable."
+                "correctIndex": 1,
+                "explanation": "Tailwind CSS focuses on utility-first classes which promote modularity and succinct style specification."
               },
               {
                 "id": "builtin-tailwind-l1-s4-q2",
                 "type": "short_answer",
-                "prompt": "What are two ways to set up Tailwind CSS in your project?",
-                "expectedAnswer": "Using a CDN link or installing via npm for a deeper integration.",
-                "explanation": "CDN is quick for small projects or prototypes, whereas npm allows for customization and optimization."
+                "prompt": "How does Tailwind CSS help in maintaining a project's CSS codebase?",
+                "expectedAnswer": "Tailwind CSS helps by using utility-first classes that promote reuse and minimize redundant CSS, making the codebase easier to manage and update.",
+                "explanation": "By embedding styles directly within HTML using utility classes, Tailwind minimizes the disconnectedness of CSS from the markup it styles, reducing complexity."
               }
             ]
           }
@@ -1577,59 +1873,64 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-tailwind-l2",
-        "title": "Working with Tailwind CSS Classes",
+        "title": "Getting Started with Tailwind",
         "estMinutes": 25,
+        "glossary": [
+          "npm",
+          "PostCSS",
+          "purge"
+        ],
         "segments": [
           {
             "id": "builtin-tailwind-l2-s1",
             "type": "reading",
-            "title": "Understanding Hover and Responsive Utilities",
-            "markdown": "Tailwind CSS provides an intuitive way to handle hover states and responsiveness through its dynamic utility classes. The priority here is simplicity. Tailwind uses prefixes for hover states, like `hover:text-red-500`, which changes the text color when hovered over. This can save time compared to writing traditional CSS selectors.\n\nFor example:\n```html\n<button class=\"bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded\">\n  Hover Me\n</button>\n```\nIn responsive design, Tailwind utilizes a mobile-first approach with prefixes like `sm:`, `md:`, `lg:`, and `xl:` to apply styles at different breakpoints. These prefixes help in creating adaptable designs that fit various screen sizes.\n\n**Responsive Example:**\n```html\n<div class=\"bg-gray-200 p-4 sm:bg-green-200 md:bg-blue-200 lg:bg-red-200\">\n  Adaptive Background\n</div>\n```\nHere, the background color will adapt based on screen size. The pitfall here is not thoroughly testing on various devices - sometimes leading to overlooked or misaligned elements.",
-            "estMinutes": 10,
-            "questions": []
-          },
-          {
-            "id": "builtin-tailwind-l2-s2",
-            "type": "practice",
-            "title": "Applying Tailwind CSS in Projects",
-            "markdown": "Practice applying hover and responsive utilities. Create a simple card component that changes the background on hover and adapts the text size for different screen sizes:\n\n**Task:**\n1. Create a card with an image, a title, and a small description.\n2. Change the background color when hovered.\n3. Ensure the text size adjusts for mobile (`sm:`), tablet (`md:`), and desktop (`lg:`) screens.",
+            "title": "Setting Up Tailwind",
+            "markdown": "To integrate Tailwind into a project, you first need to set it up properly. Tailwind relies on Node.js, so make sure you have it installed. You will often start by installing Tailwind via npm, a package manager for JavaScript. Here’s a basic setup sequence:\n\n1. Initialize a new Node.js project with `npm init -y`.\n2. Install Tailwind CSS via npm: `npm install tailwindcss`.\n3. Create a `tailwind.config.js` file with `npx tailwindcss init`.\n4. Configure your CSS input file to use Tailwind's directives: `@tailwind base;`, `@tailwind components;`, and `@tailwind utilities;`.\n\nTo build your styles, you’ll usually use a build tool like PostCSS. Configure it to process your CSS with Tailwind and output the compiled CSS file. You might also set up 'purge' to remove unused styles, incredibly crucial for keeping your CSS lightweight in production. A common stumbling block is failing to run the build steps, so make sure your build process is set up correctly and verified through testing.",
             "estMinutes": 7,
             "questions": []
           },
           {
-            "id": "builtin-tailwind-l2-s3",
+            "id": "builtin-tailwind-l2-s2",
             "type": "code",
-            "title": "Code Review and Refactor",
-            "markdown": "Refactor a basic HTML component with Tailwind CSS utility classes. Consider this original design:\n```html\n<div class=\"component\">\n  <h2 class=\"component-title\">Title</h2>\n  <p class=\"component-desc\">This is a description.</p>\n</div>\n```\nRefactor using Tailwind:\n```html\n<div class=\"p-4 border rounded bg-white hover:bg-gray-100 transition-transform\">\n  <h2 class=\"text-xl font-semibold mb-2\">Title</h2>\n  <p class=\"text-gray-700\">This is a description.</p>\n</div>\n```\nNow the hover and transitions are taken care of directly in the HTML, providing easy readability and a more cohesive styling approach.",
+            "title": "Installing Tailwind CSS",
+            "markdown": "Let's see the setup in practice. This script demonstrates a basic npm and Tailwind setup:\n\n```bash\n# Step 1: Initialize npm\nnpm init -y\n\n# Step 2: Install Tailwind via npm\nnpm install tailwindcss\n\n# Step 3: Initialize Tailwind CSS Configuration\necho \"module.exports = { purge: [], theme: { extend: {}, }, plugins: [], }\" > tailwind.config.js\n\n# Step 4: Set up PostCSS\necho \"\nmodule.exports = {\n  plugins: [\n    require('tailwindcss'),\n    require('autoprefixer'),\n  ],\n}\" > postcss.config.js\n\n# Step 5: Create a CSS File\nmkdir src && echo \"@tailwind base; @tailwind components; @tailwind utilities;\" > src/styles.css\n```\n\nThis ready-to-run snippet initializes Tailwind for you. Remember to install and configure PostCSS if it’s not included in your project tools.",
+            "estMinutes": 5,
+            "questions": []
+          },
+          {
+            "id": "builtin-tailwind-l2-s3",
+            "type": "practice",
+            "title": "Verify Your Setup",
+            "markdown": "Once Tailwind is installed, create a simple HTML page and link your compiled CSS. Use a few Tailwind classes like `bg-red-500` and `text-white` to ensure styles apply as expected. Adjust configurations in `tailwind.config.js` and rebuild to see changes.",
             "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-tailwind-l2-s4",
             "type": "quiz",
-            "title": "Responsive Utilities Quiz",
-            "markdown": "Test your knowledge on Tailwind's hover and responsive utilities with this quiz.",
-            "estMinutes": 3,
+            "title": "Lesson Quiz",
+            "markdown": "Test your knowledge about setting up and configuring Tailwind CSS.",
+            "estMinutes": 5,
             "questions": [
               {
                 "id": "builtin-tailwind-l2-s4-q1",
                 "type": "mcq",
-                "prompt": "What prefix does Tailwind use for mobile responsiveness?",
+                "prompt": "Which command initializes a blank Tailwind configuration file?",
                 "options": [
-                  "lg:",
-                  "sm:",
-                  "md:",
-                  "xs:"
+                  "npx tailwindcss setup",
+                  "npm create tailwind-config",
+                  "npx tailwindcss init",
+                  "npm configure tailwind"
                 ],
-                "correctIndex": 1,
-                "explanation": "Tailwind CSS uses `sm:` as the prefix for small screens, aligning with its mobile-first philosophy."
+                "correctIndex": 2,
+                "explanation": "Using `npx tailwindcss init` sets up a default `tailwind.config.js` file."
               },
               {
                 "id": "builtin-tailwind-l2-s4-q2",
                 "type": "short_answer",
-                "prompt": "Describe how you would apply a hover state using Tailwind CSS.",
-                "expectedAnswer": "To apply hover states, use the `hover:` prefix before the class, e.g., `hover:bg-blue-500`.",
-                "explanation": "Tailwind utilizes prefixes to modify styles on specific events like hover."
+                "prompt": "Why is the purge feature important in a Tailwind CSS setup?",
+                "expectedAnswer": "Purge is used to remove unused CSS styles in production, which reduces the final size of the stylesheet, improving load times.",
+                "explanation": "The purge feature ensures that your production build only includes the CSS actually needed."
               }
             ]
           }
@@ -1637,59 +1938,64 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-tailwind-l3",
-        "title": "Customizing Tailwind CSS",
-        "estMinutes": 20,
+        "title": "Tailwind Basics: Layout and Spacing",
+        "estMinutes": 30,
+        "glossary": [
+          "flexbox",
+          "margin",
+          "padding"
+        ],
         "segments": [
           {
             "id": "builtin-tailwind-l3-s1",
             "type": "reading",
-            "title": "Tailwind Configuration",
-            "markdown": "One key advantage of Tailwind CSS is its customization prowess, thanks to the configuration file `tailwind.config.js`. This file allows you to redefine default settings, extend them, or even disable certain features. Customization includes setting your color palette, fonts, spacing, and even extending utilities with custom classes.\n\nFor instance, to add a custom color:\n```javascript\n// tailwind.config.js\nmodule.exports = {\n  theme: {\n    extend: {\n      colors: {\n        'primary': '#3490dc',\n        'secondary': '#ffed4a',\n        'danger': '#e3342f',\n      }\n    }\n  }\n}\n```\nYou can now use `bg-primary` class in your HTML. Common pitfalls when customizing include overriding default styles without awareness, leading to unintended visual outcomes across your design.",
+            "title": "Utilizing Flexbox with Tailwind",
+            "markdown": "Flexbox is a powerful layout module that allows elements to be displayed dynamically across a page based on available space. Tailwind CSS makes using flexbox straightforward with utility classes like `flex`, `flex-row`, `flex-col`, `justify-center`, and `items-center`. Suppose you have a gallery of images you want evenly spaced. Instead of writing complex CSS rules, you can apply Tailwind's `flex flex-wrap justify-center` to the parent container. This automatically aligns children in a spread manner and centers them horizonally. \n\nA common issue is misunderstanding how flex properties interact; for instance, using `items-center` instead of `justify-center` to align items horizontally, leading to confusion and layout issues.",
             "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-tailwind-l3-s2",
-            "type": "practice",
-            "title": "Implementing Custom Fonts",
-            "markdown": "Extend Tailwind's default font family to add a Google Font of your choice. Update the configuration file and apply the font to a text element.\n\n**Task:**\n1. Choose a Google Font and import it into your project.\n2. Add this font to the `tailwind.config.js` under the `extend` property for fonts.\n3. Apply your new font to an `h1` header on your page.",
-            "estMinutes": 5,
+            "type": "reading",
+            "title": "Working with Spacing",
+            "markdown": "Tailwind CSS offers an extensive range of utilities for setting margins and padding. These utilities allow you to add consistent spacing effortlessly. The class names are intuitive, for example, `m-4` sets a margin of four units around the element, while `p-2` applies padding of two units. Suppose you are creating a card design: `class=\"m-3 p-4 bg-gray-100\"` would apply a compact and evenly spaced design. \n\nIt's essential to keep the system consistent. Avoid accidental conflicts by overuse of spacing classes that could lead to improper spacing in responsive views.",
+            "estMinutes": 7,
             "questions": []
           },
           {
             "id": "builtin-tailwind-l3-s3",
-            "type": "code",
-            "title": "Colored Shadows in Tailwind",
-            "markdown": "Create a colored shadow effect, which isn’t directly available in Tailwind by default, but can be added via extensions in the config file:\n\n**Config Setup:**\n```javascript\n// tailwind.config.js\nmodule.exports = {\n  theme: {\n    extend: {\n      boxShadow: {\n        'custom': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 204, 204, 0.1)',\n      }\n    }\n  }\n}\n```\n**Usage in HTML:**\n```html\n<div class=\"shadow-custom p-6 bg-white rounded\">\n  <p>Colored Shadow Box</p>\n</div>\n```\nBy enhancing the box shadow, you open doors to custom aesthetic choices while maintaining Tailwind's structural efficiency.",
-            "estMinutes": 7,
+            "type": "practice",
+            "title": "Align a Photo Gallery",
+            "markdown": "Create a photo gallery using flexbox. Use Tailwind CSS classes to ensure that your images wrap neatly and are centered both horizontally and vertically within their container, using spacing utilities to afford some breathing room around each image.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-tailwind-l3-s4",
             "type": "quiz",
-            "title": "Customization Check-In",
-            "markdown": "Ensure you understand how to customize Tailwind with this quick quiz.",
-            "estMinutes": 3,
+            "title": "Lesson Quiz",
+            "markdown": "Confirm your understanding of flexbox and spacing utilities in Tailwind.",
+            "estMinutes": 5,
             "questions": [
               {
                 "id": "builtin-tailwind-l3-s4-q1",
                 "type": "mcq",
-                "prompt": "Which configuration file in Tailwind allows for theme customization?",
+                "prompt": "Which class would you use to align items in a flex container vertically?",
                 "options": [
-                  "gatsby-config.js",
-                  "webpack.config.js",
-                  "tailwind.config.js",
-                  "babel.config.js"
+                  "flex-row",
+                  "items-center",
+                  "justify-center",
+                  "align-middle"
                 ],
-                "correctIndex": 2,
-                "explanation": "Customizations in Tailwind CSS are handled via the `tailwind.config.js` file."
+                "correctIndex": 1,
+                "explanation": "The `items-center` class aligns items vertically when used with `flex`."
               },
               {
                 "id": "builtin-tailwind-l3-s4-q2",
                 "type": "short_answer",
-                "prompt": "How can you extend Tailwind's color palette?",
-                "expectedAnswer": "By modifying the `theme.extend.colors` section in the `tailwind.config.js` file.",
-                "explanation": "The `extend` property allows you to add new values without overwriting the existing ones."
+                "prompt": "How do margin and padding utilities contribute to a design?",
+                "expectedAnswer": "They create consistent spacing and help define the aesthetic and usability of an interface by controlling the space around and inside elements.",
+                "explanation": "Consistent use of spacing utilities maintains design harmony and readability."
               }
             ]
           }
@@ -1697,51 +2003,64 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-tailwind-l4",
-        "title": "Working with Preprocessors and Tailwind",
-        "estMinutes": 18,
+        "title": "Responsive Design with Tailwind",
+        "estMinutes": 25,
+        "glossary": [
+          "breakpoints",
+          "responsive utilities",
+          "media queries"
+        ],
         "segments": [
           {
             "id": "builtin-tailwind-l4-s1",
             "type": "reading",
-            "title": "Integrating with Sass",
-            "markdown": "Combining Tailwind CSS with Sass (or SCSS) enhances the styling process, allowing developers to harness the power of variables, nesting, and other preprocess features alongside Tailwind's utility-first approach. A typical setup would involve installing both Tailwind and Sass, then compiling the styles accordingly.\n\nTo integrate:\n1. Ensure Sass is installed via npm.\n2. Create an `app.scss` file where you can import Tailwind’s base styles and other custom Sass:\n```scss\n@import 'tailwindcss/base';\n@import 'tailwindcss/components';\n@import 'tailwindcss/utilities';\n```\n3. Define Sass variables and mixins at the top, to control colors, fonts, and other shared stylistic elements.\n\n**Example Usage:**\n```scss\n$main-padding: 1.5rem;\n.container {\n  padding: $main-padding;\n  @apply bg-gray-100;\n}\n```\nCommon pitfalls involve relying too heavily on Sass nesting, which can lead to deeply nested styles that are harder to maintain.",
-            "estMinutes": 10,
+            "title": "Building with Responsive Utilities",
+            "markdown": "Tailwind CSS simplifies the process of creating responsive designs. Instead of writing separate media queries, you employ responsive utilities with simple prefixes like `sm:`, `md:`, `lg:`, and `xl:`. These prefixes apply styles conditionally based on the viewport's size. For instance, if a button needs a different background on small and large screens, you can use `bg-red-500 sm:bg-blue-500 lg:bg-green-500`. This avoids having to switch between CSS files and ensures that changes are quick and maintainable.\n\nA typical stumbling block is neglecting to test across all breakpoints, leading to unexpected layouts on different devices. Make it a habit to validate changes on multiple screen sizes.",
+            "estMinutes": 7,
             "questions": []
           },
           {
             "id": "builtin-tailwind-l4-s2",
-            "type": "practice",
-            "title": "Compiling for Production",
-            "markdown": "Try compiling your Tailwind and Sass setup using a task runner like Gulp or Webpack. Create a basic project setup to handle complex SCSS with Tailwind utilities and produce a minified CSS file for production.\n\n**Task:**\n1. Setup Gulp or Webpack in your project.\n2. Create a task that compiles `app.scss` and minifies the CSS.\n3. Ensure Tailwind CSS is also included in the bundle.",
+            "type": "reading",
+            "title": "Common Breakpoints",
+            "markdown": "Tailwind's breakpoints are thoughtfully chosen to cater to most devices. The breakpoints `sm`, `md`, `lg`, and `xl` correspond to minimum widths, applied in scenarios like `md:w-1/2` which sets the width to half the container on medium screens and larger. The classes stack, so a `w-1/4 lg:w-1/2` class would make an element a quarter width by default, but bump it to half width on large screens. Understanding which breakpoints to apply requires analyzing your audience's devices and contexts.\n\nA related issue is confusion over breakpoint overlap, which Tailwind handles gracefully by treating larger screens as inclusive of smaller ones.",
             "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-tailwind-l4-s3",
+            "type": "practice",
+            "title": "Create a Responsive Navbar",
+            "markdown": "Design a responsive navigation bar. Use Tailwind's responsive utilities so that on bigger screens, the links are displayed horizontally whereas they stack vertically on smaller devices. Implement the navbar responsiveness without adding bespoke media query CSS rules.",
+            "estMinutes": 8,
+            "questions": []
+          },
+          {
+            "id": "builtin-tailwind-l4-s4",
             "type": "quiz",
-            "title": "Quiz on Preprocessing",
-            "markdown": "A mini-quiz to evaluate your understanding of Tailwind with preprocessors.",
-            "estMinutes": 3,
+            "title": "Lesson Quiz",
+            "markdown": "Evaluate your building skills with responsive utilities in Tailwind CSS.",
+            "estMinutes": 5,
             "questions": [
               {
-                "id": "builtin-tailwind-l4-s3-q1",
+                "id": "builtin-tailwind-l4-s4-q1",
                 "type": "mcq",
-                "prompt": "What is one advantage of integrating Tailwind with Sass?",
+                "prompt": "How would you apply different padding to a card component on medium and large screens?",
                 "options": [
-                  "Eliminates the need for JavaScript.",
-                  "Allows use of Sass features like variables and mixins alongside Tailwind utilities.",
-                  "Automatically removes unused CSS classes.",
-                  "Transforms HTML into SCSS."
+                  "sm:p-2 md:p-5",
+                  "p-2 lg:p-5",
+                  "md:p-3 lg:p-4",
+                  "p-4 md-lg:p-3"
                 ],
-                "correctIndex": 1,
-                "explanation": "Integrating with Sass enables the use of variables and mixins, providing all the benefits of Tailwind with Sass's powerful features."
+                "correctIndex": 2,
+                "explanation": "Use the `md:` and `lg:` prefixes to apply different styles across breakpoints."
               },
               {
-                "id": "builtin-tailwind-l4-s3-q2",
+                "id": "builtin-tailwind-l4-s4-q2",
                 "type": "short_answer",
-                "prompt": "How do you import Tailwind utilities into a Sass file?",
-                "expectedAnswer": "By using the `@import 'tailwindcss/utilities';` statement in your SCSS file.",
-                "explanation": "This imports Tailwind's CSS utility classes into the SCSS file for seamless integration."
+                "prompt": "What feature of Tailwind CSS makes designing for mobile-first simpler?",
+                "expectedAnswer": "Responsive utilities with breakpoint prefixes allow for styles that adapt seamlessly across different screen sizes, supporting a mobile-first design approach.",
+                "explanation": "Breakpoint prefixes override base styles, facilitating a fluid mobile-first design from core to larger screen adaptations."
               }
             ]
           }
@@ -1749,51 +2068,64 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-tailwind-l5",
-        "title": "Optimizing Tailwind for Production",
-        "estMinutes": 15,
+        "title": "Customizing Your Tailwind Theme",
+        "estMinutes": 30,
+        "glossary": [
+          "theme configuration",
+          "extend utility",
+          "custom colors"
+        ],
         "segments": [
           {
             "id": "builtin-tailwind-l5-s1",
             "type": "reading",
-            "title": "Purging Unused Styles",
-            "markdown": "One of Tailwind's initial criticisms is the size of its generated CSS file. However, Tailwind CSS provides a brilliant solution: purging unused styles. Using a 'purge' option in your `tailwind.config.js`, you can automatically remove unused classes from your final build, effectively reducing the file size for production.\n\n**Setup Example:**\n```javascript\n// tailwind.config.js\nmodule.exports = {\n  purge: ['./src/**/*.html', './src/**/*.js'],\n  theme: {\n    extend: {},\n  },\n  plugins: [],\n}\n```\n\nHere, all unused styles in HTML and JavaScript files inside `src` will be removed from the final CSS. This feature streamlines performance but requires careful configuration to ensure no required styles are mistakenly purged. A common pitfall is accidentally removing dynamic class names generated via JavaScript, leading to broken layouts or styles.",
+            "title": "Customizing Colors and Fonts",
+            "markdown": "Tailwind provides a powerful way to customize your theme via `tailwind.config.js`. You can tailor colors, fonts, and even spacing to fit your brand’s design. To modify colors, use the `theme.extend` property within your configuration file. For example, if your brand uses a particular shade of blue, add it under the `colors` key: ```js\ncolors: { 'brand-blue': '#007ace' }```. Similarly, customize fonts by specifying a family under `fontFamily`. Now any Tailwind class using `text-brand-blue` will render your unique color.\n\nA common trap is overwriting defaults instead of extending, which can eliminate essential base styling you may need.",
             "estMinutes": 7,
             "questions": []
           },
           {
             "id": "builtin-tailwind-l5-s2",
-            "type": "practice",
-            "title": "Implement a Production Build",
-            "markdown": "Create a production-ready build of your application using Tailwind CSS. Ensure that the final CSS is minimized and free from unused styles.\n\n**Steps:**\n1. Configure `tailwind.config.js` to include a purge process.\n2. Run your build process to create a minified CSS file.\n3. Verify that the CSS file is significantly smaller and that the application appears as expected without missing styles.",
+            "type": "code",
+            "title": "Experiment with Extending",
+            "markdown": "To illustrate extending Tailwind, here's a segment adding custom colors and a typography setting:\n\n```js\n// tailwind.config.js\nmodule.exports = {\n  theme: {\n    extend: {\n      colors: {\n        'midnight': '#121063',\n        'metal': '#565584'\n      },\n      fontFamily: { 'body': ['Nunito', 'sans-serif'] }\n    }\n  }\n};\n```\n\nUsing these settings, a header can use `class=\"text-metal font-body\"` to apply the customizations.",
             "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-tailwind-l5-s3",
+            "type": "practice",
+            "title": "Theme Creation Practice",
+            "markdown": "Configure your Tailwind theme by setting a unique color palette and a font family suited to a fictional or real brand you favor. Experiment with how your designs change by applying these styles to headings and text elements.",
+            "estMinutes": 10,
+            "questions": []
+          },
+          {
+            "id": "builtin-tailwind-l5-s4",
             "type": "quiz",
-            "title": "Optimization Process Quiz",
-            "markdown": "Evaluate your knowledge of optimization in Tailwind with this quiz.",
-            "estMinutes": 3,
+            "title": "Quiz on Customizable Themes",
+            "markdown": "Check your understanding of Tailwind's theme customization capabilities.",
+            "estMinutes": 5,
             "questions": [
               {
-                "id": "builtin-tailwind-l5-s3-q1",
+                "id": "builtin-tailwind-l5-s4-q1",
                 "type": "mcq",
-                "prompt": "What is the purpose of purging CSS in a Tailwind project?",
+                "prompt": "What is the result of modifying values in the extend object of Tailwind’s theme configuration?",
                 "options": [
-                  "To generate additional utility classes.",
-                  "To improve development speed.",
-                  "To remove unused styles and reduce file size.",
-                  "To convert CSS to JavaScript."
+                  "It overwrites existing Tailwind default styles.",
+                  "Prepend styles as duplicates.",
+                  "Adds to Tailwind’s defaults without removing existing styles.",
+                  "Conflicts with Tailwind's core utilities."
                 ],
                 "correctIndex": 2,
-                "explanation": "Purging removes unused CSS, leading to a more efficient and smaller file for production."
+                "explanation": "Using `theme.extend` responsibly augments default styling arrangements without omission."
               },
               {
-                "id": "builtin-tailwind-l5-s3-q2",
+                "id": "builtin-tailwind-l5-s4-q2",
                 "type": "short_answer",
-                "prompt": "Why might dynamic class names generate issues during the purge process?",
-                "expectedAnswer": "Dynamic class names created at runtime might be removed during purging if not explicitly defined in source files.",
-                "explanation": "The purge process relies on known class names, so dynamic ones can be overlooked and removed."
+                "prompt": "How do you add a new utility class for colors in Tailwind?",
+                "expectedAnswer": "Add the desired color property under `extend.colors` in `tailwind.config.js` to register a new utility class automatically.",
+                "explanation": "By extending the color configuration, you allow Tailwind to generate necessary utility classes."
               }
             ]
           }
@@ -1808,51 +2140,66 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
     "lessons": [
       {
         "id": "builtin-docker-l1",
-        "title": "Introduction to Docker and Containers",
-        "estMinutes": 30,
+        "title": "Introduction to Docker",
+        "estMinutes": 25,
+        "glossary": [
+          "Containerization",
+          "Image",
+          "Container",
+          "Docker Engine"
+        ],
         "segments": [
           {
             "id": "builtin-docker-l1-s1",
             "type": "reading",
-            "title": "Why Docker? Solving the Compatibility Puzzle",
-            "markdown": "Imagine you're developing applications on your local machine, and everything works perfectly. However, when you deploy it to the production environment, things start breaking—ever happened to you? Docker solves this classic 'works on my machine' problem. Docker containers are lightweight, self-sufficient, and portable units that can run anywhere, ensuring consistency across development and production environments. Containers package up everything the application needs: code, runtime, system tools, and libraries. A common pitfall, especially for beginners, is confusing Docker images with containers. Remember, an image is a static snapshot; a container is a running instance of that image. Tools like Docker enable quick spins of these containers, which is incredibly useful for debugging production issues more accurately.",
-            "estMinutes": 3,
-            "questions": []
-          },
-          {
-            "id": "builtin-docker-l1-s2",
-            "type": "code",
-            "title": "Basic Commands: Run Your First Container",
-            "markdown": "```bash\n# Pull an Ubuntu image from Docker Hub\n$ docker pull ubuntu\n\n# Run a Docker container\n$ docker run -it ubuntu bash\n\n# List running containers\n$ docker ps\n```\nIn this snippet, you pull an Ubuntu image to your local machine and then start a new container with an interactive terminal. The listing command, `docker ps`, displays any currently running containers, showing essential details like CONTAINER ID and STATUS. This is where many beginners stumble—they forget to run containers in detached mode or neglect to stop them afterward.",
+            "title": "Why Docker?",
+            "markdown": "Imagine trying to run your application on different machines, but encountering errors due to incompatible environments. This omnipresent frustration is eliminated by Docker. Docker enables developers to package applications into containers—lightweight, executable units encompassing the application, along with its dependencies, libraries, and configuration files. A key benefit is 'containerization', which ensures consistency across diverse environments, from development to production. Consider Docker as an efficient 'translator' between your app and the operating system, ensuring your code runs seamlessly anywhere. Beginners often confuse containers with virtual machines; however, containers are more lightweight because they share the host OS's kernel and only include what is necessary for the application.",
             "estMinutes": 5,
             "questions": []
           },
           {
+            "id": "builtin-docker-l1-s2",
+            "type": "reading",
+            "title": "Understanding Docker Images",
+            "markdown": "At the core of Docker is the concept of an image. Docker images are read-only templates used to create containers. An image contains everything needed to run a piece of software, including the code, environment variables, and system tools. When you run an image, it becomes one or more running containers in your machine. Imagine an image as the blueprint of a building, then a container would be the actual constructed building. It's essential to note that images are immutable, meaning any changes require creating a new image layer—preventing direct alterations to the image itself. This immutability leads to a common pitfall: newbies often try to modify a running container in ways that aren't persistent. Always commit such changes by creating a new image.",
+            "estMinutes": 6,
+            "questions": []
+          },
+          {
             "id": "builtin-docker-l1-s3",
+            "type": "code",
+            "title": "Hello World with Docker",
+            "markdown": "Let's run your first Docker container! This simple exercise downloads a Docker image from Docker Hub and runs it as a container.\n\n```bash\n# Pulls the latest 'hello-world' image and runs a container,\n# which prints 'Hello from Docker!'\ndocker run hello-world\n```\nRunning this command validates your Docker installation and connectivity to Docker Hub. Many beginners encounter permission errors; ensure Docker is started and your user has the necessary permissions to run it.",
+            "estMinutes": 4,
+            "questions": []
+          },
+          {
+            "id": "builtin-docker-l1-s4",
+            "type": "practice",
+            "title": "Reflect on Docker's Versatility",
+            "markdown": "Reflect on how Docker images and containers differ from traditional development processes. Consider why a company might favor Docker for deploying applications.",
+            "estMinutes": 5,
+            "questions": []
+          },
+          {
+            "id": "builtin-docker-l1-s5",
             "type": "quiz",
-            "title": "Get Comfortable with Docker Terminology",
-            "markdown": "Let's check what you've learned about basic Docker terminology and commands.",
-            "estMinutes": 3,
+            "title": "Check Your Understanding",
+            "markdown": "Assess your understanding of Docker basics.",
+            "estMinutes": 5,
             "questions": [
               {
-                "id": "builtin-docker-l1-s3-q1",
+                "id": "builtin-docker-l1-s5-q1",
                 "type": "mcq",
-                "prompt": "What is the difference between a Docker image and a Docker container?",
+                "prompt": "What is the main advantage of using Docker containers?",
                 "options": [
-                  "An image is a running instance, a container is a static snapshot.",
-                  "An image is a static snapshot, a container is a running instance.",
-                  "Both are the same; these terms are interchangeable.",
-                  "A container is used only for networking, an image is for storage."
+                  "They completely replace virtual machines.",
+                  "They ensure that the software will run the same way in different environments.",
+                  "They increase software performance by using more resources.",
+                  "They require no operating system to function."
                 ],
                 "correctIndex": 1,
-                "explanation": "A Docker image is a static, immutable file that includes the source code, libraries, and other dependencies that an application needs; a Docker container is a running instance of an image."
-              },
-              {
-                "id": "builtin-docker-l1-s3-q2",
-                "type": "short_answer",
-                "prompt": "How would you stop a running Docker container?",
-                "expectedAnswer": "Using the docker stop command followed by the container ID.",
-                "explanation": "Use `docker stop <CONTAINER_ID>` to gently stop a running container."
+                "explanation": "Docker containers encapsulate an application and its environment, ensuring consistent behavior across different environments."
               }
             ]
           }
@@ -1860,59 +2207,57 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-docker-l2",
-        "title": "Creating Your First Dockerfile",
+        "title": "Setting Up Your Docker Environment",
         "estMinutes": 30,
+        "glossary": [
+          "Dockerfile",
+          "Docker Hub",
+          "Build"
+        ],
         "segments": [
           {
             "id": "builtin-docker-l2-s1",
             "type": "reading",
-            "title": "Building the Blueprint: Dockerfiles Explained",
-            "markdown": "A Dockerfile is a text document containing all the commands to assemble an image. Think of it as a recipe for building Docker images. Mastery of Dockerfiles speeds up deployment and scales applications seamlessly. For example, you can specify a base image, add your application code, and configure specifics like the working directory and required packages. Each line in a Dockerfile creates a layer in the Docker image. A common mistake is placing frequently changing commands (like COPY) before static ones, which can hurt build performance by creating unnecessary layers. Optimize the order to harness Docker's caching ability effectively.",
-            "estMinutes": 4,
+            "title": "Crafting Your First Dockerfile",
+            "markdown": "The Dockerfile is a pivotal script comprising instructions on how to create a custom image. It tells Docker what the image should look like and what it should entail. In a typical Dockerfile, you specify the base image, include necessary files, and instruct on command execution. A fundamental Dockerfile begins with a `FROM` statement, denoting the base image, followed by instructions like `COPY` and `RUN`. For instance, `RUN npm install` might install required packages. Frequently encountered errors stem from overlooking the cessation of commands or incorrect Dockerfile syntax, which can lead to build failures. Therefore, each step must be crafted meticulously, keeping efficiency and rebuild timings in mind.",
+            "estMinutes": 7,
             "questions": []
           },
           {
             "id": "builtin-docker-l2-s2",
             "type": "code",
-            "title": "Code: Writing a Simple Dockerfile",
-            "markdown": "```Dockerfile\n# Use the official Node.js image\nFROM node:14\n\n# Set the working directory\nWORKDIR /usr/src/app\n\n# Install app dependencies\nCOPY package*.json ./\nRUN npm install\n\n# Bundle app source\nCOPY . .\n\n# Start the application\nCMD [\"node\", \"app.js\"]\n```\nThis example Dockerfile sets the groundwork for a Node.js application. It starts from the official Node.js image, sets a working directory, and installs dependencies. The `COPY` command moves your local files to the container, and the `CMD` directive tells Docker to run the app. These instructions build a consistent environment where developers don't need to manually install Node.js.",
+            "title": "Building a Docker Image",
+            "markdown": "Once you have written a Dockerfile, the next step is building the image. This image, once built, can be stored on Docker Hub or run directly on the local machine.\n\n```bash\n# Builds an image tagged 'myapp' using the Dockerfile in the current directory\n# The dot (.) signifies the current directory as the build context.\ndocker build -t myapp .\n```\nThe `-t` flag names and optionally tags the image in the `name:tag` format, making it easier to identify later. Pay attention to the build context (specified by `. in this instance), as unnecessary files can increase build size needlessly.",
             "estMinutes": 6,
             "questions": []
           },
           {
             "id": "builtin-docker-l2-s3",
             "type": "practice",
-            "title": "Practice: Create Your Own Dockerfile",
-            "markdown": "Create a Dockerfile for a Python Flask application. Start from a suitable Python base image and make sure to copy in your `requirements.txt` file and install dependencies before copying over your application source code. Assume the app starts with a command like `python app.py`.",
-            "estMinutes": 7,
+            "title": "Publishing to Docker Hub",
+            "markdown": "Develop a process for pushing your built Docker image to Docker Hub. Think through the necessary steps and permissions needed to achieve this, like creating a repository on Docker Hub.",
+            "estMinutes": 6,
             "questions": []
           },
           {
             "id": "builtin-docker-l2-s4",
             "type": "quiz",
-            "title": "Dockerfile Syntax and Commands Review",
-            "markdown": "Reinforce your understanding of Dockerfile components and their purposes.",
-            "estMinutes": 4,
+            "title": "Self-Check Quiz on Dockerfiles",
+            "markdown": "Test your familiarity with Dockerfile basics.",
+            "estMinutes": 6,
             "questions": [
               {
                 "id": "builtin-docker-l2-s4-q1",
                 "type": "mcq",
-                "prompt": "What does the `CMD` instruction do in a Dockerfile?",
+                "prompt": "Which of the following is NOT a valid Dockerfile instruction?",
                 "options": [
-                  "Specifies the base image to use.",
-                  "Sets environment variables.",
-                  "Determines the command to run on container start.",
-                  "Copies files from local to container."
+                  "FROM",
+                  "COPY",
+                  "RUN",
+                  "INIT"
                 ],
-                "correctIndex": 2,
-                "explanation": "The `CMD` instruction specifies the command to run when a container starts."
-              },
-              {
-                "id": "builtin-docker-l2-s4-q2",
-                "type": "short_answer",
-                "prompt": "Why should you place less frequently changing instructions at the top of a Dockerfile?",
-                "expectedAnswer": "To take advantage of Docker's layer caching for faster builds.",
-                "explanation": "Place less frequently changing instructions at the top to benefit from layer caching, which avoids redundant rebuilds."
+                "correctIndex": 3,
+                "explanation": "`INIT` is not a valid Dockerfile instruction. Common instructions include `FROM`, `COPY`, and `RUN`."
               }
             ]
           }
@@ -1920,59 +2265,58 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-docker-l3",
-        "title": "Docker Compose: Managing Multi-Container Applications",
-        "estMinutes": 35,
+        "title": "Navigating Docker Commands",
+        "estMinutes": 30,
+        "glossary": [
+          "Docker CLI",
+          "docker ps",
+          "docker exec",
+          "docker logs"
+        ],
         "segments": [
           {
             "id": "builtin-docker-l3-s1",
             "type": "reading",
-            "title": "Handling Complexity: Introduction to Docker Compose",
-            "markdown": "In real-world applications, you often have multiple services running together, like a web app backend, a database, and a caching server. Managing these services individually can become cumbersome. Enter Docker Compose—a tool for defining and running multi-container Docker applications. Using a single YAML file, you can configure your application's services, networks, and volumes. For example, if you have a Python Flask app that needs a Redis container, you can define both in a `docker-compose.yml` and manage them collectively. A common pitfall is misunderstanding the difference between Compose and Docker's core features. Think of Compose as an orchestration tool specifically for local development rather than scaling across servers.",
-            "estMinutes": 4,
+            "title": "Docker CLI Basics",
+            "markdown": "The Docker Command Line Interface (CLI) is your gateway to Docker's universe, equipping you with tools to manage images, containers, and more. Think of the CLI as a toolkit providing commands like `docker run`, `docker build`, and `docker ps`. `docker ps` lists running containers, a great way to ensure everything operates smoothly. The CLI is essential for real-time application management and debugging, though care should be taken with destructive commands. For instance, `docker rm` deletes a container—it’s critical to ensure the container is no longer needed before executing it. Users sometimes struggle with appropriate flag usage; familiarize yourself with flags like `-d` for detached mode and `-it` for interactive mode.",
+            "estMinutes": 7,
             "questions": []
           },
           {
             "id": "builtin-docker-l3-s2",
             "type": "code",
-            "title": "Writing a Docker Compose File",
-            "markdown": "```yaml\nversion: '3'\nservices:\n  web:\n    build: .\n    ports:\n      - \"5000:5000\"\n    volumes:\n      - .:/code\n    depends_on:\n      - redis\n  redis:\n    image: \"redis:alpine\"\n```\nThis snippet configures a two-service setup using Docker Compose: a 'web' service built from your current directory and a 'redis' service pulled from the Alpine Redis image. Notice how `depends_on` ensures the web service doesn't start until Redis is available, providing a simple yet powerful dependency management. Use this for smoother local development across services, avoiding interdependencies that might otherwise fail unpredictably.",
-            "estMinutes": 6,
+            "title": "Monitoring and Debugging with Docker",
+            "markdown": "What happens when an app in a Docker container doesn't behave as expected? Effective monitoring and debugging with `docker exec` and `docker logs` are essential.\n\n```bash\n# Executes a bash shell inside a running container named 'web'\ndocker exec -it web /bin/bash\n\n# Retrieves logs from a container named 'web'\ndocker logs web\n```\nDebugging tools like `docker exec` enable you to hop into a running container for inspection, while `docker logs` echoes the application's log output, similar to tailing logs on a traditional system.",
+            "estMinutes": 7,
             "questions": []
           },
           {
             "id": "builtin-docker-l3-s3",
             "type": "practice",
-            "title": "Deploying with Docker Compose",
-            "markdown": "Your task is to add a PostgreSQL service to an existing Docker Compose setup that includes a web service. Make sure the web service doesn't start until the database is ready, and set up appropriate environment variables.",
+            "title": "Experiment with Docker Commands",
+            "markdown": "Use Docker CLI commands to start, list, and stop a container. Specifically, practice monitoring a running container's logs for understanding how your application runs within Docker.",
             "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-docker-l3-s4",
             "type": "quiz",
-            "title": "Docker Compose File Logic Understanding",
-            "markdown": "Test how well you've understood the structure and purpose of Docker Compose files.",
-            "estMinutes": 4,
+            "title": "Command Mastery Check",
+            "markdown": "Test your knowledge of Docker CLI commands.",
+            "estMinutes": 6,
             "questions": [
               {
                 "id": "builtin-docker-l3-s4-q1",
                 "type": "mcq",
-                "prompt": "In a `docker-compose.yml` file, what does the `volumes` key generally configure?",
+                "prompt": "Which command lists all the running containers?",
                 "options": [
-                  "Size of the Docker container.",
-                  "Persistent data storage options.",
-                  "Application service port mappings.",
-                  "The order in which services start."
+                  "docker run",
+                  "docker ls",
+                  "docker ps",
+                  "docker status"
                 ],
-                "correctIndex": 1,
-                "explanation": "The `volumes` key maps parts of the host's file system into the Docker container for data persistence."
-              },
-              {
-                "id": "builtin-docker-l3-s4-q2",
-                "type": "short_answer",
-                "prompt": "How can you make sure a web service waits for a database service to be ready before starting?",
-                "expectedAnswer": "Using the `depends_on` feature in `docker-compose.yml`.",
-                "explanation": "The `depends_on` option in `docker-compose.yml` ensures that services start in a specific sequence."
+                "correctIndex": 2,
+                "explanation": "`docker ps` lists all running containers."
               }
             ]
           }
@@ -1980,59 +2324,58 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-docker-l4",
-        "title": "Networking in Docker",
-        "estMinutes": 30,
+        "title": "Docker Networking and Data Management",
+        "estMinutes": 35,
+        "glossary": [
+          "Network",
+          "Volume",
+          "Bridge Network",
+          "Data Persistence"
+        ],
         "segments": [
           {
             "id": "builtin-docker-l4-s1",
             "type": "reading",
-            "title": "Connecting the Dots: Docker Networking Basics",
-            "markdown": "Networking is a critical part of Docker, enabling containers to communicate with each other and the outside world. Docker offers several networking options: bridge networks for communication within a single Docker host, host networks for directly sharing the host's networking stack, and overlay networks for multi-host communication in a Docker Swarm cluster. For example, if you're running a web server and a database in separate containers, you'll likely use a bridge network to link them together. A common issue arises when developers forget to expose the necessary ports, leading to inaccessible services. Understanding Docker networking empowers you to configure and secure your containerized applications robustly.",
-            "estMinutes": 4,
+            "title": "Docker Networking Explained",
+            "markdown": "In a world of interconnected applications, Docker networking is the backbone that connects these entities. Docker offers several networking drivers—none, bridge, host, and more—each serving distinct roles. The most common, a bridge network, allows containers to communicate by sharing a single network bridge. While convenient for standalone containers, be cautious of the isolated nature of bridge networks which might not suffice for all needs. Assign unique names to networks to prevent confusion. In contrast, `host` networks eliminate NAT, offering improved performance but at the cost of complete container isolation. Some users struggle with custom network configurations—a sound understanding of Docker's default behaviors can be invaluable.",
+            "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-docker-l4-s2",
-            "type": "code",
-            "title": "Configuring Docker Networking",
-            "markdown": "```bash\n# Create a user-defined bridge network\n$ docker network create my_bridge\n\n# Run two containers connected to this network\n$ docker run -d --name web --network my_bridge nginx\n$ docker run -d --name db --network my_bridge mysql\n\n# Inspect the network to confirm both containers are connected\n$ docker network inspect my_bridge\n```\nThis script demonstrates setting up a custom bridge network and running an Nginx web server and MySQL database container within it. Running `docker network inspect` reveals all connected containers and IPs, essential for troubleshooting connectivity issues. Use bridge networks when your containers communicate within a single host, helping simplify cross-container communication.",
-            "estMinutes": 5,
+            "type": "reading",
+            "title": "Managing Data with Docker",
+            "markdown": "Stateful applications require persistent data; here, Docker volumes come to the rescue. Volumes are the preferred way to persist data across container restarts and updates. Unlike bind mounts, volumes are fully managed by Docker and stored under `/var/lib/docker/volumes/`. When creating a volume, Docker offers flexibility—local or remote. Within a `docker run` command, use `-v` to map container paths to volumes. Be aware that using the wrong path can cause data to appear absent in your container. Docker attempts to prevent accidental overwrites, so becoming adept at volume lifecycle management helps avoid data loss or corruption issues.",
+            "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-docker-l4-s3",
             "type": "practice",
-            "title": "Exploring Docker Network Options",
-            "markdown": "Try creating an overlay network that you would typically use in Docker Swarm. Explain how this network differs from a bridge network and what advantages it offers for scaling applications.",
-            "estMinutes": 8,
+            "title": "Exercise Docker Networks",
+            "markdown": "Establish a Docker network and connect multiple containers to this network. Evaluate how your containers communicate over this network and assess any changes in data throughput or latency.",
+            "estMinutes": 9,
             "questions": []
           },
           {
             "id": "builtin-docker-l4-s4",
             "type": "quiz",
-            "title": "Reviewing Docker Networking Knowledge",
-            "markdown": "Test your understanding of Docker's networking options and configurations.",
-            "estMinutes": 3,
+            "title": "Verify Understanding of Networks",
+            "markdown": "Check your grasp on container networking and data persistence.",
+            "estMinutes": 7,
             "questions": [
               {
                 "id": "builtin-docker-l4-s4-q1",
                 "type": "mcq",
-                "prompt": "Which Docker network should you use for containers managed across multiple hosts?",
+                "prompt": "Which networking mode should be used for isolated networks with NAT involved?",
                 "options": [
-                  "Bridge network",
-                  "Host network",
-                  "Overlay network",
-                  "None of these"
+                  "None",
+                  "Bridge",
+                  "Host",
+                  "Overlay"
                 ],
-                "correctIndex": 2,
-                "explanation": "Overlay networks are intended for multi-host communication, enabling containers across different hosts to communicate."
-              },
-              {
-                "id": "builtin-docker-l4-s4-q2",
-                "type": "short_answer",
-                "prompt": "What is a primary benefit of using Docker's bridge network feature?",
-                "expectedAnswer": "It simplifies inter-container communication within the same Docker host.",
-                "explanation": "Bridge networks facilitate easy communication between containers running on the same Docker host, isolating them from external networks."
+                "correctIndex": 1,
+                "explanation": "The 'bridge' network mode includes Network Address Translation (NAT), isolating the network within its bridge."
               }
             ]
           }
@@ -2040,59 +2383,66 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-docker-l5",
-        "title": "Docker Volumes: Managing Persistent Data",
-        "estMinutes": 30,
+        "title": "Docker Compose for Multi-Container Applications",
+        "estMinutes": 40,
+        "glossary": [
+          "Docker Compose",
+          "YAML",
+          "Service",
+          "Orchestration"
+        ],
         "segments": [
           {
             "id": "builtin-docker-l5-s1",
             "type": "reading",
-            "title": "Data Persistence with Docker Volumes",
-            "markdown": "One of the critical challenges in containerization is ensuring data persistence, as containers are ephemeral by nature. Docker volumes solve this by providing a dedicated way to persist data outside the container lifecycle, so it survives between container restarts or removal. Volumes can be used to share data between multiple containers or back up data on the host itself. For instance, if you're running a database container, storing actual data in volumes instead of inside the container ensures it's preserved during container updates or migrations. New users often overlook specifying volumes in production setups, risking data loss during updates. Using volumes effectively safeguards your data while maintaining Docker's flexibility.",
-            "estMinutes": 4,
+            "title": "Why Docker Compose?",
+            "markdown": "Docker Compose simplifies the orchestration of multi-container Docker applications. Instead of managing each container individually through Docker CLI, you define everything in a `docker-compose.yml` file. This YAML configuration describes the services, networks, and volumes needed for your application. Docker Compose is advantageous for applications relying on multiple services, such as web servers and databases, easing deployment and configuration. Yet a common pitfall is inaccuracies in YAML syntax—seemingly minor indentation errors cause significant headaches. Additionally, version compatibility in `docker-compose` files can cause issues; verify the supported version of Docker Compose before finalizing configurations.",
+            "estMinutes": 9,
             "questions": []
           },
           {
             "id": "builtin-docker-l5-s2",
-            "type": "code",
-            "title": "Using Docker Volumes",
-            "markdown": "```bash\n# Create a Docker volume\n$ docker volume create my_data\n\n# Run a container with a volume mounted\n$ docker run -d --name some_mysql -e MYSQL_ROOT_PASSWORD=my-secret-pw -v my_data:/var/lib/mysql mysql:latest\n\n# Inspect the volume for details\n$ docker volume inspect my_data\n```\nThis commands sequence creates a Docker volume `my_data` and mounts it at `/var/lib/mysql` in a MySQL container, ensuring the database data persists even if the container stops or is removed. Proper use of volumes separates data concerns from container management, facilitating safe data migrations and backups.",
-            "estMinutes": 5,
+            "type": "reading",
+            "title": "Compose File Essentials",
+            "markdown": "A `docker-compose.yml` file's heart is section-based: `services` defines the containers, `networks` connects them, and `volumes` manages data persistence. Each service represents a Docker container that can be defined with options like `image`, `build`, and `ports`. Consider a simple webserver setup:\n\n```yaml\nversion: '3.8'\nservices:\n  web:\n    image: nginx\n    ports:\n      - \"80:80\"\n```\nThis file outlines a service running an Nginx server. The `ports` key publishes containers' internal port 80 on the host machine's port 80. Incorrect port mappings are common stumbles; always verify mappings for external accessibility. Be mindful of service dependencies; orchestrating systems with asynchronous service startup can result in availability issues.",
+            "estMinutes": 9,
             "questions": []
           },
           {
             "id": "builtin-docker-l5-s3",
-            "type": "practice",
-            "title": "Practicing with Docker Volumes",
-            "markdown": "Create a volume for an Nginx container and set it up so that any changes in the HTML files persist outside the container lifecycle. Reflect on how this setup could be used in development vs. production environments.",
+            "type": "code",
+            "title": "Deploy with Docker Compose",
+            "markdown": "The magic of Docker Compose manifests through a single command. `docker-compose up` builds, launches, and connects all defined services in a `docker-compose.yml` file.\n\n```bash\n# Use this command to start all services in detached mode:\ndocker-compose up -d\n\n# After work is complete, stop services via:\ndocker-compose down\n```\nThis simplicity affords rapid deployment cycles, though debugging requires retracing printed logs for clarity. Detach mode eases resource management, but always have a mechanism to inspect logs for underlying issues quickly.",
             "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-docker-l5-s4",
+            "type": "practice",
+            "title": "Compose a Web App Stack",
+            "markdown": "Draft a `docker-compose.yml` for a basic web application using Nginx and a backend service like Node.js or Python Flask, determining correct port assignments and service dependency order.",
+            "estMinutes": 8,
+            "questions": []
+          },
+          {
+            "id": "builtin-docker-l5-s5",
             "type": "quiz",
-            "title": "Volume Handling Tech Check",
-            "markdown": "Evaluate your ability to manage Docker volumes effectively.",
-            "estMinutes": 3,
+            "title": "Assess Your Mastery of Docker Compose",
+            "markdown": "Gauge your command over Docker Compose.",
+            "estMinutes": 6,
             "questions": [
               {
-                "id": "builtin-docker-l5-s4-q1",
+                "id": "builtin-docker-l5-s5-q1",
                 "type": "mcq",
-                "prompt": "Which command creates a Docker volume?",
+                "prompt": "What is a primary benefit of Docker Compose?",
                 "options": [
-                  "docker create volume",
-                  "docker make volume",
-                  "docker volume create",
-                  "docker volume make"
+                  "Reduce the size of Docker containers",
+                  "Enhance Docker container security",
+                  "Simplify multi-container orchestration",
+                  "Faster container builds"
                 ],
                 "correctIndex": 2,
-                "explanation": "The correct command to create a Docker volume is `docker volume create`."
-              },
-              {
-                "id": "builtin-docker-l5-s4-q2",
-                "type": "short_answer",
-                "prompt": "Why is data stored in a Docker volume not lost when a container is removed?",
-                "expectedAnswer": "Because volumes are managed independently of containers by Docker.",
-                "explanation": "Volumes exist outside the container's filesystem, allowing data persistence through container lifecycle events."
+                "explanation": "Docker Compose facilitates the orchestration of multi-container environments by providing a seamless management interface."
               }
             ]
           }
@@ -2100,59 +2450,58 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-docker-l6",
-        "title": "Docker Swarm: Scaling and Orchestration",
-        "estMinutes": 35,
+        "title": "Advanced Docker: Networking and Security",
+        "estMinutes": 40,
+        "glossary": [
+          "Overlay Network",
+          "Docker Swarm",
+          "Secrets",
+          "TLS"
+        ],
         "segments": [
           {
             "id": "builtin-docker-l6-s1",
             "type": "reading",
-            "title": "Scaling Transformation: Introduction to Docker Swarm",
-            "markdown": "As your applications grow, scaling and managing multiple containers across different hosts becomes crucial. Docker Swarm is Docker’s native clustering and orchestration tool that simplifies creating, managing, and scaling a swarm of Docker engines. Swarm mode allows you to deploy and manage a cluster of machines (nodes), either physical or virtual, as a single Docker engine. A robust feature is automatic load balancing across nodes, ensuring high availability. Be cautious; using Swarm doesn’t inherently guarantee fault tolerance; proper planning of replicas and node distributions is crucial.",
-            "estMinutes": 5,
+            "title": "Understanding Overlay Networks",
+            "markdown": "Overlay networks stretch over multiple Docker daemons, interconnecting containers across hosts. Ideal for distributed systems and Docker Swarm, these networks facilitate secure communication between workloads scattered across nodes. Overlay networks overcome bridge networks' isolation by utilizing network tunnels and encapsulation, forming a single cohesive interface despite geographic dispersal. However, ensure underlying infrastructure supports overlay capabilities; misconstrued configurations lead to connection issues. For optimal performance, carefully plan node locations and acquaint yourself with cross-host latency impacts, as suboptimal configurations degrade performance efficiency.",
+            "estMinutes": 9,
             "questions": []
           },
           {
             "id": "builtin-docker-l6-s2",
-            "type": "code",
-            "title": "Bootstrapping a Docker Swarm",
-            "markdown": "```bash\n# Initialize a new Docker Swarm\n$ docker swarm init\n\n# Visualize the current state\n$ docker node ls\n\n# Deploy a service to Swarm\n$ docker service create --name helloworld --replicas 3 -p 80:80 nginx\n```\nThis sequence initializes a Docker Swarm and verifies its node status with `docker node ls`, useful for checking node health and role assignments. Then, a simple Nginx service is deployed with three replicas, effectively demonstrating scaling and load distribution. Embrace Swarm for orchestrating clusters in environments where Kubernetes might be considered overkill.",
-            "estMinutes": 6,
+            "type": "reading",
+            "title": "Securing Docker Deployments",
+            "markdown": "Security matters in Docker just as it does in traditional systems. Key focus areas include ensuring image provenance, implementing container isolation, and safeguarding communication channels. Leverage `docker secrets` for secure storage of sensitive information and integrate TLS for encrypted communications. Susceptibilities arise from misconfigured public access; apply the principle of least privilege to minimize exposure. Periodic container security audits are essential. Needlessly running containers as the root user vaults security risks; enforce user namespaces to enhance isolation. Instruments like Docker CIS Benchmark provide structured guidelines to fortify Docker deployments.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-docker-l6-s3",
             "type": "practice",
-            "title": "Deploy a Simple Service with Docker Swarm",
-            "markdown": "Create a three-node Swarm and deploy a Redis service with two replicas. Use commands to ensure load balancing is active and all nodes are operational.",
-            "estMinutes": 10,
+            "title": "Compose a Secure Deployment Strategy",
+            "markdown": "Design a secure Docker deployment plan focusing on network segregation, secret management, and leveraging Docker's security features. Consider deploying a multi-host application secured with overlay networks.",
+            "estMinutes": 11,
             "questions": []
           },
           {
             "id": "builtin-docker-l6-s4",
             "type": "quiz",
-            "title": "Docker Swarm Concepts Verification",
-            "markdown": "Quiz yourself on Swarm's core capabilities and configurations.",
-            "estMinutes": 4,
+            "title": "Evaluate Security Skills",
+            "markdown": "Test your proficiency in Docker's advanced networking and security capabilities.",
+            "estMinutes": 10,
             "questions": [
               {
                 "id": "builtin-docker-l6-s4-q1",
                 "type": "mcq",
-                "prompt": "What's one of the key advantages of Docker Swarm?",
+                "prompt": "What's a primary purpose of using TLS in Docker networking?",
                 "options": [
-                  "Simplifies networking by using a single host.",
-                  "Allows scaling across multiple Docker hosts with ease.",
-                  "Removes the need for Docker images.",
-                  "Replaces the need for Docker Compose."
+                  "Improve network speed",
+                  "Encrypt container migrations",
+                  "Ensure data integrity and privacy",
+                  "Reduce storage usage"
                 ],
-                "correctIndex": 1,
-                "explanation": "Docker Swarm provides a streamlined way to manage and scale your applications across multiple hosts."
-              },
-              {
-                "id": "builtin-docker-l6-s4-q2",
-                "type": "short_answer",
-                "prompt": "How do you confirm that a Docker Swarm service is properly load-balanced?",
-                "expectedAnswer": "Check service replicas and node health with `docker service ls` and `docker node ls`.",
-                "explanation": "Use `docker service ls` to check distribution and `docker node ls` for node health ensuring effective load balancing."
+                "correctIndex": 2,
+                "explanation": "TLS secures Docker communication channels, ensuring data integrity and privacy."
               }
             ]
           }
@@ -2168,57 +2517,55 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       {
         "id": "builtin-aws-l1",
         "title": "Introduction to AWS and Cloud Computing",
-        "estMinutes": 30,
+        "estMinutes": 15,
+        "glossary": [
+          "AWS",
+          "Cloud Computing",
+          "Service Model"
+        ],
         "segments": [
           {
             "id": "builtin-aws-l1-s1",
             "type": "reading",
-            "title": "Why Cloud Computing?",
-            "markdown": "In today's fast-paced tech world, scalability and flexibility are key. That's where cloud computing comes in. AWS, or Amazon Web Services, offers developers a powerful platform to build, deploy, and manage applications of all sizes. Unlike traditional hosting, cloud computing allows you to scale resources dynamically, optimizing cost and performance. For example, if your gaming app experiences a surge of users, AWS can automatically allocate more resources to maintain performance.\n\nWhen to use AWS becomes clear when you need to handle varying loads and want to minimize upfront infrastructure costs. However, understanding the costs of scaling is a common pitfall. Still, mastering AWS can give you an edge in maintaining competitive, high-performance applications.",
+            "title": "Why AWS and What is Cloud Computing?",
+            "markdown": "As a developer, leveraging cloud infrastructure like AWS can drastically enhance your productivity and scalability. AWS, a leader in the cloud computing industry, provides an extensive set of tools and services for building, deploying, and scaling applications. Cloud computing shifts away from the traditional on-premises, server-cost-heavy architecture to a more flexible, Elasti-compute model. Imagine running a gaming website; in the traditional setup, you'd need to predict your server load and buy hardware in advance. AWS removes this bottleneck by allowing you to scale up or down based on real-time demand through services like EC2 or Lambda. A common pitfall for beginners is neglecting to monitor service usage, which can lead to unexpectedly high costs.",
             "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-aws-l1-s2",
             "type": "reading",
-            "title": "Cloud Computing Models (IaaS, PaaS, SaaS)",
-            "markdown": "Cloud computing offers various service models, each suitable for different scenarios. Infrastructure as a Service (IaaS) like AWS EC2 provides raw server resources, offering maximum control. Platform as a Service (PaaS), such as AWS Elastic Beanstalk, simplifies deployment with managed resources. Lastly, Software as a Service (SaaS) delivers applications over the internet, often used for web-based email or cloud storage solutions.\n\nThe choice between these depends on how much control versus convenience you need. For example, if you have a custom server configuration, IaaS might be best. A common pitfall is choosing a model without considering scale, which could hamper flexibility or increase costs unexpectedly.",
+            "title": "Exploring Cloud Service Models",
+            "markdown": "AWS, like other cloud providers, offers services primarily under three model categories: Infrastructure as a Service (IaaS), Platform as a Service (PaaS), and Software as a Service (SaaS). IaaS gives you the most control over your infrastructure resources and is ideal for building custom solutions from the ground up. For example, AWS EC2 allows complete control over the processing power and storage but requires management of the operating system and software. PaaS abstracts much of the infrastructure management, enabling quicker deployment, such as with AWS Elastic Beanstalk for web applications. SaaS delivers completed products over the internet directly to end-users, allowing developers to leverage high-level functionality without the setup overhead.",
             "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-aws-l1-s3",
-            "type": "practice",
-            "title": "Setting Up Your AWS Account",
-            "markdown": "Start by creating a free-tier eligible AWS account. Once you log in, navigate to the AWS Management Console. Here, you can explore different services. Your task is to create an IAM user, which reinforces AWS’s security model by not using root accounts for applications. Ensure the user has the necessary permissions to access the services you plan to explore next.",
-            "estMinutes": 10,
-            "questions": []
-          },
-          {
-            "id": "builtin-aws-l1-s4",
             "type": "quiz",
-            "title": "Cloud Computing Basics",
-            "markdown": "Test your understanding of key cloud concepts and AWS service models.",
+            "title": "Quiz: Understanding Cloud Basics",
+            "markdown": "Test your understanding of AWS and cloud computing fundamentals.",
             "estMinutes": 5,
             "questions": [
               {
-                "id": "builtin-aws-l1-s4-q1",
+                "id": "builtin-aws-l1-s3-q1",
                 "type": "mcq",
-                "prompt": "Which AWS service model offers the most control over infrastructure?",
+                "prompt": "Which AWS service model involves the most developer control?",
                 "options": [
                   "IaaS",
                   "PaaS",
-                  "SaaS"
+                  "SaaS",
+                  "None"
                 ],
                 "correctIndex": 0,
-                "explanation": "IaaS provides raw infrastructure resources, giving you more control over configurations."
+                "explanation": "IaaS provides the most control, requiring developers to manage servers and networks."
               },
               {
-                "id": "builtin-aws-l1-s4-q2",
+                "id": "builtin-aws-l1-s3-q2",
                 "type": "short_answer",
-                "prompt": "Why might you choose PaaS over IaaS?",
-                "expectedAnswer": "You would choose PaaS over IaaS for ease of management and to focus on application development rather than infrastructure management.",
-                "explanation": "PaaS manages the infrastructure for you, allowing developers to focus more on the application itself."
+                "prompt": "Why might cloud computing be more cost-effective than traditional models?",
+                "expectedAnswer": "Cloud computing allows on-demand resource scaling and reduces the need for upfront hardware investment.",
+                "explanation": "Cloud computing's pay-as-you-go model avoids large upfront costs and adjusts to actual usage."
               }
             ]
           }
@@ -2226,255 +2573,164 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-aws-l2",
-        "title": "Understanding AWS Global Infrastructure",
-        "estMinutes": 25,
+        "title": "Amazon EC2: Virtual Servers in the Cloud",
+        "estMinutes": 20,
+        "glossary": [
+          "Amazon EC2",
+          "Instance",
+          "AMI"
+        ],
         "segments": [
           {
             "id": "builtin-aws-l2-s1",
             "type": "reading",
-            "title": "Regions and Availability Zones",
-            "markdown": "AWS divides its data centers into regions and availability zones (AZs), which are crucial for supporting high availability and redundancy. A region is a physical location spread across multiple AZs. By distributing resources across different AZs within a region, you can ensure your application is resilient to failures in any single location. For instance, deploying an application across US-East-1a and US-East-1b adds fault tolerance.\n\nRegions often differ in latency, cost, and service availability. A common pitfall is deploying all resources in a single AZ to save costs — this can backfire in case of an outage. Instead, spread them across AZs to leverage AWS's global network strength.",
-            "estMinutes": 5,
+            "title": "Launching Your First EC2 Instance",
+            "markdown": "Amazon EC2 provides scalable computing capacity in the cloud, reducing the need to invest in physical hardware. An EC2 Instance is a virtual server in Amazon's cloud, customizable to your workload. Launching an instance starts with selecting an Amazon Machine Image (AMI), which is a packaged environment containing your software stack. For example, to host a Node.js web application, you might choose an AMI with Ubuntu. After launching, you can control your instance from the AWS Management Console or command line. Be cautious about instance type; a basic t2.micro is suitable for low-demand development but may not handle production loads as efficiently.",
+            "estMinutes": 7,
             "questions": []
           },
           {
             "id": "builtin-aws-l2-s2",
             "type": "reading",
-            "title": "Choosing the Right Region",
-            "markdown": "When selecting an AWS region, consider factors like latency, compliance, and cost. Closer regions reduce latency, while different regions may have varying legal stipulations for data storage. For example, EU-based services may require European data residency, necessitating choosing an EU region. Cost variations also exist between regions, with some regions being more costly due to factors like renewable energy use.\n\nThe decision often balances these factors. Completing tasks near your user base typically offers performance advantages. A simple check of AWS’s region offerings can ensure an ideal choice — critical for both performance and budget.",
+            "title": "EC2 Security Groups",
+            "markdown": "Security Groups are essential for controlling access to your EC2 instances. They act as virtual firewalls, defining rules for inbound and outbound traffic. For instance, to host a web application, you must allow HTTP (port 80) and HTTPS (port 443) traffic, but restrict SSH access to secure IP addresses to protect against unauthorized access. A misconfigured security group can expose your instances to security risks, so always review your rules when modifying or creating instances.",
             "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-aws-l2-s3",
             "type": "practice",
-            "title": "Exploring AWS Regions",
-            "markdown": "Log into your AWS Management Console and check the list of regions available. Choose a region closest to your users but also factor in cost and service availability. Create an EC2 instance in this region to familiarize yourself with setting regional preferences. Ensure you terminate the instance afterward to avoid accidental costs.",
-            "estMinutes": 10,
+            "title": "Practice: Configuring EC2 Security Groups",
+            "markdown": "Adjust the security group of an EC2 instance to allow only HTTP traffic from any IP but restrict SSH access to a specific IP.",
+            "estMinutes": 8,
             "questions": []
-          },
-          {
-            "id": "builtin-aws-l2-s4",
-            "type": "quiz",
-            "title": "AWS Global Infrastructure Overview",
-            "markdown": "Assess your knowledge of AWS regions, AZs, and the factors influencing region choice.",
-            "estMinutes": 5,
-            "questions": [
-              {
-                "id": "builtin-aws-l2-s4-q1",
-                "type": "mcq",
-                "prompt": "Why is it important to use multiple Availability Zones?",
-                "options": [
-                  "To increase application performance speed",
-                  "To ensure high availability and fault tolerance",
-                  "To reduce costs",
-                  "To automatically scale applications"
-                ],
-                "correctIndex": 1,
-                "explanation": "Deploying across multiple AZs ensures high availability even if one zone fails."
-              },
-              {
-                "id": "builtin-aws-l2-s4-q2",
-                "type": "short_answer",
-                "prompt": "Name a key factor in choosing an AWS region.",
-                "expectedAnswer": "Latency, compliance, or cost are key factors in choosing an AWS region.",
-                "explanation": "Each factor can critically influence the performance and cost-efficiency of deploying applications on AWS."
-              }
-            ]
           }
         ]
       },
       {
         "id": "builtin-aws-l3",
-        "title": "AWS Compute: EC2 Instances",
-        "estMinutes": 35,
+        "title": "AWS S3: Understanding Object Storage",
+        "estMinutes": 25,
+        "glossary": [
+          "Amazon S3",
+          "Bucket",
+          "Object"
+        ],
         "segments": [
           {
             "id": "builtin-aws-l3-s1",
             "type": "reading",
-            "title": "Introduction to EC2",
-            "markdown": "EC2 (Elastic Compute Cloud) is AWS's highly scalable virtual server offering, essential for deploying scalable applications. It allows you to create virtual machines — instances — with customizable configurations to suit specific workloads. Imagine wanting to host a server for a multiplayer game; EC2 enables you to select a memory, storage, and CPU configuration that matches the demands of your player base. The on-demand nature lets you scale as player count grows, without needing upfront hardware investments.\n\nIt's crucial to choose the correct instance type and size to optimize performance and cost. A common mistake is over-provisioning, leading to unnecessary expenses. Periodically monitor and adjust instance configurations for an optimal balance.",
-            "estMinutes": 5,
-            "questions": []
-          },
-          {
-            "id": "builtin-aws-l3-s2",
-            "type": "code",
-            "title": "Creating an EC2 Instance",
-            "markdown": "Launch an EC2 instance using the AWS Console or CLI. Here's a sample CLI command:\n\n```bash\naws ec2 run-instances \\\n  --image-id ami-0abcdef1234567890 \\\n  --count 1 \\\n  --instance-type t2.micro \\\n  --key-name MyKeyPair \\\n  --security-group-ids sg-0123456789abcdef0 \\\n  --subnet-id subnet-6e7f829e\n```\n\nEnsure you have the correct security groups and key pairs configured. This command launches a small EC2 instance (t2.micro) suitable for low-traffic web applications or development environments. Before running, replace the placeholders with actual values from your AWS account.",
-            "estMinutes": 8,
-            "questions": []
-          },
-          {
-            "id": "builtin-aws-l3-s3",
-            "type": "reading",
-            "title": "Securing Your Instance",
-            "markdown": "Security is paramount when managing AWS instances. Use security groups and IAM roles effectively to manage access and permissions. Security groups act like a firewall, defining which IPs can access your instance. Ensure only necessary ports are open. For example, open port 22 only to your IP if you need SSH access.\n\nIAM roles allow your instances to securely access AWS services without embedding credentials in code. For instance, an instance needing S3 access should have an IAM role with only S3 read permissions. A common oversight is misconfiguring security groups, leading to unwanted exposure — review inbound/outbound rules regularly.",
+            "title": "Leveraging S3 for Storage",
+            "markdown": "Amazon S3 (Simple Storage Service) excels in storing and retrieving any amount of data at any time by offering a highly scalable, reliable, and low-latency data storage infrastructure. S3 is organized into Buckets, which hold Objects. Consider creating a bucket to store user-uploaded profile pictures in your web application. Each image would be an object, which S3 can return via a URL. When using S3, be mindful of its eventual consistency model where multiple simultaneous operations might yield outdated information. Hence, it's best suited for workloads like backups or content distribution but may not be ideal for real-time transaction processing.",
             "estMinutes": 7,
             "questions": []
           },
           {
-            "id": "builtin-aws-l3-s4",
-            "type": "quiz",
-            "title": "Working with EC2",
-            "markdown": "Test your understanding of EC2 basics and security best practices.",
-            "estMinutes": 5,
-            "questions": [
-              {
-                "id": "builtin-aws-l3-s4-q1",
-                "type": "mcq",
-                "prompt": "What is a primary reason to use IAM roles with your EC2 instances?",
-                "options": [
-                  "For enhanced networking performance",
-                  "To avoid hardcoding credentials in your application",
-                  "To reduce costs",
-                  "To automatically back up data"
-                ],
-                "correctIndex": 1,
-                "explanation": "IAM roles help manage permissions securely without needing to embed credentials in the application."
-              },
-              {
-                "id": "builtin-aws-l3-s4-q2",
-                "type": "short_answer",
-                "prompt": "How can you minimize exposure of your EC2 instance?",
-                "expectedAnswer": "Use security groups to control inbound and outbound traffic, ensuring only necessary ports are open.",
-                "explanation": "Security groups act as a protective barrier, reducing potential attack vectors by limiting access."
-              }
-            ]
+            "id": "builtin-aws-l3-s2",
+            "type": "reading",
+            "title": "Working with S3 Lifecycle Policies",
+            "markdown": "Lifecycle policies in S3 can automate transitioning objects between different storage classes and managing object longevity. For example, you can set a policy to move images to Amazon S3 Glacier storage for cost-efficient, long-term archiving after 30 days of inactivity. This automation can help reduce costs significantly. However, implementing a lifecycle policy that deletes objects can result in data loss if misconfigured, so thorough testing is crucial before deployment.",
+            "estMinutes": 7,
+            "questions": []
+          },
+          {
+            "id": "builtin-aws-l3-s3",
+            "type": "code",
+            "title": "Code: Uploading an Object to S3",
+            "markdown": "This Node.js example demonstrates uploading a file to an S3 bucket. Set up AWS SDK and your credentials before running.",
+            "estMinutes": 6,
+            "questions": []
           }
         ]
       },
       {
         "id": "builtin-aws-l4",
-        "title": "AWS Storage: S3 and More",
-        "estMinutes": 40,
+        "title": "Introduction to AWS Lambda and Serverless",
+        "estMinutes": 20,
+        "glossary": [
+          "AWS Lambda",
+          "Serverless",
+          "Function as a Service"
+        ],
         "segments": [
           {
             "id": "builtin-aws-l4-s1",
             "type": "reading",
-            "title": "Understanding S3 Basics",
-            "markdown": "Amazon S3 (Simple Storage Service) is a scalable object storage service widely used for storing and accessing large amounts of data. It's ideal for use cases like media files, backups, or log storage due to its durability and availability.\n\nS3 organizes data into buckets, each identified by a unique key. For example, you might store game assets or player avatars in an S3 bucket, allowing seamless retrieval during gameplay. Its 'pay-as-you-go' model is beneficial for applications with fluctuating data storage needs.\n\nHowever, managing permissions requires vigilance; avoid making buckets public unless absolutely necessary, as this can lead to data breaches.",
-            "estMinutes": 5,
+            "title": "The Serverless Paradigm with AWS Lambda",
+            "markdown": "AWS Lambda allows you to run code without provisioning or managing servers, achieving a serverless architecture. This paradigm shift lets you focus merely on code logic, while AWS handles scaling and execution. Functions are triggered by events such as HTTP requests, changes in data states, or periodic time events. If you were building a photo-processing application, Lambda could be triggered to process and resize each image as it's uploaded to an S3 bucket, removing the need for a continuously running server. A common misuse is writing Lambda functions that run too long or require extensive I/O, which can increase costs and exceed function time limits.",
+            "estMinutes": 6,
             "questions": []
           },
           {
             "id": "builtin-aws-l4-s2",
             "type": "code",
-            "title": "Uploading Files to S3",
-            "markdown": "Here's how you upload a file to an S3 bucket using the AWS CLI:\n\n```bash\naws s3 cp path/to/local/file.txt s3://your-bucket-name/\n```\n\nBefore running this command, ensure the AWS CLI is configured with sufficient permissions and that the destination bucket exists. This basic command transfers a file from your local machine to the specified S3 bucket, leveraging S3's simplicity and power.",
-            "estMinutes": 7,
+            "title": "Creating a Simple Lambda Function",
+            "markdown": "Here is a quick way to create a simple Lambda function using the AWS Console:",
+            "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-aws-l4-s3",
             "type": "reading",
-            "title": "Common S3 Use Cases",
-            "markdown": "S3 isn't just about storage; it supports hosting static websites, data lakes, and backup solutions. Storing logs in S3 enables integration with AWS analytics services, providing insights and diagnostic capabilities. S3’s event notifications allow you to automatically trigger AWS Lambda functions, making it suitable for event-driven architectures.\n\nA common pitfall when using S3 is failing to implement lifecycle policies, which can inflate costs by retaining data longer than necessary. Regularly review bucket usage and implement lifecycle policies for efficient data archiving and deletion.",
-            "estMinutes": 5,
+            "title": "When to Use Lambda",
+            "markdown": "Lambda is particularly effective for short-lived tasks where you need quick scalability, such as image processing, log analysis, low-volume APIs, or IoT data aggregation. Its pay-per-invocation model can result in significant cost savings for infrequent tasks. However, for tasks requiring long execution times or needing to maintain an always-on state, such as gaming servers, traditional server settings might be more suitable.",
+            "estMinutes": 6,
             "questions": []
-          },
-          {
-            "id": "builtin-aws-l4-s4",
-            "type": "practice",
-            "title": "S3 Practical Task",
-            "markdown": "Create an S3 bucket in your AWS account. Upload a file manually through the AWS Management Console and set appropriate permissions. Experiment with setting up a lifecycle policy to automatically transition objects to a cheaper storage class after 30 days.",
-            "estMinutes": 10,
-            "questions": []
-          },
-          {
-            "id": "builtin-aws-l4-s5",
-            "type": "quiz",
-            "title": "AWS S3 Knowledge Check",
-            "markdown": "Assess your understanding of S3's functionality and storage management.",
-            "estMinutes": 5,
-            "questions": [
-              {
-                "id": "builtin-aws-l4-s5-q1",
-                "type": "mcq",
-                "prompt": "Which statement is true about S3 bucket names?",
-                "options": [
-                  "They can include uppercase letters.",
-                  "They must be globally unique.",
-                  "They can be longer than 256 characters.",
-                  "They are case-sensitive."
-                ],
-                "correctIndex": 1,
-                "explanation": "S3 bucket names must be globally unique to ensure there are no naming conflicts across AWS."
-              },
-              {
-                "id": "builtin-aws-l4-s5-q2",
-                "type": "short_answer",
-                "prompt": "Why should you implement lifecycle policies in S3?",
-                "expectedAnswer": "To manage storage costs by automatically transitioning or deleting objects based on defined criteria.",
-                "explanation": "Lifecycle policies optimize costs and administrative overhead by handling data transitions and deletions automatically."
-              }
-            ]
           }
         ]
       },
       {
         "id": "builtin-aws-l5",
-        "title": "AWS Networking: Setting Up Your VPC",
-        "estMinutes": 30,
+        "title": "AWS RDS: Managing Relational Databases in the Cloud",
+        "estMinutes": 15,
+        "glossary": [
+          "AWS RDS",
+          "Database Instance",
+          "Backup"
+        ],
         "segments": [
           {
             "id": "builtin-aws-l5-s1",
             "type": "reading",
-            "title": "What is a VPC?",
-            "markdown": "A VPC (Virtual Private Cloud) provides an isolated network within AWS, where you can define your own IP address range, subnets, route tables, and network gateways. This is crucial when deploying applications that require custom network configurations, such as multi-tier architectures or secure database access.\n\nFor example, you could create a VPC that isolates your database instances from the internet while exposing your web servers. This is achieved by placing databases in private subnets and web servers in public subnets. A common issue with VPCs is misconfigured route tables or network ACLs, which can block traffic unintentionally. Ensure each component's networking is properly set.",
+            "title": "Why Use RDS for Databases?",
+            "markdown": "AWS Relational Database Service (RDS) simplifies the setup, operation, and scaling of a relational database in the cloud. It automatically manages routine tasks such as backups, patch management, and scaling. If you're developing a high-traffic web application, using RDS with a database like PostgreSQL or MySQL ensures high availability and durability through features like multi-AZ deployments and automated backups. Developers sometimes mistakenly over-provision storage when starting with RDS, leading to unnecessary costs. Always begin with monitoring and adjust configurations based on actual usage.",
             "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-aws-l5-s2",
             "type": "code",
-            "title": "Configuring Subnets and Route Tables",
-            "markdown": "Here's a simplified AWS CLI setup to create a VPC with one public and one private subnet:\n\n```bash\naws ec2 create-vpc --cidr-block 10.0.0.0/16\nvpc-id=$(aws ec2 describe-vpcs --filter Name=cidr,Values=10.0.0.0/16 --query 'Vpcs[*].VpcId' --output text)\naws ec2 create-subnet --vpc-id $vpc-id --cidr-block 10.0.1.0/24 --availability-zone us-east-1a\naws ec2 create-subnet --vpc-id $vpc-id --cidr-block 10.0.2.0/24 --availability-zone us-east-1a\n```\n\nThis script sets up a VPC and two subnets. You’ll need to manually configure routing and attach any necessary gateways. Test your configuration to ensure proper connectivity for your different applications layers.",
-            "estMinutes": 10,
+            "title": "Configuring an RDS Database Instance",
+            "markdown": "Here is a basic guide to launching a MySQL RDS instance using the AWS Console:",
+            "estMinutes": 6,
             "questions": []
           },
           {
             "id": "builtin-aws-l5-s3",
-            "type": "reading",
-            "title": "Security Groups vs. Network ACLs",
-            "markdown": "Security groups and network ACLs (Access Control Lists) are key components in securing your VPC. Security groups act as virtual firewalls for the instances to control inbound and outbound traffic at the instance level. ACLs provide stateless filtering of traffic across subnets.\n\nFor example, use security groups to allow specific application ports to the internet while using ACLs to define broader subnet permissions. Understanding the flow and state of data through your network is necessary to correctly apply these tools. Mistakes frequently involve ACL misconfigurations that block legitimate traffic, so review rule sets carefully after any change.",
-            "estMinutes": 5,
-            "questions": []
-          },
-          {
-            "id": "builtin-aws-l5-s4",
-            "type": "practice",
-            "title": "Testing Your VPC Setup",
-            "markdown": "Using the AWS Management Console, create a VPC with both public and private subnets. Launch an instance in each subnet, and test connectivity. Ensure your route tables and security group settings allow the public subnet to access the internet, but restrict access to the private subnet.",
-            "estMinutes": 10,
-            "questions": []
-          },
-          {
-            "id": "builtin-aws-l5-s5",
             "type": "quiz",
-            "title": "VPC Understandings",
-            "markdown": "Evaluate your grasp of VPC, subnet configurations, and security group functionalities.",
-            "estMinutes": 5,
+            "title": "Quiz: RDS Fundamentals",
+            "markdown": "Check your understanding of AWS RDS concepts.",
+            "estMinutes": 4,
             "questions": [
               {
-                "id": "builtin-aws-l5-s5-q1",
+                "id": "builtin-aws-l5-s3-q1",
                 "type": "mcq",
-                "prompt": "What is the primary function of a VPC?",
+                "prompt": "Which of the following tasks is NOT automatically managed by RDS?",
                 "options": [
-                  "To provide DNS resolution",
-                  "To manage AWS billing",
-                  "To create isolated network setups",
-                  "To optimize EC2 performance"
+                  "Backups",
+                  "Scaling",
+                  "App Logic",
+                  "Patch Management"
                 ],
                 "correctIndex": 2,
-                "explanation": "A VPC provides isolated networking space within AWS, enabling custom network configurations."
+                "explanation": "RDS does not manage business logic or application code; it manages database infrastructure."
               },
               {
-                "id": "builtin-aws-l5-s5-q2",
+                "id": "builtin-aws-l5-s3-q2",
                 "type": "short_answer",
-                "prompt": "How do security groups differ from network ACLs?",
-                "expectedAnswer": "Security groups are stateful and control instance-level traffic, while network ACLs are stateless and filter subnet-level traffic.",
-                "explanation": "This difference is crucial to effectively secure and manage network traffic in AWS environments."
+                "prompt": "Describe a circumstance where using RDS might not be the best choice for a database solution.",
+                "expectedAnswer": "When very high customization of the database environment is needed.",
+                "explanation": "RDS abstracts many configurations, so total customization and control over the underlying OS is limited."
               }
             ]
           }
@@ -2482,69 +2738,37 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-aws-l6",
-        "title": "AWS Databases: RDS and NoSQL Options",
-        "estMinutes": 35,
+        "title": "Security and Compliance in AWS",
+        "estMinutes": 18,
+        "glossary": [
+          "IAM",
+          "Encryption",
+          "Compliance"
+        ],
         "segments": [
           {
             "id": "builtin-aws-l6-s1",
             "type": "reading",
-            "title": "Introduction to RDS",
-            "markdown": "RDS (Relational Database Service) is a managed database service supporting database engines like MySQL, PostgreSQL, and SQL Server. It simplifies database setup, scaling, and maintenance, allowing you to focus on app development. Imagine setting up a database for user accounts in a game; RDS automates backups, patching, and replication, enhancing your application’s reliability without the complexity of managing physical database infrastructure.\n\nSelecting the right RDS instance type is crucial for both performance and cost-efficiency and varies based on workload. Avoid underestimating storage requirements as this is a common RDS issue that can severely impact database performance.",
-            "estMinutes": 5,
+            "title": "Managing Access with IAM",
+            "markdown": "Identity and Access Management (IAM) in AWS is crucial for defining who can access your resources and what actions they can perform. With IAM, you can create users and groups, control permissions using policies, and authenticate users with features like MFA. For example, giving developers read-only access to a production database helps protect against accidental data deletion or modification. A common pitfall is granting overly permissive roles, so follow the principle of least privilege when creating IAM policies.",
+            "estMinutes": 6,
             "questions": []
           },
           {
             "id": "builtin-aws-l6-s2",
-            "type": "code",
-            "title": "Creating Your First RDS Instance",
-            "markdown": "Create an RDS instance with the AWS Console or CLI. Here’s a simplified CLI command:\n\n```bash\naws rds create-db-instance \\\n  --db-instance-identifier mydbinstance \\\n  --db-instance-class db.t2.micro \\\n  --engine mysql \\\n  --allocated-storage 20 \\\n  --master-username admin \\\n  --master-user-password mypassword\n```\n\nReplace placeholders with real values. This command sets up a small MySQL RDS instance. Double-check security groups to ensure your instance is accessible by your application servers but protected from unauthorized access.",
-            "estMinutes": 8,
+            "type": "reading",
+            "title": "Implementing Encryption",
+            "markdown": "AWS provides robust tools for encrypting data at rest and in transit, ensuring its confidentiality and integrity. Services like S3 and RDS allow you to enable encryption using AWS KMS or customer-managed keys. For example, encrypting sensitive data such as user details stored in RDS can protect against unauthorized access. Ignoring encryption might meet quick delivery deadlines but risks data breaches. Ensure compliance with data protection regulations by routinely auditing your encryption strategies and practices.",
+            "estMinutes": 6,
             "questions": []
           },
           {
             "id": "builtin-aws-l6-s3",
-            "type": "reading",
-            "title": "Exploring NoSQL with DynamoDB",
-            "markdown": "DynamoDB is AWS's NoSQL database service, designed for high-performance and scalable applications. It’s suitable when your application requires seamless scaling and flexibility, such as storing player session data or leaderboard scores for a game.\n\nDynamoDB automatically scales its throughput and storage based on demand, preventing over- or under-provisioning issues. A common pitfall is ignoring read/write capacity units which can affect application performance if underestimated. By leveraging fine-grained access control and encrypted storage, you can maintain secure data handling while enjoying easy integration with other AWS services.",
-            "estMinutes": 5,
-            "questions": []
-          },
-          {
-            "id": "builtin-aws-l6-s4",
             "type": "practice",
-            "title": "Engage with AWS RDS",
-            "markdown": "Try setting up an RDS instance using the AWS Management Console, selecting an appropriate engine for your app. Once configured, connect to the database using your preferred SQL client and execute basic SQL commands to verify operations.",
-            "estMinutes": 12,
+            "title": "Practice: Creating a Secure IAM Policy",
+            "markdown": "Design an IAM policy that grants a group read-only access to all S3 buckets, focusing on applying least privilege principles.",
+            "estMinutes": 6,
             "questions": []
-          },
-          {
-            "id": "builtin-aws-l6-s5",
-            "type": "quiz",
-            "title": "RDS and NoSQL Knowledge Check",
-            "markdown": "Ensure your mastery of AWS database services by addressing these questions.",
-            "estMinutes": 5,
-            "questions": [
-              {
-                "id": "builtin-aws-l6-s5-q1",
-                "type": "mcq",
-                "prompt": "What AWS service is best for applications requiring high read and write throughput?",
-                "options": [
-                  "RDS",
-                  "DynamoDB",
-                  "Redshift",
-                  "Neptune"
-                ],
-                "correctIndex": 1,
-                "explanation": "DynamoDB is optimized for handling applications with high and variable throughput requirements."
-              },
-              {
-                "id": "builtin-aws-l6-s5-q2",
-                "type": "short_answer",
-                "prompt": "Why is it important to manage read/write capacity units in DynamoDB?",
-                "expectedAnswer": "Proper management of read/write capacity units in DynamoDB is crucial to avoid performance bottlenecks and high costs.",
-                "explanation": "Underestimating these can lead to application latency issues, while overestimating can unnecessarily increase costs."
-              }
-            ]
           }
         ]
       }
@@ -2557,59 +2781,63 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
     "lessons": [
       {
         "id": "builtin-python-l1",
-        "title": "Introduction to Python and Basic Syntax",
-        "estMinutes": 45,
+        "title": "Getting Started with Python",
+        "estMinutes": 25,
+        "glossary": [
+          "Python",
+          "interpreter",
+          "print"
+        ],
         "segments": [
           {
             "id": "builtin-python-l1-s1",
             "type": "reading",
-            "title": "Why Python?",
-            "markdown": "Python is renowned for its simplicity and readability, making it an ideal choice for developers who are just beginning their programming journey or are coming from another language. One of Python’s greatest strengths is its extensive library and community support, which allows developers to integrate sophisticated functionality without needing to reinvent the wheel. This emphasis on simplicity and efficiency extends to Python’s syntax, which is designed to mirror human thought processes and reduce the cognitive load when reading and writing code.\n\nFor example, consider a basic Python script that prints 'Hello, World!':\n```python\nprint(\"Hello, World!\")\n```\nThis straightforward approach highlights Python’s goal: to prioritize clarity and developer productivity. You’ll encounter this benefit whether you're scripting a quick task or building a complex application. However, beware of not diving deep into the mechanics of how Python interprets scripts, which might lead to overlooking efficiency and performance considerations.",
-            "estMinutes": 7,
+            "title": "Why Python Matters",
+            "markdown": "Python is known for its simplicity and readability, making it an ideal language for developers to add to their toolkit. Whether you’re scripting, automating tasks, or even building a full-scale application, Python’s syntax allows you to focus on the logic instead of struggling with complex syntax. This becomes increasingly important when you need to switch contexts between different tasks — something you might find useful during brief interruptions like gaming sessions. Python code is typically clean and requires less boilerplate compared to languages like Java or C++. However, its readability can sometimes lead to underestimating the importance of understanding intricate behaviors like variable scope.",
+            "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l1-s2",
             "type": "code",
-            "title": "Writing Your First Python Script",
-            "markdown": "```python\n# This is a simple Python program to demonstrate basic syntax.\n\ndef greet_user(name):\n    message = f\"Hello, {name}! Welcome to Python programming.\"\n    print(message)\n\n# Call the function with a sample name\ngreet_user(\"Gamer\")\n```\nThis script defines a function `greet_user` which takes a name and prints a personalized greeting. Notice the use of a function and formatted strings; these are fundamental components that enhance reusability and readability in your code.",
-            "estMinutes": 10,
+            "title": "Setting Up Your Python Environment",
+            "markdown": "Before diving into Python coding, you need to have the interpreter installed. Python’s strength lies in its interactive shell which you can use to test snippets of code quickly. Here’s how you can get started:\n\n```python\n# Installing Python using a package manager\ndef install_python():\n    # On macOS\n    $ brew install python\n    # On Windows, download and install from https://python.org\n\n# Verify Python is installed\n$ python --version\n\n# Running a simple Python script\nprint(\"Hello, World!\")\n\n# This script should output: Hello, World!\n```\n\nFor tasks beyond simple scripts, consider using a virtual environment to manage dependencies. A common pitfall is neglecting to activate your virtual environment, which could lead to mixing dependencies and producing unexpected errors.",
+            "estMinutes": 6,
             "questions": []
           },
           {
             "id": "builtin-python-l1-s3",
             "type": "practice",
-            "title": "Practice: Create a Simple Calculator",
-            "markdown": "Using Python's basic arithmetic operators, write a simple script that performs addition, subtraction, multiplication, and division. The script should define a function for each operation and print the results. Aim to implement the operations as functions that take two parameters each.",
-            "estMinutes": 10,
+            "title": "Practice: Hello, Python!",
+            "markdown": "Write a Python script that prints a greeting followed by a short description of what you plan to do with Python. Save the script in a file named `intro.py` and run it using the interpreter.",
+            "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l1-s4",
             "type": "quiz",
-            "title": "Check Your Understanding",
-            "markdown": "Test your foundational understanding of Python’s syntax and functions.",
-            "estMinutes": 8,
+            "title": "Lesson 1 Quiz",
+            "markdown": "Let's check your understanding of Python basics and setup.",
+            "estMinutes": 3,
             "questions": [
               {
                 "id": "builtin-python-l1-s4-q1",
                 "type": "mcq",
-                "prompt": "What is the purpose of a function in Python?",
+                "prompt": "Which command would you use to check if Python is installed and its version?",
                 "options": [
-                  "To execute code once",
-                  "To define reusable pieces of code",
-                  "To import libraries",
-                  "To declare variables"
+                  "python --check",
+                  "python --version",
+                  "python --install"
                 ],
                 "correctIndex": 1,
-                "explanation": "Functions are designed to bundle code into reusable units."
+                "explanation": "`python --version` is the correct command to determine the installed Python version."
               },
               {
                 "id": "builtin-python-l1-s4-q2",
                 "type": "short_answer",
-                "prompt": "Explain the importance of Python's emphasis on readability.",
-                "expectedAnswer": "Python's readability helps developers easily understand and maintain code, increasing productivity and reducing bugs.",
-                "explanation": "Readable code is easier to modify and extend, which is crucial in collaborative environments."
+                "prompt": "What is a common pitfall when using Python environments?",
+                "expectedAnswer": "Forgetting to activate the virtual environment.",
+                "explanation": "Always activate your virtual environment to avoid dependency issues."
               }
             ]
           }
@@ -2617,59 +2845,65 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-python-l2",
-        "title": "Data Types and Variables",
-        "estMinutes": 40,
+        "title": "Python Data Types and Variables",
+        "estMinutes": 30,
+        "glossary": [
+          "int",
+          "float",
+          "str",
+          "list",
+          "tuple"
+        ],
         "segments": [
           {
             "id": "builtin-python-l2-s1",
             "type": "reading",
-            "title": "Understanding Python Data Types",
-            "markdown": "Python’s data types are foundational to understanding how data is stored and manipulated in Python. These include integers, floats, strings, lists, tuples, sets, and dictionaries. Each type serves different purposes and comes with its own methods, allowing various operations tailored to that type. For instance, strings in Python can be concatenated, split, and iterated over:\n\n```python\nname = \"Python\"\ngreeting = \"Hello, \" + name + \" lovers!\"\nprint(greeting)  # Outputs: Hello, Python lovers!\n```\nUsing the wrong data type in a particular context can lead to errors or inefficient code. A common issue is attempting operations between incompatible types, like trying to concatenate a string and a number.",
-            "estMinutes": 7,
+            "title": "Understanding Basic Data Types",
+            "markdown": "Python provides several built-in data types that you can use to hold data. Understanding these is crucial as they form the foundation of Python programming. The most common ones include integers (`int`), floating-point numbers (`float`), strings (`str`), and collection types like lists and tuples.\n\nFor instance, integers are used for whole numbers without a decimal point, whereas floats handle numbers with decimals:\n\n```python\nage = 30   # int\nprice = 19.99  # float\nname = \"Python\"  # str\n```\n\nUsing the correct data type is essential for operations, such as arithmetic or data manipulation. A common pitfall is mistaking the type of data you are manipulating, leading to errors like `TypeError` when performing operations.",
+            "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-python-l2-s2",
             "type": "reading",
-            "title": "Working with Variables in Python",
-            "markdown": "Variables in Python are essentially symbolic names attached to objects, serving as references to data stored in the computer's memory. Python’s dynamic typing nature means that you don’t have to explicitly declare a variable's type, giving you flexibility but also requiring extra diligence to ensure that operations on these variables are compatible.\n\nFor example:\n```python\nage = 25\nname = \"Alice\"\nprint(name + \" is \" + str(age) + \" years old.\")\n```\nNotice the use of `str()` to convert an integer to a string, which prevents type errors. A mistake many beginners make is assuming that they can perform string operations on integers directly without conversion.",
-            "estMinutes": 8,
+            "title": "Variables and Assignment",
+            "markdown": "Variables in Python are containers for storing data values. Unlike some languages, Python does not require you to declare the type of the variable; the interpreter determines it from the value:\n\n```python\nx = 10  # variable x is an integer\ny = 12.5  # variable y is a float\nz = \"Hello, Python!\"  # variable z is a string\n```\n\nThis dynamic typing feature allows quick prototyping and simplicity but can result in unexpected behavior if you're not careful with your data. Always remember: variable names should reflect their purpose, aiding readability and maintenance.",
+            "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-python-l2-s3",
             "type": "code",
-            "title": "Code: Defining and Using Data Structures",
-            "markdown": "```python\n# Example of using different data types and structures\n\n# Define a list of favorite games\ngames = [\"The Witcher\", \"Cyberpunk 2077\", \"Minecraft\"]\n\n# Using a dictionary to map game names to genres\ngame_genres = {\n    \"The Witcher\": \"RPG\",\n    \"Cyberpunk 2077\": \"RPG\",\n    \"Minecraft\": \"Sandbox\"\n}\n\n# Looping through the list and printing game genres\nfor game in games:\n    print(f\"{game} is a {game_genres[game]} game.\")\n```\nIn this code, you use a dictionary to map games to their respective genres, showcasing how Python’s data structures can be used to create more organized and meaningful representations of data.",
-            "estMinutes": 10,
+            "title": "Code: Manipulating Lists",
+            "markdown": "Lists are ordered collections of items. You can store mixed data types in a list, but it's generally more useful to keep similar objects together.\n\n```python\n# Manipulating a list of numbers\nnumbers = [1, 2, 3, 4, 5]\nnumbers.append(6)  # adds 6 to the end of the list\nprint(numbers)  # Output: [1, 2, 3, 4, 5, 6]\n\n# Accessing elements by index\nsecond_number = numbers[1]\nprint(second_number)  # Output: 2\n```\n\nWhen modifying lists, be aware of accidentally altering the original list, especially when passing it to functions. Python’s lists are mutable, which can lead to shared-state problems if not handled carefully.",
+            "estMinutes": 7,
             "questions": []
           },
           {
             "id": "builtin-python-l2-s4",
             "type": "quiz",
-            "title": "Mini Quiz",
-            "markdown": "Assess your understanding of Python's data types and variables.",
-            "estMinutes": 5,
+            "title": "Lesson 2 Quiz",
+            "markdown": "Review your knowledge of Python data types and behavior.",
+            "estMinutes": 3,
             "questions": [
               {
                 "id": "builtin-python-l2-s4-q1",
-                "type": "mcq",
-                "prompt": "What data type would you use to store a collection of unique items?",
-                "options": [
-                  "List",
-                  "Tuple",
-                  "Set",
-                  "Dictionary"
-                ],
-                "correctIndex": 2,
-                "explanation": "A set holds an unordered collection of unique items."
+                "type": "short_answer",
+                "prompt": "What will be the type of the variable `x` after executing `x = 5.5`?",
+                "expectedAnswer": "float",
+                "explanation": "The variable `x` will be of type `float` because it is assigned a decimal value."
               },
               {
                 "id": "builtin-python-l2-s4-q2",
-                "type": "short_answer",
-                "prompt": "How are variables assigned in Python?",
-                "expectedAnswer": "Variables in Python are assigned using the '=' operator and do not require explicit type declaration.",
-                "explanation": "Python uses dynamic typing, which allows for type changes without static declaration."
+                "type": "mcq",
+                "prompt": "What function would you use to add an element to the end of a list?",
+                "options": [
+                  "add()",
+                  "append()",
+                  "insert()"
+                ],
+                "correctIndex": 1,
+                "explanation": "`append()` is used to add an element to the end of a list in Python."
               }
             ]
           }
@@ -2677,59 +2911,64 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-python-l3",
-        "title": "Control Flow and Looping",
-        "estMinutes": 50,
+        "title": "Control Structures in Python",
+        "estMinutes": 30,
+        "glossary": [
+          "if",
+          "else",
+          "for",
+          "while",
+          "break"
+        ],
         "segments": [
           {
             "id": "builtin-python-l3-s1",
             "type": "reading",
-            "title": "Understanding Control Flow",
-            "markdown": "Control flow statements in Python, such as `if`, `elif`, `else`, allow the program to branch into different paths depending on certain conditions. This is fundamental for building dynamic applications that react to varying inputs. The ability to set conditions effectively can significantly enhance the functionality and performance of your program.\n\nConsider the following example where a player’s score is evaluated:\n\n```python\nscore = 85\nif score >= 90:\n    print(\"Excellent\")\nelif score >= 70:\n    print(\"Good\")\nelse:\n    print(\"Needs Improvement\")\n```\nThis script categorizes scores into different performance levels. It’s crucial to remember that incorrect ordering of these conditions, or missing conditions altogether, might result in unexpected behavior in your applications.",
-            "estMinutes": 8,
+            "title": "Making Decisions: If-Else Statements",
+            "markdown": "Control structures guide the flow of your program. The `if` statement allows you to execute a block of code only if a specific condition is `True`. You can provide additional instructions using `else` and `elif`, enabling complex decision-making processes:\n\n```python\nage = 20\nif age >= 18:\n    print('You are an adult.')\nelse:\n    print('You are a minor.')\n```\n\nThese constructs are crucial for applications that require branching logic, like games for handling player states or web applications for user authentication. One potential pitfall is mismanaging indentation, which can lead to runtime errors since Python uses whitespace to define scope.",
+            "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-python-l3-s2",
             "type": "reading",
-            "title": "Loop Constructs: for and while",
-            "markdown": "Loops are used to repeatedly execute a block of code. Python offers two primary loop types: `for` and `while`. The `for` loop is commonly used for iterating over sequences like lists and strings, while the `while` loop is suited for indefinite iteration, where the number of iterations is not predetermined.\n\n```python\ngames = [\"Counter Strike\", \"Apex Legends\", \"Fortnite\"]\nfor game in games:\n    print(game + \" is fun!\")\n\n# A while loop example\ncount = 0\nwhile count < 3:\n    print(\"Playing...\")\n    count += 1\n```\nWhen using loops, be cautious of infinite loops, which occur when the terminating condition is never met—this can freeze or crash your application if not handled correctly.",
-            "estMinutes": 7,
+            "title": "Looping Through Data",
+            "markdown": "Loops are used to iterate over a sequence, such as a list, tuple, or string. The `for` loop is commonly used when the number of iterations is known, while the `while` loop is preferable when the end condition relies on dynamic changes within the loop body.\n\n```python\n# Using a for loop to iterate over a list\ndays = ['Monday', 'Tuesday', 'Wednesday']\nfor day in days:\n    print(day)\n\n# Output: Monday\n#         Tuesday\n#         Wednesday\n\n# While loop example\ncounter = 0\nwhile counter < 3:\n    print('Loop iteration:', counter)\n    counter += 1\n```\n\nWhen using loops, ensure the loop condition eventually evaluates to `False`, or you risk creating infinite loops — a common source of program crashes.",
+            "estMinutes": 6,
             "questions": []
           },
           {
             "id": "builtin-python-l3-s3",
             "type": "practice",
-            "title": "Practical Task: Developing a Guessing Game",
-            "markdown": "Create a guessing game where the user must guess a pre-defined number. Use a `while` loop to keep the game running until the user guesses correctly. Provide feedback on whether the guessed number is too high or too low.",
-            "estMinutes": 15,
+            "title": "Code: Flow Control Practice",
+            "markdown": "Write a Python program that counts from 10 down to 0, and for each number, prints whether it is 'even' or 'odd'.",
+            "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-python-l3-s4",
             "type": "quiz",
-            "title": "Self-Check Quiz",
-            "markdown": "Validate your knowledge on loops and control flow in Python.",
-            "estMinutes": 5,
+            "title": "Lesson 3 Quiz",
+            "markdown": "Test your understanding of control structures with these questions.",
+            "estMinutes": 3,
             "questions": [
               {
                 "id": "builtin-python-l3-s4-q1",
                 "type": "mcq",
-                "prompt": "What will `range(3)` produce in a `for` loop?",
+                "prompt": "Which loop is better suited for situations where the end condition changes dynamically?",
                 "options": [
-                  "[0, 1, 2, 3]",
-                  "[1, 2, 3]",
-                  "[0, 1, 2]",
-                  "[1, 2, 3, 4]"
+                  "for",
+                  "while"
                 ],
-                "correctIndex": 2,
-                "explanation": "The range(3) function creates a sequence of numbers from 0 up to, but not including, 3."
+                "correctIndex": 1,
+                "explanation": "The `while` loop is more flexible as it can handle changing conditions during iterations."
               },
               {
                 "id": "builtin-python-l3-s4-q2",
                 "type": "short_answer",
-                "prompt": "Explain the risk of using a while loop.",
-                "expectedAnswer": "A while loop can run indefinitely if the condition is never met, leading to infinite loops.",
-                "explanation": "It's important to ensure that the loop's terminating condition can eventually evaluate to false to stop execution."
+                "prompt": "What common mistake might cause an infinite loop?",
+                "expectedAnswer": "Failure to modify the loop's end condition.",
+                "explanation": "Without changing the loop condition, the loop may never end, causing an infinite cycle."
               }
             ]
           }
@@ -2738,58 +2977,63 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       {
         "id": "builtin-python-l4",
         "title": "Functions and Modules",
-        "estMinutes": 45,
+        "estMinutes": 35,
+        "glossary": [
+          "function",
+          "def",
+          "module",
+          "return"
+        ],
         "segments": [
           {
             "id": "builtin-python-l4-s1",
             "type": "reading",
             "title": "Defining and Calling Functions",
-            "markdown": "Functions are blocks of reusable code designed to perform a single, related action. They help reduce redundancy and improve modularity of your code. A function is defined using the `def` keyword, followed by its name and parameters in parentheses. To execute a function, you call it by its name followed by parentheses, which may include arguments.\n\nFor instance:\n```python\ndef calculate_area(width, height):\n    return width * height\n\n# Call the function\nprint(calculate_area(5, 10))  # Outputs: 50\n```\nThis function calculates the area of a rectangle. Using functions effectively requires understanding of scope and how data is passed—whether by reference or by value—which can affect your program’s behavior if not properly managed.",
-            "estMinutes": 8,
+            "markdown": "Functions in Python are defined using the `def` keyword and are pivotal for code organization and reuse. They allow you to encapsulate logic for easy recall, avoiding redundancy and improving readability:\n\n```python\ndef greet_user(name):\n    print(f\"Hello, {name}!\")\n\ngreet_user(\"Alice\")  # Output: Hello, Alice!\n```\n\nUsing functions is beneficial when you identify operations that repeat across your code. Always ensure you return necessary data from functions using the `return` statement, and watch out for forgetting to test your functions, which can lead to subtle bugs.",
+            "estMinutes": 6,
             "questions": []
           },
           {
             "id": "builtin-python-l4-s2",
             "type": "reading",
-            "title": "Python Modules and Imports",
-            "markdown": "Modules in Python are files containing Python code. They help organize and reuse code by splitting large code bases into manageable pieces. Importing modules is done using the `import` statement, enabling access to their functions, classes, and variables.\n\nConsider the example of using Python’s built-in `math` module:\n\n```python\nimport math\n\nprint(math.sqrt(25))  # Outputs: 5.0\n```\nModules enhance code reusability and clarity but can introduce namespace conflicts if two modules contain items with the same name. In such cases, aliasing with `as` or using absolute imports can mitigate these issues.",
-            "estMinutes": 7,
+            "title": "Code Reuse with Modules",
+            "markdown": "Modules in Python are simply files containing Python code that you can import into other scripts. This allows sharing of functionalities across projects. Use the `import` statement to bring a module into your code:\n\n```python\n# In a file named math_utils.py\ndef add(a, b):\n    return a + b\n\n# In your main application file\nimport math_utils\n\nresult = math_utils.add(3, 4)\nprint(result)  # Output: 7\n```\n\nBy organizing code into modules, you can maintain a cleaner project structure. However, watch for circular imports, which can cause runtime errors due to unresolved dependencies.",
+            "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-python-l4-s3",
-            "type": "code",
-            "title": "Code: Creating and Importing Your Own Module",
-            "markdown": "```python\n# my_module.py\n\ndef greet(name):\n    return f\"Hello, {name}!\"\n\n# main.py\nimport my_module\n\nprint(my_module.greet(\"developer\"))  # Outputs: Hello, developer!\n```\nIn this example, a simple module `my_module.py` is created with a `greet` function. You can then import this module into another script using `import my_module` to access its functionality. This setup is commonly used for organizing code across larger projects.",
-            "estMinutes": 10,
+            "type": "practice",
+            "title": "Exercise: Simple Calculator",
+            "markdown": "Create a `calculator` module with basic arithmetic functions and test them in a separate Python script.",
+            "estMinutes": 7,
             "questions": []
           },
           {
             "id": "builtin-python-l4-s4",
             "type": "quiz",
-            "title": "Function-Based Quiz",
-            "markdown": "Test your understanding of functions and modules.",
-            "estMinutes": 5,
+            "title": "Lesson 4 Quiz",
+            "markdown": "Assess your understanding of functions and modules with these questions.",
+            "estMinutes": 4,
             "questions": [
               {
                 "id": "builtin-python-l4-s4-q1",
-                "type": "mcq",
-                "prompt": "What is the purpose of the `import` statement in Python?",
-                "options": [
-                  "To define a function",
-                  "To declare a variable",
-                  "To access functions and variables from other modules",
-                  "To improve loop performance"
-                ],
-                "correctIndex": 2,
-                "explanation": "The `import` statement is used to include functions, classes, and variables from other modules."
+                "type": "short_answer",
+                "prompt": "What keyword is used to define a function in Python?",
+                "expectedAnswer": "def",
+                "explanation": "The `def` keyword is followed by the function name to define a function."
               },
               {
                 "id": "builtin-python-l4-s4-q2",
-                "type": "short_answer",
-                "prompt": "Why is using functions beneficial in programming?",
-                "expectedAnswer": "Functions encourage code reuse, modularity, and a clearer program structure.",
-                "explanation": "They enable easier debugging and maintenance by encapsulating logic."
+                "type": "mcq",
+                "prompt": "What problem can arise when importing modules in Python?",
+                "options": [
+                  "Circular imports",
+                  "Syntax errors",
+                  "Too many files"
+                ],
+                "correctIndex": 0,
+                "explanation": "Circular imports occur when two modules attempt to load each other."
               }
             ]
           }
@@ -2797,59 +3041,65 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-python-l5",
-        "title": "Error Handling and Exceptions",
-        "estMinutes": 35,
+        "title": "Working with Files and Exceptions",
+        "estMinutes": 30,
+        "glossary": [
+          "file",
+          "open",
+          "read",
+          "write",
+          "exception"
+        ],
         "segments": [
           {
             "id": "builtin-python-l5-s1",
             "type": "reading",
-            "title": "Understanding Exceptions",
-            "markdown": "Python uses exceptions to handle errors that arise during execution. Rather than crashing, exceptions provide a way to intercept and manage errors gracefully. Common exceptions include `IndexError`, `ValueError`, and `ZeroDivisionError`, each representing specific problems that can occur in your code.\n\nFor example:\n```python\ntry:\n    result = 10 / 0\nexcept ZeroDivisionError:\n    print(\"You can't divide by zero!\")\n```\nIn this script, a division by zero would normally raise an error, but using a `try-except` block allows the program to handle the error and continue execution. Proper exception handling is crucial for robust applications, but overuse can obscure errors, making debugging difficult.",
-            "estMinutes": 7,
+            "title": "File Operations in Python",
+            "markdown": "File handling is a fundamental part of many applications. Python provides built-in support for reading from and writing to files using the `open()` function.\n\n```python\n# Using open to read a file\nwith open('example.txt', 'r') as file:\n    content = file.read()\n    print(content)\n\n# Writing data to a file\nwith open('output.txt', 'w') as file:\n    file.write('Hello, World!')\n```\n\nWhile handling files, always ensure the file is correctly closed after operations to release system resources. Python’s `with` statement is designed to manage this automatically. A common mistake is attempting to read/write files using incorrect modes, resulting in exceptions like `FileNotFoundError` or `IOError`.",
+            "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-python-l5-s2",
-            "type": "code",
-            "title": "Practical Exception Handling",
-            "markdown": "```python\n# Example of handling exceptions in file operations\ntry:\n    with open('nonexistentfile.txt', 'r') as file:\n        data = file.read()\nexcept FileNotFoundError:\n    print(\"File not found. Please check the file path.\")\n```\nThis code snippet demonstrates handling a file read operation that could fail if the file doesn’t exist. By capturing the exception, you can prompt users to correct the error instead of letting the program crash unexpectedly.",
-            "estMinutes": 10,
+            "type": "reading",
+            "title": "Handling Exceptions",
+            "markdown": "Python uses exceptions to manage errors that may arise during execution, allowing you to write robust code that can handle unexpected situations. Use the `try` and `except` blocks to capture and manage exceptions:\n\n```python\ntry:\n    num = int(input(\"Enter a number: \"))\n    print(f\"The number is {num}\")\nexcept ValueError:\n    print(\"That's not a valid number!\")\n```\n\nHandling exceptions is critical, especially in input-output operations where users can make errors. Be aware not to abuse exception handling to hide errors, which can make debugging difficult and mask underlying problems in your code logic.",
+            "estMinutes": 6,
             "questions": []
           },
           {
             "id": "builtin-python-l5-s3",
             "type": "practice",
-            "title": "Practice: Creating Robust Applications",
-            "markdown": "Extend your guessing game from previous lessons to handle potential input errors, such as non-numeric guesses. Use exception handling to ensure the program continues running smoothly even if incorrect inputs are provided.",
-            "estMinutes": 10,
+            "title": "Code: Exception Handling Practice",
+            "markdown": "Create a Python script that opens a file specified by the user and reads its content. Implement exception handling to manage potential errors, such as the file not existing.",
+            "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-python-l5-s4",
             "type": "quiz",
-            "title": "Quiz on Exceptions",
-            "markdown": "Evaluate your knowledge of exception handling in Python.",
-            "estMinutes": 5,
+            "title": "Lesson 5 Quiz",
+            "markdown": "Let's solidify what you've learned about file handling and exceptions.",
+            "estMinutes": 3,
             "questions": [
               {
                 "id": "builtin-python-l5-s4-q1",
                 "type": "mcq",
-                "prompt": "Which block allows you to run code regardless of whether an exception occurred?",
+                "prompt": "Which Python statement is ideal for file operations to ensure files are properly closed?",
                 "options": [
-                  "finally",
-                  "catch",
-                  "except",
-                  "terminate"
+                  "open()",
+                  "try..except",
+                  "with"
                 ],
-                "correctIndex": 0,
-                "explanation": "The `finally` block will execute whether or not the `try` block raises an exception."
+                "correctIndex": 2,
+                "explanation": "The `with` statement handles file closure automatically."
               },
               {
                 "id": "builtin-python-l5-s4-q2",
                 "type": "short_answer",
-                "prompt": "What is the risk of catching general exceptions?",
-                "expectedAnswer": "Catching general exceptions can mask unexpected errors, making debugging harder.",
-                "explanation": "It's generally better to catch specific exceptions to better understand what's happening in your code."
+                "prompt": "What exception is raised when attempting to read a file that does not exist?",
+                "expectedAnswer": "FileNotFoundError",
+                "explanation": "`FileNotFoundError` occurs when the specified file path is not found."
               }
             ]
           }
@@ -2857,59 +3107,66 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-python-l6",
-        "title": "Working with Libraries and APIs",
-        "estMinutes": 50,
+        "title": "Introduction to Object-Oriented Programming",
+        "estMinutes": 35,
+        "glossary": [
+          "class",
+          "object",
+          "inheritance",
+          "method",
+          "attribute"
+        ],
         "segments": [
           {
             "id": "builtin-python-l6-s1",
             "type": "reading",
-            "title": "Harnessing the Power of Libraries",
-            "markdown": "Python's extensive library ecosystem is one of its major strengths. Libraries are collections of code that add specific capabilities, such as data manipulation or web development, without requiring you to manually implement these functionalities from scratch. This enables faster development and adoption of best practices.\n\nFor instance, consider the `requests` library, which simplifies HTTP calls:\n\n```python\nimport requests\n\nresponse = requests.get('https://api.github.com')\nprint(response.status_code)\n```\nUsing `requests` to perform HTTP requests abstracts away low-level details, allowing you to focus on functionality. While utilizing libraries, keep their versions in mind, as breaking changes in updates can lead to code that suddenly doesn’t work as expected.",
-            "estMinutes": 8,
+            "title": "Understanding Classes and Objects",
+            "markdown": "Object-oriented programming (OOP) is a paradigm that uses 'objects' to model real-world things or concepts. In Python, classes define these objects' structures and behavior:\n\n```python\nclass Dog:\n    def __init__(self, name, breed):\n        self.name = name\n        self.breed = breed\n\n    def bark(self):\n        print('Woof!')\n\n# Create an object of class Dog\nmy_dog = Dog('Buddy', 'Labrador')\nmy_dog.bark()  # Output: Woof!\n```\n\nOOP allows for modeling complex systems, encouraging reuse, and creating modular code. However, beginners often struggle with the concept of self and the initialization of object attributes, leading to AttributeError if misunderstood.",
+            "estMinutes": 6,
             "questions": []
           },
           {
             "id": "builtin-python-l6-s2",
             "type": "reading",
-            "title": "Accessing and Using APIs",
-            "markdown": "APIs (Application Programming Interfaces) allow different software systems to communicate, enabling developers to interact with external services. APIs are accessed over HTTP and usually return data in formats like JSON. With the `requests` library, you can easily consume these APIs.\n\nExample using GitHub's API to fetch user details:\n\n```python\nimport requests\n\nresponse = requests.get('https://api.github.com/users/octocat')\nif response.status_code == 200:\n    user_info = response.json()\n    print(user_info['name'])  # Outputs: The Octocat\nelse:\n    print(\"Failed to fetch data\")\n```\nHandling API data involves parsing JSON responses and managing network errors or rate limits. Avoiding excessive requests to an API can prevent issues like timeouts or restricted access.",
-            "estMinutes": 10,
+            "title": "Inheritance in Python",
+            "markdown": "Inheritance allows one class (child) to inherit attributes and methods from another class (parent), promoting code reuse and hierarchy. Define inheritance using parentheses:\n\n```python\nclass Vehicle:\n    def start_engine(self):\n        print('Engine started')\n\nclass Car(Vehicle):\n    def play_music(self):\n        print('Playing music')\n\nmy_car = Car()\nmy_car.start_engine()  # Output: Engine started\nmy_car.play_music()  # Output: Playing music\n```\n\nInheritance is useful in creating logical class hierarchies, but be cautious with deep inheritance chains, which can complicate debugging and maintenance.",
+            "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-python-l6-s3",
             "type": "practice",
-            "title": "Building an API Client",
-            "markdown": "Develop a simple Python client that fetches weather data from an open API. Use the `requests` library to interact with the API and display current weather conditions for a specified location. Focus on implementing error handling for network issues.",
-            "estMinutes": 20,
+            "title": "Practice: Create a Simple Class",
+            "markdown": "Design a class `Book` with attributes like `title` and `author`, and a method to display the book's details. Create an instance and call this method.",
+            "estMinutes": 6,
             "questions": []
           },
           {
             "id": "builtin-python-l6-s4",
             "type": "quiz",
-            "title": "API and Library Quiz",
-            "markdown": "Check your understanding of libraries and API usage with Python.",
-            "estMinutes": 5,
+            "title": "Lesson 6 Quiz",
+            "markdown": "Final concepts check on Object-Oriented Programming fundamentals.",
+            "estMinutes": 4,
             "questions": [
               {
                 "id": "builtin-python-l6-s4-q1",
                 "type": "mcq",
-                "prompt": "What is the primary purpose of using a library in Python?",
+                "prompt": "In Python, what is the keyword used to define a class inheritance?",
                 "options": [
-                  "To increase execution speed",
-                  "To eliminate errors",
-                  "To reuse existing code and functionalities",
-                  "To compile code faster"
+                  "super",
+                  "inherit",
+                  "child",
+                  "class"
                 ],
-                "correctIndex": 2,
-                "explanation": "Libraries provide reusable code, which saves time and reduces redundancy in development."
+                "correctIndex": 3,
+                "explanation": "Inheritance is defined using `(ParentClassName)` after `class ChildClassName`."
               },
               {
                 "id": "builtin-python-l6-s4-q2",
                 "type": "short_answer",
-                "prompt": "Explain HTTP status codes in the context of API calls.",
-                "expectedAnswer": "HTTP status codes indicate the success or failure of an API request, with codes like 200 for success and 404 for not found.",
-                "explanation": "Understanding these codes helps diagnose and troubleshoot issues related to API requests."
+                "prompt": "Which error occurs when you try to access a property that an object does not have?",
+                "expectedAnswer": "AttributeError",
+                "explanation": "`AttributeError` arises when a non-existent property is accessed."
               }
             ]
           }
@@ -2925,59 +3182,63 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       {
         "id": "builtin-nextjs-l1",
         "title": "Introduction to Next.js",
-        "estMinutes": 25,
+        "estMinutes": 30,
+        "glossary": [
+          "SSR",
+          "Static Site Generation",
+          "React"
+        ],
         "segments": [
           {
             "id": "builtin-nextjs-l1-s1",
             "type": "reading",
-            "title": "Why Use Next.js?",
-            "markdown": "Every developer knows the challenge of building a modern web application: performance and SEO are constant concerns. Enter Next.js, a React framework that simplifies these problems. By offering features like server-side rendering and static site generation out of the box, Next.js can drastically improve your site's speed and search engine visibility.\n\nConsider a scenario where you're building a large e-commerce site. With client-side rendering, search engine crawlers might not see your dynamic content, hurting SEO. Next.js solves this by rendering pages on the server, ensuring search engines get HTML content, not just JavaScript. Be aware, though: integrating API calls into server-rendered pages can increase server load, so use them judiciously.",
+            "title": "Why Choose Next.js?",
+            "markdown": "Next.js is a React framework that builds on top of React with features such as server-side rendering (SSR) and static site generation (SSG). It allows developers to build fast web applications by outputting optimized HTML to the client. One key problem it solves is the performance and SEO limitations of single-page applications (SPAs). By pre-rendering pages on the server, Next.js enables faster load times and better indexing by search engines.\n\nFor example, if your e-commerce site relies on dynamic content, rendering pages on the server can significantly improve both the initial load time and overall user experience. Common pitfalls when transitioning to Next.js include misconfiguring your data fetching methods, which could lead to increased loading times or rendering errors.",
             "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-nextjs-l1-s2",
             "type": "code",
-            "title": "Setting Up Your First Next.js App",
-            "markdown": "```bash\n# Create a new Next.js project using the command\nnpx create-next-app my-next-app\n\n# Navigate into your project directory\ncd my-next-app\n\n# Start the development server\nnpm run dev\n```\n\nThis command initializes a new Next.js application. Once the server is running, you can view your project by visiting `http://localhost:3000`. It's that easy to get started!",
+            "title": "Basic Next.js Project Setup",
+            "markdown": "To get started with Next.js, you'll need Node.js installed on your machine. Begin by creating a new Next.js project using the following command:\n\n```shell\nnpx create-next-app@latest my-next-app\ncd my-next-app\nnpm run dev\n```\n\nThis command scaffolds a new project, setting up everything for you. Open `http://localhost:3000` to view your application in a browser. It's a fully functional environment that you can begin developing in immediately. Always keep an eye on your terminal for hot reloading during development.",
             "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-nextjs-l1-s3",
             "type": "reading",
-            "title": "Basic File Structure",
-            "markdown": "After setting up a project, you'll notice a distinctive file structure. The `/pages` directory is significant because each file within is automatically turned into a route. For instance, creating a file `about.js` inside the `pages` folder allows users to reach this page through `/about`.\n\nA common pitfall is placing non-component files directly in `/pages`, which can disrupt routing. Instead, keep components in a separate `/components` directory to maintain clean separation between logic and route management.",
-            "estMinutes": 5,
+            "title": "Next.js Directory Structure",
+            "markdown": "Next.js advocates a folder structure that increases productivity and enforces best practices. At the root of a Next.js project, you'll find the `pages` directory, where each file automatically becomes a route. For instance, `pages/index.js` renders the homepage, while `pages/about.js` would render an About page.\n\nThis file-based routing means you don't need to set up a router. Every component inside `pages` corresponds to a page in your app, and navigating between pages automatically leverages client-side React rendering to avoid full page reloads. A common error is forgetting that every file directly inside the `pages` folder becomes a route, leading to unexpected routes being generated.",
+            "estMinutes": 7,
             "questions": []
           },
           {
             "id": "builtin-nextjs-l1-s4",
-            "type": "practice",
-            "title": "Explore and Customize",
-            "markdown": "Open your `my-next-app` project and experiment with adding a new page called `contact.js` in the `/pages` directory. Write a simple React component to display your contact information and visit the route `/contact` to see it in action.\n\nTry modifying the content and structure to understand how changes appear instantly due to hot reloading.",
-            "estMinutes": 5,
-            "questions": []
-          },
-          {
-            "id": "builtin-nextjs-l1-s5",
             "type": "quiz",
-            "title": "Understanding Pages and Routes",
-            "markdown": "Let's solidify your understanding of how routing works in Next.js.",
-            "estMinutes": 5,
+            "title": "Quiz: Understanding Next.js Basics",
+            "markdown": "Let's check your understanding of Next.js basics.",
+            "estMinutes": 3,
             "questions": [
               {
-                "id": "builtin-nextjs-l1-s5-q1",
+                "id": "builtin-nextjs-l1-s4-q1",
                 "type": "mcq",
-                "prompt": "Which of the following directories is *not* required for a basic Next.js project?",
+                "prompt": "What is a primary benefit of using Next.js over a traditional React SPA?",
                 "options": [
-                  "pages",
-                  "components",
-                  "public",
-                  "src"
+                  "Larger bundle sizes",
+                  "Improved SEO through SSR",
+                  "Complex configuration",
+                  "Mandatory server setup"
                 ],
-                "correctIndex": 3,
-                "explanation": "The `src` directory is optional; it acts as a convention for organizing code, unlike `pages` which is necessary for routing."
+                "correctIndex": 1,
+                "explanation": "Next.js improves SEO by providing server-side rendering, delivering fast and SEO-friendly pages."
+              },
+              {
+                "id": "builtin-nextjs-l1-s4-q2",
+                "type": "short_answer",
+                "prompt": "What command is used to start a new Next.js application?",
+                "expectedAnswer": "npx create-next-app@latest my-next-app",
+                "explanation": "The `npx create-next-app` command initializes a new Next.js project with all the necessary configurations."
               }
             ]
           }
@@ -2985,52 +3246,71 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-nextjs-l2",
-        "title": "Styling in Next.js",
-        "estMinutes": 20,
+        "title": "Pages and Routing",
+        "estMinutes": 35,
+        "glossary": [
+          "Dynamic Routing",
+          "Link Component"
+        ],
         "segments": [
           {
             "id": "builtin-nextjs-l2-s1",
             "type": "reading",
-            "title": "Built-in CSS Support",
-            "markdown": "Next.js allows for scoped CSS with zero configuration. This means each component can include its own styles without worrying about clashes. In a typical application, global stylesheets may override each other, leading to bugs that are hard to track.\n\nWith Next.js, you can create a CSS module for a component, say `Button.module.css`, and only import styles needed for `Button.js`. This encapsulation ensures styles do not affect other components unexpectedly, easing maintenance;\n```javascript\nimport styles from './Button.module.css';\n\nexport default function Button() {\n  return <button className={styles.btn}>Click Me!</button>;\n}\n```\nA downfall, however, is excessive modularization leading to numerous small files which might clutter a large codebase. Use common themes or shared styles to mitigate.",
+            "title": "Customizing Pages in Next.js",
+            "markdown": "Next.js uses the `pages` directory for automatic routing. To customize pages, you create JavaScript files inside this directory. Each file corresponds to a route based on its name. Advanced features such as dynamic routing are essential for apps with content that changes often, like blogs or marketplaces.\n\nFor example, to create a dynamic product page, you'd set up a file path like `pages/products/[id].js`. The `[id]` placeholder can represent any product ID. Inside, you'll use functions to fetch and pre-render data, such as details about each product. A typical mistake is overlooking the need to properly configure data fetching with functions like `getStaticPaths` and `getServerSideProps`, which are central to rendering dynamic content.",
             "estMinutes": 7,
             "questions": []
           },
           {
             "id": "builtin-nextjs-l2-s2",
             "type": "code",
-            "title": "Using Global Styles",
-            "markdown": "```css\n/* styles/globals.css */\nbody {\n  margin: 0;\n  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,\n    'Helvetica Neue', Arial, sans-serif;\n}\n```\nTo apply global styles, import the CSS file in your `_app.js` file in the pages directory:\n```javascript\n// pages/_app.js\nimport '../styles/globals.css';\n\nfunction MyApp({ Component, pageProps }) {\n  return <Component {...pageProps} />\n}\n\nexport default MyApp;\n```\nThis pattern efficiently manages styles that should apply universally without manually importing them in each component.",
+            "title": "Linking Between Pages",
+            "markdown": "Next.js offers the `Link` component for client-side navigation, enhancing performance by only replacing the content inside `<Next/Head>`. Here's a sample usage:\n\n```jsx\nimport Link from 'next/link';\n\nfunction HomePage() {\n  return (\n    <div>\n      <h1>Welcome to the HomePage</h1>\n      <Link href=\"/about\">\n        <a>About Us</a>\n      </Link>\n    </div>\n  );\n}\n\nexport default HomePage;\n```\n\nThis allows seamless navigation without full-page refreshes. A common error is forgetting to wrap hrefs with `<Link>`, which skips the performance benefits of client-side navigation.",
             "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-nextjs-l2-s3",
             "type": "practice",
-            "title": "Design and Implement",
-            "markdown": "Design your own `Navbar` component. Create a CSS module for it and apply styles, ensuring no class conflicts with other components.\n\nOnce done, integrate this navbar into your existing pages by importing and using it in your components. Observe how your module's styles remain insulated from other page-specific styles.",
-            "estMinutes": 5,
+            "title": "Practice: Creating a New Page",
+            "markdown": "Create a new page in your Next.js project named `about.js` inside the `pages` directory. Add a description and use the `Link` component to navigate back to the homepage.",
+            "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-nextjs-l2-s4",
+            "type": "reading",
+            "title": "Understanding Dynamic Routes",
+            "markdown": "Dynamic routing in Next.js allows you to render content based on parameters, like IDs, in your URLs. This is achieved using square brackets in your file names. For example, `pages/blog/[slug].js` will match any route that starts with `/blog/`. This is useful for content-heavy sites with many individual content pieces, such as a blog platform.\n\nTo fetch data for dynamic pages, you must implement the `getStaticPaths` and `getStaticProps` functions to provide necessary parameters and pre-render the page at build time. Be cautious of forgetting to return proper paths in `getStaticPaths`, as this can lead to errors when navigating to non-existent routes.",
+            "estMinutes": 7,
+            "questions": []
+          },
+          {
+            "id": "builtin-nextjs-l2-s5",
             "type": "quiz",
-            "title": "Styling Techniques",
-            "markdown": "Review styling methods and global applications in Next.js.",
+            "title": "Quiz: Pages and Routing in Next.js",
+            "markdown": "Let's test your knowledge on pages and routing in Next.js.",
             "estMinutes": 3,
             "questions": [
               {
-                "id": "builtin-nextjs-l2-s4-q1",
+                "id": "builtin-nextjs-l2-s5-q1",
                 "type": "mcq",
-                "prompt": "What is the primary benefit of using CSS Modules in Next.js?",
+                "prompt": "Which component is used for client-side navigation between pages in Next.js?",
                 "options": [
-                  "They are faster than inline styles.",
-                  "They allow for scoped styling.",
-                  "They automatically optimize styles.",
-                  "They offer more properties."
+                  "<Router>",
+                  "<NavLink>",
+                  "<Link>",
+                  "<Anchor>"
                 ],
-                "correctIndex": 1,
-                "explanation": "CSS Modules promote scoped styles to prevent style collisions among components."
+                "correctIndex": 2,
+                "explanation": "The `<Link>` component in Next.js allows for client-side navigation between pages without full reloads."
+              },
+              {
+                "id": "builtin-nextjs-l2-s5-q2",
+                "type": "short_answer",
+                "prompt": "What directory is used in Next.js for creating pages?",
+                "expectedAnswer": "pages",
+                "explanation": "The `pages` directory is used to create individual pages in a Next.js app, with each file corresponding to a route."
               }
             ]
           }
@@ -3038,52 +3318,72 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-nextjs-l3",
-        "title": "Data Fetching in Next.js",
-        "estMinutes": 30,
+        "title": "Data Fetching Techniques",
+        "estMinutes": 40,
+        "glossary": [
+          "getStaticProps",
+          "getServerSideProps",
+          "CSR"
+        ],
         "segments": [
           {
             "id": "builtin-nextjs-l3-s1",
             "type": "reading",
-            "title": "Server-side Rendering (SSR)",
-            "markdown": "Server-side rendering is one of Next.js's flagship features. SSR enables HTML to be generated on each request, which can greatly enhance SEO and initial load performance for dynamic content. For a complex application like a personalized dashboard, SSR ensures users receive a fully loaded page, complete with individualized data, right from their first access—no waiting for client-side JavaScript to catch up.\n\nYou can enable SSR for any page by exporting an `async` function called `getServerSideProps` from your page component:\n```javascript\nexport async function getServerSideProps() {\n  // Fetch data from an external API or database\n  const res = await fetch('https://api.example.com/data');\n  const data = await res.json();\n\n  // Return data as props\n  return { props: { data } }\n}\n```\nBe wary, though: excessive server-side data fetching can lead to slow server responses, particularly if you're calling heavy APIs. Balance is key!",
+            "title": "Introduction to Data Fetching in Next.js",
+            "markdown": "Data fetching in Next.js can be accomplished using different methods depending on the needs of your application. Central to this are `getStaticProps` for static generation and `getServerSideProps` for server-side rendering. These data fetching functions enable you to optimize your pages by fetching data at build time or request time, ensuring the best balance between speed and data freshness.\n\nFor example, use `getStaticProps` to pre-render a page with static data that doesn't need frequent updates, such as a blog index. Whereas, `getServerSideProps` is perfect for pages that need to fetch fresh data on every request, like user profiles or real-time dashboards. A common pitfall is forgetting that `getStaticProps` cannot be used on dynamic routes without `getStaticPaths`, both of which are essential for static site generation.",
             "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-nextjs-l3-s2",
-            "type": "reading",
-            "title": "Static Site Generation (SSG)",
-            "markdown": "Static Site Generation (SSG) is another feature where Next.js shines. Unlike SSR, SSG generates static HTML at build time, making it lightning-fast for users to load—ideal for sites with content that doesn't change frequently, such as blogs or marketing pages.\n\nTo implement SSG, export a `getStaticProps` function. The function runs at build time and passes its return as props to the component:\n```javascript\nexport async function getStaticProps() {\n  const res = await fetch('https://api.example.com/data');\n  const data = await res.json();\n\n  return { props: { data } }\n}\n```\nAvoid pitfalls by acknowledging when content changes often; SSG isn't dynamic, and you might serve outdated content unless revalidated or combined with client-side updates.",
-            "estMinutes": 7,
+            "type": "code",
+            "title": "Static Site Generation with getStaticProps",
+            "markdown": "Here's how you can use `getStaticProps` to statically generate a page:\n\n```javascript\n// pages/posts.js\nexport async function getStaticProps() {\n  const res = await fetch('https://jsonplaceholder.typicode.com/posts');\n  const posts = await res.json();\n\n  return {\n    props: {\n      posts,\n    },\n  };\n}\n\nexport default function Posts({ posts }) {\n  return (\n    <div>\n      <h1>Posts</h1>\n      <ul>\n        {posts.map(post => (\n          <li key={post.id}>{post.title}</li>\n        ))}\n      </ul>\n    </div>\n  );\n}\n```\n\nThis example fetches a list of posts at build time and renders them on the page. One common error is forgetting to handle errors in the fetch request, which can result in build failures.",
+            "estMinutes": 6,
             "questions": []
           },
           {
             "id": "builtin-nextjs-l3-s3",
-            "type": "practice",
-            "title": "Concurrent Data Fetching Strategies",
-            "markdown": "Create a page using `getServerSideProps` to fetch user-specific details from an API `https://api.randomuser.me/`. Determine how the response impacts load time and compare this to fetching static content using `getStaticProps`.\n\nExperiment switching between SSR and SSG based on the nature of data retrieved, and summarize your experience in a few sentences.",
-            "estMinutes": 8,
+            "type": "reading",
+            "title": "Server-Side Rendering with getServerSideProps",
+            "markdown": "`getServerSideProps` allows you to fetch data at request time so that it is fresh on every page load. This is ideal for applications that rely on up-to-date data. When you use `getServerSideProps` in a page, Next.js will make a server-side request to render the page at request time instead of at build time.\n\nHere's an example scenario: If you are building a live sports scores application, you would want to fetch the latest scores when the user visits the page. This is when you'd use `getServerSideProps` to ensure that the data displayed is the most recent. A typical misuse is applying `getServerSideProps` when the data doesn't need to be frequently updated, which can negatively affect performance.",
+            "estMinutes": 6,
             "questions": []
           },
           {
             "id": "builtin-nextjs-l3-s4",
+            "type": "practice",
+            "title": "Practice: Implementing Data Fetching",
+            "markdown": "Implement `getStaticProps` to fetch user data from an API and display it on a `pages/users.js` page. If you finish, consider experimenting with `getServerSideProps` and observe how it alters user experience.",
+            "estMinutes": 10,
+            "questions": []
+          },
+          {
+            "id": "builtin-nextjs-l3-s5",
             "type": "quiz",
-            "title": "Fetch Types and Usage",
-            "markdown": "Evaluate your understanding of data-fetching techniques in Next.js.",
-            "estMinutes": 7,
+            "title": "Quiz: Data Fetching in Next.js",
+            "markdown": "Evaluate your understanding of data fetching techniques in Next.js.",
+            "estMinutes": 3,
             "questions": [
               {
-                "id": "builtin-nextjs-l3-s4-q1",
+                "id": "builtin-nextjs-l3-s5-q1",
                 "type": "mcq",
-                "prompt": "Which method should you use for pages that need up-to-date data on each request?",
+                "prompt": "Which method is suitable for fetching data that changes often and must be up-to-date on every request?",
                 "options": [
+                  "getInitialProps",
                   "getStaticProps",
-                  "useEffect",
                   "getServerSideProps",
-                  "useQuery"
+                  "getClientSideProps"
                 ],
                 "correctIndex": 2,
-                "explanation": "For fresh data on every request, `getServerSideProps` is appropriate due to its server-rendering nature."
+                "explanation": "`getServerSideProps` fetches new data on every page request, making it suitable for frequently changing data."
+              },
+              {
+                "id": "builtin-nextjs-l3-s5-q2",
+                "type": "short_answer",
+                "prompt": "What function would you use to statically generate a page with data fetched at build time?",
+                "expectedAnswer": "getStaticProps",
+                "explanation": "`getStaticProps` is used to fetch data at build time for static generation, optimizing for speed and performance."
               }
             ]
           }
@@ -3091,52 +3391,63 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-nextjs-l4",
-        "title": "Dynamic Routing and API Routes",
-        "estMinutes": 25,
+        "title": "Styling in Next.js",
+        "estMinutes": 30,
+        "glossary": [
+          "CSS Modules",
+          "Styled JSX"
+        ],
         "segments": [
           {
             "id": "builtin-nextjs-l4-s1",
             "type": "reading",
-            "title": "Implementing Dynamic Routing",
-            "markdown": "Dynamic routes in Next.js bring flexibility by allowing paths that depend on external input. For example, if building a blog site, you might need routes like `/post/[id]`, where `[id]` is a dynamic segment representing different post IDs fetched from a CMS or database. Create dynamic routes simply by enclosing the parameter in brackets within the filename.\n\nConsider the route `/pages/post/[id].js`. When a user visits `/post/1`, the page component receives `{ id: '1' }` as a query, enabling content fetching based on the post ID:\n```javascript\nimport { useRouter } from 'next/router';\n\nconst Post = () => {\n  const router = useRouter();\n  const { id } = router.query;\n  \n  return <p>Post: {id}</p>\n}\n\nexport default Post;\n```\nEnsure default or fallback mechanisms if a post ID isn't found, which can prevent runtime errors from undefined parameters.",
-            "estMinutes": 7,
+            "title": "CSS Modules for Scoped Styles",
+            "markdown": "CSS Modules provide a way to scope styles locally to the component, protecting styles from affecting each other across the application. In Next.js, CSS Modules are built-in, allowing you to write modular, encapsulated CSS for your components by default.\n\nTo use CSS Modules, simply create a stylesheet with the `.module.css` extension, for example, `styles/Home.module.css`:\n\n```css\n// styles/Home.module.css\n.heading {\n  color: blue;\n}\n```\n\nAnd import it into your component:\n\n```javascript\nimport styles from './Home.module.css';\n\nfunction HomePage() {\n  return <h1 className={styles.heading}>Welcome to Next.js!</h1>;\n}\n\nexport default HomePage;\n```\n\nKeep these in mind: the naming of classes should be unique to avoid clashes, and avoid excessive use of global styles, which can lead to confusion and difficult maintenance.",
+            "estMinutes": 6,
             "questions": []
           },
           {
             "id": "builtin-nextjs-l4-s2",
-            "type": "reading",
-            "title": "API Routes for Serverless Functions",
-            "markdown": "API Routes in Next.js empower developers to implement serverless functions directly in their applications. This feature eliminates the need for external servers to build APIs, drastically simplifying deployment and scaling.\n\nAn API route is a simple Node.js function running on a serverless back-end, defined in the `/pages/api` directory. This route could handle logging user interactions:\n```javascript\n// pages/api/log.js\nexport default function handler(req, res) {\n  const data = req.body;\n  // Process the data or store it in a logging service\n  res.status(200).json({ message: 'Log received' });\n}\n```\nWhile convenient, take care with data processing duration as serverless routes have execution time limits. Additionally, avoid heavy computational loads directly in these routes.",
-            "estMinutes": 7,
+            "type": "code",
+            "title": "Dynamic Styles with Styled JSX",
+            "markdown": "Next.js also supports `styled-jsx` natively, which allows you to write scoped CSS directly inside your JavaScript and makes it easy to encapsulate and co-locate styles with components:\n\n```jsx\nfunction About() {\n  return (\n    <div>\n      <h1>About Us</h1>\n      <p>Welcome to the about page!</p>\n      <style jsx>{`\n        div {\n          text-align: center;\n          color: #333;\n        }\n      `}</style>\n    </div>\n  );\n}\n\nexport default About;\n```\n\n`styled-jsx` shines with dynamic styling where component logic determines the styles, like theming or responsive designs. However, bulky or heavily logic-dependent styles can become cumbersome within components, degrading readability.",
+            "estMinutes": 6,
             "questions": []
           },
           {
             "id": "builtin-nextjs-l4-s3",
             "type": "practice",
-            "title": "Building a Dynamic Blog",
-            "markdown": "Create a dynamic post detail page to fetch and display posts based on their `id`. Use dynamic routing in the `/pages/post/[id].js` and a corresponding mock API route `api/post.js` in `/pages/api/` to simulate fetching post content.\n\nEnsure smooth operation for various IDs and implement error states for non-existent posts.",
-            "estMinutes": 6,
+            "title": "Practice: Applying Scoped Styles",
+            "markdown": "Create a new CSS Module `page.module.css` for your `pages/about.js` page to style the text's color and center the header. Try using `styled-jsx` to add a dynamic style based on a prop (e.g., adjusting color based on a boolean `isDarkMode`).",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-nextjs-l4-s4",
             "type": "quiz",
-            "title": "Assessment of Routing Skills",
-            "markdown": "Test your grasp on routing concepts and implementation of serverless functions in Next.js.",
-            "estMinutes": 5,
+            "title": "Quiz: Styling in Next.js",
+            "markdown": "Confirm your understanding of styling techniques in Next.js.",
+            "estMinutes": 3,
             "questions": [
               {
                 "id": "builtin-nextjs-l4-s4-q1",
                 "type": "mcq",
-                "prompt": "Which directory structure will correctly setup an API route named `/api/user`?",
+                "prompt": "How can you ensure that styles are scoped to a specific component in Next.js?",
                 "options": [
-                  "/api/pages/user.js",
-                  "/pages-api/user.js",
-                  "/pages/api/user.js",
-                  "/api/user.js"
+                  "Use inline styles",
+                  "CSS Modules",
+                  "Global CSS files",
+                  "Style Tags"
                 ],
-                "correctIndex": 2,
-                "explanation": "API routes must reside under `/pages/api/` in Next.js, mapping directly to their endpoint paths."
+                "correctIndex": 1,
+                "explanation": "CSS Modules provide scoped styles by default, encapsulating styles to the component."
+              },
+              {
+                "id": "builtin-nextjs-l4-s4-q2",
+                "type": "short_answer",
+                "prompt": "What does '.module.css' signify in a Next.js project?",
+                "expectedAnswer": "It indicates a CSS Module, which scopes CSS automatically to the component.",
+                "explanation": "Files ending in `.module.css` are interpreted as CSS Modules, limiting their scope to importers."
               }
             ]
           }
@@ -3144,52 +3455,63 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-nextjs-l5",
-        "title": "Next.js and Authentication",
-        "estMinutes": 30,
+        "title": "APIs in Next.js",
+        "estMinutes": 35,
+        "glossary": [
+          "API Routes",
+          "Middleware"
+        ],
         "segments": [
           {
             "id": "builtin-nextjs-l5-s1",
             "type": "reading",
-            "title": "Handling Authentication on the Server",
-            "markdown": "Authentication is vital for most modern web applications. With Next.js, it's seamless to add authentication while ensuring protection and performance without compromising UX.\n\nSSR can facilitate authentication by intermediating each page request to validate user sessions before serving pages. This approach is essential for applications with protected resources, akin to a dashboard showing user-specific data.\n\nImplement SSR authentication by modifying `getServerSideProps` to evaluate authentication tokens:\n```javascript\nexport async function getServerSideProps(context) {\n  const token = context.req.cookies.token;\n  if (!token || !isValid(token)) {\n    return { redirect: { destination: '/login', permanent: false } };\n  }\n  \n  return { props: { user: { name: 'John Doe' } } };\n}\n```\nBe cautious as poor token validation logic can expose vulnerabilities; always validate tokens robustly and redirect attempts without valid authentication swiftly.",
+            "title": "Introduction to API Routes",
+            "markdown": "API Routes enable you to build your API with Next.js. You can create RESTful APIs within your application without needing to set up a separate Express server. This feature allows for seamless data integration, directly within the same codebase.\n\nTo create an API route, you simply add a JavaScript file in the `pages/api` directory. For instance, an endpoint at `/api/hello` is created in `pages/api/hello.js`:\n\n```javascript\n// pages/api/hello.js\nexport default function handler(req, res) {\n  res.status(200).json({ message: 'Hello, Next.js!' });\n}\n```\n\nThis setup allows direct interaction with the server-side logic and database queries, providing responsive data handling without complex setups. Be mindful of how cross-site dependencies (CORS) and security practices (like rate limiting) are managed in production to prevent vulnerabilities.",
             "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-nextjs-l5-s2",
-            "type": "reading",
-            "title": "Client-side Authentication Methods",
-            "markdown": "For applications leveraging account-based services, client-side authentication remains pivotal, especially for smoother UX transitions and personal dashboard implementations. It typically involves libraries like `next-auth` or custom implementations using JWTs in localStorage.\n\nA basic authentication workflow involves checking for a token during component mounting:\n```javascript\nuseEffect(() => {\n  const token = localStorage.getItem('authToken');\n  if (!token) {\n    // Redirect to login\n    window.location.href = '/login';\n  }\n}, []);\n```\nHowever, remember that client-side authentication usually happens post-render, potentially exposing unauthenticated content briefly. Combining with SSR for sensitive pages is advisable for heightened security.",
-            "estMinutes": 7,
+            "type": "code",
+            "title": "Building an API Route",
+            "markdown": "Below is a simple API route to return a JSON object:\n\n```javascript\n// pages/api/data.js\nimport { data } from '../../data';\n\nexport default function handler(req, res) {\n  if (req.method === 'GET') {\n    res.status(200).json({ data });\n  } else {\n    res.setHeader('Allow', ['GET']);\n    res.status(405).end(`Method ${req.method} Not Allowed`);\n  }\n}\n```\n\nPlace this in your `pages/api` directory. Whenever you make a GET request to `/api/data`, it responds with the `data` you've imported. Make sure request methods and headers are correctly managed to prevent unauthorized access.",
+            "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-nextjs-l5-s3",
             "type": "practice",
-            "title": "Secure Your Application",
-            "markdown": "Introduce authentication to your Next.js app. Create mock login/logout functionality using tokens stored in cookies and SSR to protect an existing page. Implement redirection for unauthenticated users trying to access guarded pages.\n\nReflect on the interplay between SSR and client-side measures and document improvements in code structure or security.",
-            "estMinutes": 8,
+            "title": "Building a Simple API",
+            "markdown": "Create a new API route `pages/api/users.js` that returns an array of user objects. Enhance it to handle GET requests more robustly, such as by checking for query parameters.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-nextjs-l5-s4",
             "type": "quiz",
-            "title": "Review of Authentication Best Practices",
-            "markdown": "Let's verify your understanding of authentication techniques in Next.js.",
-            "estMinutes": 7,
+            "title": "Quiz: APIs in Next.js",
+            "markdown": "Test your knowledge about implementing APIs in Next.js.",
+            "estMinutes": 3,
             "questions": [
               {
                 "id": "builtin-nextjs-l5-s4-q1",
                 "type": "mcq",
-                "prompt": "What risk arises if authentication is left solely to the client-side?",
+                "prompt": "Where should you add a file to create a new API route?",
                 "options": [
-                  "Greater server load",
-                  "Exposure of sensitive pages",
-                  "Longer deployment cycles",
-                  "SEO issues"
+                  "`components` directory",
+                  "`pages` directory",
+                  "`pages/api` directory",
+                  "`scripts` directory"
                 ],
-                "correctIndex": 1,
-                "explanation": "Client-side only authentication can briefly expose sensitive pages before redirecting unauthenticated users, posing a security risk."
+                "correctIndex": 2,
+                "explanation": "The `pages/api` directory is reserved for API endpoint files."
+              },
+              {
+                "id": "builtin-nextjs-l5-s4-q2",
+                "type": "short_answer",
+                "prompt": "What HTTP status code is sent if a request method is not allowed in an API route?",
+                "expectedAnswer": "405",
+                "explanation": "HTTP status code 405 is used to indicate that the requested method is not allowed on that endpoint."
               }
             ]
           }
@@ -3197,52 +3519,55 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-nextjs-l6",
-        "title": "Optimizing and Deploying Next.js Applications",
-        "estMinutes": 20,
+        "title": "Deploying a Next.js Application",
+        "estMinutes": 25,
+        "glossary": [
+          "Vercel",
+          "Deployment"
+        ],
         "segments": [
           {
             "id": "builtin-nextjs-l6-s1",
             "type": "reading",
-            "title": "Built-in Performance Optimizations",
-            "markdown": "Next.js excels in optimization, with features that give your app a competitive edge in speed and load performance. Concepts like code splitting ensure only essential JavaScript is sent to the client, reducing overhead. Furthermore, the `next/image` component automatically optimizes images, handling different resolutions and formats to ensure crisp visuals without the bloat.\n\nUse code splitting by dynamically importing hefty components that aren't needed immediately:\n```javascript\nimport dynamic from 'next/dynamic'\n\nconst HeavyComponent = dynamic(() => import('../components/HeavyComponent'), { ssr: false })\n\nexport default function Page() {\n  return <HeavyComponent />\n}\n```\nAvoid overusing dynamics as it can lead to increased complexity and potentially delay visible important UI dependencies.",
-            "estMinutes": 5,
+            "title": "Deploying to Vercel",
+            "markdown": "Deploying your Next.js application enables it to be accessible to users worldwide. Vercel, the creators of Next.js, provides a seamless platform for deployment. Vercel automatically optimizes your site for performance, handling both static files and server-side functions with ease.\n\nTo deploy on Vercel, first link your Git repository to Vercel. On every push to the main branch, Vercel will build and deploy your site automatically. This process not only shares your current work but also provides built-in preview environments for each branch. Remember, configuration files such as `vercel.json` can offer further customization, like redirects or headers, enabling full control over deployment.\n\nA common mistake during initial deployment is improper environment configuration, which could cause runtime errors when the application first goes live.",
+            "estMinutes": 7,
             "questions": []
           },
           {
             "id": "builtin-nextjs-l6-s2",
-            "type": "reading",
-            "title": "Deployment Best Practices",
-            "markdown": "Deploying applications efficiently is mission-critical in today's fast-paced tech world, and Next.js simplifies it with built-in support for platforms like Vercel, which provides easy hosting.\n\nA successful deployment involves preparation—ensure sensitive data is environmental-variable driven, reducing leakage risks. Deployment can be as simple as running:\n```bash\n# Build your Next.js app\nnpm run build\n\n# Deploy with vercel\nvercel\n```\nBe vigilant about caching strategies and network configurations that could impact the final delivery. Misconfigured cache control headers could lead to stale content being served frequently.",
-            "estMinutes": 5,
+            "type": "practice",
+            "title": "Practice: Deploying a Next.js App",
+            "markdown": "Set up a Git repository for your Next.js project. Push your code to a repository and deploy the application using Vercel. Verify that all routes and API endpoints function correctly in the deployed environment.",
+            "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-nextjs-l6-s3",
-            "type": "practice",
-            "title": "Optimize and Launch Your App",
-            "markdown": "Review your current Next.js application and incorporate performance optimizations. Use the `next/image` component for images, leverage dynamic loading for lesser-used routes or components, and deploy your app on Vercel.\n\nAfter launching, use analytics or lighthouse audits to assess performance and identify potential further optimizations. Document your findings and adjust your strategies.",
-            "estMinutes": 5,
-            "questions": []
-          },
-          {
-            "id": "builtin-nextjs-l6-s4",
             "type": "quiz",
-            "title": "Check Your Deployment Knowledge",
-            "markdown": "Assess your understanding of optimization and deployment strategies for Next.js apps.",
-            "estMinutes": 5,
+            "title": "Quiz: Deploying Applications",
+            "markdown": "Verify your deployment understanding for Next.js applications.",
+            "estMinutes": 3,
             "questions": [
               {
-                "id": "builtin-nextjs-l6-s4-q1",
+                "id": "builtin-nextjs-l6-s3-q1",
                 "type": "mcq",
-                "prompt": "Why would you use `next/image` instead of a regular HTML `<img>` tag?",
+                "prompt": "Which platform is recommended for Next.js deployment, offering seamless integration?",
                 "options": [
-                  "To avoid client-side rendering",
-                  "For seamless API integrations",
-                  "To optimize file size and efficiency",
-                  "To improve debugging capabilities"
+                  "AWS",
+                  "Heroku",
+                  "Vercel",
+                  "Netlify"
                 ],
                 "correctIndex": 2,
-                "explanation": "`next/image` automatically integrates optimization techniques to provide fast loading by efficiently managing image size and format."
+                "explanation": "Vercel is recommended as it is developed by the creators of Next.js and provides excellent support for its deployments."
+              },
+              {
+                "id": "builtin-nextjs-l6-s3-q2",
+                "type": "short_answer",
+                "prompt": "What can misconfigured environment variables during deployment lead to?",
+                "expectedAnswer": "Runtime errors",
+                "explanation": "Misconfigured environment variables can cause runtime errors if required settings are missing."
               }
             ]
           }
@@ -3258,64 +3583,63 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       {
         "id": "builtin-ai-agents-l1",
         "title": "Introduction to AI Agents",
-        "estMinutes": 30,
+        "estMinutes": 25,
+        "glossary": [
+          "AI Agents",
+          "Environment",
+          "Autonomy"
+        ],
         "segments": [
           {
             "id": "builtin-ai-agents-l1-s1",
             "type": "reading",
-            "title": "What Are AI Agents and Why They Matter",
-            "markdown": "AI agents are not just a buzzword but powerful tools for developers looking to build adaptive, intelligent systems. An AI agent is a piece of software that acts autonomously in response to its environment to achieve certain goals. If you've ever interacted with a chatbot or seen recommendations on Netflix, you've encountered AI agents in action. They make decisions on behalf of humans to automate tasks, enhance efficiency, and generate insights. The immediate benefit is less manual intervention in straightforward tasks, allowing developers to focus on more complex problems. However, beware of overfitting these agents to specific scenarios, which can limit their adaptability.",
+            "title": "What Are AI Agents?",
+            "markdown": "AI agents are at the core of many modern applications. They can automate repetitive tasks, make decisions, and even learn from their environment. But what exactly makes a simple script an 'agent'? At its core, an AI agent perceives its environment and acts upon it to achieve certain goals autonomously. For example, consider a thermostat in a smart home. It reads the current temperature (perception), decides if it needs to heat or cool the room (decision-making), and then turns on the HVAC system (action). This concept of perception-action loop is central to AI agents.\n\nHowever, creating an AI agent involves more than just writing a loop. The agent needs the ability to adapt and improve over time. Understanding the environment's state, choosing the appropriate action, and evaluating the outcomes can get quite complex. A common pitfall is over-complicating the agent's logic without proper feedback mechanisms, which can lead to suboptimal performance. The thermostat, if designed improperly, might oscillate between heating and cooling, wasting energy.",
             "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-ai-agents-l1-s2",
             "type": "code",
-            "title": "Setting Up Your Development Environment",
-            "markdown": "```python\n# Import necessary libraries\nimport random\n\n# Define a simple environment\nclass Environment:\n    def __init__(self):\n        self.state = random.randint(0, 10)\n\n    def get_state(self):\n        return self.state\n\n# Execute simple environment setup\nif __name__ == \"__main__\":\n    env = Environment()\n    print(f\"Initial state: {env.get_state()}\")\n```\n\nThis script sets up a basic environment for an AI agent to operate within. Using a random state simulates an unpredictable environment. Always initialize environments to match the problem domain you're solving to avoid mismatches.",
+            "title": "Basic Structure of AI Agents",
+            "markdown": "Let's look at a simple JavaScript code example that simulates a basic AI agent for a smart light system. The agent perceives its environment through a light sensor and decides whether to turn the light on or off.\n\n```javascript\nclass LightAgent {\n  constructor() {\n    this.isLightOn = false;\n  }\n\n  perceive(environment) { // Perception: Reads environment data.\n    return environment.lightLevel < 50;\n  }\n\n  act(turnOn) { // Action: Performs an action based on perception.\n    this.isLightOn = turnOn;\n    console.log(`The light is now ${this.isLightOn ? 'ON' : 'OFF'}`);\n  }\n}\n\nconst agent = new LightAgent();\nconst environment = { lightLevel: 30 };\nconst turnLightOn = agent.perceive(environment);\nagent.act(turnLightOn);\n```\n\nThe AI agent here reads the light level and turns the light on if it is too dark. Remember, a common mistake is ignoring the real-world complexity, such as sensor errors or feedback delays, which can impact the agent’s reliability.",
             "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-ai-agents-l1-s3",
             "type": "practice",
-            "title": "Develop a Simple Decision-Making Agent",
-            "markdown": "Develop a simple decision-making AI agent that operates in the provided environment. The agent should decide whether to 'move' or 'stay' based on a threshold of 5. Consider edge cases where the environment might not behave predictably. Use the code setup provided as your starting point.",
-            "estMinutes": 10,
+            "title": "Practicing with Environment Perception",
+            "markdown": "Perform a simple task using the AI agent concept: Modify the `LightAgent` to also consider `motionDetected` in the environment. The light should only turn on if it is dark and there has been some motion detected in the last 5 minutes.",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-ai-agents-l1-s4",
             "type": "quiz",
             "title": "Check Your Understanding",
-            "markdown": "Evaluate your comprehension with these questions.",
+            "markdown": "Test your understanding of basic AI agents concepts with these questions.",
             "estMinutes": 5,
             "questions": [
               {
                 "id": "builtin-ai-agents-l1-s4-q1",
                 "type": "mcq",
-                "prompt": "What is the primary advantage of utilizing AI agents in software development?",
+                "prompt": "What defines an AI agent?",
                 "options": [
-                  "Simpler code",
-                  "Automation of tasks",
-                  "Higher costs",
-                  "Slower processing"
+                  "A program that repeatedly processes data",
+                  "A system that performs actions based on environmental perceptions",
+                  "A static set of instructions with no autonomy",
+                  "A simple loop that executes commands"
                 ],
                 "correctIndex": 1,
-                "explanation": "AI agents can automate repetitive tasks, reducing manual intervention and enhancing efficiency."
+                "explanation": "An AI agent perceives the environment and acts upon it to fulfill goals autonomously."
               },
               {
                 "id": "builtin-ai-agents-l1-s4-q2",
-                "type": "mcq",
-                "prompt": "Why is it important to match your environment initialization to the problem domain?",
-                "options": [
-                  "To save memory",
-                  "To ensure scalability",
-                  "To avoid mismatches",
-                  "To improve security"
-                ],
-                "correctIndex": 2,
-                "explanation": "Matching environment initialization to the problem domain ensures that your AI agent behaves predictably within its operational context."
+                "type": "short_answer",
+                "prompt": "Why is it important for AI agents to adapt over time?",
+                "expectedAnswer": "Adapting over time allows AI agents to improve their decision-making and react to changes in their environment, leading to better overall performance.",
+                "explanation": "Adaptation helps the agent learn from past experiences and handle new situations effectively."
               }
             ]
           }
@@ -3323,59 +3647,65 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-ai-agents-l2",
-        "title": "Understanding Perception and Action",
-        "estMinutes": 35,
+        "title": "Types of AI Agents",
+        "estMinutes": 30,
+        "glossary": [
+          "Reactive Agents",
+          "Model-based Agents",
+          "Goal-based Agents",
+          "Utility-based Agents"
+        ],
         "segments": [
           {
             "id": "builtin-ai-agents-l2-s1",
             "type": "reading",
-            "title": "Perception: Gathering Information",
-            "markdown": "Perception is fundamental to an AI agent's ability to interact with its environment effectively. Just like humans rely on their senses to understand the world, an AI agent uses sensors or input data streams to perceive its surroundings. For example, a self-driving car's perception layer might include input from cameras and LIDAR sensors. Perception is crucial because it informs the decision-making process; without accurate data, the agent's actions could lead to errors.\n\nConsider a chatbot programmed to assist users in checking account balances. It needs to perceive user inputs accurately — if it misinterprets a request due to poor perception capabilities, it might provide incorrect information. Common pitfalls include poor data preprocessing and noise reduction, leading to corrupted inputs. Always fine-tune your perception algorithms based on real-world use cases to minimize errors and improve accuracy.",
+            "title": "Reactive vs. Model-based Agents",
+            "markdown": "Let's delve deeper into two fundamental types of AI agents: reactive and model-based. Reactive agents operate based on current perceptions only, akin to a reflex. For example, consider a vacuum cleaner that moves in a random pattern and turns whenever it hits an obstacle. This type of agent is straightforward to implement but lacks memory or predictive capability.\n\nOn the other hand, model-based agents possess an internal state that helps them form a world model. With this, they can predict future states and make informed decisions. Take, for instance, a robot vacuum that uses sensors to map rooms (perceiving) and remembers where obstacles are to optimize its path (internal model). This type adds complexity but offers better performance in dynamic environments.\n\nA potential pitfall with reactive agents is their failure to learn from past interactions, which can lead to inefficient behavior. Model-based agents can struggle with computational complexity as their world model grows.",
             "estMinutes": 7,
             "questions": []
           },
           {
             "id": "builtin-ai-agents-l2-s2",
             "type": "code",
-            "title": "Action: Executing Decisions",
-            "markdown": "```python\n# A basic AI agent acting based on perception\nclass SimpleAgent:\n    def __init__(self, perception_threshold):\n        self.threshold = perception_threshold\n\n    def decide(self, input_data):\n        # Simple perception logic\n        if input_data < self.threshold:\n            return 'Stay'\n        else:\n            return 'Move'\n\n# Simulate using the agent\nif __name__ == \"__main__\":\n    env_state = random.randint(0, 10)\n    agent = SimpleAgent(5)\n    action = agent.decide(env_state)\n    print(f\"State: {env_state}, Action: {action}\")\n```\n\nThe agent takes action based on its perception of the environment's state. It decides to move or stay, depending on whether the perceived state meets or exceeds the threshold. Tune the threshold for different applications to ensure appropriate reactions.",
-            "estMinutes": 5,
+            "title": "Implementing a Reactive AI Agent",
+            "markdown": "Here's a simple reactive agent using JavaScript to simulate a thermostat system. It responds instantly to temperature changes without historical context.\n\n```javascript\nclass ThermostatAgent {\n  perceive(environment) { // Reacts to current temperature\n    return environment.temperature < 18 ? 'heat' : 'off';\n  }\n\n  act(command) { // Executes a command based on perception\n    console.log(`Setting system to ${command}`);\n  }\n}\n\nconst agent = new ThermostatAgent();\nconst environment = { temperature: 16 };\nconst command = agent.perceive(environment);\nagent.act(command);\n```\n\nIn this example, the agent turns on the heating when the temperature falls below 18 degrees. Reactive systems like this are simple but may overreact to fluctuating conditions, such as rapid temperature changes.",
+            "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-ai-agents-l2-s3",
             "type": "practice",
-            "title": "Building an Agent with Enhanced Perception",
-            "markdown": "Extend the functionality of the 'SimpleAgent' by allowing it to receive more complex input data, such as a list of numbers representing various sensor readings. Implement logic for the agent to determine an aggregate decision based on average values. Experiment by simulating multiple sensor inputs and test different thresholds.",
-            "estMinutes": 15,
+            "title": "Practicing with Model-based AI Agent",
+            "markdown": "Extend the `ThermostatAgent` to keep track of the last temperature reading and only activate the heating if the temperature falls consecutively for two readings, indicating a downward trend.",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-ai-agents-l2-s4",
             "type": "quiz",
             "title": "Check Your Understanding",
-            "markdown": "Let's verify your understanding of perception and actions in AI agents.",
-            "estMinutes": 8,
+            "markdown": "Review the different types of AI agents.",
+            "estMinutes": 5,
             "questions": [
               {
                 "id": "builtin-ai-agents-l2-s4-q1",
-                "type": "short_answer",
-                "prompt": "What are potential pitfalls when designing an AI agent's perception layer?",
-                "expectedAnswer": "Common issues include poor data preprocessing, noise in inputs, and flawed algorithms that misinterpret sensory data.",
-                "explanation": ""
+                "type": "mcq",
+                "prompt": "Which agent type can predict future states based on an internal model?",
+                "options": [
+                  "Reactive Agent",
+                  "Utility-based Agent",
+                  "Model-based Agent",
+                  "Random Agent"
+                ],
+                "correctIndex": 2,
+                "explanation": "Model-based agents have a world model that allows them to predict future scenarios and make decisions accordingly."
               },
               {
                 "id": "builtin-ai-agents-l2-s4-q2",
-                "type": "mcq",
-                "prompt": "In the context of AI agents, what is the role of the 'action' component?",
-                "options": [
-                  "To collect environmental data",
-                  "To execute decisions based on perceived data",
-                  "To randomly change the environment",
-                  "To log data for analysis"
-                ],
-                "correctIndex": 1,
-                "explanation": "The action component executes decisions based on the data perceived from the environment, impacting the environment or the agent's state."
+                "type": "short_answer",
+                "prompt": "What is a downside of reactive agents?",
+                "expectedAnswer": "Reactive agents can behave inefficiently because they lack memory and adaptability, reacting only to current perceptions without context.",
+                "explanation": "Without memory, reactive agents cannot learn from previous interactions, making them unsuitable for complex environments."
               }
             ]
           }
@@ -3383,59 +3713,65 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-ai-agents-l3",
-        "title": "AI Agent Architectures",
-        "estMinutes": 40,
+        "title": "Goal-based and Utility-based Agents",
+        "estMinutes": 30,
+        "glossary": [
+          "Goals",
+          "Utility",
+          "Decision Making",
+          "Optimization"
+        ],
         "segments": [
           {
             "id": "builtin-ai-agents-l3-s1",
             "type": "reading",
-            "title": "Reactive and Model-Based Architectures",
-            "markdown": "Choosing the right architecture for your AI agent is crucial to its success. Reactive architectures are straightforward and rely solely on current sensory inputs to make decisions. They can handle simple tasks quickly but struggle with complex scenarios requiring foresight. Consider a thermostat reacting to the current room temperature; its simplicity is its strength but also its limitation in dynamic environments.\n\nConversely, model-based architectures maintain an internal model of the world to predict the outcomes of specific actions. They are useful in scenarios where decisions must consider both current and future states, like in chess game engines. However, these architectures generally require more computational resources and can be more challenging to design and maintain. Deciding between a reactive or model-based architecture hinges on the complexity of the task and available resources, with pitfalls lying in either overestimating or underestimating task complexity.",
+            "title": "Understanding Goal-based Agents",
+            "markdown": "Goal-based agents advance beyond just reacting or modeling the world. They are driven by set objectives or goals, evaluating different actions based on how effectively they achieve these objectives. A classic example is a GPS navigation system that calculates a route (goal) to minimize travel distance or time. It evaluates various routes (actions) based on their ability to achieve the destination.\n\nBy focusing on desired outcomes, goal-based agents can make more informed decisions. These decisions can be measured against the likelihood of successfully reaching the intended goals. However, setting suitable goals and evaluating all possible actions can be computationally intensive and sometimes impractical.\n\nA common mistake is misdefining a goal or not aligning it with realistic constraints, leading to wasted resources or expensive computations. Designing the goal structure carefully is essential, or the agent might pursue unachievable or irrelevant objectives.",
             "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-ai-agents-l3-s2",
-            "type": "code",
-            "title": "Implementing a Reactive Architecture",
-            "markdown": "```python\nclass ReactiveAgent:\n    def decide(self, percept):\n        # Simple condition based on current sensory input\n        return 'Move' if percept > 5 else 'Stay'\n\n# Example of usage in a simple environment\nif __name__ == \"__main__\":\n    current_input = random.randint(0, 10)\n    agent = ReactiveAgent()\n    decision = agent.decide(current_input)\n    print(f\"Percept: {current_input}, Decision: {decision}\")\n```\n\nThis ReactiveAgent uses immediate conditions to decide on an action, encapsulating the essence of reactive architecture. Simplicity aids rapid response times but limits complex decision capabilities.",
-            "estMinutes": 6,
+            "type": "reading",
+            "title": "Understanding Utility-based Agents",
+            "markdown": "Utility-based agents expand on goal-based concepts by incorporating a measure of ‘utility’ to prioritize and quantify the satisfaction or desirability of different outcomes. This allows them to handle trade-offs more effectively by assigning and optimizing values to various states based on the agent's preferences. Consider a delivery drone deciding routes. It could use utility to weigh speed against safety, minimizing risk while delivering quickly.\n\nUtility functions, critical to these agents, enable them to rank every potential action based on expected utility, picking the highest one. The development of these functions involves understanding all possible states and actions, which can be complex and subjective.\n\nThe pitfalls often faced here involve setting incorrect utility values or not fully understanding all the interacting factors. For instance, if the utility function doesn't accurately represent the environment or priorities, the agent might make consistently poor decisions.",
+            "estMinutes": 9,
             "questions": []
           },
           {
             "id": "builtin-ai-agents-l3-s3",
             "type": "practice",
-            "title": "Creating a Model-Based Solution",
-            "markdown": "Develop a model-based agent that anticipates the next state before deciding. Use simple state transition rules and track a small internal state model. Start by creating functions for prediction based on your current state and visualize your agent's decision-making process under different conditions.",
-            "estMinutes": 15,
+            "title": "Try Creating a Utility Function",
+            "markdown": "Implement a simple utility function for a smart watch acting as a fitness tracker. The function should prefer shorter, less intense workouts over longer, high-intensity ones, considering a user’s current energy level.",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-ai-agents-l3-s4",
             "type": "quiz",
-            "title": "Evaluating Architectural Choices",
-            "markdown": "This quiz helps assess your knowledge of AI agent architectures.",
-            "estMinutes": 11,
+            "title": "Check Your Understanding",
+            "markdown": "Reflect on how goal-based and utility-based agents operate.",
+            "estMinutes": 5,
             "questions": [
               {
                 "id": "builtin-ai-agents-l3-s4-q1",
-                "type": "short_answer",
-                "prompt": "When should you opt for a model-based architecture over a reactive one?",
-                "expectedAnswer": "Opt for a model-based architecture when tasks require considering both current and future states, as in complex, dynamic environments.",
-                "explanation": ""
+                "type": "mcq",
+                "prompt": "What is a distinguishing feature of a utility-based agent?",
+                "options": [
+                  "Responds immediately to stimuli",
+                  "Uses a utility function to weigh options",
+                  "Relies on a fixed set of rules",
+                  "Operates solely on past experiences"
+                ],
+                "correctIndex": 1,
+                "explanation": "Utility-based agents use utility functions to evaluate all possible outcomes and choose the one with the highest utility."
               },
               {
                 "id": "builtin-ai-agents-l3-s4-q2",
-                "type": "mcq",
-                "prompt": "Which is a primary drawback of reactive AI architectures?",
-                "options": [
-                  "High computational cost",
-                  "Lack of foresight",
-                  "Difficult to implement",
-                  "Requires extensive training data"
-                ],
-                "correctIndex": 1,
-                "explanation": "Reactive architectures lack the ability to incorporate past experiences or future projections, limiting their effectiveness in dynamic or complex environments."
+                "type": "short_answer",
+                "prompt": "Describe a challenge when defining goals or utility functions for agents.",
+                "expectedAnswer": "A significant challenge is ensuring the goals or utility functions accurately reflect the environment and desired outcomes, balancing between ambition and practicality.",
+                "explanation": "Improperly calibrated goals or utility definitions can lead to inefficient or undesirable agent behavior."
               }
             ]
           }
@@ -3443,59 +3779,65 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-ai-agents-l4",
-        "title": "Learning and Adaptation",
-        "estMinutes": 45,
+        "title": "Machine Learning and AI Agents",
+        "estMinutes": 35,
+        "glossary": [
+          "Machine Learning",
+          "Reinforcement Learning",
+          "Supervised Learning",
+          "Unsupervised Learning"
+        ],
         "segments": [
           {
             "id": "builtin-ai-agents-l4-s1",
             "type": "reading",
-            "title": "Incorporating Machine Learning into AI Agents",
-            "markdown": "For AI agents to truly excel, integrating machine learning allows for learning and adaptation from past experiences. Machine learning provides techniques like reinforcement learning where agents learn optimal behavior through reward signals. Consider a video game AI that improves its tactics based on player interactions; here, machine learning empowers the AI to adapt strategies dynamically.\n\nA popular framework for this is Q-learning, where agents learn a value function estimating the total future rewards they can expect from a state-action pair. This allows better decision-making over time, making agents more robust against new, unforeseen situations.\n\nThe challenge lies in ensuring the learning doesn’t converge on suboptimal solutions due to incorrect reward signals. Carefully design reward systems to promote desired behaviors while regularly updating training datasets to reflect true environmental states.",
+            "title": "Introduction to Learning Agents",
+            "markdown": "Learning agents stand out because of their ability to improve over time. They don't just execute predefined responses; they adapt by extracting insights from data. This flexibility allows them to operate in dynamic spaces with evolving conditions. Supervised learning, unsupervised learning, and reinforcement learning are key methods in this space. For example, a recommendation engine for an online platform can learn user preferences and suggest relevant products based on historical viewing and purchasing data—continuously refining recommendations as data accumulates.\n\nSupervised learning relies on historical data with known outcomes to train models, predicting new scenarios based on learned patterns. Think of a spam filter learning to classify emails as spam or not. Unsupervised learning, by contrast, finds patterns in data without predefined labels, useful for clustering or dimensionality reduction. Lastly, reinforcement learning sees agents learn by interacting with their environment, receiving feedback from actions to adjust future strategies, much like training a dog with treats.\n\nA pitfall lies in poor data quality or biased datasets, as they directly impact the model's reliability. It’s crucial to monitor and update the learning frameworks as new data is introduced, ensuring agents evolve accurately and effectively.",
             "estMinutes": 10,
             "questions": []
           },
           {
             "id": "builtin-ai-agents-l4-s2",
             "type": "code",
-            "title": "Implementing a Basic Q-Learning Agent",
-            "markdown": "```python\nimport numpy as np\n\ngamma = 0.9  # Discount factor\nalpha = 0.1  # Learning rate\n\ndef q_learning_update(q_table, state, action, reward, next_state):\n    target = reward + gamma * np.max(q_table[next_state])\n    q_table[state, action] += alpha * (target - q_table[state, action])\n\n# Initialize a simple Q-table\nq_table = np.zeros((5, 2))  # 5 states, 2 actions\n\n# Example of updating the Q-table\ncurrent_state = 2\nchosen_action = 0\nreward = 1\nnext_state = 3\nq_learning_update(q_table, current_state, chosen_action, reward, next_state)\n\nprint(\"Updated Q-Table:\")\nprint(q_table)\n```\n\nIn this code, we implement a Q-learning update. The Q-table captures the expected rewards from making certain decisions in particular states, which the agent uses to inform future actions. Remember to balance exploration vs. exploitation to ensure thorough learning.",
-            "estMinutes": 8,
+            "title": "Building a Simple Learning Agent",
+            "markdown": "Let’s build a simple JavaScript-based reinforcement learning agent using the Q-learning algorithm, a popular method for training agents with feedback.\n\n```javascript\nclass LearningAgent {\n  constructor() {\n    this.qTable = {};\n  }\n\n  chooseAction(state) {\n    if (!this.qTable[state]) {\n      this.qTable[state] = { a: 0, b: 0 };\n    }\n    return Math.random() > 0.5 ? 'a' : 'b'; // Random action for exploration\n  }\n\n  updateQTable(state, action, reward) {\n    if (!this.qTable[state]) {\n      this.qTable[state] = { a: 0, b: 0 };\n    }\n    this.qTable[state][action] = reward + 0.9 * this.qTable[state][action]; // Simplified update rule\n  }\n}\n\nconst agent = new LearningAgent();\nconst initialState = 'S1';\nconst action = agent.chooseAction(initialState);\nconsole.log(`Chosen action: ${action}`);\nagent.updateQTable(initialState, action, 10);\n```\n\nIn this example, a basic framework is set up where the agent chooses actions randomly (a placeholder for exploration) and updates its Q-values with received rewards. Remember, overfitting by training excessively on specific scenarios can limit the agent’s generalization ability.",
+            "estMinutes": 12,
             "questions": []
           },
           {
             "id": "builtin-ai-agents-l4-s3",
             "type": "practice",
-            "title": "Designing Adaptive Behavior",
-            "markdown": "Create an AI agent capable of adapting its strategy in a dynamic environment using Q-learning. Start with setting up states and actions relevant to a simple grid world. Design a reward structure to train your agent and explore how varying learning rates affect adaptation speed. Test your solution by simulating changes in the grid environment and observing the agent’s adaptation.",
-            "estMinutes": 17,
+            "title": "Practicing Reinforcement Learning",
+            "markdown": "Enhance the `LearningAgent` by introducing a mechanism to exploit known rewards more often, balancing between exploration and exploitation to optimize the reward-seeking behavior.",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-ai-agents-l4-s4",
             "type": "quiz",
-            "title": "Assessing Learning Methods",
-            "markdown": "Let's evaluate your grasp on learning and adaptation in AI agents.",
-            "estMinutes": 10,
+            "title": "Check Your Understanding",
+            "markdown": "Dive into the aspects of learning agents and machine learning.",
+            "estMinutes": 5,
             "questions": [
               {
                 "id": "builtin-ai-agents-l4-s4-q1",
                 "type": "mcq",
-                "prompt": "What is a key benefit of incorporating machine learning into AI agents?",
+                "prompt": "Which machine learning type involves interaction-based feedback to refine strategies?",
                 "options": [
-                  "Immediate decision-making speed",
-                  "Ability to adapt based on past experiences",
-                  "Reduced need for environmental interaction data",
-                  "Simplified code structure"
+                  "Supervised Learning",
+                  "Unsupervised Learning",
+                  "Reinforcement Learning",
+                  "Batch Learning"
                 ],
-                "correctIndex": 1,
-                "explanation": "Machine learning allows AI agents to learn from past interactions, improving adaptability and decision-making over time based on accumulated experience."
+                "correctIndex": 2,
+                "explanation": "Reinforcement learning employs feedback from the environment to adjust the agent’s strategies for better future outcomes."
               },
               {
                 "id": "builtin-ai-agents-l4-s4-q2",
                 "type": "short_answer",
-                "prompt": "In which scenarios does reinforcement learning particularly excel?",
-                "expectedAnswer": "Reinforcement learning excels in environments where agents can learn optimal actions through interactions and reward signals, such as in robotics or gaming environments.",
-                "explanation": ""
+                "prompt": "Why is data quality crucial for learning agents?",
+                "expectedAnswer": "High data quality ensures the models learn accurately, avoiding biases and training errors that could lead to unreliable agent behavior.",
+                "explanation": "Poor data can mislead an agent during training, resulting in inaccurate predictions or suboptimal actions."
               }
             ]
           }
@@ -3503,51 +3845,57 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-ai-agents-l5",
-        "title": "Interfacing with Human Users",
-        "estMinutes": 35,
+        "title": "Ethical AI in Practice",
+        "estMinutes": 25,
+        "glossary": [
+          "Ethical AI",
+          "Bias",
+          "Transparency",
+          "Privacy"
+        ],
         "segments": [
           {
             "id": "builtin-ai-agents-l5-s1",
             "type": "reading",
-            "title": "Creating User-Friendly AI Agents",
-            "markdown": "Building AI agents that users can trust and interact with comfortably is as important as their technical capabilities. Human-computer interaction (HCI) principles guide developers to design interfaces and agents that users find intuitive and enjoyable. Consider personal assistant applications like Amazon's Alexa or Apple's Siri, which combine complex AI with user-centric design principles to enhance usability.\n\nCrucial aspects include natural language processing (NLP) for understanding user commands and clear feedback mechanisms that confirm the agent's actions. Beware of designing agents that oversimplify interaction, leading to shallow or unsatisfying user experiences. Balance complexity and simplicity by focusing on key user needs and iterating based on user feedback, ensuring your agent remains both functional and engaging.",
-            "estMinutes": 7,
+            "title": "Challenges in Ethical AI",
+            "markdown": "AI technologies offer immense potential, but with power comes the responsibility of implementing them ethically. Ensuring AI agents make fair, unbiased decisions that respect user privacy and maintain transparency is complex. Consider an AI-powered recruiting system tasked with selecting candidates for interviews. Without careful design, it could unknowingly incorporate biases present in the training data, leading to discriminatory practices.\n\nBias in data is a prevalent challenge, as historical data reflects past human judgment, often containing implicit biases. Selecting unbiased, inclusive datasets and applying fairness algorithms is essential to mitigate this risk. Privacy concerns require anonymizing data and being transparent about data usage.\n\nTransparency in decision-making is equally critical. Users should understand how decisions occur, which becomes difficult with complex models like deep learning. Efforts towards explainable AI seek to demystify the logic behind these decisions, allowing for greater accountability and trust in AI systems.",
+            "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-ai-agents-l5-s2",
             "type": "practice",
-            "title": "Design a Simple User Interaction",
-            "markdown": "Design a user interface for an AI agent that accepts and processes user commands. Using a simple command-line interface, implement commands users might input to control a smart device. Focus on clarity in how user inputs translate into agent actions and display responses accordingly. Test your design with diverse command scenarios to ensure reliability and user satisfaction.",
-            "estMinutes": 15,
+            "title": "Promoting Transparency",
+            "markdown": "Develop guidelines for a hypothetical AI-driven healthcare diagnostic tool focusing on transparency and bias prevention. Consider aspects like data usage transparency, explainability of model outputs, and the selection process for training data.",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-ai-agents-l5-s3",
             "type": "quiz",
             "title": "Check Your Understanding",
-            "markdown": "Quiz your knowledge about building user-focused AI agents.",
-            "estMinutes": 6,
+            "markdown": "Evaluate your understanding of ethical considerations in AI.",
+            "estMinutes": 5,
             "questions": [
               {
                 "id": "builtin-ai-agents-l5-s3-q1",
                 "type": "mcq",
-                "prompt": "Which is essential when designing user-friendly AI agents?",
+                "prompt": "Why is transparency crucial in AI systems?",
                 "options": [
-                  "Complex algorithms",
-                  "High-speed processing",
-                  "Natural language processing",
-                  "Multiple network protocols"
+                  "To simplify system architecture",
+                  "For operational efficiency",
+                  "To allow users to understand decision-making processes",
+                  "To increase computational power"
                 ],
                 "correctIndex": 2,
-                "explanation": "Natural language processing is crucial for user interaction, enabling AI agents to understand and appropriately respond to user inputs."
+                "explanation": "Transparency is crucial for trust and accountability, helping users understand how conclusions are reached and systems are operating."
               },
               {
                 "id": "builtin-ai-agents-l5-s3-q2",
                 "type": "short_answer",
-                "prompt": "What could lead to unsatisfying user experiences with AI agents?",
-                "expectedAnswer": "Oversimplifying interactions leading to limited functionality or misunderstanding user needs can result in unsatisfying experiences.",
-                "explanation": ""
+                "prompt": "How can practitioners reduce bias in AI systems?",
+                "expectedAnswer": "Reducing bias involves using diverse datasets, applying fairness algorithms, ensuring inclusivity, and continuous monitoring and testing for bias during development.",
+                "explanation": "Mitigating bias is achieved through careful dataset selection and fairness checks, allowing AI systems to operate equitably."
               }
             ]
           }
@@ -3555,59 +3903,56 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-ai-agents-l6",
-        "title": "Deploying AI Agents",
-        "estMinutes": 40,
+        "title": "The Future of AI Agents",
+        "estMinutes": 25,
+        "glossary": [
+          "Autonomous Systems",
+          "AI Ethics",
+          "Human-AI Collaboration"
+        ],
         "segments": [
           {
             "id": "builtin-ai-agents-l6-s1",
             "type": "reading",
-            "title": "Challenges in Deploying AI Agents",
-            "markdown": "Deployment shifts AI from theory to practice, where agents operated in controlled environments enter complex real-world systems. Considerations abound from hardware limitations to legal compliance and continuous monitoring post-deployment. An AI financial advisor performing well in test environments might hit snags with real-time data fluctuations and numerous external factors, necessitating thorough testing.\n\nAnother challenge is ensuring agents remain responsive and up-to-date, necessitating infrastructure for live updates and telemetry. Pitfalls occur when deployment overlooks cross-platform compatibility or fails to adequately secure agents, risking unauthorized manipulation. Developers should establish clear deployment pipelines, testing cross-environment capabilities and ensuring robust security layers to safeguard data integrity and agent functionality.",
+            "title": "Evolving Roles of AI Agents",
+            "markdown": "As we look into the future, AI agents are anticipated to play more pervasive and integrated roles across industries and daily life. From autonomous vehicles navigating busy cityscapes to personal virtual assistants that manage daily tasks, the scope of their influence is vast. However, it is not just about replacing human effort but augmenting human capabilities for greater efficiency and creativity.\n\nAI agents' proactive and adaptive nature makes them valuable collaborators, shifting how work and personal activities are approached. One prominent consideration for future advancements is the balance between autonomy and human oversight. As seen in industrial automation, excessive autonomy could remove critical oversight, while too little could stifle innovation.\n\nThe integration of ethical frameworks will also shape future applications, as seen by initiatives like fairness-aware AI systems designed to be both effective and equitable. A vision for ethical, efficient AI work involves collaboration—blending human empathy and machine precision. Neglecting this blend could lead to a loss of direction in the ethical use of AI innovations.",
             "estMinutes": 8,
             "questions": []
           },
           {
             "id": "builtin-ai-agents-l6-s2",
-            "type": "code",
-            "title": "Prepare for Cloud Deployment",
-            "markdown": "```bash\n# Example of deploying a simple AI agent using Docker and AWS\n\n# Step 1: Create a Docker image\n# Dockerfile\nFROM python:3.8-slim\nWORKDIR /app\nCOPY . /app\nRUN pip install -r requirements.txt\nCMD [\"python\", \"app.py\"]\n\n# Build the Docker image\n$ docker build -t ai-agent:latest .\n\n# Step 2: Configure AWS CLI\n$ aws configure\n\n# Step 3: Push the image to ECR (Elastic Container Registry)\n$ aws ecr create-repository --repository-name ai-agent\n$ docker tag ai-agent:latest <account-id>.dkr.ecr.<region>.amazonaws.com/ai-agent\n$ docker push <account-id>.dkr.ecr.<region>.amazonaws.com/ai-agent\n\n# Step 4: Deploy on ECS (Elastic Container Service)\n$ aws ecs create-cluster --cluster-name aiAgentCluster\n$ aws ecs create-service --cluster aiAgentCluster --service-name aiAgentService --task-definition aiAgentTask\n```\n\nThis script covers the deployment of a Dockerized AI agent to AWS cloud services. Deployment processes should include robust environment testing to ensure stability under expected loads and failover conditions.",
-            "estMinutes": 10,
+            "type": "practice",
+            "title": "Creating a Vision for AI Integration",
+            "markdown": "Draft a vision statement for an organization aiming to integrate AI agents responsibly into its operations. Outline the balance of automation with human oversight and the ethical principles it aims to uphold.",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-ai-agents-l6-s3",
-            "type": "practice",
-            "title": "Execute a Basic Deployment Pipeline",
-            "markdown": "Construct a deployment pipeline for an AI agent using any cloud provider of your choice, e.g., AWS, Azure, or GCP. Package your AI agent within a container and configure automatic build and deployment upon updates. Prioritize continuous integration practices and test thoroughly under scalable conditions with variable inputs. Validate security measures to prevent any vulnerabilities.",
-            "estMinutes": 15,
-            "questions": []
-          },
-          {
-            "id": "builtin-ai-agents-l6-s4",
             "type": "quiz",
-            "title": "Deployment Checkpoint",
-            "markdown": "Confirm your knowledge on deploying AI agents across real-world environments.",
-            "estMinutes": 7,
+            "title": "Check Your Understanding",
+            "markdown": "Explore the future prospects and challenges of AI agents.",
+            "estMinutes": 5,
             "questions": [
               {
-                "id": "builtin-ai-agents-l6-s4-q1",
+                "id": "builtin-ai-agents-l6-s3-q1",
                 "type": "mcq",
-                "prompt": "What is a critical step when deploying AI agents to ensure functionality across environments?",
+                "prompt": "What constitutes a challenge for future AI agent applications?",
                 "options": [
-                  "Ignoring hardware constraints",
-                  "Standardizing test datasets",
-                  "Implementing cross-platform compatibility",
-                  "Reducing computational complexity"
+                  "Increasing computing power",
+                  "The availability of data",
+                  "Ethical use and integration",
+                  "Advancements in networks"
                 ],
                 "correctIndex": 2,
-                "explanation": "Cross-platform compatibility ensures that AI agents perform consistently across different user environments and devices."
+                "explanation": "The ethical integration and use of AI are significant challenges as they must align with social values and expectations."
               },
               {
-                "id": "builtin-ai-agents-l6-s4-q2",
+                "id": "builtin-ai-agents-l6-s3-q2",
                 "type": "short_answer",
-                "prompt": "Why is continuous monitoring essential post-deployment of AI agents?",
-                "expectedAnswer": "Continuous monitoring helps identify and address deployment issues immediately, maintaining the AI agent's performance and security in real-time.",
-                "explanation": ""
+                "prompt": "How can human and AI collaboration benefit future workplaces?",
+                "expectedAnswer": "Collaboration can combine human creativity and emotion with AI's precision and speed, leading to innovative solutions and enhanced productivity.",
+                "explanation": "Human-AI collaboration leverages the best of both, filling gaps in capability and introducing nuanced problem-solving dynamics."
               }
             ]
           }

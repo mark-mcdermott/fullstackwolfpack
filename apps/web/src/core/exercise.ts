@@ -92,3 +92,11 @@ export function summarizeOutcomes(outcomes: TestOutcome[]): ExerciseSummary {
   const passed = outcomes.filter((o) => o.passed).length
   return { passed, total: outcomes.length, allPassed: outcomes.length > 0 && passed === outcomes.length }
 }
+
+// True when a solution passes every one of its tests. Used at build time
+// (gen:builtins) to drop model-written exercises whose solution doesn't actually
+// satisfy its tests — the same invariant the seed-content ship gate enforces.
+// Executes the solution, so keep it to trusted/dev-time callers.
+export function solutionPassesTests(solution: string, tests: ExerciseTest[]): boolean {
+  return summarizeOutcomes(runTestCases(solution, tests)).allPassed
+}

@@ -57,6 +57,25 @@ describe('generatedToSeedCourse', () => {
     expect(seed.lessons[0].segments[0].markdown).toBe(gen.lessons[0].segments[0].body)
   })
 
+  it('carries the lesson glossary through, omitting it when empty', () => {
+    expect(seed.lessons[0].glossary).toEqual(['container', 'image'])
+    const noGloss = generatedToSeedCourse('x', 'beginner', {
+      topic: 'X',
+      difficulty: 'beginner',
+      lessons: [
+        {
+          title: 'L',
+          estMinutes: 5,
+          glossary: [],
+          segments: [
+            { title: 'S', type: 'reading', body: 'x', estMinutes: 2, questions: [] },
+          ],
+        },
+      ],
+    })
+    expect(noGloss.lessons[0].glossary).toBeUndefined()
+  })
+
   it('defaults a missing explanation to an empty string', () => {
     // The short-answer question has no explanation in the source.
     expect(seed.lessons[0].segments[0].questions[1].explanation).toBe('')
