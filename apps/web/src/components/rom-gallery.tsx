@@ -1,4 +1,4 @@
-import { Play, Search, Upload } from 'lucide-react'
+import { Play, Search, Trash2, Upload } from 'lucide-react'
 import { useId, useMemo, useState } from 'react'
 import { Panel, Pill } from '@fw/ui'
 import {
@@ -12,7 +12,7 @@ import {
   type PlayableRom,
   ROM_CATALOG,
   type RomEntry,
-  uploadedRomFromFile,
+  type UploadedRom,
 } from '@/lib/rom-catalog'
 import { cn } from '@/lib/utils'
 
@@ -32,7 +32,8 @@ const TABS: [string, Filter][] = [
   ),
 ]
 
-// One tile for either lane — ROM or embed. Same shape, different badge/source.
+// One tile for any lane — catalog ROM, embed, or a user upload. Same shape;
+// uploads add a remove button via `onDelete`.
 function GameTile({
   accent,
   title,
@@ -40,6 +41,7 @@ function GameTile({
   badge,
   description,
   onPlay,
+  onDelete,
 }: {
   accent: string
   title: string
@@ -47,6 +49,7 @@ function GameTile({
   badge: string
   description: string
   onPlay: () => void
+  onDelete?: () => void
 }) {
   return (
     <Panel className="flex flex-col gap-3">
@@ -54,7 +57,19 @@ function GameTile({
         <span className={cn('font-mono text-2xl font-bold', accent)}>
           {title.slice(0, 2).toUpperCase()}
         </span>
-        <Pill>{badge}</Pill>
+        <div className="flex items-center gap-2">
+          <Pill>{badge}</Pill>
+          {onDelete && (
+            <button
+              type="button"
+              onClick={onDelete}
+              aria-label={`Remove ${title}`}
+              className="border border-border p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              <Trash2 className="size-3.5" />
+            </button>
+          )}
+        </div>
       </div>
       <div>
         <h3 className="text-lg font-bold uppercase">{title}</h3>
@@ -78,7 +93,11 @@ function GameTile({
   )
 }
 
-function UploadTile({ onSelect }: { onSelect: (rom: PlayableRom) => void }) {
+function UploadTile({
+  onUpload,
+}: {
+  onUpload: (file: File, system: RomSystem) => void
+}) {
   const inputId = useId()
   const [error, setError] = useState<string | null>(null)
 
@@ -91,7 +110,7 @@ function UploadTile({ onSelect }: { onSelect: (rom: PlayableRom) => void }) {
       return
     }
     setError(null)
-    onSelect(uploadedRomFromFile(file, result.system))
+    onUpload(file, result.system)
   }
 
   return (
@@ -136,13 +155,30 @@ function matches(query: string, ...fields: string[]): boolean {
 
 export function RomGallery({
   onSelect,
+  uploads,
+  onUpload,
+  onDelete,
 }: {
   onSelect: (game: PlayableGame) => void
+  uploads: UploadedRom[]
+  onUpload: (file: File, system: RomSystem) => void
+  onDelete: (id: string) => void
 }) {
   const [filter, setFilter] = useState<Filter>(null)
   const [query, setQuery] = useState('')
 
   const q = query.trim().toLowerCase()
+
+  const uploadedRoms = useMemo<UploadedRom[]>(
+    () =>
+      filter === 'web'
+        ? []
+        : uploads.filter(
+            (rom) =>
+              (!filter || rom.system === filter) && matches(q, rom.title),
+          ),
+    [uploads, filter, q],
+  )
 
   const embeds = useMemo<EmbedEntry[]>(
     () =>
@@ -216,7 +252,19 @@ export function RomGallery({
             onPlay={() => onSelect(rom)}
           />
         ))}
-        {filter !== 'web' && <UploadTile onSelect={onSelect} />}
+        {uploadedRoms.map((rom) => (
+          <GameTile
+            key={rom.id}
+            accent="text-primary"
+            title={rom.title}
+            subtitle="Your library · on this device"
+            badge={SYSTEM_META[rom.system].label}
+            description="Your own ROM — stored on this device, never uploaded."
+            onPlay={() => onSelect(rom)}
+            onDelete={() => onDelete(rom.id)}
+          />
+        ))}
+        {filter !== 'web' && <UploadTile onUpload={onUpload} />}
       </div>
     </div>
   )
