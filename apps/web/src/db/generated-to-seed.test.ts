@@ -130,6 +130,43 @@ describe('generatedToSeedCourse', () => {
     expect(ex.solution).toBe('function double(n){return n*2}')
   })
 
+  it('carries a git terminal exercise through with a derived id', () => {
+    const withGit: GeneratedCourse = {
+      topic: 'Git',
+      difficulty: 'beginner',
+      lessons: [
+        {
+          title: 'L',
+          estMinutes: 5,
+          glossary: [],
+          segments: [
+            {
+              title: 'S',
+              type: 'practice',
+              body: 'x',
+              estMinutes: 3,
+              questions: [],
+              exercise: {
+                kind: 'git',
+                prompt: 'p',
+                setup: ['git init'],
+                goals: [{ type: 'commitCountAtLeast', count: 1 }],
+                solution: ['git init', 'echo a > f', 'git add f', 'git commit -m c'],
+                hint: 'h',
+              },
+            },
+          ],
+        },
+      ],
+    }
+    const ex = generatedToSeedCourse('git-github', 'beginner', withGit).lessons[0]
+      .segments[0].exercise
+    if (!ex || ex.kind !== 'git') throw new Error('expected a git exercise')
+    expect(ex.id).toBe('builtin-git-github-l1-s1-ex1')
+    expect(ex.goals).toHaveLength(1)
+    expect(ex.solution).toContain('git commit -m c')
+  })
+
   it('drops ungradeable short-answers (no expectedAnswer) but keeps others', () => {
     const withBad: GeneratedCourse = {
       topic: 'Docker',

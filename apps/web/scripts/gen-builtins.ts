@@ -3,6 +3,7 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { solutionPassesTests } from '../src/core/exercise'
 import { COURSE_TARGET } from '../src/core/generation'
+import { gitSolutionSatisfiesGoals } from '../src/core/git-sim'
 import { generatedToSeedCourse } from '../src/db/generated-to-seed'
 import { BUILTIN_COURSES, type SeedCourse } from '../src/db/seed-content'
 import { GENERATED_BUILTIN_COURSES } from '../src/db/seed-content.generated'
@@ -20,26 +21,29 @@ const JS_EXERCISE_SLUGS = new Set([
   'nodejs',
   'nextjs',
 ])
+// Topics where a terminal/git exercise (core/git-sim.ts) belongs.
+const GIT_EXERCISE_SLUGS = new Set(['git-github'])
 
-// Prune a course's exercises: on non-JS topics drop them all; elsewhere keep only
-// those whose model-written solution passes its own tests, so the committed
-// built-ins always satisfy the seed-content ship gate. Mutates.
+// Prune a course's exercises by topic + validity: keep a js/ts exercise only on a
+// JS topic whose solution passes its tests, and a git exercise only on a git topic
+// whose solution satisfies its goals — so the committed built-ins always pass the
+// seed-content ship gate. Mutates.
 function pruneExercises(
   course: SeedCourse,
-  allowExercises: boolean,
+  slug: string,
 ): { kept: number; dropped: number } {
+  const allowJs = JS_EXERCISE_SLUGS.has(slug)
+  const allowGit = GIT_EXERCISE_SLUGS.has(slug)
   let kept = 0
   let dropped = 0
   for (const lesson of course.lessons) {
     for (const seg of lesson.segments) {
       if (!seg.exercise) continue
+      const ex = seg.exercise
       const ok =
-        allowExercises &&
-        solutionPassesTests(
-          seg.exercise.solution,
-          seg.exercise.tests,
-          seg.exercise.language,
-        )
+        ex.kind === 'git'
+          ? allowGit && gitSolutionSatisfiesGoals(ex.setup, ex.solution, ex.goals)
+          : allowJs && solutionPassesTests(ex.solution, ex.tests, ex.language)
       if (ok) kept++
       else {
         delete seg.exercise
@@ -172,7 +176,7 @@ async function main() {
         lastErr = err
         continue
       }
-      const { kept, dropped } = pruneExercises(course, JS_EXERCISE_SLUGS.has(slug))
+      const { kept, dropped } = pruneExercises(course, slug)
       if (!best || course.lessons.length > best.lessons.length) {
         best = course
         bestKept = kept

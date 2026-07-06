@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { exerciseTestSchema } from './exercise'
+import { gitGoalSchema } from './git-sim'
 
 // The AI lesson-generation pipeline, defined against two seams so the
 // orchestration is testable with fakes:
@@ -31,7 +32,8 @@ export const generatedQuestionSchema = z.object({
 // Mirrors SeedExercise (the mapper derives the id); `tests` reuse the engine's
 // own schema — an `expression` evaluated in the learner's scope and deep-compared
 // to `expected`. Requires >=1 test so a "runnable" exercise is actually runnable.
-export const generatedExerciseSchema = z.object({
+export const generatedJsExerciseSchema = z.object({
+  kind: z.literal('js').optional(), // absent ⇒ js
   prompt: z.string(),
   starterCode: z.string(),
   // Authoring language; the runner type-strips 'ts' to JS. Omit ⇒ 'js'.
@@ -40,6 +42,25 @@ export const generatedExerciseSchema = z.object({
   solution: z.string().default(''),
   hint: z.string().default(''),
 })
+
+// A terminal/git exercise (core/git-sim.ts) for git/CLI topics: `goals` assert
+// against the final repo state, `solution` is the command sequence that satisfies
+// them, `setup` pre-runs. Requires >=1 goal and >=1 solution command.
+export const generatedGitExerciseSchema = z.object({
+  kind: z.literal('git'),
+  prompt: z.string(),
+  setup: z.array(z.string()).optional(),
+  goals: z.array(gitGoalSchema).min(1),
+  solution: z.array(z.string()).min(1),
+  hint: z.string().default(''),
+})
+
+// Git branch first so `kind: 'git'` routes there; anything else (kind absent or
+// 'js') falls through to the js branch.
+export const generatedExerciseSchema = z.union([
+  generatedGitExerciseSchema,
+  generatedJsExerciseSchema,
+])
 
 export const generatedSegmentSchema = z.object({
   title: z.string(),
@@ -149,7 +170,7 @@ const DEPTH_GUIDANCE = [
   '- Every "reading" segment must actually teach: at least 120 words (2-4 substantial paragraphs) that explain the concept, include a concrete inline example (a short code snippet or a worked scenario), and note when/why you would use it plus a common pitfall. One- or two-sentence "X is a tool that does Y" segments are unacceptable.',
   '- "code" segments must include a real, runnable, commented snippet the learner can study and modify — not pseudocode.',
   '- "practice" segments pose an applied task tied to the reading.',
-  '- Only when the topic naturally supports small, self-contained JavaScript function tasks (e.g. JavaScript, TypeScript, algorithms, data structures, functional programming), attach a runnable "exercise" to a "practice" segment (see the "exercise" shape below): a function the learner implements, with "starterCode", 2-4 "tests", a correct "solution" that passes every test, and a "hint". Prefer deterministic pure functions. Aim for at least two such exercises across the course. For topics where a JavaScript function task would be contrived (e.g. Git, Docker, CSS, shell/CLI, cloud consoles, SQL, prose), do NOT invent one — omit "exercise".',
+  '- Only when the topic naturally supports small, self-contained JavaScript function tasks (e.g. JavaScript, TypeScript, algorithms, data structures, functional programming), attach a runnable "exercise" to a "practice" segment (see the "exercise" shape below): a function the learner implements, with "starterCode", 2-4 "tests", a correct "solution" that passes every test, and a "hint". Prefer deterministic pure functions. Aim for at least two such exercises across the course. Git / command-line courses instead use terminal "git" exercises (guidance below). For remaining topics where neither fits (e.g. Docker, CSS, cloud consoles, SQL, prose), omit "exercise".',
   '- Exercise correctness is strict, because the tests are actually executed: the "solution" and "tests" must be plain, self-contained JavaScript with NO import/require/modules, no external libraries, no async/await/Promises, no DOM, no network, and no TypeScript-only syntax. The "solution" must define exactly the function name(s) the tests call; every test "expression" must call the learner-defined function and evaluate to a JSON value (number, string, boolean, array, or plain object). Before emitting an exercise, mentally run the "solution" against every "test" and confirm it produces "expected" — if it does not, fix it or omit the exercise.',
   '- "quiz" segments carry a lesson check-in; give each a short one-line body introducing it, plus its questions.',
   '- Assume the reader is a developer: use correct terminology, real commands/APIs, and realistic scenarios. Honor the difficulty — go deeper and skip hand-holding for intermediate/advanced.',
@@ -164,6 +185,18 @@ const LESSON_JSON_SHAPE = [
   'segment.type is one of: reading | code | practice | quiz. question.type is one of: mcq | short_answer. "body" is markdown.',
   'An "exercise" is a runnable JavaScript task: "starterCode" is a function stub the learner completes; each test\'s "expression" is JavaScript evaluated in the learner\'s scope (it may call a function the learner defines) whose result is deep-compared to "expected" (a JSON value). "solution" must be a correct implementation that passes every test; "hint" nudges without giving it away.',
   'Set "language" to "ts" ONLY for a TypeScript course, where the "starterCode" and "solution" use TypeScript type annotations (the runner type-strips them to JS before running; the "tests" stay plain JS expressions). For every other topic omit "language" (defaults to "js").',
+]
+
+// Extra guidance pushed only for git / command-line courses, where an "exercise"
+// is a terminal task ("kind": "git") run against a git simulator instead of a JS
+// function. The solution is executed and every goal is asserted, so it must be
+// correct — the same ship-gate discipline as JS exercises.
+const GIT_EXERCISE_GUIDANCE = [
+  'This is a git / command-line course. Attach a terminal "exercise" with "kind": "git" to most "practice" segments so the learner runs real git commands — do NOT emit JavaScript exercises here.',
+  'A git exercise has: "prompt", optional "setup" (an array of commands pre-run to set the scene before the learner starts), "goals" (success criteria checked against the final repo state), "solution" (an array of commands that satisfies every goal), and "hint".',
+  'Use ONLY these commands: git init | add <path|.> | commit -m "msg" | status | log [--oneline] | branch [name] | switch [-c] <name> | checkout [-b] <name> | restore --staged <path> | merge <name>; and shell: `echo TEXT > FILE`, `echo TEXT >> FILE`, cat FILE, touch FILE, rm FILE, ls, pwd, mkdir DIR. (echo writes exactly TEXT, no trailing newline.)',
+  'Goal objects: {"type":"initialized"} · {"type":"commitCountAtLeast","count":N} · {"type":"branchExists","name":"..."} · {"type":"currentBranch","name":"..."} · {"type":"fileStaged","path":"..."} · {"type":"fileTracked","path":"..."} · {"type":"committedFileEquals","path":"...","content":"..."} · {"type":"commitMessageContains","text":"..."} · {"type":"workingTreeClean"} · {"type":"mergedInto","branch":"...","from":"..."}.',
+  'The "solution" MUST satisfy every "goal" — mentally run it against the commands above first. Aim for at least two git exercises across the course, progressing from a first commit toward branching and merging.',
 ]
 
 export function buildGenerationPrompt(input: GenerationInput): string {
@@ -181,6 +214,9 @@ export function buildGenerationPrompt(input: GenerationInput): string {
     lines.push(
       'This is a TypeScript course: every "exercise" MUST be TypeScript — set "language": "ts" and write genuinely typed TypeScript in "starterCode" and "solution" (explicit parameter and return type annotations, plus interfaces / generics / union types where they fit the task). Do NOT emit plain untyped JavaScript exercises.',
     )
+  }
+  if (/\bgit\b/i.test(input.topic)) {
+    lines.push(...GIT_EXERCISE_GUIDANCE)
   }
   const custom = input.customization?.trim()
   if (custom) {

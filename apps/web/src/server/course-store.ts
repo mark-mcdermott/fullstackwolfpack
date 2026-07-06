@@ -75,15 +75,26 @@ export function drizzleCourseStore(): CourseStore {
         // executed here (never run generated code in the request path); the
         // learner's own code runs sandboxed client-side.
         if (seg.exercise) {
-          await db.insert(exercises).values({
-            segmentId: segRow.id,
-            prompt: seg.exercise.prompt,
-            language: seg.exercise.language ?? 'js',
-            starterCode: seg.exercise.starterCode,
-            tests: seg.exercise.tests,
-            solution: seg.exercise.solution,
-            hint: seg.exercise.hint,
-          })
+          const ex = seg.exercise
+          await db.insert(exercises).values(
+            ex.kind === 'git'
+              ? {
+                  segmentId: segRow.id,
+                  prompt: ex.prompt,
+                  kind: 'git',
+                  config: { setup: ex.setup ?? [], goals: ex.goals, solution: ex.solution },
+                  hint: ex.hint,
+                }
+              : {
+                  segmentId: segRow.id,
+                  prompt: ex.prompt,
+                  language: ex.language ?? 'js',
+                  starterCode: ex.starterCode,
+                  tests: ex.tests,
+                  solution: ex.solution,
+                  hint: ex.hint,
+                },
+          )
         }
       }
     },

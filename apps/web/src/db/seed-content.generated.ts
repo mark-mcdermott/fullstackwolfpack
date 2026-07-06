@@ -2664,6 +2664,700 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
     ]
   },
   {
+    "id": "builtin-git-github",
+    "topicSlug": "git-github",
+    "difficulty": "beginner",
+    "lessons": [
+      {
+        "id": "builtin-git-github-l1",
+        "title": "Why Version Control Exists",
+        "estMinutes": 18,
+        "glossary": [
+          "version control",
+          "repository",
+          "commit",
+          "working directory",
+          "git init"
+        ],
+        "segments": [
+          {
+            "id": "builtin-git-github-l1-s1",
+            "type": "reading",
+            "title": "The Save-File Problem",
+            "markdown": "Imagine you're tuning a game build config. You tweak `settings.json`, it breaks, and now you want the version from twenty minutes ago. Without version control your options are grim: `settings-final.json`, `settings-final-v2.json`, `settings-REAL-final.json`. That naming scheme is a graveyard of good intentions, and it collapses the moment two people edit the same file.\n\nGit solves this by treating your project as a series of **snapshots** you deliberately record. A **repository** (repo) is a project folder that Git watches. Each time you're happy with a change you make a **commit** — a labelled, timestamped snapshot of every tracked file. You can jump back to any commit, compare them, or branch off to try wild ideas without risking your main work.\n\nThe key mental shift: you don't save *files*, you save *history*. Every commit knows its parent, forming a chain you can walk backwards. When you would use it: any project with more than one file or more than one editing session — which is all of them. Common pitfall: beginners commit rarely and in giant chunks, which makes history useless for pinpointing a bug. Commit small, commit often.",
+            "estMinutes": 5,
+            "questions": []
+          },
+          {
+            "id": "builtin-git-github-l1-s2",
+            "type": "code",
+            "title": "Creating Your First Repository",
+            "markdown": "Turning a plain folder into a Git repo takes one command. Everything Git tracks lives in a hidden `.git` directory it creates — delete that and the folder becomes ordinary again.\n\n```bash\n# make a project folder and enter it\nmkdir game-config\ncd game-config\n\n# turn it into a Git repository\ngit init\n# -> Initialized empty Git repository in .../game-config/.git/\n\n# create a file in the working directory\necho \"fov=90\" > settings.json\n\n# ask Git what it sees\ngit status\n# settings.json shows up as \"Untracked\" — Git noticed it\n# but isn't recording it yet\n```\n\nAt this point the file exists in your **working directory** but Git isn't tracking its history. `git init` is safe and instant; you run it exactly once per project. Pitfall: running `git init` inside an existing repo (a nested one) creates a confusing second repo — check with `git status` first.",
+            "estMinutes": 4,
+            "questions": []
+          },
+          {
+            "id": "builtin-git-github-l1-s3",
+            "type": "practice",
+            "title": "Initialize and Inspect",
+            "markdown": "Create a fresh repository, add a file, and confirm Git sees your work with `git status`. You don't need to commit yet — just get the repo initialized and a file into the working directory.",
+            "estMinutes": 4,
+            "questions": []
+          },
+          {
+            "id": "builtin-git-github-l1-s4",
+            "type": "quiz",
+            "title": "Check-in",
+            "markdown": "Quick gut-check on the mental model before we start committing.",
+            "estMinutes": 2,
+            "questions": [
+              {
+                "id": "builtin-git-github-l1-s4-q1",
+                "type": "mcq",
+                "prompt": "What does a single Git commit actually represent?",
+                "options": [
+                  "A backup of only the one file you edited",
+                  "A labelled snapshot of all tracked files at a point in time",
+                  "A copy of your terminal history",
+                  "The difference between two branches"
+                ],
+                "correctIndex": 1,
+                "explanation": "A commit records the state of every tracked file, not just one, and links to its parent to form history."
+              },
+              {
+                "id": "builtin-git-github-l1-s4-q2",
+                "type": "mcq",
+                "prompt": "Why is committing small, frequent changes better than one giant commit?",
+                "options": [
+                  "It uses less disk space",
+                  "It makes history granular so you can pinpoint when a bug was introduced",
+                  "Git refuses commits over a size limit",
+                  "It automatically merges branches"
+                ],
+                "correctIndex": 1,
+                "explanation": "Granular history lets you isolate exactly which change caused a problem and revert precisely."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "builtin-git-github-l2",
+        "title": "The Three Areas and Your First Commit",
+        "estMinutes": 20,
+        "glossary": [
+          "working directory",
+          "staging area",
+          "index",
+          "git add",
+          "git commit",
+          "HEAD"
+        ],
+        "segments": [
+          {
+            "id": "builtin-git-github-l2-s1",
+            "type": "reading",
+            "title": "Working Directory, Staging, Repository",
+            "markdown": "Git's most confusing beginner concept is that a file lives in one of three places, and you move it between them deliberately. Understanding this removes most early frustration.\n\nThe **working directory** is your actual folder — the files you edit. The **staging area** (also called the **index**) is a holding zone where you assemble the exact set of changes you want in your next commit. The **repository** is the committed history. The flow is always: edit in working dir → `git add` to stage → `git commit` to record.\n\nWhy the middle step? Because a good commit is a coherent unit. Say you fixed a typo *and* added a new feature in the same session. You can `git add feature.js` alone, commit it with a clear message, then stage and commit the typo fix separately. Staging is your editing table for building focused commits.\n\n```bash\ngit add settings.json      # stage one file\ngit add .                  # stage everything changed\ngit status                 # green = staged, red = not staged\n```\n\nCommon pitfall: assuming `git commit` records whatever is in your folder. It only records what you've **staged**. Edit a file after staging it, and that new edit is *not* in the commit unless you `git add` again.",
+            "estMinutes": 5,
+            "questions": []
+          },
+          {
+            "id": "builtin-git-github-l2-s2",
+            "type": "code",
+            "title": "Making the Commit",
+            "markdown": "A commit needs a message. Write it in the imperative mood (\"Add fov setting\", not \"Added\" or \"fov stuff\") — this matches Git's own generated messages and reads well in logs.\n\n```bash\n# stage and commit a first change\necho \"fov=90\" > settings.json\ngit add settings.json\ngit commit -m \"Add default fov setting\"\n# -> [main (root-commit) a1b2c3d] Add default fov setting\n\n# make another change\necho \"vsync=true\" >> settings.json   # append a line\ngit add settings.json\ngit commit -m \"Enable vsync by default\"\n\n# review the history\ngit log --oneline\n# a1b2c3d Enable vsync by default\n# ...       Add default fov setting\n```\n\n**HEAD** is a pointer to the commit you're currently sitting on — usually the latest on your branch. Each commit references its parent, so `git log` walks that chain. Pitfall: forgetting `-m` drops you into a text editor (often Vim) which can trap newcomers — `-m \"...\"` keeps you in control.",
+            "estMinutes": 4,
+            "questions": []
+          },
+          {
+            "id": "builtin-git-github-l2-s3",
+            "type": "practice",
+            "title": "Stage, Commit, Repeat",
+            "markdown": "Build a two-commit history. Create a file, commit it, change it, and commit again — practicing the full working directory → staging → repository loop.",
+            "estMinutes": 5,
+            "questions": []
+          },
+          {
+            "id": "builtin-git-github-l2-s4",
+            "type": "reading",
+            "title": "Unstaging Mistakes",
+            "markdown": "You'll stage the wrong file constantly — it's fine, it's reversible. If you `git add` something you didn't mean to include, `git restore --staged <file>` pulls it back out of the staging area without touching your edits.\n\n```bash\necho \"secret=abc123\" > secrets.txt\ngit add .                    # oops, staged the secret too\ngit restore --staged secrets.txt   # unstage it, keep the file\ngit status                   # secrets.txt is untracked again\n```\n\nThe important detail: `restore --staged` only changes what's staged. Your working-directory file is untouched — the text is still there, it's just no longer queued for the next commit. This is different from discarding changes entirely. When you'd use it: you ran `git add .` and realized a file (a secret, a build artifact, a debug print) shouldn't go in. Pitfall: don't confuse unstaging with deleting — the file and its contents remain; you've only reversed the `add`.",
+            "estMinutes": 3,
+            "questions": []
+          },
+          {
+            "id": "builtin-git-github-l2-s5",
+            "type": "quiz",
+            "title": "Check-in",
+            "markdown": "Confirm the three-area model landed.",
+            "estMinutes": 2,
+            "questions": [
+              {
+                "id": "builtin-git-github-l2-s5-q1",
+                "type": "mcq",
+                "prompt": "You stage `app.js`, then edit it again before committing. What does the commit contain?",
+                "options": [
+                  "Both edits — Git always uses the latest file",
+                  "Only the version you staged; the later edit is not included",
+                  "Nothing, because the file changed after staging",
+                  "Git will refuse to commit until you re-stage"
+                ],
+                "correctIndex": 1,
+                "explanation": "Commits capture the staged snapshot. Edits made after `git add` need another `git add` to be included."
+              },
+              {
+                "id": "builtin-git-github-l2-s5-q2",
+                "type": "short_answer",
+                "prompt": "Which command removes a file from the staging area without deleting its contents?",
+                "expectedAnswer": "git restore --staged",
+                "explanation": "`git restore --staged <file>` unstages while leaving your working-directory edits intact."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "builtin-git-github-l3",
+        "title": "Reading History and Undoing Changes",
+        "estMinutes": 19,
+        "glossary": [
+          "git log",
+          "--oneline",
+          "commit hash",
+          "restore",
+          "tracked vs untracked"
+        ],
+        "segments": [
+          {
+            "id": "builtin-git-github-l3-s1",
+            "type": "reading",
+            "title": "History Is Your Debugging Tool",
+            "markdown": "When a feature that worked yesterday breaks today, history tells you exactly what changed. `git log` is your time machine's index. Each entry shows a **commit hash** (a unique ID like `a1b2c3d`), author, date, and message.\n\n```bash\ngit log\n# commit a1b2c3d4e5... (HEAD -> main)\n# Author: You <you@example.com>\n# Date:   ...\n#     Enable vsync by default\n\ngit log --oneline\n# a1b2c3d Enable vsync by default\n# f9e8d7c Add default fov setting\n```\n\nThe `--oneline` flag collapses each commit to a short hash plus its message — perfect for scanning dozens of commits quickly. The short hash is enough to reference a commit in most commands; Git only needs enough characters to be unambiguous.\n\nWhy good commit messages now pay off: `git log --oneline` is only useful if the messages describe *what changed and why*. \"fix\", \"stuff\", \"wip\" tell you nothing six weeks later. Pitfall: relying on memory instead of history — the log is authoritative, your memory is not.",
+            "estMinutes": 4,
+            "questions": []
+          },
+          {
+            "id": "builtin-git-github-l3-s2",
+            "type": "code",
+            "title": "Tracked vs Untracked, Staged vs Modified",
+            "markdown": "`git status` is the command you'll run most. It classifies every file so you always know where you stand before committing.\n\n```bash\ngit status\n# On branch main\n# Changes to be committed:   <- STAGED (green)\n#   modified: settings.json\n# Changes not staged:        <- MODIFIED but not staged (red)\n#   modified: readme.md\n# Untracked files:           <- Git has never seen these\n#   debug.log\n```\n\nThree states matter. **Untracked**: Git isn't recording this file at all. **Modified**: a tracked file changed but the change isn't staged. **Staged**: queued for the next commit. Run `git status` before every commit as a sanity check — it's the cheapest habit in Git.\n\nPitfall: seeing an untracked file and assuming a commit will capture it. Untracked files are invisible to commits until you `git add` them at least once.",
+            "estMinutes": 4,
+            "questions": []
+          },
+          {
+            "id": "builtin-git-github-l3-s3",
+            "type": "practice",
+            "title": "Practice Reading and Fixing",
+            "markdown": "Create a few commits, then use `git log` to inspect them and `git restore --staged` to correct a staging mistake.",
+            "estMinutes": 5,
+            "questions": [],
+            "exercise": {
+              "id": "builtin-git-github-l3-s3-ex1",
+              "kind": "git",
+              "prompt": "In this repo, create `notes.txt` with content `level 1`, stage BOTH `notes.txt` and the pre-existing `temp.log`, then unstage only `temp.log` so it stays untracked. Commit `notes.txt` alone.",
+              "setup": [
+                "git init",
+                "echo scratch > temp.log"
+              ],
+              "goals": [
+                {
+                  "type": "committedFileEquals",
+                  "path": "notes.txt",
+                  "content": "level 1"
+                },
+                {
+                  "type": "commitCountAtLeast",
+                  "count": 1
+                }
+              ],
+              "solution": [
+                "echo level 1 > notes.txt",
+                "git add .",
+                "git restore --staged temp.log",
+                "git commit -m \"Add level notes\""
+              ],
+              "hint": "`git add .` stages everything; then `git restore --staged temp.log` removes just the log before you commit."
+            }
+          },
+          {
+            "id": "builtin-git-github-l3-s4",
+            "type": "quiz",
+            "title": "Check-in",
+            "markdown": "Make sure you can read repo state fluently.",
+            "estMinutes": 2,
+            "questions": [
+              {
+                "id": "builtin-git-github-l3-s4-q1",
+                "type": "mcq",
+                "prompt": "`git status` shows `debug.log` under 'Untracked files'. You run `git commit -m \"work\"`. What happens to debug.log?",
+                "options": [
+                  "It's included in the commit",
+                  "It's ignored — untracked files aren't committed",
+                  "Git aborts the commit",
+                  "It gets staged automatically"
+                ],
+                "correctIndex": 1,
+                "explanation": "Untracked files must be added at least once with `git add` before any commit can include them."
+              },
+              {
+                "id": "builtin-git-github-l3-s4-q2",
+                "type": "mcq",
+                "prompt": "What is the main advantage of `git log --oneline` over plain `git log`?",
+                "options": [
+                  "It shows more detail per commit",
+                  "It condenses each commit to one scannable line",
+                  "It undoes the last commit",
+                  "It only works on the main branch"
+                ],
+                "correctIndex": 1,
+                "explanation": "`--oneline` gives a compact short-hash-plus-message view, ideal for quickly scanning history."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "builtin-git-github-l4",
+        "title": "Branching: Parallel Universes for Code",
+        "estMinutes": 22,
+        "glossary": [
+          "branch",
+          "git branch",
+          "git switch",
+          "checkout",
+          "feature branch",
+          "main"
+        ],
+        "segments": [
+          {
+            "id": "builtin-git-github-l4-s1",
+            "type": "reading",
+            "title": "Why Branch at All",
+            "markdown": "You want to try a risky refactor but you don't want to break the working game. A **branch** lets you diverge from your stable line, experiment freely, and either keep the result or throw it away — all without touching the original.\n\nMechanically, a branch is just a movable pointer to a commit. The default branch is usually **main**. When you create a branch and commit on it, that branch's pointer advances while `main` stays put. Your history becomes a tree instead of a straight line.\n\n```bash\ngit branch                 # list branches; * marks current\n# * main\n\ngit switch -c new-hud      # create AND switch to a branch\n# Switched to a new branch 'new-hud'\n\n# commits here advance new-hud only; main is untouched\n```\n\nThe workflow this enables is the heart of professional Git: keep `main` always working, do every piece of new work on a short-lived **feature branch**, and merge it back when it's ready. Pitfall: doing everything on `main` — one broken experiment then contaminates the branch everyone depends on.",
+            "estMinutes": 5,
+            "questions": []
+          },
+          {
+            "id": "builtin-git-github-l4-s2",
+            "type": "code",
+            "title": "Creating and Switching",
+            "markdown": "There are two commands that create/switch branches. `git switch` is the modern, clearer one; `git checkout` is the older tool that does this plus much more. Both appear constantly in the wild.\n\n```bash\n# modern syntax\ngit switch -c feature-x    # create + switch\ngit switch main            # go back to main\n\n# older equivalent (same effect)\ngit checkout -b feature-x  # create + switch\ngit checkout main          # switch\n\n# create without switching\ngit branch experiment      # branch exists but you stay put\n```\n\nWhen you switch branches, Git rewrites your working directory to match that branch's latest commit — files can appear, vanish, or change content. That's expected. Pitfall: switching with uncommitted changes that conflict can be blocked by Git; commit or stash your work before switching to avoid surprises. As a beginner, the rule is simple: commit before you switch.",
+            "estMinutes": 4,
+            "questions": []
+          },
+          {
+            "id": "builtin-git-github-l4-s3",
+            "type": "practice",
+            "title": "Build a Feature Branch",
+            "markdown": "Create a feature branch, make a commit on it, and confirm main stays untouched.",
+            "estMinutes": 6,
+            "questions": [],
+            "exercise": {
+              "id": "builtin-git-github-l4-s3-ex1",
+              "kind": "git",
+              "prompt": "Starting from a repo with one commit on `main`, create and switch to a branch called `dark-mode`, then create `theme.css` with content `background:black` and commit it. Your current branch should end as `dark-mode`.",
+              "setup": [
+                "git init",
+                "echo v1 > app.txt",
+                "git add app.txt",
+                "git commit -m \"Initial commit\""
+              ],
+              "goals": [
+                {
+                  "type": "branchExists",
+                  "name": "dark-mode"
+                },
+                {
+                  "type": "currentBranch",
+                  "name": "dark-mode"
+                },
+                {
+                  "type": "committedFileEquals",
+                  "path": "theme.css",
+                  "content": "background:black"
+                }
+              ],
+              "solution": [
+                "git switch -c dark-mode",
+                "echo background:black > theme.css",
+                "git add theme.css",
+                "git commit -m \"Add dark theme\""
+              ],
+              "hint": "`git switch -c dark-mode` creates and switches in one step, then create the file, `git add`, and commit."
+            }
+          },
+          {
+            "id": "builtin-git-github-l4-s4",
+            "type": "quiz",
+            "title": "Check-in",
+            "markdown": "Confirm your branch mental model.",
+            "estMinutes": 2,
+            "questions": [
+              {
+                "id": "builtin-git-github-l4-s4-q1",
+                "type": "mcq",
+                "prompt": "You create `feature-x` from main, then make 3 commits on feature-x. What happened to main's pointer?",
+                "options": [
+                  "It moved forward 3 commits too",
+                  "It stayed on the commit where you branched",
+                  "It was deleted",
+                  "It merged automatically"
+                ],
+                "correctIndex": 1,
+                "explanation": "Only the current branch's pointer advances on commit. main stays exactly where it was until you merge."
+              },
+              {
+                "id": "builtin-git-github-l4-s4-q2",
+                "type": "short_answer",
+                "prompt": "What single command both creates a new branch named `hotfix` and switches to it (modern syntax)?",
+                "expectedAnswer": "git switch -c hotfix",
+                "explanation": "`git switch -c <name>` is the modern create-and-switch command; `git checkout -b <name>` is the older equivalent."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "builtin-git-github-l5",
+        "title": "Merging and Handling Conflicts",
+        "estMinutes": 23,
+        "glossary": [
+          "merge",
+          "fast-forward",
+          "merge commit",
+          "merge conflict",
+          "conflict markers"
+        ],
+        "segments": [
+          {
+            "id": "builtin-git-github-l5-s1",
+            "type": "reading",
+            "title": "Bringing Work Back Together",
+            "markdown": "A feature branch is only useful if you can fold its work back into `main`. That's **merging**. You switch to the branch you want to receive the changes (usually `main`), then run `git merge <feature>`.\n\n```bash\ngit switch main\ngit merge dark-mode\n```\n\nTwo things can happen. If `main` hasn't moved since you branched, Git does a **fast-forward**: it simply slides main's pointer up to the feature branch's latest commit — no new commit needed, perfectly linear. If both branches have new commits, Git creates a **merge commit** that has two parents, tying the histories together.\n\nWhen you'd use each: fast-forward happens naturally for solo work where main was untouched; merge commits appear when work happened in parallel. Pitfall: expecting merge to be destructive — it isn't. Your feature branch still exists after merging; the merge just makes its commits reachable from main too. You can delete the feature branch afterward if you want a tidy list.",
+            "estMinutes": 5,
+            "questions": []
+          },
+          {
+            "id": "builtin-git-github-l5-s2",
+            "type": "code",
+            "title": "When Two Edits Collide",
+            "markdown": "If two branches change the *same lines* of the *same file*, Git can't decide who wins — that's a **merge conflict**. Git pauses the merge and marks the clashing regions with **conflict markers** right inside the file.\n\n```text\n<<<<<<< HEAD\nfov=90\n=======\nfov=110\n>>>>>>> dark-mode\n```\n\nEverything between `<<<<<<< HEAD` and `=======` is your current branch's version; everything from `=======` to `>>>>>>> dark-mode` is the incoming branch's version. To resolve: edit the file so it contains exactly what you want (keep one side, the other, or a blend), delete all three marker lines, then `git add` the file and `git commit` to complete the merge.\n\n```bash\n# after manually editing the file to remove markers:\ngit add settings.json\ngit commit -m \"Merge dark-mode, keep fov=110\"\n```\n\nPitfall: accidentally leaving a `<<<<<<<` or `=======` marker in the file — it becomes invalid code that ships. Always search for markers before committing a resolution.",
+            "estMinutes": 5,
+            "questions": []
+          },
+          {
+            "id": "builtin-git-github-l5-s3",
+            "type": "practice",
+            "title": "Merge a Branch Cleanly",
+            "markdown": "Do a real merge where the histories combine, and verify main now contains the feature work.",
+            "estMinutes": 6,
+            "questions": [],
+            "exercise": {
+              "id": "builtin-git-github-l5-s3-ex1",
+              "kind": "git",
+              "prompt": "You have `main` with a commit, and a `feature` branch with its own commit adding `feature.txt`. Switch to `main` and merge `feature` into it. End on `main` with feature.txt present.",
+              "setup": [
+                "git init",
+                "echo base > app.txt",
+                "git add app.txt",
+                "git commit -m \"Base\"",
+                "git switch -c feature",
+                "echo done > feature.txt",
+                "git add feature.txt",
+                "git commit -m \"Add feature\"",
+                "git switch main"
+              ],
+              "goals": [
+                {
+                  "type": "currentBranch",
+                  "name": "main"
+                },
+                {
+                  "type": "mergedInto",
+                  "branch": "main",
+                  "from": "feature"
+                },
+                {
+                  "type": "committedFileEquals",
+                  "path": "feature.txt",
+                  "content": "done"
+                }
+              ],
+              "solution": [
+                "git merge feature"
+              ],
+              "hint": "You're already on main after the setup. A single `git merge feature` brings its commit (and feature.txt) into main."
+            }
+          },
+          {
+            "id": "builtin-git-github-l5-s4",
+            "type": "quiz",
+            "title": "Check-in",
+            "markdown": "Verify you understand merge outcomes and conflicts.",
+            "estMinutes": 2,
+            "questions": [
+              {
+                "id": "builtin-git-github-l5-s4-q1",
+                "type": "mcq",
+                "prompt": "You merge `feature` into `main`, but main had no new commits since you branched. What kind of merge is this?",
+                "options": [
+                  "A merge commit with two parents",
+                  "A fast-forward — main's pointer just advances",
+                  "A conflict, always",
+                  "A rebase"
+                ],
+                "correctIndex": 1,
+                "explanation": "With no divergence, Git fast-forwards: it moves main's pointer to the feature tip without creating a merge commit."
+              },
+              {
+                "id": "builtin-git-github-l5-s4-q2",
+                "type": "mcq",
+                "prompt": "During a conflict, what does the text between `=======` and `>>>>>>> feature` represent?",
+                "options": [
+                  "Your current branch's version",
+                  "The incoming branch's version",
+                  "A Git error message",
+                  "Deleted lines"
+                ],
+                "correctIndex": 1,
+                "explanation": "The lower section (after =======) is the incoming branch; the section above ======= (below <<<<<<< HEAD) is your current branch."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "builtin-git-github-l6",
+        "title": "GitHub: Sharing and Collaborating",
+        "estMinutes": 21,
+        "glossary": [
+          "remote",
+          "origin",
+          "clone",
+          "push",
+          "pull",
+          "pull request",
+          "README"
+        ],
+        "segments": [
+          {
+            "id": "builtin-git-github-l6-s1",
+            "type": "reading",
+            "title": "From Local to the World",
+            "markdown": "Everything so far lives only on your machine. GitHub is a hosting service for Git repositories that adds collaboration on top: a place to back up your history, share it, and work with others. Your local repo connects to a hosted one via a **remote** — a named URL pointing at the GitHub copy. The default remote name is **origin**.\n\nThe core loop with GitHub is three verbs. **clone** copies an existing remote repo (with full history) onto your machine. **push** uploads your local commits to the remote. **pull** downloads commits others pushed and merges them into your branch. Conceptually origin is just another branch location you sync with.\n\n```bash\ngit clone https://github.com/you/game-config.git\ncd game-config\n# ...make commits locally...\ngit push origin main       # send your commits up\ngit pull origin main       # get teammates' commits down\n```\n\nWhen you'd use it: any time you want a backup, want to work across machines, or collaborate. Pitfall: pushing before pulling when a teammate has already pushed — Git rejects it and asks you to pull (and possibly resolve conflicts) first.",
+            "estMinutes": 5,
+            "questions": []
+          },
+          {
+            "id": "builtin-git-github-l6-s2",
+            "type": "reading",
+            "title": "Pull Requests: Review Before Merge",
+            "markdown": "On a team, you rarely merge straight into `main` yourself. Instead you push your feature branch to GitHub and open a **pull request** (PR): a proposal to merge your branch into another, with a discussion thread, line-by-line review, and automated checks attached.\n\nThe flow: create a feature branch locally, commit your work, push the branch to origin, then on GitHub click \"Compare & pull request\". Teammates review the diff, leave comments, request changes, and approve. When it's green, someone clicks \"Merge pull request\" and GitHub performs the merge server-side. You then `git pull` on main to sync.\n\n```bash\ngit switch -c fix-crash\n# ...commit fixes...\ngit push origin fix-crash   # then open the PR on github.com\n```\n\nWhy this matters: PRs give every change a second set of eyes and a permanent record of *why* it was made. A good PR description explains the intent, not just the code. Pitfall: giant PRs that touch 40 files are unreviewable — keep them small and focused, exactly like commits.",
+            "estMinutes": 4,
+            "questions": []
+          },
+          {
+            "id": "builtin-git-github-l6-s3",
+            "type": "practice",
+            "title": "Simulate a Shareable Repo",
+            "markdown": "Push and pull require a network we can't run here, so practice the local half: prepare a repo that's ready to share by giving it a proper README and clean history.",
+            "estMinutes": 5,
+            "questions": [],
+            "exercise": {
+              "id": "builtin-git-github-l6-s3-ex1",
+              "kind": "git",
+              "prompt": "Prepare a repo for GitHub: initialize it, create a `README.md` with content `# game-config`, commit it with a message containing the word `README`, and leave a clean working tree.",
+              "goals": [
+                {
+                  "type": "initialized"
+                },
+                {
+                  "type": "committedFileEquals",
+                  "path": "README.md",
+                  "content": "# game-config"
+                },
+                {
+                  "type": "commitMessageContains",
+                  "text": "README"
+                },
+                {
+                  "type": "workingTreeClean"
+                }
+              ],
+              "solution": [
+                "git init",
+                "echo # game-config > README.md",
+                "git add README.md",
+                "git commit -m \"Add README\""
+              ],
+              "hint": "`git init`, then `echo # game-config > README.md`, add it, and commit with a message that includes the word README."
+            }
+          },
+          {
+            "id": "builtin-git-github-l6-s4",
+            "type": "quiz",
+            "title": "Check-in",
+            "markdown": "Confirm the remote collaboration model.",
+            "estMinutes": 2,
+            "questions": [
+              {
+                "id": "builtin-git-github-l6-s4-q1",
+                "type": "mcq",
+                "prompt": "What does `origin` refer to?",
+                "options": [
+                  "Your first commit",
+                  "The default name for the remote repository URL",
+                  "The main branch",
+                  "Your local .git folder"
+                ],
+                "correctIndex": 1,
+                "explanation": "`origin` is the conventional name Git gives the remote you cloned from or added — a pointer to the hosted repo."
+              },
+              {
+                "id": "builtin-git-github-l6-s4-q2",
+                "type": "mcq",
+                "prompt": "Why open a pull request instead of merging your branch into main yourself?",
+                "options": [
+                  "It's faster than a local merge",
+                  "It enables code review, discussion, and automated checks before merging",
+                  "Git won't let you merge locally",
+                  "It compresses the repository"
+                ],
+                "correctIndex": 1,
+                "explanation": "PRs add review, discussion, and CI gates, giving each change oversight and a documented rationale."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "builtin-git-github-l7",
+        "title": "A Practical Everyday Workflow",
+        "estMinutes": 24,
+        "glossary": [
+          "feature branch workflow",
+          "atomic commit",
+          "gitignore",
+          ".gitignore",
+          "short-lived branch"
+        ],
+        "segments": [
+          {
+            "id": "builtin-git-github-l7-s1",
+            "type": "reading",
+            "title": "Tying It All Together",
+            "markdown": "Individual commands are muscles; a workflow is the choreography. Here's the loop most professional developers run dozens of times a week, and it uses only what you've learned.\n\nStart from an up-to-date `main`: `git switch main` then `git pull`. Create a focused branch: `git switch -c fix-audio-lag`. Do the work in small **atomic commits** — each commit one logical change with a clear message. Push the branch and open a PR. After review and merge, switch back to main, pull the merged result, and delete the stale branch.\n\n```bash\ngit switch main\ngit pull origin main\ngit switch -c fix-audio-lag\n# edit, then:\ngit add audio.js\ngit commit -m \"Fix audio buffer underrun on level load\"\ngit push origin fix-audio-lag\n# open PR, get it merged, then:\ngit switch main\ngit pull origin main\n```\n\nThe discipline that pays off: **short-lived branches**. A branch that lives for days drifts far from main and merges painfully. Branch, ship, delete. Pitfall: hoarding uncommitted work in your editor for hours — if your machine dies, it's gone. Commit early and often.",
+            "estMinutes": 5,
+            "questions": []
+          },
+          {
+            "id": "builtin-git-github-l7-s2",
+            "type": "code",
+            "title": "Ignoring Files You Never Want to Commit",
+            "markdown": "Some files should never enter history: build outputs, dependency folders, secrets, editor cruft. A `.gitignore` file lists patterns Git will refuse to track. It's itself committed, so the whole team shares the rules.\n\n```bash\n# create a .gitignore\ncat > .gitignore <<'EOF'\nnode_modules/\n*.log\n.env\ndist/\n.DS_Store\nEOF\n\ngit add .gitignore\ngit commit -m \"Add gitignore for build artifacts and secrets\"\n```\n\nEach line is a pattern: `*.log` ignores every log file, `node_modules/` ignores that whole directory. Now `git status` won't nag about those files and you can't accidentally commit them.\n\nKey pitfall: `.gitignore` only affects **untracked** files. If you already committed `secret.env` once, adding it to `.gitignore` does nothing — Git keeps tracking it. You'd have to stop tracking it separately. So set up `.gitignore` *early*, ideally in your very first commit.",
+            "estMinutes": 5,
+            "questions": []
+          },
+          {
+            "id": "builtin-git-github-l7-s3",
+            "type": "practice",
+            "title": "Run the Full Loop Locally",
+            "markdown": "Execute the complete feature-branch cycle end to end: branch, commit atomically, merge back into main, and finish clean.",
+            "estMinutes": 7,
+            "questions": [],
+            "exercise": {
+              "id": "builtin-git-github-l7-s3-ex1",
+              "kind": "git",
+              "prompt": "From a repo with an initial commit on `main`, create a `.gitignore` containing `*.log` and commit it on main. Then create a branch `add-menu`, add `menu.txt` with content `Start Game` in a commit, switch back to main and merge `add-menu`. End on main, clean, with both files present.",
+              "setup": [
+                "git init",
+                "echo boot > app.txt",
+                "git add app.txt",
+                "git commit -m \"Initial commit\""
+              ],
+              "goals": [
+                {
+                  "type": "committedFileEquals",
+                  "path": ".gitignore",
+                  "content": "*.log"
+                },
+                {
+                  "type": "branchExists",
+                  "name": "add-menu"
+                },
+                {
+                  "type": "mergedInto",
+                  "branch": "main",
+                  "from": "add-menu"
+                },
+                {
+                  "type": "committedFileEquals",
+                  "path": "menu.txt",
+                  "content": "Start Game"
+                },
+                {
+                  "type": "currentBranch",
+                  "name": "main"
+                },
+                {
+                  "type": "workingTreeClean"
+                }
+              ],
+              "solution": [
+                "echo *.log > .gitignore",
+                "git add .gitignore",
+                "git commit -m \"Add gitignore\"",
+                "git switch -c add-menu",
+                "echo Start Game > menu.txt",
+                "git add menu.txt",
+                "git commit -m \"Add start menu\"",
+                "git switch main",
+                "git merge add-menu"
+              ],
+              "hint": "Commit the .gitignore on main first, then branch with `switch -c`, commit menu.txt, switch back to main, and `git merge add-menu`."
+            }
+          },
+          {
+            "id": "builtin-git-github-l7-s4",
+            "type": "quiz",
+            "title": "Course Check-out",
+            "markdown": "Final synthesis of the workflow and habits.",
+            "estMinutes": 2,
+            "questions": [
+              {
+                "id": "builtin-git-github-l7-s4-q1",
+                "type": "mcq",
+                "prompt": "You added `secret.env` to `.gitignore`, but it's still showing up as tracked in `git status`. Why?",
+                "options": [
+                  "The .gitignore syntax is wrong",
+                  "It was already committed once; .gitignore only affects untracked files",
+                  "You need to restart Git",
+                  "GitHub overrides .gitignore"
+                ],
+                "correctIndex": 1,
+                "explanation": ".gitignore prevents *new* untracked files from being added. A file already in history keeps being tracked until you explicitly stop tracking it."
+              },
+              {
+                "id": "builtin-git-github-l7-s4-q2",
+                "type": "mcq",
+                "prompt": "What is the main risk of a long-lived feature branch?",
+                "options": [
+                  "It uses too much disk space",
+                  "It drifts far from main, making the eventual merge painful and conflict-prone",
+                  "Git deletes it automatically after a week",
+                  "It can't be pushed to GitHub"
+                ],
+                "correctIndex": 1,
+                "explanation": "The longer a branch diverges from main, the more the two histories differ, increasing merge conflicts. Short-lived branches merge smoothly."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "id": "builtin-tailwind",
     "topicSlug": "tailwind",
     "difficulty": "beginner",
