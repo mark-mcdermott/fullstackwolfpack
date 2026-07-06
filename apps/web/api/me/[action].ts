@@ -9,6 +9,11 @@ import { tutorRequestSchema } from '../../src/core/tutor'
 import { playtimeRecordRequest } from '../../src/core/playtime'
 import { leaderboardOptInRequest } from '../../src/core/leaderboard'
 import {
+  friendRequestBody,
+  friendRespondBody,
+  sendMessageBody,
+} from '../../src/core/social'
+import {
   adminUpdateRequest,
   anthropicKeyRequest,
   enrollRequest,
@@ -45,6 +50,15 @@ import {
   setLeaderboardOptIn,
 } from '../../src/server/leaderboard'
 import { getGenerationEta } from '../../src/server/generation-timing'
+import {
+  getConversation,
+  getFriendsView,
+  respondToRequest,
+  searchUsers,
+  sendFriendRequest,
+  sendMessage,
+  touchPresence,
+} from '../../src/server/social'
 import {
   hasOpenAiKey,
   saveOpenAiKey,
@@ -101,6 +115,20 @@ export async function GET(req: Request): Promise<Response> {
 
     case 'series':
       return json(await getSeries(userId))
+
+    case 'friends':
+      return json(await getFriendsView(userId))
+
+    case 'find-users': {
+      const q = new URL(req.url).searchParams.get('q') ?? ''
+      return json(await searchUsers(userId, q))
+    }
+
+    case 'messages': {
+      const withUserId = new URL(req.url).searchParams.get('with')
+      if (!withUserId) return json({ error: 'missing with' }, { status: 400 })
+      return json(await getConversation(userId, withUserId))
+    }
 
     case 'generation-eta':
       return json(await getGenerationEta())
@@ -268,6 +296,47 @@ export async function POST(req: Request): Promise<Response> {
       const parsed = await parseBody(userPreferencesPatch, req)
       if (!parsed.ok) return parsed.response
       return json(await savePreferences(userId, parsed.data))
+    }
+
+    case 'heartbeat':
+      await touchPresence(userId)
+      return json({ ok: true })
+
+    case 'friend-request': {
+      const parsed = await parseBody(friendRequestBody, req)
+      if (!parsed.ok) return parsed.response
+      try {
+        return json(await sendFriendRequest(userId, parsed.data.toUserId))
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'request failed'
+        return json({ error: message }, { status: 400 })
+      }
+    }
+
+    case 'friend-respond': {
+      const parsed = await parseBody(friendRespondBody, req)
+      if (!parsed.ok) return parsed.response
+      try {
+        return json(
+          await respondToRequest(userId, parsed.data.requestId, parsed.data.action),
+        )
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'request failed'
+        return json({ error: message }, { status: 400 })
+      }
+    }
+
+    case 'send-message': {
+      const parsed = await parseBody(sendMessageBody, req)
+      if (!parsed.ok) return parsed.response
+      try {
+        return json(
+          await sendMessage(userId, parsed.data.toUserId, parsed.data.body),
+        )
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'request failed'
+        return json({ error: message }, { status: 400 })
+      }
     }
 
     case 'enroll': {

@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Timer,
   Trophy,
+  Users,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -26,6 +27,7 @@ export const NAV: NavItem[] = [
   { to: '/app', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/app/sessions', label: 'Sessions', icon: Timer },
   { to: '/app/arcade', label: 'Arcade', icon: Gamepad2 },
+  { to: '/app/friends', label: 'Friends', icon: Users },
   { to: '/app/topics', label: 'Topics', icon: Layers },
   { to: '/app/review', label: 'Review', icon: Repeat },
   { to: '/app/progress', label: 'Progress', icon: BarChart3 },
