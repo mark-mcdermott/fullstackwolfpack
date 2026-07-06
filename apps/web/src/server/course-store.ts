@@ -32,6 +32,7 @@ export function drizzleCourseStore(): CourseStore {
           orderIndex: order,
           title: lesson.title,
           estMinutes: lesson.estMinutes,
+          glossary: lesson.glossary.length ? lesson.glossary : null,
         })
         .returning()
 

@@ -1,6 +1,7 @@
 import Markdown, { type Components } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { cn } from '@/lib/utils'
+import { rehypeLinkifyTerms } from '@/lib/rehype-linkify-terms'
 import { CodeBlock } from './code-block'
 
 // Renders a lesson segment's markdown body in the app's design language.
@@ -69,13 +70,22 @@ const components: Components = {
 export function LessonMarkdown({
   children,
   className,
+  terms,
 }: {
   children: string
   className?: string
+  // Glossary terms to hyperlink (first occurrence each) → further reading.
+  terms?: string[]
 }) {
+  const rehypePlugins =
+    terms && terms.length > 0 ? [rehypeLinkifyTerms(terms)] : []
   return (
     <div className={cn('flex flex-col gap-4 text-sm leading-relaxed', className)}>
-      <Markdown remarkPlugins={[remarkGfm]} components={components}>
+      <Markdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={rehypePlugins}
+        components={components}
+      >
         {children}
       </Markdown>
     </div>

@@ -61,6 +61,9 @@ export const lessons = pgTable('lessons', {
   orderIndex: integer('order_index').notNull(),
   title: text('title').notNull(),
   estMinutes: integer('est_minutes').notNull().default(5),
+  // Key terms the lesson introduces — linked to further reading at render time
+  // when the user opts into "hyperlink key terms". Null/absent = no links.
+  glossary: jsonb('glossary').$type<string[]>(),
 })
 
 // The chunk served at each pause (the session plan steps).

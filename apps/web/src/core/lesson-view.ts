@@ -53,6 +53,9 @@ export const lessonViewSchema = z.object({
   topicSlug: z.string(),
   title: z.string(),
   estMinutes: z.number().int().positive(),
+  // Key terms for further-reading links (empty unless the course was generated
+  // with a glossary and the reader opted into "hyperlink key terms").
+  glossary: z.array(z.string()).default([]),
   segments: z.array(segmentViewSchema).min(1),
 })
 export type LessonView = z.infer<typeof lessonViewSchema>
