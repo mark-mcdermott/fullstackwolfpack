@@ -703,71 +703,91 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       {
         "id": "builtin-typescript-l1",
         "title": "Why TypeScript Exists",
-        "estMinutes": 14,
+        "estMinutes": 18,
         "glossary": [
-          "static type",
+          "type annotation",
           "type inference",
-          "tsc",
           "structural typing",
-          "transpile"
+          "tsc",
+          "strict mode"
         ],
         "segments": [
           {
             "id": "builtin-typescript-l1-s1",
             "type": "reading",
-            "title": "The bug JavaScript never caught",
-            "markdown": "Imagine you ship a game leaderboard. A function `addScore(player, points)` gets called somewhere as `addScore(points, player)` — arguments swapped. JavaScript happily runs it, corrupts your data, and you find out from angry players. TypeScript is JavaScript with a **static type** system layered on top: it checks your code *before* it runs and flags mistakes like passing a string where a number belongs.\n\nCrucially, TypeScript is not a new language you rewrite everything in. Every valid `.js` file is (almost) valid `.ts`. You add types gradually. At build time the compiler `tsc` **transpiles** your `.ts` down to ordinary JavaScript — all the type annotations are erased, so there is zero runtime cost and browsers/Node never see the types.\n\n```ts\nfunction addScore(player: string, points: number): number {\n  return points + 1;\n}\naddScore(10, \"Zoe\"); // ❌ compile error: argument order wrong\n```\n\nUse TypeScript when a codebase grows past a few files or when others depend on your functions. The common pitfall for newcomers is treating it as bureaucracy — but those red squiggles are catching bugs you'd otherwise ship. Lean into them rather than silencing them with `any`.",
-            "estMinutes": 4,
+            "title": "The bug that types would have caught",
+            "markdown": "You ship a feature, everything works in your test run, then a teammate calls `renderScore(player.name)` where `renderScore` expected a number. In plain JavaScript that mistake surfaces at runtime — maybe in production, maybe on someone's stream. TypeScript is a superset of JavaScript that adds a static type layer checked *before* your code runs, turning a whole class of runtime crashes into red squiggles in your editor.\n\nHere is the core idea. You annotate values with the shape you expect:\n\n```ts\nfunction renderScore(points: number): string {\n  return `Score: ${points}`;\n}\nrenderScore(\"forty\"); // ❌ Argument of type 'string' is not assignable to 'number'\n```\n\nThe compiler (`tsc`) reads those annotations and flags mismatches. Crucially, TypeScript compiles down to ordinary JavaScript — the types are erased and add zero runtime cost. You get editor autocompletion, safe refactors, and living documentation for free.\n\nUse TypeScript when a codebase grows past a few files or has more than one contributor: the payoff scales with complexity. The common pitfall for newcomers is treating it as a different language — it is not. Any valid JavaScript is valid TypeScript, so you can adopt it gradually, file by file.",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-typescript-l1-s2",
             "type": "reading",
-            "title": "Types you didn't write",
-            "markdown": "You don't have to annotate everything. TypeScript performs **type inference**: it deduces types from how values are used. Write `let level = 5` and TypeScript already knows `level` is a `number` — reassigning `level = \"boss\"` errors without you typing a single annotation.\n\n```ts\nlet health = 100;      // inferred: number\nconst name = \"Link\";   // inferred: literal type \"Link\"\nhealth = 90;           // ok\nhealth = \"low\";        // ❌ Type 'string' not assignable to 'number'\n```\n\nBecause of inference, the idiomatic style is to annotate *boundaries* (function parameters, return types, exported values) and let inference handle local variables. This keeps code readable while still fully typed.\n\nTypeScript also uses **structural typing**: compatibility is based on an object's shape, not its declared name. If a value has all the properties a type requires, it fits — even if it was never explicitly labeled as that type. This differs from Java/C# nominal typing and surprises many newcomers. A pitfall: two unrelated types with identical shapes are interchangeable, which is usually convenient but occasionally hides intent.",
-            "estMinutes": 3,
+            "title": "Inference does most of the work",
+            "markdown": "A beginner reflex is to annotate everything. Resist it. TypeScript has powerful *type inference*: when you initialize a variable, it deduces the type from the value, so you rarely need to spell it out.\n\n```ts\nlet level = 5;        // inferred as number\nlet name = \"Zelda\";   // inferred as string\nlevel = \"six\";        // ❌ error, inference locked it to number\n```\n\nInference also flows through function returns. If your function returns `a + b` where both are numbers, TypeScript knows the return is `number` without you writing `: number`. The rule of thumb: annotate function *parameters* and public API boundaries (because those cannot be inferred from a call site), but let inference handle local variables and return types.\n\nWhy does this matter? Over-annotating creates noise and duplicate maintenance — if you write `const users: User[] = getUsers()` and `getUsers` already returns `User[]`, you now have two things to keep in sync. The pitfall in the other direction is `any`: if a value's type can't be inferred and you don't annotate, TypeScript may fall back to `any`, which silently disables checking. We'll see how `strict` mode closes that hole in the next lesson.",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-typescript-l1-s3",
-            "type": "practice",
-            "title": "Predict the inference",
-            "markdown": "Given `const config = { retries: 3, verbose: true };`, what type does TypeScript infer for `config.retries` and `config.verbose`? Then reason: would `config.retries = \"many\"` compile? Mentally trace the inference before checking your answer against the reading. Try declaring similar objects in the TS Playground to confirm.",
-            "estMinutes": 3,
-            "questions": []
+            "type": "code",
+            "title": "Compile and run",
+            "markdown": "Install the compiler and run a file end to end. Study the annotations, then try breaking them.",
+            "estMinutes": 4,
+            "questions": [],
+            "exercise": {
+              "id": "builtin-typescript-l1-s3-ex1",
+              "prompt": "Implement `describePlayer` that takes a name (string) and a level (number) and returns a string like `\"Link is level 9\"`. Keep the parameter and return type annotations.",
+              "language": "ts",
+              "starterCode": "function describePlayer(name: string, level: number): string {\n  // TODO: return `<name> is level <level>`\n  return \"\";\n}",
+              "tests": [
+                {
+                  "name": "basic",
+                  "expression": "describePlayer('Link', 9)",
+                  "expected": "Link is level 9"
+                },
+                {
+                  "name": "other values",
+                  "expression": "describePlayer('Zelda', 1)",
+                  "expected": "Zelda is level 1"
+                }
+              ],
+              "solution": "function describePlayer(name: string, level: number): string {\n  return `${name} is level ${level}`;\n}",
+              "hint": "Use a template literal with backticks and ${} to interpolate both parameters."
+            }
           },
           {
             "id": "builtin-typescript-l1-s4",
             "type": "quiz",
             "title": "Check yourself",
-            "markdown": "Two quick questions on TypeScript's core value proposition.",
-            "estMinutes": 4,
+            "markdown": "Quick gut-check on the fundamentals.",
+            "estMinutes": 3,
             "questions": [
               {
                 "id": "builtin-typescript-l1-s4-q1",
                 "type": "mcq",
-                "prompt": "What happens to type annotations when `tsc` compiles your code?",
+                "prompt": "Why do TypeScript types add no runtime performance cost?",
                 "options": [
-                  "They become runtime assertions",
-                  "They are erased, producing plain JavaScript",
-                  "They are converted to JSDoc comments",
-                  "They stay as-is and require a special runtime"
+                  "They run in a separate thread",
+                  "They are erased during compilation to JavaScript",
+                  "They are cached after the first run",
+                  "The JS engine ignores them"
                 ],
                 "correctIndex": 1,
-                "explanation": "TypeScript types are compile-time only; transpilation strips them, so there is no runtime cost."
+                "explanation": "tsc strips all type annotations, emitting plain JavaScript, so nothing type-related exists at runtime."
               },
               {
                 "id": "builtin-typescript-l1-s4-q2",
                 "type": "mcq",
-                "prompt": "With structural typing, when is one object type assignable to another?",
+                "prompt": "Which practice does TypeScript's inference make usually unnecessary?",
                 "options": [
-                  "Only when they share the same declared name",
-                  "When it has at least the required properties/shape",
-                  "Only when explicitly cast with `as`",
-                  "Never — TypeScript uses nominal typing"
+                  "Annotating function parameters",
+                  "Annotating local variables initialized with a value",
+                  "Naming your files .ts",
+                  "Installing tsc"
                 ],
                 "correctIndex": 1,
-                "explanation": "TypeScript checks shape (structure), not the declared name, so a matching shape is assignable."
+                "explanation": "Inference deduces local variable types from their initializer; parameters can't be inferred from a call site, so annotate those."
               }
             ]
           }
@@ -775,68 +795,93 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-typescript-l2",
-        "title": "The Primitive Toolbox",
-        "estMinutes": 15,
+        "title": "The Primitive and Special Types",
+        "estMinutes": 20,
         "glossary": [
-          "union type",
-          "literal type",
-          "type alias",
           "any",
           "unknown",
-          "null",
-          "undefined"
+          "void",
+          "never",
+          "literal type",
+          "union type",
+          "strict mode"
         ],
         "segments": [
           {
             "id": "builtin-typescript-l2-s1",
             "type": "reading",
-            "title": "Beyond string and number",
-            "markdown": "The base primitives — `string`, `number`, `boolean` — are only the start. The real power comes from combining them. A **union type** says a value can be one of several types: `string | number`. A **literal type** narrows even further to exact values: `\"easy\" | \"normal\" | \"hard\"`. Together these let you model real domains precisely.\n\n```ts\ntype Difficulty = \"easy\" | \"normal\" | \"hard\";\nlet mode: Difficulty = \"normal\";\nmode = \"ultra\"; // ❌ not assignable to Difficulty\n```\n\nHere `Difficulty` is a **type alias** — a reusable name for a type. Aliases keep signatures readable and give one place to update a shape. Use unions of literals instead of loose `string` whenever the set of valid values is fixed: the compiler then guards typos and autocompletes valid options.\n\nA common pitfall: reaching for a plain `string` for something like a status field. `status: string` accepts `\"pending\"`, `\"Pending\"`, and `\"banana\"` alike. `status: \"pending\" | \"active\"` catches the mistakes and documents intent at the same time.",
-            "estMinutes": 4,
+            "title": "any is a trapdoor; unknown is a gate",
+            "markdown": "When you interact with untyped data — a `JSON.parse` result, a third-party library without types — you reach for a catch-all type. TypeScript gives you two, and choosing wrong quietly defeats the whole point.\n\n`any` opts a value *out* of type checking entirely. You can call anything on it, assign it anywhere, and the compiler stays silent — even when you're wrong:\n\n```ts\nlet data: any = JSON.parse('{\"hp\": 100}');\ndata.attack.damage; // no error, crashes at runtime\n```\n\n`unknown` is the safe counterpart. It accepts any value too, but forbids you from *using* it until you prove its shape with a check:\n\n```ts\nlet data: unknown = JSON.parse('{\"hp\": 100}');\nif (typeof data === 'object' && data !== null && 'hp' in data) {\n  // narrowed, safe to read\n}\n```\n\nUse `unknown` at every untyped boundary and narrow before use. The pitfall: reaching for `any` to silence an error you don't understand — it doesn't fix the bug, it hides it. If you must, prefer `unknown` and force yourself to handle the cases.",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-typescript-l2-s2",
             "type": "reading",
-            "title": "any vs unknown vs null",
-            "markdown": "`any` is the escape hatch that turns type checking *off* for a value — it's assignable to and from anything, and accessing any property compiles. It's contagious and dangerous: one `any` can silently disable safety across a chain of calls. Use it only as a temporary bridge when migrating old code.\n\n`unknown` is the safe counterpart. Like `any` it can hold any value, but TypeScript forbids using it until you **narrow** it with a check. This forces you to prove what it is before touching it.\n\n```ts\nfunction parse(input: unknown) {\n  // input.length; // ❌ must narrow first\n  if (typeof input === \"string\") {\n    return input.length; // ✅ narrowed to string here\n  }\n  return 0;\n}\n```\n\n`null` and `undefined` represent absence. With `strictNullChecks` on (the default in `strict` mode), they are *not* silently part of every type — you must include them explicitly (`string | null`) and handle them, eliminating a huge class of \"cannot read property of undefined\" crashes. Pitfall: disabling strict mode to make errors go away throws away most of TypeScript's value.",
-            "estMinutes": 4,
+            "title": "void, never, and literal types",
+            "markdown": "Two special types describe *absence* differently. `void` is the return type of a function that returns nothing useful — `console.log` style side effects. `never` is the return type of a function that *never returns at all*: it throws or loops forever.\n\n```ts\nfunction log(msg: string): void { console.log(msg); }\nfunction fail(msg: string): never { throw new Error(msg); }\n```\n\n`never` seems academic but earns its keep in exhaustiveness checks (a later lesson).\n\nSeparately, TypeScript can type a value as a *specific* value, not just its category — a *literal type*. `let` widens to the general type, but `const` keeps the literal:\n\n```ts\nlet mode = \"easy\";   // type: string\nconst diff = \"easy\"; // type: \"easy\"\n```\n\nCombine literals with unions to model a fixed set of choices:\n\n```ts\ntype Difficulty = \"easy\" | \"normal\" | \"hard\";\nfunction setLevel(d: Difficulty) {}\nsetLevel(\"medium\"); // ❌ not one of the three\n```\n\nThis is one of TypeScript's most practical features — it replaces string-typed enums and magic constants with something the compiler enforces. The pitfall is forgetting that `let` widens: assign a literal-typed value through a `let` and you lose the narrowing.",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-typescript-l2-s3",
-            "type": "code",
-            "title": "Model a game state",
-            "markdown": "Study and modify this snippet. Try changing values to trigger and understand the compiler errors.\n\n```ts\ntype PlayerState = \"idle\" | \"running\" | \"jumping\";\n\n// A union carrying different shapes per case is common:\ntype Result = { ok: true; value: number } | { ok: false; error: string };\n\nfunction describe(state: PlayerState, r: Result): string {\n  // Narrowing on the discriminant `ok`:\n  if (r.ok) {\n    return `${state} with score ${r.value}`;\n  }\n  return `${state} failed: ${r.error}`;\n}\n\nconsole.log(describe(\"running\", { ok: true, value: 42 }));\nconsole.log(describe(\"idle\", { ok: false, error: \"timeout\" }));\n// describe(\"flying\", ...) // ❌ 'flying' not a PlayerState\n```\n\nAdd a `\"paused\"` state and see how `describe` still compiles, then try accessing `r.value` outside the `if` to watch narrowing enforce safety.",
-            "estMinutes": 4,
-            "questions": []
+            "type": "practice",
+            "title": "Model a difficulty menu",
+            "markdown": "Write a function that maps a difficulty to a starting-lives count using a union type for safety.",
+            "estMinutes": 5,
+            "questions": [],
+            "exercise": {
+              "id": "builtin-typescript-l2-s3-ex1",
+              "prompt": "Implement `startingLives(d)` where `d` is the union type `\"easy\" | \"normal\" | \"hard\"`. Return 5 for easy, 3 for normal, 1 for hard.",
+              "language": "ts",
+              "starterCode": "type Difficulty = \"easy\" | \"normal\" | \"hard\";\n\nfunction startingLives(d: Difficulty): number {\n  // TODO\n  return 0;\n}",
+              "tests": [
+                {
+                  "name": "easy",
+                  "expression": "startingLives('easy')",
+                  "expected": 5
+                },
+                {
+                  "name": "normal",
+                  "expression": "startingLives('normal')",
+                  "expected": 3
+                },
+                {
+                  "name": "hard",
+                  "expression": "startingLives('hard')",
+                  "expected": 1
+                }
+              ],
+              "solution": "type Difficulty = \"easy\" | \"normal\" | \"hard\";\n\nfunction startingLives(d: Difficulty): number {\n  switch (d) {\n    case 'easy': return 5;\n    case 'normal': return 3;\n    case 'hard': return 1;\n  }\n}",
+              "hint": "A switch over the three literal cases works cleanly; each case can return directly."
+            }
           },
           {
             "id": "builtin-typescript-l2-s4",
             "type": "quiz",
             "title": "Check yourself",
-            "markdown": "Two questions on primitives and safety.",
+            "markdown": "Test your grasp of the special types.",
             "estMinutes": 3,
             "questions": [
               {
                 "id": "builtin-typescript-l2-s4-q1",
                 "type": "mcq",
-                "prompt": "Why prefer `unknown` over `any` for an untyped input?",
+                "prompt": "What is the key difference between `any` and `unknown`?",
                 "options": [
-                  "`unknown` is faster at runtime",
-                  "`unknown` forces you to narrow before use, keeping safety",
-                  "`any` cannot hold objects",
-                  "They are identical in behavior"
+                  "unknown is faster at runtime",
+                  "any allows any operation without checks; unknown forbids use until narrowed",
+                  "unknown cannot hold objects",
+                  "They are identical aliases"
                 ],
                 "correctIndex": 1,
-                "explanation": "`unknown` accepts any value but blocks usage until narrowed, so type safety is preserved."
+                "explanation": "unknown accepts any value but blocks usage until you narrow it, giving safety that any throws away."
               },
               {
                 "id": "builtin-typescript-l2-s4-q2",
                 "type": "short_answer",
-                "prompt": "Write a type alias named `Answer` that allows only the strings \"yes\" or \"no\".",
-                "expectedAnswer": "type Answer = \"yes\" | \"no\";",
-                "explanation": "A union of two string literal types, given a reusable name via a type alias."
+                "prompt": "What return type would you give a function whose body is only `throw new Error(...)`?",
+                "expectedAnswer": "never",
+                "explanation": "A function that always throws never returns a value, so its return type is `never`."
               }
             ]
           }
@@ -844,110 +889,98 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-typescript-l3",
-        "title": "Shaping Objects with Interfaces",
-        "estMinutes": 16,
+        "title": "Objects, Interfaces, and Type Aliases",
+        "estMinutes": 22,
         "glossary": [
           "interface",
+          "type alias",
           "optional property",
           "readonly",
           "index signature",
-          "extends",
           "intersection type"
         ],
         "segments": [
           {
             "id": "builtin-typescript-l3-s1",
             "type": "reading",
-            "title": "Contracts for your data",
-            "markdown": "Most real code passes objects around. An **interface** describes the shape an object must have — a contract the compiler enforces at every call site. This is where TypeScript earns its keep: your editor now autocompletes properties and catches typos in field names.\n\n```ts\ninterface Player {\n  id: number;\n  name: string;\n  score?: number;        // optional property\n  readonly createdAt: number; // can't reassign after creation\n}\n\nconst p: Player = { id: 1, name: \"Zoe\", createdAt: Date.now() };\np.score = 10;      // ok, optional\np.createdAt = 0;   // ❌ readonly\n```\n\nAn **optional property** (`score?`) may be missing; when you read it its type becomes `number | undefined`, so you must handle absence. A **readonly** property can be set at construction but never reassigned — great for IDs and timestamps.\n\nUse interfaces for object shapes you pass across function and module boundaries. A pitfall: forgetting that optional properties force you to guard before use — `p.score * 2` errors because `score` might be `undefined`.",
-            "estMinutes": 4,
+            "title": "Describing the shape of your data",
+            "markdown": "Games are full of structured records: a player, an inventory item, a save file. TypeScript lets you name those shapes so the compiler enforces them everywhere. Two tools do this: `interface` and `type` aliases.\n\n```ts\ninterface Player {\n  name: string;\n  level: number;\n  guild?: string;      // optional\n  readonly id: string; // can't reassign after creation\n}\n\nconst p: Player = { name: \"Link\", level: 9, id: \"a1\" };\np.id = \"b2\"; // ❌ readonly\n```\n\nThe `?` marks a property optional — its type becomes `string | undefined`. `readonly` prevents reassignment after construction, great for IDs and config. \n\nA `type` alias does much of the same with slightly different syntax and superpowers:\n\n```ts\ntype Point = { x: number; y: number };\n```\n\nThe practical rule most teams follow: use `interface` for object shapes you might extend or that model public API, and `type` for unions, intersections, and anything not a plain object. The pitfall: an interface omitting a required property doesn't error at declaration — it errors at the *usage* site when you construct an object missing it, which can be confusing until you learn to read where the red squiggle points.",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-typescript-l3-s2",
             "type": "reading",
-            "title": "Composing and extending",
-            "markdown": "Interfaces compose. `extends` builds a bigger interface from smaller ones, encouraging small focused shapes over giant blobs. The type-alias equivalent for combining shapes is an **intersection type** (`A & B`), which requires all properties of both.\n\n```ts\ninterface Entity { id: number; }\ninterface Named { name: string; }\ninterface Character extends Entity, Named {\n  hp: number;\n}\n// Character requires id, name, and hp.\n\ntype NamedEntity = Entity & Named; // same idea via intersection\n```\n\nWhen you don't know all keys ahead of time, an **index signature** describes them generically: `{ [key: string]: number }` means \"any string key maps to a number\", useful for dictionaries like score tables.\n\nRule of thumb: prefer `interface` for object shapes (they can be merged and `extends` reads clearly) and `type` aliases for unions, intersections, and primitives. Pitfall with index signatures: they weaken checks — a typo'd key still compiles because *any* string key is allowed, so use them only for genuinely open-ended maps.",
-            "estMinutes": 4,
+            "title": "Combining and extending shapes",
+            "markdown": "Real models are built from smaller ones. Interfaces `extend`; type aliases use intersection (`&`).\n\n```ts\ninterface Entity { id: string; hp: number; }\ninterface Enemy extends Entity { aggroRange: number; }\n\ntype Timestamped = { createdAt: number };\ntype SaveFile = Player & Timestamped; // has all fields of both\n```\n\nAn *index signature* lets you type objects whose keys aren't known ahead of time, like a lookup table:\n\n```ts\ninterface ScoreBoard {\n  [playerName: string]: number;\n}\nconst board: ScoreBoard = { link: 100, zelda: 250 };\nboard.ganon = 400; // OK — any string key, number value\n```\n\nUse index signatures for dictionaries/maps of homogeneous values; use explicit properties when you know the keys. The common pitfall is mixing them carelessly: once you add `[key: string]: number`, every *named* property you declare on that interface must also be assignable to `number`, or TypeScript complains. If your object has a few known keys plus arbitrary extras of a different type, you'll need a union in the index signature value or a more careful design.",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-typescript-l3-s3",
-            "type": "practice",
-            "title": "Design an inventory type",
-            "markdown": "Design an interface `Item` with: a `readonly` string `id`, a `name`, a numeric `weight`, and an optional `enchantment` string. Then write an interface `Weapon` that `extends Item` and adds a `damage` number. Sketch these out, then create one valid `Weapon` literal and confirm mentally that omitting `damage` or reassigning `id` would fail.",
-            "estMinutes": 3,
-            "questions": []
-          },
-          {
-            "id": "builtin-typescript-l3-s4",
             "type": "code",
-            "title": "Count optional handling",
-            "markdown": "This exercise ties object handling to a pure function. Implement `totalScore`, which sums the `score` of players, treating a missing/undefined score as 0.",
+            "title": "Build the Player interface",
+            "markdown": "Implement a function that operates on a typed object. Note how the interface documents exactly what the function can rely on.",
             "estMinutes": 5,
             "questions": [],
             "exercise": {
-              "id": "builtin-typescript-l3-s4-ex1",
-              "prompt": "Implement `totalScore(players)` where each player is an object like `{ name, score }`. `score` may be missing or undefined — treat those as 0. Return the sum of all scores.",
-              "starterCode": "function totalScore(players) {\n  // sum player.score, treating missing/undefined as 0\n}\n",
+              "id": "builtin-typescript-l3-s3-ex1",
+              "prompt": "Given the `Item` interface, implement `totalValue(items)` returning the sum of each item's `price * quantity`.",
+              "language": "ts",
+              "starterCode": "interface Item {\n  name: string;\n  price: number;\n  quantity: number;\n}\n\nfunction totalValue(items: Item[]): number {\n  // TODO\n  return 0;\n}",
               "tests": [
                 {
-                  "name": "all present",
-                  "expression": "totalScore([{name:'a',score:10},{name:'b',score:5}])",
-                  "expected": 15
+                  "name": "two items",
+                  "expression": "totalValue([{name:'potion',price:10,quantity:3},{name:'sword',price:100,quantity:1}])",
+                  "expected": 130
                 },
                 {
-                  "name": "missing score",
-                  "expression": "totalScore([{name:'a'},{name:'b',score:5}])",
-                  "expected": 5
-                },
-                {
-                  "name": "empty list",
-                  "expression": "totalScore([])",
+                  "name": "empty",
+                  "expression": "totalValue([])",
                   "expected": 0
                 },
                 {
-                  "name": "undefined score",
-                  "expression": "totalScore([{name:'a',score:undefined},{name:'b',score:3}])",
-                  "expected": 3
+                  "name": "single",
+                  "expression": "totalValue([{name:'shield',price:50,quantity:2}])",
+                  "expected": 100
                 }
               ],
-              "solution": "function totalScore(players) {\n  let sum = 0;\n  for (const p of players) {\n    sum += p.score || 0;\n  }\n  return sum;\n}\n",
-              "hint": "Use `p.score || 0` (or a `typeof` check) to default missing scores to zero before adding."
+              "solution": "interface Item {\n  name: string;\n  price: number;\n  quantity: number;\n}\n\nfunction totalValue(items: Item[]): number {\n  return items.reduce((sum, i) => sum + i.price * i.quantity, 0);\n}",
+              "hint": "reduce with an initial accumulator of 0, adding price*quantity each iteration."
             }
           },
           {
-            "id": "builtin-typescript-l3-s5",
+            "id": "builtin-typescript-l3-s4",
             "type": "quiz",
             "title": "Check yourself",
-            "markdown": "Two questions on object shapes.",
+            "markdown": "Confirm you can pick the right modeling tool.",
             "estMinutes": 3,
             "questions": [
               {
-                "id": "builtin-typescript-l3-s5-q1",
+                "id": "builtin-typescript-l3-s4-q1",
                 "type": "mcq",
-                "prompt": "What is the type of `score` when you read an optional `score?: number`?",
+                "prompt": "You need to model a dictionary where keys are arbitrary strings and every value is a number. Which fits best?",
                 "options": [
-                  "`number`",
-                  "`number | undefined`",
-                  "`undefined`",
-                  "`any`"
+                  "An enum",
+                  "An index signature `{ [k: string]: number }`",
+                  "A tuple",
+                  "A literal union"
                 ],
                 "correctIndex": 1,
-                "explanation": "Optional properties may be absent, so reading yields `number | undefined`; you must guard before use."
+                "explanation": "Index signatures describe objects with unknown keys of a uniform value type — exactly a dictionary."
               },
               {
-                "id": "builtin-typescript-l3-s5-q2",
+                "id": "builtin-typescript-l3-s4-q2",
                 "type": "mcq",
-                "prompt": "Which is the best reason to prefer small interfaces joined by `extends`?",
+                "prompt": "What does the `readonly` modifier prevent?",
                 "options": [
-                  "It runs faster",
-                  "It produces smaller compiled JS",
-                  "It keeps shapes focused and reusable",
-                  "It disables strict mode"
+                  "Reading the property",
+                  "Reassigning the property after the object is created",
+                  "Serializing the property to JSON",
+                  "The property being optional"
                 ],
-                "correctIndex": 2,
-                "explanation": "Composition with `extends` favors small, focused, reusable contracts over monolithic shapes; there's no runtime effect."
+                "correctIndex": 1,
+                "explanation": "readonly blocks reassignment after construction; you can still read the value freely."
               }
             ]
           }
@@ -955,110 +988,98 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-typescript-l4",
-        "title": "Functions, Narrowing, and Control Flow",
-        "estMinutes": 16,
+        "title": "Functions, Narrowing, and Union Types",
+        "estMinutes": 22,
         "glossary": [
           "type narrowing",
           "type guard",
           "discriminated union",
-          "never",
+          "optional parameter",
           "function overload",
-          "default parameter"
+          "typeof / in"
         ],
         "segments": [
           {
             "id": "builtin-typescript-l4-s1",
             "type": "reading",
-            "title": "Functions that document themselves",
-            "markdown": "Typed function signatures are living documentation. Parameter and return annotations tell callers exactly what goes in and comes out, and the compiler enforces it. You can add **default parameters** and optional parameters just like JS, but now with type checking.\n\n```ts\nfunction damage(base: number, multiplier: number = 1): number {\n  return base * multiplier;\n}\ndamage(10);        // 10, uses default\ndamage(10, 2.5);   // 25\ndamage(10, \"x\");   // ❌ multiplier must be number\n```\n\nAnnotating the return type is optional (inference works) but recommended on exported/public functions: it locks the contract so an accidental change to the body that alters the return type becomes a compile error at the source, not at every caller.\n\nA pitfall: relying on inference for a complex function that can return different types in different branches. Without an explicit return annotation, a mistake in one branch silently widens the return type and leaks errors downstream. Annotate public boundaries.",
-            "estMinutes": 4,
+            "title": "Narrowing: proving what a value is",
+            "markdown": "Union types let a value be one of several shapes, but you can't use shape-specific members until you *prove* which one you have. That proof is called narrowing, and TypeScript understands ordinary JavaScript checks as evidence.\n\n```ts\nfunction len(x: string | string[]): number {\n  if (typeof x === 'string') {\n    return x.length;          // x narrowed to string here\n  }\n  return x.length;            // x narrowed to string[] here\n}\n```\n\nInside the `if`, TypeScript knows `x` is a `string`; in the `else` branch it knows it's `string[]`. The checks it recognizes include `typeof`, `instanceof`, the `in` operator, truthiness checks, and equality comparisons.\n\n```ts\nfunction area(s: { kind: 'circle'; r: number } | { kind: 'square'; side: number }): number {\n  if (s.kind === 'circle') return Math.PI * s.r ** 2;\n  return s.side ** 2;\n}\n```\n\nThe pitfall beginners hit: trying to access `s.r` before narrowing, then reaching for `any` or a cast to silence the error. Don't — narrow instead. Narrowing keeps the type checker as your ally rather than an obstacle you work around.",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-typescript-l4-s2",
             "type": "reading",
-            "title": "Narrowing: proving what a value is",
-            "markdown": "**Type narrowing** is how TypeScript refines a broad type to a specific one inside a block, based on runtime checks it understands. `typeof x === \"string\"`, `Array.isArray(x)`, `\"key\" in obj`, and truthiness checks all narrow. These runtime checks that TypeScript recognizes are **type guards**.\n\nThe most powerful pattern is the **discriminated union**: a union of object types that share a common literal property (the discriminant). Switching on that property narrows each case perfectly.\n\n```ts\ntype Shape =\n  | { kind: \"circle\"; r: number }\n  | { kind: \"square\"; side: number };\n\nfunction area(s: Shape): number {\n  switch (s.kind) {\n    case \"circle\": return Math.PI * s.r ** 2;\n    case \"square\": return s.side ** 2;\n  }\n}\n```\n\nInside `case \"circle\"`, TypeScript knows `s.r` exists. The `never` type appears in exhaustiveness checks: if you add a new shape and forget a case, assigning `s` to a `never` variable in the default branch produces a compile error, forcing you to handle it. Pitfall: narrowing is lost after an `await` or an intervening reassignment — TypeScript conservatively widens back.",
-            "estMinutes": 5,
+            "title": "Discriminated unions: the pattern that scales",
+            "markdown": "The previous `area` example uses a *discriminated union*: every member has a shared literal property (`kind`) that acts as a tag. This is the single most useful pattern for modeling states — loading/success/error, different message types, game events.\n\n```ts\ntype Result =\n  | { status: 'ok'; data: number }\n  | { status: 'error'; message: string };\n\nfunction handle(r: Result): string {\n  switch (r.status) {\n    case 'ok': return `Got ${r.data}`;\n    case 'error': return `Failed: ${r.message}`;\n  }\n}\n```\n\nSwitching on the discriminant narrows each branch to exactly the right shape — `r.data` is only reachable under `'ok'`. The real payoff is *exhaustiveness*: if you add a third variant later and forget to handle it, you can force a compile error with a `never` fallback:\n\n```ts\ndefault: {\n  const _exhaustive: never = r; // ❌ if a case is unhandled\n  return _exhaustive;\n}\n```\n\nThe pitfall is using a non-literal discriminant (like a plain `string` field), which prevents narrowing. Always tag with literal types.",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-typescript-l4-s3",
-            "type": "code",
-            "title": "Exhaustive area function",
-            "markdown": "Study this exhaustiveness pattern and try adding a third shape to see the compiler demand a new case.\n\n```ts\ntype Shape =\n  | { kind: \"circle\"; r: number }\n  | { kind: \"square\"; side: number }\n  | { kind: \"rect\"; w: number; h: number };\n\nfunction area(s: Shape): number {\n  switch (s.kind) {\n    case \"circle\": return Math.PI * s.r ** 2;\n    case \"square\": return s.side ** 2;\n    case \"rect\":   return s.w * s.h;\n    default: {\n      // If a case is missing, `s` is not `never` and this errors:\n      const _exhaustive: never = s;\n      return _exhaustive;\n    }\n  }\n}\n```\n\nDelete the `rect` case and watch the `never` assignment fail to compile — that's the compiler protecting you from forgotten cases.",
-            "estMinutes": 4,
-            "questions": []
-          },
-          {
-            "id": "builtin-typescript-l4-s4",
             "type": "practice",
-            "title": "Implement a classifier",
-            "markdown": "Write a pure function that narrows on input type. Implement `describeValue` per the exercise below and reason about which `typeof` guards you need.",
-            "estMinutes": 4,
+            "title": "Handle a game event union",
+            "markdown": "Model a small event union and reduce it to a human-readable line.",
+            "estMinutes": 6,
             "questions": [],
             "exercise": {
-              "id": "builtin-typescript-l4-s4-ex1",
-              "prompt": "Implement `describeValue(x)`: return the string 'number' if x is a number, 'text' if x is a string, 'flag' if x is a boolean, and 'other' for anything else.",
-              "starterCode": "function describeValue(x) {\n  // use typeof to classify x\n}\n",
+              "id": "builtin-typescript-l4-s3-ex1",
+              "prompt": "Implement `describe(e)` for the `GameEvent` discriminated union. For `'move'` return `\"moved to (x,y)\"`; for `'attack'` return `\"attacked <target> for <damage>\"`; for `'heal'` return `\"healed <amount>\"`.",
+              "language": "ts",
+              "starterCode": "type GameEvent =\n  | { type: 'move'; x: number; y: number }\n  | { type: 'attack'; target: string; damage: number }\n  | { type: 'heal'; amount: number };\n\nfunction describe(e: GameEvent): string {\n  // TODO\n  return \"\";\n}",
               "tests": [
                 {
-                  "name": "number",
-                  "expression": "describeValue(42)",
-                  "expected": "number"
+                  "name": "move",
+                  "expression": "describe({type:'move',x:2,y:5})",
+                  "expected": "moved to (2,5)"
                 },
                 {
-                  "name": "string",
-                  "expression": "describeValue('hi')",
-                  "expected": "text"
+                  "name": "attack",
+                  "expression": "describe({type:'attack',target:'orc',damage:12})",
+                  "expected": "attacked orc for 12"
                 },
                 {
-                  "name": "boolean",
-                  "expression": "describeValue(false)",
-                  "expected": "flag"
-                },
-                {
-                  "name": "other",
-                  "expression": "describeValue(null)",
-                  "expected": "other"
+                  "name": "heal",
+                  "expression": "describe({type:'heal',amount:30})",
+                  "expected": "healed 30"
                 }
               ],
-              "solution": "function describeValue(x) {\n  if (typeof x === 'number') return 'number';\n  if (typeof x === 'string') return 'text';\n  if (typeof x === 'boolean') return 'flag';\n  return 'other';\n}\n",
-              "hint": "Chain `typeof` checks in order, returning early; anything that matches none returns 'other'."
+              "solution": "type GameEvent =\n  | { type: 'move'; x: number; y: number }\n  | { type: 'attack'; target: string; damage: number }\n  | { type: 'heal'; amount: number };\n\nfunction describe(e: GameEvent): string {\n  switch (e.type) {\n    case 'move': return `moved to (${e.x},${e.y})`;\n    case 'attack': return `attacked ${e.target} for ${e.damage}`;\n    case 'heal': return `healed ${e.amount}`;\n  }\n}",
+              "hint": "Switch on e.type; each case narrows e so you can read that variant's fields safely."
             }
           },
           {
-            "id": "builtin-typescript-l4-s5",
+            "id": "builtin-typescript-l4-s4",
             "type": "quiz",
             "title": "Check yourself",
-            "markdown": "Two questions on functions and narrowing.",
+            "markdown": "Verify you understand narrowing mechanics.",
             "estMinutes": 3,
             "questions": [
               {
-                "id": "builtin-typescript-l4-s5-q1",
+                "id": "builtin-typescript-l4-s4-q1",
                 "type": "mcq",
-                "prompt": "What makes a union a *discriminated* union?",
+                "prompt": "What makes a union a 'discriminated' union?",
                 "options": [
-                  "It has more than two members",
-                  "Every member shares a common literal property acting as a tag",
-                  "It uses `any` internally",
-                  "Its members are all primitives"
+                  "Every member has a unique name",
+                  "Every member shares a common property with a literal type",
+                  "It has exactly two members",
+                  "It uses interfaces instead of type aliases"
                 ],
                 "correctIndex": 1,
-                "explanation": "A shared literal discriminant (like `kind`) lets the compiler narrow each case reliably."
+                "explanation": "A shared literal-typed tag (the discriminant) lets TypeScript narrow to a single member when you check it."
               },
               {
-                "id": "builtin-typescript-l4-s5-q2",
+                "id": "builtin-typescript-l4-s4-q2",
                 "type": "mcq",
-                "prompt": "How does assigning the value to a `never`-typed variable in the default branch help?",
+                "prompt": "Why assign the remaining value to a `never`-typed variable in a switch default?",
                 "options": [
-                  "It speeds up the switch",
-                  "It forces a compile error if a union case is unhandled",
-                  "It converts the union to `any`",
-                  "It logs unhandled cases at runtime"
+                  "To improve runtime speed",
+                  "To force a compile error if a union member is left unhandled",
+                  "To convert the value to null",
+                  "To document the code"
                 ],
                 "correctIndex": 1,
-                "explanation": "If all cases are handled, the value is `never` and assignment is fine; a missing case leaves a real type, causing a compile error."
+                "explanation": "If all cases are handled the value is `never`; if you add an unhandled variant, it's no longer assignable to `never`, causing a compile error — an exhaustiveness check."
               }
             ]
           }
@@ -1067,111 +1088,97 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       {
         "id": "builtin-typescript-l5",
         "title": "Generics: Reusable, Type-Safe Code",
-        "estMinutes": 17,
+        "estMinutes": 24,
         "glossary": [
           "generic",
           "type parameter",
-          "constraint",
+          "generic constraint",
           "keyof",
           "generic function",
-          "generic interface"
+          "default type parameter"
         ],
         "segments": [
           {
             "id": "builtin-typescript-l5-s1",
             "type": "reading",
             "title": "The problem generics solve",
-            "markdown": "Suppose you write a `first` function that returns the first element of an array. Typed with `any[]`, it compiles but you lose the element type — callers get `any` back and all safety evaporates. Typed for `number[]` only, it isn't reusable. **Generics** solve this: a **type parameter** is a placeholder type filled in at each call, preserving the relationship between input and output.\n\n```ts\nfunction first<T>(arr: T[]): T | undefined {\n  return arr[0];\n}\nconst n = first([1, 2, 3]);        // T = number, n: number | undefined\nconst s = first([\"a\", \"b\"]);      // T = string, s: string | undefined\n```\n\nHere `<T>` declares the type parameter; TypeScript *infers* it from the argument, so you rarely write it explicitly. The return type tracks `T`, so `n` is a `number` and `s` a `string` — full safety with one implementation.\n\nUse generics whenever a function or container should work over many types without discarding type information. The pitfall is over-genericizing: if a function only ever handles strings, a generic adds noise. Reach for generics when you observe yourself copy-pasting the same logic for different types.",
-            "estMinutes": 4,
+            "markdown": "Suppose you write a `first` function that returns the first element of an array. Without generics you'd either type it as `any[]` (losing all type info) or write one version per element type. Generics let you write it once and preserve the exact type:\n\n```ts\nfunction first<T>(arr: T[]): T | undefined {\n  return arr[0];\n}\n\nconst n = first([1, 2, 3]);       // n: number | undefined\nconst s = first([\"a\", \"b\"]);      // s: string | undefined\n```\n\n`T` is a *type parameter* — a placeholder the caller fills in, usually inferred from the argument. The relationship between input and output types is captured, so `first` on a `number[]` returns `number | undefined`, not `any`.\n\nGenerics are how the standard library types `Array<T>`, `Promise<T>`, `Map<K, V>`, and countless utilities. You'll consume them constantly and write your own once you build reusable helpers. The pitfall for beginners is over-using single-letter names and over-generifying: if a function only ever takes strings, don't make it generic. Reach for generics when the type genuinely *varies with the input* and you want to preserve that relationship.",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-typescript-l5-s2",
             "type": "reading",
             "title": "Constraints and keyof",
-            "markdown": "An unconstrained `T` can be anything, so you can't assume it has properties. A **constraint** (`T extends ...`) limits what `T` can be, unlocking access to guaranteed members while keeping flexibility.\n\n```ts\nfunction longest<T extends { length: number }>(a: T, b: T): T {\n  return a.length >= b.length ? a : b;\n}\nlongest([1,2], [3]);      // ok, arrays have length\nlongest(\"aa\", \"b\");      // ok, strings have length\nlongest(1, 2);            // ❌ number has no length\n```\n\nThe **keyof** operator produces a union of an object's property names, and combining it with generics gives fully typed property access:\n\n```ts\nfunction getProp<T, K extends keyof T>(obj: T, key: K): T[K] {\n  return obj[key];\n}\nconst hp = getProp({ hp: 100, name: \"Zoe\" }, \"hp\"); // hp: number\ngetProp({ hp: 100 }, \"mana\"); // ❌ 'mana' not a key\n```\n\n`T[K]` is an *indexed access type* — the type of the property at key `K`. Pitfall: forgetting the `K extends keyof T` constraint means `key` accepts any string and you lose the typo protection that makes this pattern worthwhile.",
-            "estMinutes": 5,
+            "markdown": "An unconstrained `T` can be anything, so you can't safely access properties on it. *Constraints* (`extends`) let you require that `T` has certain members while still keeping it generic.\n\n```ts\nfunction longest<T extends { length: number }>(a: T, b: T): T {\n  return a.length >= b.length ? a : b;\n}\nlongest([1,2], [1,2,3]); // works: arrays have length\nlongest(\"hi\", \"there\");  // works: strings have length\nlongest(3, 4);            // ❌ numbers have no length\n```\n\nA powerhouse combo is `keyof` with a generic. `keyof T` is the union of `T`'s property names, letting you write a type-safe property getter:\n\n```ts\nfunction get<T, K extends keyof T>(obj: T, key: K): T[K] {\n  return obj[key];\n}\nconst hp = get({ hp: 100, name: \"Link\" }, \"hp\");   // number\nget({ hp: 100 }, \"mp\"); // ❌ 'mp' is not a key\n```\n\n`T[K]` is an *indexed access type* — the type of the property at key `K`. This pattern gives you compile-time safety on dynamic property access. The pitfall: forgetting the `K extends keyof T` constraint, which would let invalid keys through and lose the precise return type.",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-typescript-l5-s3",
             "type": "code",
-            "title": "A tiny typed stack",
-            "markdown": "Study this **generic interface** and class. Modify it to add a `peek` method.\n\n```ts\ninterface Stack<T> {\n  push(item: T): void;\n  pop(): T | undefined;\n  size(): number;\n}\n\nclass ArrayStack<T> implements Stack<T> {\n  private items: T[] = [];\n  push(item: T): void { this.items.push(item); }\n  pop(): T | undefined { return this.items.pop(); }\n  size(): number { return this.items.length; }\n}\n\nconst s = new ArrayStack<string>();\ns.push(\"a\");\ns.push(\"b\");\nconsole.log(s.pop());  // \"b\", typed as string | undefined\ns.push(42);            // ❌ 42 is not a string\n```\n\nThe single generic parameter `T` flows through every method, so a `ArrayStack<string>` rejects numbers automatically.",
-            "estMinutes": 4,
-            "questions": []
-          },
-          {
-            "id": "builtin-typescript-l5-s4",
-            "type": "practice",
-            "title": "Implement a generic-style map",
-            "markdown": "Implement `mapValues`, a pure function that applies a callback to each element of an array and returns the results — the runtime core of what a generic `map<T,U>` would type. Focus on the logic; imagine the TS signature `<T, U>(arr: T[], fn: (x: T) => U): U[]`.",
-            "estMinutes": 4,
+            "title": "Write a generic mapper",
+            "markdown": "Implement a small generic utility and watch the inferred types flow through.",
+            "estMinutes": 6,
             "questions": [],
             "exercise": {
-              "id": "builtin-typescript-l5-s4-ex1",
-              "prompt": "Implement `mapValues(arr, fn)` that returns a new array where each element is `fn` applied to the corresponding element of `arr`. Do not use Array.prototype.map.",
-              "starterCode": "function mapValues(arr, fn) {\n  // build and return a new array of fn(each element)\n}\n",
+              "id": "builtin-typescript-l5-s3-ex1",
+              "prompt": "Implement a generic `pluck<T, K extends keyof T>(items, key)` that returns an array of the given property from each object.",
+              "language": "ts",
+              "starterCode": "function pluck<T, K extends keyof T>(items: T[], key: K): T[K][] {\n  // TODO\n  return [];\n}",
               "tests": [
                 {
-                  "name": "double numbers",
-                  "expression": "mapValues([1,2,3], function(x){return x*2;})",
+                  "name": "names",
+                  "expression": "pluck([{name:'Link',lvl:9},{name:'Zelda',lvl:5}], 'name')",
                   "expected": [
-                    2,
-                    4,
-                    6
+                    "Link",
+                    "Zelda"
                   ]
                 },
                 {
-                  "name": "string length",
-                  "expression": "mapValues(['a','bb'], function(s){return s.length;})",
+                  "name": "levels",
+                  "expression": "pluck([{name:'Link',lvl:9},{name:'Zelda',lvl:5}], 'lvl')",
                   "expected": [
-                    1,
-                    2
+                    9,
+                    5
                   ]
                 },
                 {
                   "name": "empty",
-                  "expression": "mapValues([], function(x){return x;})",
+                  "expression": "pluck([], 'name')",
                   "expected": []
                 }
               ],
-              "solution": "function mapValues(arr, fn) {\n  const out = [];\n  for (let i = 0; i < arr.length; i++) {\n    out.push(fn(arr[i]));\n  }\n  return out;\n}\n",
-              "hint": "Loop with an index, push `fn(arr[i])` into a fresh result array, and return it."
+              "solution": "function pluck<T, K extends keyof T>(items: T[], key: K): T[K][] {\n  return items.map(item => item[key]);\n}",
+              "hint": "Use .map to project each item to item[key]; the generic signature does the type work."
             }
           },
           {
-            "id": "builtin-typescript-l5-s5",
+            "id": "builtin-typescript-l5-s4",
             "type": "quiz",
             "title": "Check yourself",
-            "markdown": "Two questions on generics.",
+            "markdown": "Make sure generics clicked.",
             "estMinutes": 3,
             "questions": [
               {
-                "id": "builtin-typescript-l5-s5-q1",
+                "id": "builtin-typescript-l5-s4-q1",
                 "type": "mcq",
-                "prompt": "Why is `function first<T>(arr: T[]): T` better than `function first(arr: any[]): any`?",
+                "prompt": "Why add a constraint like `T extends { length: number }`?",
                 "options": [
-                  "It runs faster",
-                  "It preserves the element type so callers keep type safety",
-                  "It prevents empty arrays",
-                  "It requires fewer characters"
+                  "To make the function run faster",
+                  "To safely access members on the generic type while keeping it flexible",
+                  "To convert T into a string",
+                  "To make T optional"
                 ],
                 "correctIndex": 1,
-                "explanation": "The generic ties the return type to the element type; `any` discards that information entirely."
+                "explanation": "A constraint guarantees T has the needed members so you can use them, without pinning T to one concrete type."
               },
               {
-                "id": "builtin-typescript-l5-s5-q2",
-                "type": "mcq",
-                "prompt": "What does the constraint `K extends keyof T` guarantee in `getProp<T, K>`?",
-                "options": [
-                  "`K` is always a string literal",
-                  "`K` must be an actual property name of `T`",
-                  "`T` has no methods",
-                  "`K` is optional"
-                ],
-                "correctIndex": 1,
-                "explanation": "`keyof T` is the union of `T`'s keys; constraining `K` to it rejects invalid property names at compile time."
+                "id": "builtin-typescript-l5-s4-q2",
+                "type": "short_answer",
+                "prompt": "What does `keyof T` evaluate to for `type T = { hp: number; name: string }`?",
+                "expectedAnswer": "\"hp\" | \"name\"",
+                "explanation": "keyof produces the union of the object's property-name literals: \"hp\" | \"name\"."
               }
             ]
           }
@@ -1179,8 +1186,8 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-typescript-l6",
-        "title": "Utility Types and Type Transformation",
-        "estMinutes": 15,
+        "title": "Utility Types and Type Manipulation",
+        "estMinutes": 22,
         "glossary": [
           "Partial",
           "Pick",
@@ -1188,73 +1195,96 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
           "Record",
           "Readonly",
           "mapped type",
-          "typeof operator"
+          "conditional type"
         ],
         "segments": [
           {
             "id": "builtin-typescript-l6-s1",
             "type": "reading",
             "title": "Deriving types instead of duplicating them",
-            "markdown": "You've defined a `User` interface. Now you need a type for \"a user update where every field is optional\" and another for \"just the public fields.\" Rewriting these by hand means they drift out of sync when `User` changes. TypeScript ships **utility types** that *derive* new types from existing ones, so there is a single source of truth.\n\nKey built-ins: `Partial<T>` makes all properties optional; `Required<T>` the reverse; `Readonly<T>` makes all readonly; `Pick<T, K>` keeps only chosen keys; `Omit<T, K>` drops chosen keys; `Record<K, V>` builds a dictionary type.\n\n```ts\ninterface User { id: number; name: string; email: string; }\n\ntype UserUpdate = Partial<User>;          // all optional\ntype PublicUser = Omit<User, \"email\">;   // { id; name }\ntype ById = Record<number, User>;         // { [k: number]: User }\n\nfunction applyUpdate(u: User, patch: Partial<User>): User {\n  return { ...u, ...patch };\n}\n```\n\nUse these constantly — they eliminate copy-paste and keep derived types correct automatically. Pitfall: `Partial` is shallow; nested objects aren't made optional recursively, which surprises people building deep patch types.",
-            "estMinutes": 5,
+            "markdown": "Once you have a `Player` interface, you'll often want variations: a form that fills it in partially, a preview showing only some fields, a lookup keyed by id. Copy-pasting the interface and editing it is a maintenance trap — change the original and the copies drift. TypeScript ships *utility types* that derive new types from existing ones.\n\n```ts\ninterface Player { id: string; name: string; level: number; guild: string; }\n\ntype PlayerDraft = Partial<Player>;          // every field optional\ntype PlayerId = Pick<Player, 'id' | 'name'>; // just those two\ntype NoGuild = Omit<Player, 'guild'>;        // everything except guild\ntype Frozen = Readonly<Player>;              // all readonly\n```\n\n`Partial<T>` makes every property optional (perfect for update/patch functions), `Pick` selects a subset, `Omit` removes a subset, and `Readonly` locks all fields. Because they're derived, editing `Player` automatically updates all of them.\n\n`Record<K, V>` builds an object type from a key union and value type:\n\n```ts\ntype Scores = Record<'link' | 'zelda', number>; // { link: number; zelda: number }\n```\n\nThe pitfall: overusing `Partial` on function parameters, which makes *every* field optional and pushes validation into your runtime code. Use it deliberately — a patch object, yes; a required creation payload, no.",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-typescript-l6-s2",
             "type": "reading",
-            "title": "How they work: mapped types",
-            "markdown": "Utility types aren't magic built-ins hardwired into the compiler — most are ordinary **mapped types** you could write yourself. A mapped type iterates over the keys of a type and transforms each one.\n\n```ts\n// This IS essentially how Partial is defined:\ntype MyPartial<T> = {\n  [K in keyof T]?: T[K];\n};\n\ntype MyReadonly<T> = {\n  readonly [K in keyof T]: T[K];\n};\n```\n\n`[K in keyof T]` walks every key; `T[K]` is the property's original type; adding `?` or `readonly` modifies each generated member. Understanding this demystifies the standard library and lets you build custom transformations — for example, a type that makes every field nullable.\n\nThe **typeof operator** (in a *type* position) captures the type of an existing value, which pairs beautifully with mapped and utility types. `type Config = typeof defaultConfig` derives a type from a real object literal, so your config type never drifts from the actual defaults. Pitfall: `typeof` in a type context is different from the runtime `typeof` operator that returns a string — same keyword, two contexts.",
-            "estMinutes": 4,
+            "title": "Mapped and conditional types (a peek)",
+            "markdown": "Utility types aren't magic built-ins — they're written in TypeScript using *mapped types* and *conditional types*, and understanding the mechanism lets you build your own.\n\nA mapped type iterates over keys of a type and transforms each:\n\n```ts\ntype MyPartial<T> = { [K in keyof T]?: T[K] };\ntype Nullable<T> = { [K in keyof T]: T[K] | null };\n```\n\n`[K in keyof T]` walks every key; the value `T[K]` (indexed access) is the original property type, which you can modify — here adding `?` or `| null`.\n\nA *conditional type* chooses a type based on a relationship, using a ternary-like syntax:\n\n```ts\ntype NonNull<T> = T extends null | undefined ? never : T;\ntype A = NonNull<string | null>; // string\n```\n\nRead `T extends U ? X : Y` as: if T is assignable to U, use X, else Y. Combined with `infer`, conditional types can extract pieces of a type (e.g. the element of an array). These are the building blocks of the whole utility-type library. The pitfall: they're addictive and easy to over-engineer — reach for a plain interface first, and only manipulate types when derivation genuinely removes duplication.",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-typescript-l6-s3",
-            "type": "code",
-            "title": "Build a settings patcher",
-            "markdown": "Study how utility types compose in a realistic settings update.\n\n```ts\ninterface Settings {\n  volume: number;\n  difficulty: \"easy\" | \"hard\";\n  subtitles: boolean;\n}\n\nconst defaults: Settings = { volume: 80, difficulty: \"easy\", subtitles: false };\n\n// Only allow changing a subset, each optional:\nfunction updateSettings(patch: Partial<Settings>): Settings {\n  return { ...defaults, ...patch };\n}\n\nupdateSettings({ volume: 50 });               // ok\nupdateSettings({ difficulty: \"hard\" });       // ok\nupdateSettings({ difficulty: \"medium\" });     // ❌ not a valid literal\nupdateSettings({ unknownKey: true });          // ❌ excess property\n```\n\nTry deriving `type ReadonlySettings = Readonly<Settings>` and confirm you can't reassign its fields.",
-            "estMinutes": 3,
-            "questions": []
+            "type": "practice",
+            "title": "Build an update function",
+            "markdown": "Use Partial to write a type-safe patch that merges changes into a record.",
+            "estMinutes": 6,
+            "questions": [],
+            "exercise": {
+              "id": "builtin-typescript-l6-s3-ex1",
+              "prompt": "Implement `applyPatch(base, patch)` where `patch` is a `Partial<T>`. Return a new object with patch's defined fields overriding base's. Do not mutate base.",
+              "language": "ts",
+              "starterCode": "function applyPatch<T extends object>(base: T, patch: Partial<T>): T {\n  // TODO\n  return base;\n}",
+              "tests": [
+                {
+                  "name": "override one",
+                  "expression": "applyPatch({name:'Link',level:9},{level:10})",
+                  "expected": {
+                    "name": "Link",
+                    "level": 10
+                  }
+                },
+                {
+                  "name": "no changes",
+                  "expression": "applyPatch({name:'Link',level:9},{})",
+                  "expected": {
+                    "name": "Link",
+                    "level": 9
+                  }
+                },
+                {
+                  "name": "immutability",
+                  "expression": "(function(){var b={hp:5};applyPatch(b,{hp:9});return b.hp;})()",
+                  "expected": 5
+                }
+              ],
+              "solution": "function applyPatch<T extends object>(base: T, patch: Partial<T>): T {\n  return { ...base, ...patch };\n}",
+              "hint": "Spread base first, then patch, into a fresh object literal so patch's fields win and base stays untouched."
+            }
           },
           {
             "id": "builtin-typescript-l6-s4",
-            "type": "practice",
-            "title": "Reason about a derived type",
-            "markdown": "Given `interface Task { id: number; title: string; done: boolean; owner: string; }`, write the utility-type expressions for: (a) a type with only `id` and `title`; (b) a type identical to `Task` but without `owner`; (c) a type where every field is optional. Then explain in one sentence why using these is safer than hand-writing each shape.",
-            "estMinutes": 3,
-            "questions": []
-          },
-          {
-            "id": "builtin-typescript-l6-s5",
             "type": "quiz",
             "title": "Check yourself",
-            "markdown": "Two questions on utility and mapped types.",
+            "markdown": "Confirm the derived-types mindset.",
             "estMinutes": 3,
             "questions": [
               {
-                "id": "builtin-typescript-l6-s5-q1",
+                "id": "builtin-typescript-l6-s4-q1",
                 "type": "mcq",
-                "prompt": "Which utility type produces `{ id: number; name: string }` from `User { id; name; email }`?",
+                "prompt": "You want a type with only the `id` and `email` fields of `User`. Which utility fits?",
                 "options": [
-                  "`Partial<User>`",
-                  "`Omit<User, \"email\">`",
-                  "`Record<User, string>`",
-                  "`Readonly<User>`"
+                  "Omit<User, 'id' | 'email'>",
+                  "Pick<User, 'id' | 'email'>",
+                  "Partial<User>",
+                  "Record<'id' | 'email', User>"
                 ],
                 "correctIndex": 1,
-                "explanation": "`Omit<User, \"email\">` removes the `email` key, leaving `id` and `name`. `Pick<User,'id'|'name'>` would also work."
+                "explanation": "Pick selects the named subset of properties; Omit would do the opposite (remove them)."
               },
               {
-                "id": "builtin-typescript-l6-s5-q2",
+                "id": "builtin-typescript-l6-s4-q2",
                 "type": "mcq",
-                "prompt": "What does `[K in keyof T]?: T[K]` describe?",
+                "prompt": "What does the mapped type `{ [K in keyof T]?: T[K] }` produce?",
                 "options": [
-                  "A discriminated union",
-                  "A mapped type making every property optional",
-                  "An index signature over numbers",
-                  "A generic constraint"
+                  "A type with all properties removed",
+                  "A type identical to T",
+                  "A type with every property made optional (i.e. Partial<T>)",
+                  "A union of T's keys"
                 ],
-                "correctIndex": 1,
-                "explanation": "It iterates every key of `T` and appends `?`, exactly how `Partial` is defined."
+                "correctIndex": 2,
+                "explanation": "Iterating keys and adding `?` makes each property optional — that's exactly how Partial is defined."
               }
             ]
           }
@@ -1262,81 +1292,115 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-typescript-l7",
-        "title": "Configuring and Shipping TypeScript",
-        "estMinutes": 15,
+        "title": "Configuring, Consuming, and Shipping TypeScript",
+        "estMinutes": 22,
         "glossary": [
           "tsconfig.json",
-          "strict mode",
-          "declaration file",
+          "strict",
+          "declaration file (.d.ts)",
+          "@types",
           "module resolution",
-          "type-only import",
-          "non-null assertion"
+          "assertion (as)",
+          "type-only import"
         ],
         "segments": [
           {
             "id": "builtin-typescript-l7-s1",
             "type": "reading",
-            "title": "tsconfig: the control panel",
-            "markdown": "A real project is governed by **tsconfig.json**. It tells `tsc` which files to compile, which JavaScript version to emit (`target`), how to find modules (**module resolution**), and — most importantly — how strict to be. Running `npx tsc --init` scaffolds a well-commented file you then tune.\n\n```jsonc\n{\n  \"compilerOptions\": {\n    \"target\": \"ES2020\",\n    \"module\": \"NodeNext\",\n    \"strict\": true,          // the single most important flag\n    \"noUnusedLocals\": true,\n    \"outDir\": \"dist\",\n    \"declaration\": true       // emit .d.ts files for consumers\n  },\n  \"include\": [\"src\"]\n}\n```\n\n**strict mode** is an umbrella that enables `strictNullChecks`, `noImplicitAny`, and several others. Turn it on from day one: retrofitting strictness onto a large lax codebase is painful, whereas starting strict keeps you honest. The `declaration` option emits **declaration files** (`.d.ts`) so anyone importing your compiled JS still gets full types.\n\nPitfall: setting `target` too high for your runtime, or leaving `strict` off to reduce red squiggles — that trades short-term comfort for the very bugs TypeScript exists to prevent.",
-            "estMinutes": 4,
+            "title": "tsconfig and strict mode",
+            "markdown": "A real project is governed by `tsconfig.json`, which tells `tsc` what to compile and how strictly. The single most important flag is `strict`, an umbrella that turns on a family of checks — including `strictNullChecks` and `noImplicitAny`.\n\n```json\n{\n  \"compilerOptions\": {\n    \"target\": \"ES2020\",\n    \"module\": \"NodeNext\",\n    \"strict\": true,\n    \"noUncheckedIndexedAccess\": true,\n    \"outDir\": \"dist\"\n  }\n}\n```\n\nWith `strict` on, `null` and `undefined` are no longer silently assignable to every type, which catches the notorious 'cannot read property of undefined' bug class at compile time:\n\n```ts\nfunction greet(name: string | null) {\n  return name.toUpperCase(); // ❌ name might be null — must check first\n}\n```\n\n`noUncheckedIndexedAccess` goes further, typing `arr[i]` as `T | undefined` because an out-of-bounds index returns undefined at runtime. Always start new projects with `strict: true`; retrofitting it onto a large loose codebase is painful. The pitfall is disabling strict flags to make errors 'go away' — each one you turn off reopens a category of runtime bugs the compiler was catching for you.",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-typescript-l7-s2",
             "type": "reading",
-            "title": "Declaration files and third-party types",
-            "markdown": "When you `import lodash from \"lodash\"`, the JavaScript has no types. **Declaration files** (`.d.ts`) supply them separately. Many libraries bundle their own; for those that don't, the community publishes types under the `@types` scope, installed as dev dependencies: `npm i -D @types/node`. TypeScript automatically picks up anything in `node_modules/@types`.\n\nA `.d.ts` file contains *only* type declarations — no runtime code — using `declare` to describe shapes that exist elsewhere:\n\n```ts\n// globals.d.ts\ndeclare const APP_VERSION: string;\ndeclare module \"legacy-lib\" {\n  export function greet(name: string): string;\n}\n```\n\nWhen you emit `declaration: true`, `tsc` generates these automatically from your source so consumers of your package get types for free.\n\nA related tool is the **type-only import**: `import type { User } from \"./models\"`. This makes clear the import is erased at compile time and never pulls in runtime code, avoiding accidental side effects and circular-dependency issues. Pitfall: importing a type as a value can bloat your bundle or create import cycles; use `import type` for anything used only in type positions.",
-            "estMinutes": 4,
+            "title": "Consuming libraries and declaration files",
+            "markdown": "Most npm packages are written in JavaScript. To type them, TypeScript uses *declaration files* (`.d.ts`) — type-only descriptions with no implementation. Modern libraries bundle their own; older ones have community types you install from the `@types` scope:\n\n```bash\nnpm install lodash\nnpm install --save-dev @types/lodash\n```\n\nWhen you import `lodash`, TypeScript reads `@types/lodash`'s `.d.ts` files to type every function. If a library truly has no types, you can declare a minimal shim yourself in a `.d.ts` file.\n\nSometimes you know more than the compiler — a value from an untyped source really *is* a `Player`. A *type assertion* (`as`) tells the compiler to trust you:\n\n```ts\nconst data = JSON.parse(raw) as Player;\n```\n\nUse assertions sparingly and only when you have genuine external knowledge — they bypass checking, so an incorrect assertion becomes a lurking runtime bug. Prefer runtime validation (or a narrowing type guard) at true boundaries. Also prefer `as` over the older `<Player>` angle-bracket syntax, which conflicts with JSX. The pitfall is using `as` to force incompatible types (`x as unknown as Y`) to silence errors — that's a code smell signaling a modeling problem.",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-typescript-l7-s3",
-            "type": "code",
-            "title": "Escape hatches, used responsibly",
-            "markdown": "Sometimes you know more than the compiler. Study these escape hatches — and note when *not* to use them.\n\n```ts\nconst el = document.getElementById(\"score\");\n// el is HTMLElement | null.\n\n// non-null assertion: 'I promise it's not null'\nel!.textContent = \"0\";   // compiles, but crashes if el really is null\n\n// safer: narrow instead\nif (el) {\n  el.textContent = \"0\"; // guaranteed non-null here\n}\n\n// 'as' type assertion reinterprets a type (no runtime check):\nconst input = document.querySelector(\"input\") as HTMLInputElement;\nconsole.log(input.value);\n\n// unknown -> validated narrowing is safest of all:\nfunction toNumber(x: unknown): number {\n  return typeof x === \"number\" ? x : NaN;\n}\n```\n\nThe **non-null assertion** (`!`) and `as` both *silence* the compiler without verifying anything at runtime. Prefer real narrowing; reserve assertions for cases you genuinely can't express otherwise, like DOM lookups you control.",
+            "type": "practice",
+            "title": "Read a tsconfig scenario",
+            "markdown": "Reason about compiler behavior. Given `strict: true` and `noUncheckedIndexedAccess: true`, decide what the compiler reports for this code and write a corrected version in your head:\n\n```ts\nfunction firstUpper(names: string[]): string {\n  const n = names[0];      // type: string | undefined\n  return n.toUpperCase();  // error here\n}\n```\n\nExplain in one or two sentences (a) why line `n.toUpperCase()` errors and (b) one way to fix it without an assertion.",
             "estMinutes": 4,
-            "questions": []
+            "questions": [
+              {
+                "id": "builtin-typescript-l7-s3-q1",
+                "type": "short_answer",
+                "prompt": "Why does `n.toUpperCase()` error under these settings, and what's a non-assertion fix?",
+                "expectedAnswer": "Because noUncheckedIndexedAccess types names[0] as string | undefined, so n may be undefined; fix by checking `if (n === undefined) return ...` (or `if (!n)`) before calling toUpperCase, which narrows n to string.",
+                "explanation": "Indexed access can return undefined at runtime; guarding narrows the type so the call is safe without bypassing checks."
+              }
+            ]
           },
           {
             "id": "builtin-typescript-l7-s4",
-            "type": "practice",
-            "title": "Set up a strict project",
-            "markdown": "Describe the minimal `tsconfig.json` you'd create for a Node library that ships types: which values would you set for `strict`, `declaration`, `outDir`, and `module`, and why? Then explain what command installs Node's ambient types and where TypeScript looks for them. Finally, state one situation where `import type` prevents a bug that a plain `import` would cause.",
-            "estMinutes": 3,
-            "questions": []
+            "type": "code",
+            "title": "Type-only imports and the exercise",
+            "markdown": "Implement a safe accessor that respects strict null semantics — no assertions, real narrowing.",
+            "estMinutes": 5,
+            "questions": [],
+            "exercise": {
+              "id": "builtin-typescript-l7-s4-ex1",
+              "prompt": "Implement `firstUpper(names)` returning the uppercased first string, or the string `\"EMPTY\"` if the array is empty. Handle the possibly-undefined first element by checking, not asserting.",
+              "language": "ts",
+              "starterCode": "function firstUpper(names: string[]): string {\n  // The first element may be missing; guard before using it.\n  return \"\";\n}",
+              "tests": [
+                {
+                  "name": "has items",
+                  "expression": "firstUpper(['link','zelda'])",
+                  "expected": "LINK"
+                },
+                {
+                  "name": "empty",
+                  "expression": "firstUpper([])",
+                  "expected": "EMPTY"
+                },
+                {
+                  "name": "single",
+                  "expression": "firstUpper(['ganon'])",
+                  "expected": "GANON"
+                }
+              ],
+              "solution": "function firstUpper(names: string[]): string {\n  const n = names[0];\n  if (n === undefined) return \"EMPTY\";\n  return n.toUpperCase();\n}",
+              "hint": "Store names[0] in a variable, check it against undefined to narrow it to string, then uppercase."
+            }
           },
           {
             "id": "builtin-typescript-l7-s5",
             "type": "quiz",
             "title": "Check yourself",
-            "markdown": "Two questions on configuration and shipping.",
+            "markdown": "Final check on tooling and shipping.",
             "estMinutes": 3,
             "questions": [
               {
                 "id": "builtin-typescript-l7-s5-q1",
                 "type": "mcq",
-                "prompt": "What does enabling `strict: true` accomplish?",
+                "prompt": "What is the risk of `const p = data as Player`?",
                 "options": [
-                  "Turns on a bundle of safety checks including strictNullChecks and noImplicitAny",
-                  "Makes compilation faster",
-                  "Removes all type annotations at build",
-                  "Forces every variable to be `readonly`"
+                  "It slows compilation",
+                  "It performs a runtime conversion that can throw",
+                  "It bypasses type checking, so an incorrect assertion causes a lurking runtime bug",
+                  "It only works in strict mode"
                 ],
-                "correctIndex": 0,
-                "explanation": "`strict` is an umbrella flag enabling several individual strictness options at once."
+                "correctIndex": 2,
+                "explanation": "Assertions tell the compiler to trust you without any runtime check; if the data isn't actually a Player, the error surfaces later at runtime."
               },
               {
                 "id": "builtin-typescript-l7-s5-q2",
                 "type": "mcq",
-                "prompt": "Why prefer narrowing (`if (el)`) over the non-null assertion `el!`?",
+                "prompt": "You install a JS-only library and get 'could not find a declaration file'. What's the standard fix?",
                 "options": [
-                  "`!` is slower at runtime",
-                  "Narrowing verifies at runtime; `!` only silences the compiler and can crash",
-                  "`!` is deprecated",
-                  "They behave identically"
+                  "Rewrite the library in TypeScript",
+                  "Install its @types/<name> package as a dev dependency",
+                  "Add `any` to every import",
+                  "Disable strict mode"
                 ],
                 "correctIndex": 1,
-                "explanation": "`!` asserts non-null without any runtime check, so a truly null value still crashes; narrowing actually guards."
+                "explanation": "Community-maintained type declarations live under the @types scope and provide .d.ts files the compiler reads."
               }
             ]
           }

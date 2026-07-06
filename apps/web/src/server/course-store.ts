@@ -78,6 +78,7 @@ export function drizzleCourseStore(): CourseStore {
           await db.insert(exercises).values({
             segmentId: segRow.id,
             prompt: seg.exercise.prompt,
+            language: seg.exercise.language ?? 'js',
             starterCode: seg.exercise.starterCode,
             tests: seg.exercise.tests,
             solution: seg.exercise.solution,

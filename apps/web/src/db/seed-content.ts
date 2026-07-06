@@ -19,6 +19,8 @@ export type SeedQuestion = {
 export type SeedExercise = {
   id: string
   prompt: string
+  // Authoring language; the runner type-strips 'ts' to JS. Absent ⇒ 'js'.
+  language?: 'js' | 'ts'
   starterCode: string
   tests: { name: string; expression: string; expected: unknown }[]
   solution: string

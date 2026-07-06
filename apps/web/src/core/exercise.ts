@@ -1,3 +1,4 @@
+import { transform } from 'sucrase'
 import { z } from 'zod'
 
 // The pure engine behind Phase 4 in-browser code exercises. It runs a learner's
@@ -80,10 +81,42 @@ function runOne(userCode: string, test: ExerciseTest): TestOutcome {
   }
 }
 
+// Exercises are authored in one of these; the runner is still JS underneath, so
+// TypeScript is type-stripped to JS before evaluation.
+export type ExerciseLanguage = 'js' | 'ts'
+
+// Strip TypeScript syntax to runnable JS (types only — modern JS is left intact,
+// which `new Function` runs fine). sucrase is small and worker-safe, unlike the
+// full `typescript` compiler which would bloat the bundle.
+function transpileTs(code: string): string {
+  return transform(code, {
+    transforms: ['typescript'],
+    disableESTransforms: true,
+  }).code
+}
+
 // Run every test against the learner's code. Deterministic and side-effect-free
-// beyond evaluating the supplied code.
-export function runTestCases(userCode: string, tests: ExerciseTest[]): TestOutcome[] {
-  return tests.map((t) => runOne(userCode, t))
+// beyond evaluating the supplied code. TypeScript code is transpiled first; a
+// transpile (syntax) error fails every test with a readable message.
+export function runTestCases(
+  userCode: string,
+  tests: ExerciseTest[],
+  language: ExerciseLanguage = 'js',
+): TestOutcome[] {
+  let code = userCode
+  if (language === 'ts') {
+    try {
+      code = transpileTs(userCode)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      return tests.map((t) => ({
+        name: t.name,
+        passed: false,
+        message: `TypeScript error: ${message}`,
+      }))
+    }
+  }
+  return tests.map((t) => runOne(code, t))
 }
 
 export type ExerciseSummary = { passed: number; total: number; allPassed: boolean }
@@ -97,6 +130,10 @@ export function summarizeOutcomes(outcomes: TestOutcome[]): ExerciseSummary {
 // (gen:builtins) to drop model-written exercises whose solution doesn't actually
 // satisfy its tests — the same invariant the seed-content ship gate enforces.
 // Executes the solution, so keep it to trusted/dev-time callers.
-export function solutionPassesTests(solution: string, tests: ExerciseTest[]): boolean {
-  return summarizeOutcomes(runTestCases(solution, tests)).allPassed
+export function solutionPassesTests(
+  solution: string,
+  tests: ExerciseTest[],
+  language: ExerciseLanguage = 'js',
+): boolean {
+  return summarizeOutcomes(runTestCases(solution, tests, language)).allPassed
 }

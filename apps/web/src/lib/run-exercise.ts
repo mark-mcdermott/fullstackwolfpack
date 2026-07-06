@@ -1,4 +1,8 @@
-import type { ExerciseTest, TestOutcome } from '@/core/exercise'
+import type {
+  ExerciseLanguage,
+  ExerciseTest,
+  TestOutcome,
+} from '@/core/exercise'
 
 // Main-thread wrapper around the exercise Web Worker. Spawns a fresh worker per
 // run, races it against a timeout, and terminates it either way — so an infinite
@@ -14,6 +18,7 @@ const TIMEOUT_MS = 3000
 export function runExercise(
   userCode: string,
   tests: ExerciseTest[],
+  language: ExerciseLanguage = 'js',
   timeoutMs = TIMEOUT_MS,
 ): Promise<ExerciseRun> {
   return new Promise((resolve) => {
@@ -43,6 +48,6 @@ export function runExercise(
       resolve({ ok: false, error: 'The code runner crashed.' })
     }
 
-    worker.postMessage({ userCode, tests })
+    worker.postMessage({ userCode, tests, language })
   })
 }

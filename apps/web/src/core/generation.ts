@@ -34,6 +34,8 @@ export const generatedQuestionSchema = z.object({
 export const generatedExerciseSchema = z.object({
   prompt: z.string(),
   starterCode: z.string(),
+  // Authoring language; the runner type-strips 'ts' to JS. Omit ⇒ 'js'.
+  language: lenientEnum(['js', 'ts']).optional(),
   tests: z.array(exerciseTestSchema).min(1),
   solution: z.string().default(''),
   hint: z.string().default(''),
@@ -158,9 +160,10 @@ const GLOSSARY_GUIDANCE =
   'For each lesson also produce a "glossary": an array of 3-8 key technical terms it introduces (short, written exactly as they appear in the lesson) — used to link the learner to further reading.'
 
 const LESSON_JSON_SHAPE = [
-  '{ "topic", "difficulty", "lessons": [{ "title", "estMinutes", "glossary": ["term", ...], "segments": [{ "title", "type", "body", "estMinutes", "questions": [{ "type", "prompt", "options"?, "correctIndex"?, "expectedAnswer"?, "explanation"? }], "exercise"?: { "prompt", "starterCode", "tests": [{ "name", "expression", "expected" }], "solution", "hint" } }] }] }',
+  '{ "topic", "difficulty", "lessons": [{ "title", "estMinutes", "glossary": ["term", ...], "segments": [{ "title", "type", "body", "estMinutes", "questions": [{ "type", "prompt", "options"?, "correctIndex"?, "expectedAnswer"?, "explanation"? }], "exercise"?: { "prompt", "starterCode", "language"?, "tests": [{ "name", "expression", "expected" }], "solution", "hint" } }] }] }',
   'segment.type is one of: reading | code | practice | quiz. question.type is one of: mcq | short_answer. "body" is markdown.',
   'An "exercise" is a runnable JavaScript task: "starterCode" is a function stub the learner completes; each test\'s "expression" is JavaScript evaluated in the learner\'s scope (it may call a function the learner defines) whose result is deep-compared to "expected" (a JSON value). "solution" must be a correct implementation that passes every test; "hint" nudges without giving it away.',
+  'Set "language" to "ts" ONLY for a TypeScript course, where the "starterCode" and "solution" use TypeScript type annotations (the runner type-strips them to JS before running; the "tests" stay plain JS expressions). For every other topic omit "language" (defaults to "js").',
 ]
 
 export function buildGenerationPrompt(input: GenerationInput): string {
@@ -174,6 +177,11 @@ export function buildGenerationPrompt(input: GenerationInput): string {
     ...DEPTH_GUIDANCE,
     `Include at least ${t.minQuizPerLesson} quiz questions per lesson that test understanding (not recall of a single sentence), each with a brief explanation. Vary segment types across each lesson (reading, code, practice) so no lesson is all prose.`,
   ]
+  if (/\btypescript\b/i.test(input.topic)) {
+    lines.push(
+      'This is a TypeScript course: every "exercise" MUST be TypeScript — set "language": "ts" and write genuinely typed TypeScript in "starterCode" and "solution" (explicit parameter and return type annotations, plus interfaces / generics / union types where they fit the task). Do NOT emit plain untyped JavaScript exercises.',
+    )
+  }
   const custom = input.customization?.trim()
   if (custom) {
     lines.push(

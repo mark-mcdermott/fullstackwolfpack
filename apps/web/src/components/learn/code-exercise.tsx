@@ -28,7 +28,7 @@ export function CodeExercise({
     if (running) return
     setRunning(true)
     setError(null)
-    const res = await runExercise(code, exercise.tests)
+    const res = await runExercise(code, exercise.tests, exercise.language)
     if (res.ok) {
       setOutcomes(res.outcomes)
       if (summarizeOutcomes(res.outcomes).allPassed) onSolved?.()
