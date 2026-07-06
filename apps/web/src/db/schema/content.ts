@@ -102,6 +102,8 @@ export const exercises = pgTable('exercises', {
     .notNull()
     .references(() => lessonSegments.id, { onDelete: 'cascade' }),
   prompt: text('prompt').notNull(),
+  // Authoring language ('js' | 'ts'); the runner type-strips 'ts' to JS.
+  language: text('language').notNull().default('js'),
   starterCode: text('starter_code'),
   tests: jsonb('tests').$type<Record<string, unknown>[]>(),
   solution: text('solution'),

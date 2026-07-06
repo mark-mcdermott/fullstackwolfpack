@@ -3,8 +3,52 @@ import {
   deepEqual,
   parseExerciseTests,
   runTestCases,
+  solutionPassesTests,
   summarizeOutcomes,
 } from './exercise'
+
+describe('TypeScript exercises', () => {
+  it('type-strips a TS solution and runs its tests', () => {
+    const code = 'function double(n: number): number {\n  return n * 2\n}'
+    const out = runTestCases(
+      code,
+      [{ name: 'double(4)', expression: 'double(4)', expected: 8 }],
+      'ts',
+    )
+    expect(out[0].passed).toBe(true)
+  })
+
+  it('handles TS-only syntax (generics, interfaces, annotations)', () => {
+    const code = [
+      'interface Box<T> { value: T }',
+      'function unwrap<T>(b: Box<T>): T { return b.value }',
+    ].join('\n')
+    expect(
+      solutionPassesTests(
+        code,
+        [{ name: 'unwrap', expression: 'unwrap({ value: 42 })', expected: 42 }],
+        'ts',
+      ),
+    ).toBe(true)
+  })
+
+  it('reports a TS syntax error as a failed test, not a throw', () => {
+    const out = runTestCases(
+      'function f(: number { return 1 }',
+      [{ name: 't', expression: 'f()', expected: 1 }],
+      'ts',
+    )
+    expect(out[0].passed).toBe(false)
+    expect(out[0].message).toMatch(/TypeScript error/i)
+  })
+
+  it("defaults to 'js' — type annotations throw as a plain JS syntax error", () => {
+    const out = runTestCases('const x: number = 1', [
+      { name: 't', expression: 'x', expected: 1 },
+    ])
+    expect(out[0].passed).toBe(false)
+  })
+})
 
 describe('deepEqual', () => {
   it('compares primitives, arrays, and objects structurally', () => {

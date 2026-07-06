@@ -59,7 +59,7 @@ describe('builtin courses', () => {
     for (const ex of exs) {
       expect(ex.tests.length).toBeGreaterThan(0)
       expect(ex.starterCode).toBeTruthy()
-      const outcomes = runTestCases(ex.solution, ex.tests)
+      const outcomes = runTestCases(ex.solution, ex.tests, ex.language)
       expect(summarizeOutcomes(outcomes).allPassed).toBe(true)
     }
   })

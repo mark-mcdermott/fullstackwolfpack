@@ -35,7 +35,11 @@ function pruneExercises(
       if (!seg.exercise) continue
       const ok =
         allowExercises &&
-        solutionPassesTests(seg.exercise.solution, seg.exercise.tests)
+        solutionPassesTests(
+          seg.exercise.solution,
+          seg.exercise.tests,
+          seg.exercise.language,
+        )
       if (ok) kept++
       else {
         delete seg.exercise

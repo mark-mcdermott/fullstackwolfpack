@@ -126,6 +126,7 @@ async function main() {
               id: seg.exercise.id,
               segmentId: seg.id,
               prompt: seg.exercise.prompt,
+              language: seg.exercise.language ?? 'js',
               starterCode: seg.exercise.starterCode,
               tests: seg.exercise.tests,
               solution: seg.exercise.solution,

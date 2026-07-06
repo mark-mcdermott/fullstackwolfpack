@@ -58,6 +58,7 @@ export function generatedToSeedCourse(
                   exercise: {
                     id: `${segId}-ex1`,
                     prompt: seg.exercise.prompt,
+                    language: seg.exercise.language,
                     starterCode: seg.exercise.starterCode,
                     tests: seg.exercise.tests,
                     solution: seg.exercise.solution,

@@ -96,6 +96,7 @@ export async function getLessonView(lessonId: string): Promise<LessonView | null
     exBySegment.set(e.segmentId, {
       id: e.id,
       prompt: e.prompt,
+      language: e.language === 'ts' ? 'ts' : 'js',
       starterCode: e.starterCode ?? '',
       tests: parseExerciseTests(e.tests),
       hint: e.hint ?? null,

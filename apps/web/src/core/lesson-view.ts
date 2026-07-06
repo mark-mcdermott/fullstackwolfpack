@@ -29,6 +29,8 @@ export const exerciseViewSchema = z.object({
   id: z.string(),
   prompt: z.string(),
   starterCode: z.string(),
+  // Authoring language; the runner type-strips 'ts' to JS before evaluating.
+  language: z.enum(['js', 'ts']).default('js'),
   tests: z.array(exerciseTestSchema),
   hint: z.string().nullable(),
   solution: z.string().nullable(),
