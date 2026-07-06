@@ -46,6 +46,22 @@ export function generatedToSeedCourse(
                 expectedAnswer: q.expectedAnswer,
                 explanation: q.explanation ?? '',
               })),
+            // Carry a runnable exercise through when the generator emitted one,
+            // with a stable slug-scoped id. `seed-content.test.ts` re-runs every
+            // built-in exercise's solution against its tests, so a broken
+            // generated exercise fails that gate before it can ship.
+            ...(seg.exercise
+              ? {
+                  exercise: {
+                    id: `${segId}-ex1`,
+                    prompt: seg.exercise.prompt,
+                    starterCode: seg.exercise.starterCode,
+                    tests: seg.exercise.tests,
+                    solution: seg.exercise.solution,
+                    hint: seg.exercise.hint,
+                  },
+                }
+              : {}),
           }
         }),
       }

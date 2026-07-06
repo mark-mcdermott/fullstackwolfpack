@@ -5,7 +5,13 @@ import type {
   GeneratedLesson,
 } from '../core/generation'
 import { db } from '../db'
-import { courses, lessons, lessonSegments, quizQuestions } from '../db/schema'
+import {
+  courses,
+  exercises,
+  lessons,
+  lessonSegments,
+  quizQuestions,
+} from '../db/schema'
 
 // Drizzle-backed persistence for the generation orchestrator (runGeneration).
 export function drizzleCourseStore(): CourseStore {
@@ -62,6 +68,21 @@ export function drizzleCourseStore(): CourseStore {
               explanation: q.explanation ?? null,
             })),
           )
+        }
+
+        // Runnable code exercise (Phase 4), when the generator emitted one. Id
+        // defaults to a uuid. We persist it structurally — the solution is NOT
+        // executed here (never run generated code in the request path); the
+        // learner's own code runs sandboxed client-side.
+        if (seg.exercise) {
+          await db.insert(exercises).values({
+            segmentId: segRow.id,
+            prompt: seg.exercise.prompt,
+            starterCode: seg.exercise.starterCode,
+            tests: seg.exercise.tests,
+            solution: seg.exercise.solution,
+            hint: seg.exercise.hint,
+          })
         }
       }
     },
