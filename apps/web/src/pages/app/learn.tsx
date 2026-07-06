@@ -24,6 +24,15 @@ import { cn } from '@/lib/utils'
 // shows the server's authoritative score + XP on completion.
 export function LearnPage() {
   const { lessonId = '' } = useParams()
+  // Key on the lesson id so moving between lessons ("Continue course" → the next
+  // lesson) fully remounts the player: it refetches the lesson and resets
+  // step/completion state. Without the key, React Router only re-renders the same
+  // element — useAsync doesn't refetch and the stale completion panel stays up, so
+  // the button appears to do nothing.
+  return <LessonRoute key={lessonId} lessonId={lessonId} />
+}
+
+function LessonRoute({ lessonId }: { lessonId: string }) {
   const state = useAsync(() => api.data.lesson(lessonId))
   return (
     <AsyncView state={state}>{(lesson) => <LessonPlayer lesson={lesson} />}</AsyncView>

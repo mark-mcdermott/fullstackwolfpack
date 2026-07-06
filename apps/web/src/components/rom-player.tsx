@@ -1,4 +1,13 @@
-import { Gamepad2, GraduationCap, LogOut, Pause, Play, X } from 'lucide-react'
+import {
+  Gamepad2,
+  GraduationCap,
+  LogOut,
+  Maximize,
+  Minimize,
+  Pause,
+  Play,
+  X,
+} from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { ControlsReference } from '@/components/controls/controls-reference'
@@ -6,6 +15,7 @@ import { TouchControls } from '@/components/controls/touch-controls'
 import { Panel, Pill, SectionLabel } from '@fw/ui'
 import { bindsToRetroarchConfig, type RetroButton } from '@/core/controls'
 import { useCoarsePointer } from '@/hooks/use-coarse-pointer'
+import { useFullscreen } from '@/hooks/use-fullscreen'
 import { coreForSystem, SYSTEM_META } from '@/core/roms'
 import { usePlaytimeTracker } from '@/hooks/use-playtime-tracker'
 import { loadGamepadBinds, loadKeyboardBinds } from '@/lib/controls-store'
@@ -67,6 +77,7 @@ export function RomPlayer({
   const [lessonOpen, setLessonOpen] = useState(false)
   const [controlsOpen, setControlsOpen] = useState(false)
   const coarsePointer = useCoarsePointer()
+  const fs = useFullscreen<HTMLDivElement>()
   usePlaytimeTracker(rom)
 
   const pressButton = useCallback((button: RetroButton) => {
@@ -176,7 +187,13 @@ export function RomPlayer({
       </div>
 
       <Panel className="overflow-hidden p-0">
-        <div className="relative aspect-video w-full bg-black">
+        <div
+          ref={fs.ref}
+          className={cn(
+            'relative w-full bg-black',
+            fs.isFullscreen ? 'h-full' : 'aspect-video',
+          )}
+        >
           <div ref={containerRef} className="absolute inset-0" />
 
           {status === 'loading' && (
@@ -274,6 +291,13 @@ export function RomPlayer({
           label="Controls"
           onClick={() => setControlsOpen((open) => !open)}
         />
+        {fs.supported && (
+          <ControlButton
+            icon={fs.isFullscreen ? Minimize : Maximize}
+            label={fs.isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+            onClick={fs.toggle}
+          />
+        )}
       </div>
 
       {coarsePointer && status === 'playing' && !lessonOpen && (
