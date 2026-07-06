@@ -7,7 +7,9 @@ import { ControlsPanel } from '@/components/controls/controls-panel'
 import { PageHeading, Panel, SectionLabel } from '@fw/ui'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
 import { PRO_FEATURES, can, isPaid } from '@/core/access'
+import type { UserPreferences } from '@/core/schemas'
 import { planFor } from '@/core/pricing'
 import { useAuth } from '@/hooks/auth-context'
 import { cn } from '@/lib/utils'
@@ -81,6 +83,93 @@ function OpenAiKeyPanel() {
       >
         {saving ? 'Saving…' : justSaved ? 'Saved ✓' : 'Save key'}
       </button>
+    </Panel>
+  )
+}
+
+const PREF_ROWS: { key: keyof UserPreferences; title: string; desc: string }[] =
+  [
+    {
+      key: 'askSkillLevel',
+      title: 'Gauge my skill level',
+      desc: 'Before a new topic, ask a few quick questions to set the right starting difficulty.',
+    },
+    {
+      key: 'askCoverage',
+      title: 'Ask what to cover',
+      desc: "Before generating a topic, ask whether there's anything specific you want it to include.",
+    },
+    {
+      key: 'linkifyTerms',
+      title: 'Hyperlink key terms',
+      desc: 'Link important terms in your lessons to Wikipedia so you can dig deeper.',
+    },
+  ]
+
+// Global lesson preferences. Each toggle saves optimistically (reverts on error).
+function LessonPreferencesPanel() {
+  const [prefs, setPrefs] = useState<UserPreferences | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let active = true
+    api.preferences
+      .get()
+      .then((p) => active && setPrefs(p))
+      .catch(() => {})
+    return () => {
+      active = false
+    }
+  }, [])
+
+  async function toggle(key: keyof UserPreferences, value: boolean) {
+    if (!prefs) return
+    const prev = prefs
+    setPrefs({ ...prefs, [key]: value })
+    setSaving(true)
+    setError(null)
+    try {
+      setPrefs(await api.preferences.save({ [key]: value }))
+    } catch (e) {
+      setPrefs(prev)
+      setError(e instanceof Error ? e.message : 'Could not save preference')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Panel>
+      <SectionLabel>Lesson preferences</SectionLabel>
+      <p className="mt-2 font-mono text-xs text-muted-foreground">
+        How the app tailors and presents your lessons. Applies to newly
+        generated courses.
+      </p>
+      <div className="mt-4 border-t border-border">
+        {PREF_ROWS.map((r) => (
+          <div
+            key={r.key}
+            className="flex items-start justify-between gap-4 border-b border-border py-3"
+          >
+            <div>
+              <p className="text-sm font-medium">{r.title}</p>
+              <p className="mt-0.5 font-mono text-[11px] text-muted-foreground">
+                {r.desc}
+              </p>
+            </div>
+            <Switch
+              aria-label={r.title}
+              checked={prefs?.[r.key] ?? false}
+              disabled={!prefs || saving}
+              onCheckedChange={(v) => toggle(r.key, v)}
+            />
+          </div>
+        ))}
+      </div>
+      {error && (
+        <p className="mt-2 font-mono text-[10px] text-destructive">{error}</p>
+      )}
     </Panel>
   )
 }
@@ -248,6 +337,9 @@ export function SettingsPage() {
             Save changes →
           </button>
         </Panel>
+
+        {/* Lesson preferences — global toggles (intake + linkify) */}
+        <LessonPreferencesPanel />
 
         {/* Integrations — OpenAI key (encrypted server-side) */}
         <OpenAiKeyPanel />

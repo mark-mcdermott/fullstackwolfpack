@@ -15,6 +15,7 @@ import {
   resetTopicRequest,
   setDifficultyRequest,
   tailorRequest,
+  userPreferencesPatch,
 } from '../../src/core/schemas'
 import { db } from '../../src/db'
 import { topics, users } from '../../src/db/schema'
@@ -52,6 +53,7 @@ import {
 import { getAdaptiveState } from '../../src/server/adaptive'
 import { getTopicTracks, setActiveDifficulty } from '../../src/server/tracks'
 import { tailorCourse } from '../../src/server/tailor'
+import { getPreferences, savePreferences } from '../../src/server/preferences'
 import { runTutor } from '../../src/server/tutor'
 import { getDueReviews, gradeReview } from '../../src/server/review'
 import { json } from '../_lib/http'
@@ -94,6 +96,9 @@ export async function GET(req: Request): Promise<Response> {
 
     case 'generation-eta':
       return json(await getGenerationEta())
+
+    case 'preferences':
+      return json(await getPreferences(userId))
 
     case 'openai-key':
       return json({ hasKey: await hasOpenAiKey(userId) })
@@ -227,6 +232,12 @@ export async function POST(req: Request): Promise<Response> {
       if (!parsed.ok) return parsed.response
       await saveProviderKey(userId, 'anthropic', parsed.data.apiKey)
       return json({ hasKey: true })
+    }
+
+    case 'preferences': {
+      const parsed = await parseBody(userPreferencesPatch, req)
+      if (!parsed.ok) return parsed.response
+      return json(await savePreferences(userId, parsed.data))
     }
 
     case 'enroll': {

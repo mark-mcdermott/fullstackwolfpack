@@ -33,6 +33,12 @@ export const userSettings = pgTable('user_settings', {
   distractionBlocking: boolean('distraction_blocking').notNull().default(true),
   fullscreen: boolean('fullscreen').notNull().default(true),
   breakReminderMinutes: integer('break_reminder_minutes').notNull().default(45),
+  // Global lesson preferences (Settings → Lesson preferences). Consumed by the
+  // pre-generation intake (ask_skill_level / ask_coverage) and lesson rendering
+  // (linkify_terms). Opt-in.
+  askSkillLevel: boolean('ask_skill_level').notNull().default(false),
+  askCoverage: boolean('ask_coverage').notNull().default(false),
+  linkifyTerms: boolean('linkify_terms').notNull().default(false),
   dataRetention: text('data_retention').notNull().default('forever'),
   shareAnalytics: boolean('share_analytics').notNull().default(true),
   enableRecommendations: boolean('enable_recommendations').notNull().default(true),
