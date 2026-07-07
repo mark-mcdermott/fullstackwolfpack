@@ -1,8 +1,9 @@
-import { GraduationCap, LogOut, Maximize, Minimize, Play } from 'lucide-react'
-import { useState } from 'react'
+import { GraduationCap, LogOut, Maximize, Minimize } from 'lucide-react'
 import { Panel, Pill, SectionLabel } from '@fw/ui'
+import { FocusLessonOverlay } from '@/components/focus/focus-lesson-overlay'
 import { useFullscreen } from '@/hooks/use-fullscreen'
 import { usePlaytimeTracker } from '@/hooks/use-playtime-tracker'
+import { useTimer } from '@/hooks/timer-context'
 import {
   embedGameUrl,
   embedGamesCrossOrigin,
@@ -26,9 +27,14 @@ export function EmbedPlayer({
   game: EmbedEntry
   onExit: () => void
 }) {
-  const [lessonOpen, setLessonOpen] = useState(false)
   const fs = useFullscreen<HTMLDivElement>()
+  const timer = useTimer()
   usePlaytimeTracker(game)
+
+  // During a focus session's learn phase, the real lesson overlays the (still
+  // mounted) game; finishing it advances the timer back to play.
+  const inSession = timer.active
+  const learnPhase = inSession && timer.step?.phase === 'learn'
 
   const sandbox = embedGamesCrossOrigin()
     ? 'allow-scripts allow-pointer-lock'
@@ -69,41 +75,20 @@ export function EmbedPlayer({
             allow="autoplay; gamepad; fullscreen"
             referrerPolicy="no-referrer"
           />
-
-          {lessonOpen && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-background/95 px-6 text-center">
-              <GraduationCap className="size-8 text-primary" />
-              <div>
-                <SectionLabel>Interval reached</SectionLabel>
-                <h2 className="mt-1 text-2xl font-bold uppercase">
-                  Time to learn
-                </h2>
-                <p className="mx-auto mt-2 max-w-sm font-mono text-xs text-muted-foreground">
-                  The game is paused. This is where your next lesson drops in —
-                  finish it to keep your streak, then jump back in.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setLessonOpen(false)}
-                className="flex items-center justify-center gap-2 bg-primary px-4 py-2.5 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
-              >
-                <Play className="size-4" /> Resume game
-              </button>
-            </div>
-          )}
         </div>
       </Panel>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setLessonOpen(true)}
-            className="flex items-center justify-center gap-2 bg-primary px-4 py-2.5 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
-          >
-            <GraduationCap className="size-4" /> Pause for lesson
-          </button>
+          {inSession && timer.step?.phase === 'play' && (
+            <button
+              type="button"
+              onClick={timer.skip}
+              className="flex items-center justify-center gap-2 bg-primary px-4 py-2.5 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+            >
+              <GraduationCap className="size-4" /> Learn now
+            </button>
+          )}
           {fs.supported && (
             <button
               type="button"
@@ -132,6 +117,8 @@ export function EmbedPlayer({
           </a>
         </p>
       </div>
+
+      {learnPhase && <FocusLessonOverlay onResume={timer.skip} />}
     </div>
   )
 }
