@@ -9,6 +9,9 @@ export type FocusConfig = {
   playMinutes: number
   learnMinutes: number
   rounds: number
+  // Which phase each round opens with. Omit ⇒ 'play' (play first, then learn).
+  // The launcher's ⇄ swap flips this to 'learn' (earn your game time first).
+  startPhase?: FocusPhase
 }
 export type FocusStep = { phase: FocusPhase; seconds: number }
 
@@ -27,21 +30,26 @@ const clamp = (n: number, lo: number, hi: number): number =>
 
 // Keep config within sane bounds so a hand-edited value can't build a
 // nonsensical (or unbounded) plan.
-export function normalizeFocusConfig(config: FocusConfig): FocusConfig {
+export function normalizeFocusConfig(config: FocusConfig): Required<FocusConfig> {
   return {
     playMinutes: clamp(config.playMinutes, 1, 120),
     learnMinutes: clamp(config.learnMinutes, 1, 60),
     rounds: clamp(config.rounds, 1, 8),
+    startPhase: config.startPhase === 'learn' ? 'learn' : 'play',
   }
 }
 
-// A round is one play phase followed by one learn phase.
+// A round is a play phase and a learn phase; `startPhase` decides which comes
+// first (the launcher's ⇄ swap).
 export function buildFocusPlan(config: FocusConfig): FocusStep[] {
-  const { playMinutes, learnMinutes, rounds } = normalizeFocusConfig(config)
+  const { playMinutes, learnMinutes, rounds, startPhase } =
+    normalizeFocusConfig(config)
+  const play: FocusStep = { phase: 'play', seconds: playMinutes * 60 }
+  const learn: FocusStep = { phase: 'learn', seconds: learnMinutes * 60 }
+  const [first, second] = startPhase === 'learn' ? [learn, play] : [play, learn]
   const steps: FocusStep[] = []
   for (let r = 0; r < rounds; r++) {
-    steps.push({ phase: 'play', seconds: playMinutes * 60 })
-    steps.push({ phase: 'learn', seconds: learnMinutes * 60 })
+    steps.push({ ...first }, { ...second })
   }
   return steps
 }

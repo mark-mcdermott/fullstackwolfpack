@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { MemoryRouter } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 import { AuthContext, type AuthContextValue } from '@/hooks/auth-context'
+import { TimerProvider } from '@/hooks/timer-provider'
 import type { PublicUser } from '@/core/schemas'
 
 // The app pages fetch through the api-client singleton; stub it with canned
@@ -126,7 +127,9 @@ function auth(user: PublicUser | null): AuthContextValue {
 function renderPage(ui: ReactNode, user: PublicUser | null = adminUser) {
   return render(
     <AuthContext.Provider value={auth(user)}>
-      <MemoryRouter>{ui}</MemoryRouter>
+      <TimerProvider>
+        <MemoryRouter>{ui}</MemoryRouter>
+      </TimerProvider>
     </AuthContext.Provider>,
   )
 }

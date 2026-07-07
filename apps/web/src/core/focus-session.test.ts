@@ -31,7 +31,18 @@ describe('normalizeFocusConfig', () => {
       playMinutes: 1,
       learnMinutes: 60,
       rounds: 8,
+      startPhase: 'play',
     })
+  })
+
+  it('honors startPhase in the plan (the launcher ⇄ swap)', () => {
+    const plan = buildFocusPlan({
+      playMinutes: 25,
+      learnMinutes: 5,
+      rounds: 1,
+      startPhase: 'learn',
+    })
+    expect(plan.map((s) => s.phase)).toEqual(['learn', 'play'])
   })
 })
 

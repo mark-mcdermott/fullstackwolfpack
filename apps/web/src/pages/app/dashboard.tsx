@@ -1,6 +1,7 @@
 import { ArrowRight, BookOpen, Flame, Gamepad2, Target } from 'lucide-react'
 import { Link } from 'react-router'
 import { api } from '@/api-client'
+import { SessionLauncher } from '@/components/launch/session-launcher'
 import { AsyncView } from '@/components/layout/async-view'
 import { RecentLessons } from '@/components/learn/recent-lessons'
 import { Panel, ProgressMeter, SectionLabel, StatTile } from '@fw/ui'
@@ -21,6 +22,7 @@ export function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-5">
+      <SessionLauncher />
       <Panel className="p-8">
         <div className="flex items-center justify-between gap-6">
           <div className="flex flex-col gap-4">
@@ -34,9 +36,9 @@ export function DashboardPage() {
             </p>
             <Link
               to="/app/topics"
-              className="mt-2 inline-flex w-fit items-center gap-2 bg-primary px-5 py-3 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+              className="mt-2 inline-flex w-fit items-center gap-2 border border-border px-5 py-3 font-mono text-xs tracking-widest uppercase hover:border-muted-foreground"
             >
-              Start learning <ArrowRight className="size-4" />
+              Browse topics <ArrowRight className="size-4" />
             </Link>
           </div>
           <WolfSun className="hidden w-56 shrink-0 md:block" />
