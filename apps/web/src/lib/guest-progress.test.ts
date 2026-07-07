@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { lessonScore, xpForLesson } from '@/core/learning'
 import {
+  clearGuestProgress,
   completeLessonGuest,
   guestCompletedLessonIds,
   guestLessonsCompleted,
+  guestProgressEntries,
   guestXp,
 } from './guest-progress'
 
@@ -37,5 +39,15 @@ describe('guest progress (localStorage)', () => {
     const b = completeLessonGuest('lesson-b', 4, 4, 3)
     expect(guestLessonsCompleted()).toBe(2)
     expect(guestXp()).toBe(a.xp + b.xp)
+  })
+
+  it('exports migration entries and clears', () => {
+    const a = completeLessonGuest('lesson-a', 3, 4, 2)
+    const entries = guestProgressEntries()
+    expect(entries).toHaveLength(1)
+    expect(entries[0]).toEqual({ lessonId: 'lesson-a', score: a.score, xp: a.xp })
+    clearGuestProgress()
+    expect(guestProgressEntries()).toHaveLength(0)
+    expect(guestXp()).toBe(0)
   })
 })

@@ -7,6 +7,10 @@ import {
 } from 'react'
 import { api } from '@/api-client'
 import type { PublicUser } from '@/core/schemas'
+import {
+  clearGuestProgress,
+  guestProgressEntries,
+} from '@/lib/guest-progress'
 import { AuthContext } from './auth-context'
 
 // Thin state shell over the shared api-client. All transport + WebAuthn
@@ -25,13 +29,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void refresh()
   }, [refresh])
 
-  const register = useCallback(async (email: string, displayName: string) => {
-    setUser(await api.auth.register(email, displayName))
+  // Carry a guest's localStorage progress into the account. Best-effort — on
+  // failure the localStorage is kept so the next login can retry.
+  const migrateGuestProgress = useCallback(async () => {
+    const entries = guestProgressEntries()
+    if (entries.length === 0) return
+    try {
+      await api.data.importProgress(entries)
+      clearGuestProgress()
+    } catch {
+      /* keep localStorage for a later retry */
+    }
   }, [])
 
-  const login = useCallback(async (email: string) => {
-    setUser(await api.auth.login(email))
-  }, [])
+  const register = useCallback(
+    async (email: string, displayName: string) => {
+      setUser(await api.auth.register(email, displayName))
+      await migrateGuestProgress()
+    },
+    [migrateGuestProgress],
+  )
+
+  const login = useCallback(
+    async (email: string) => {
+      setUser(await api.auth.login(email))
+      await migrateGuestProgress()
+    },
+    [migrateGuestProgress],
+  )
 
   const recover = useCallback(async (email: string, token: string) => {
     setUser(await api.auth.recover(email, token))

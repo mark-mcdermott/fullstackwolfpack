@@ -1,5 +1,6 @@
 import { and, eq, inArray, sql, sum } from 'drizzle-orm'
 import type { CourseOutline } from '../core/app-data'
+import type { GuestProgressEntry } from '../core/public-content'
 import { parseExerciseTests } from '../core/exercise'
 import { gitGoalSchema } from '../core/git-sim'
 import {
@@ -524,4 +525,65 @@ export async function resetTopicProgress(
     .where(and(eq(userTopics.userId, userId), eq(userTopics.topicId, topic.id)))
 
   return true
+}
+
+// ---- Write: migrate a guest's localStorage progress into a new account ----
+
+// Seed a just-signed-up (or just-logged-in) account from the guest's localStorage
+// progress. Only BUILT-IN lessons the account hasn't already completed are
+// imported; score/xp are clamped by the request schema (untrusted client input),
+// so the worst a crafted request can do is credit a modest per-lesson XP. No
+// streak side effect — imported work wasn't done "today".
+export async function importGuestProgress(
+  userId: string,
+  entries: GuestProgressEntry[],
+): Promise<{ imported: number; xp: number }> {
+  const now = new Date()
+  let imported = 0
+  let xpTotal = 0
+  for (const e of entries) {
+    const [row] = await db
+      .select({ topicId: courses.topicId, owner: courses.ownerUserId })
+      .from(lessons)
+      .innerJoin(courses, eq(courses.id, lessons.courseId))
+      .where(eq(lessons.id, e.lessonId))
+    if (!row || row.owner !== null) continue // built-in only
+
+    const [existing] = await db
+      .select({ status: userLessonProgress.status })
+      .from(userLessonProgress)
+      .where(
+        and(
+          eq(userLessonProgress.userId, userId),
+          eq(userLessonProgress.lessonId, e.lessonId),
+        ),
+      )
+    if (existing?.status === 'completed') continue // don't double-award
+
+    await db
+      .insert(userLessonProgress)
+      .values({
+        userId,
+        lessonId: e.lessonId,
+        status: 'completed',
+        score: e.score,
+        resumePct: 100,
+        completedAt: now,
+      })
+      .onConflictDoUpdate({
+        target: [userLessonProgress.userId, userLessonProgress.lessonId],
+        set: { status: 'completed', score: e.score, resumePct: 100, completedAt: now },
+      })
+    await recomputeTopicProgress(userId, row.topicId, now)
+    await grantXp(userId, {
+      type: 'lesson_completed',
+      xp: e.xp,
+      refType: 'lesson',
+      refId: e.lessonId,
+      description: 'Imported guest progress',
+    })
+    imported++
+    xpTotal += e.xp
+  }
+  return { imported, xp: xpTotal }
 }
