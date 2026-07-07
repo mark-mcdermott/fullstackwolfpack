@@ -37,18 +37,38 @@ export function LearnPage({ guest = false }: { guest?: boolean }) {
   return <LessonRoute key={lessonId} lessonId={lessonId} guest={guest} />
 }
 
-function LessonRoute({ lessonId, guest }: { lessonId: string; guest: boolean }) {
+// Exported so the in-game focus overlay can embed the player (with `onExit` set
+// to resume the game instead of navigating away).
+export function LessonRoute({
+  lessonId,
+  guest = false,
+  onExit,
+}: {
+  lessonId: string
+  guest?: boolean
+  onExit?: () => void
+}) {
   const state = useAsync(() =>
     guest ? api.public.lesson(lessonId) : api.data.lesson(lessonId),
   )
   return (
     <AsyncView state={state}>
-      {(lesson) => <LessonPlayer lesson={lesson} guest={guest} />}
+      {(lesson) => (
+        <LessonPlayer lesson={lesson} guest={guest} onExit={onExit} />
+      )}
     </AsyncView>
   )
 }
 
-function LessonPlayer({ lesson, guest }: { lesson: LessonView; guest: boolean }) {
+function LessonPlayer({
+  lesson,
+  guest,
+  onExit,
+}: {
+  lesson: LessonView
+  guest: boolean
+  onExit?: () => void
+}) {
   const { user } = useAuth()
   const canTutor = user ? can(user, 'feature.ai_tutor') : false
   const [index, setIndex] = useState(0)
@@ -126,6 +146,7 @@ function LessonPlayer({ lesson, guest }: { lesson: LessonView; guest: boolean })
         completion={completion}
         onRestart={restart}
         guest={guest}
+        onExit={onExit}
       />
     )
   }
@@ -137,14 +158,24 @@ function LessonPlayer({ lesson, guest }: { lesson: LessonView; guest: boolean })
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-5">
       <div className="flex items-center justify-between">
-        <Link
-          to={guest ? '/learn' : '/app/topics'}
-          className="inline-flex items-center gap-1 font-mono text-[10px] tracking-widest text-muted-foreground uppercase hover:text-foreground"
-        >
-          <ArrowLeft className="size-3" /> Topics
-        </Link>
+        {onExit ? (
+          <button
+            type="button"
+            onClick={onExit}
+            className="inline-flex items-center gap-1 font-mono text-[10px] tracking-widest text-muted-foreground uppercase hover:text-foreground"
+          >
+            <ArrowLeft className="size-3" /> Resume game
+          </button>
+        ) : (
+          <Link
+            to={guest ? '/learn' : '/app/topics'}
+            className="inline-flex items-center gap-1 font-mono text-[10px] tracking-widest text-muted-foreground uppercase hover:text-foreground"
+          >
+            <ArrowLeft className="size-3" /> Topics
+          </Link>
+        )}
         <div className="flex items-center gap-3">
-          {!guest && (
+          {!guest && !onExit && (
             <Link
               to={`/app/topics/${lesson.topicSlug}/settings`}
               aria-label="Topic settings"
@@ -235,11 +266,13 @@ function CompletionPanel({
   completion,
   onRestart,
   guest,
+  onExit,
 }: {
   lesson: LessonView
   completion: LessonCompletion
   onRestart: () => void
   guest: boolean
+  onExit?: () => void
 }) {
   const mastered = completion.score >= 90
   // Fetch the course so we can advance the learner to the next lesson instead of
@@ -308,25 +341,38 @@ function CompletionPanel({
           >
             <RotateCcw className="size-4" /> Review again
           </button>
-          <Link
-            to={guest ? '/learn' : '/app/topics'}
-            className={cn(
-              'inline-flex items-center gap-2 px-4 py-2 font-mono text-xs tracking-widest uppercase',
-              nextLessonId
-                ? 'border border-border hover:border-muted-foreground'
-                : 'bg-primary px-5 text-primary-foreground hover:bg-primary/80',
-            )}
-          >
-            Back to topics
-            {!nextLessonId && <ArrowRight className="size-4" />}
-          </Link>
-          {nextLessonId && (
-            <Link
-              to={lessonHref(nextLessonId)}
+          {onExit ? (
+            // In-game overlay: complete → resume the game (don't navigate away).
+            <button
+              type="button"
+              onClick={onExit}
               className="inline-flex items-center gap-2 bg-primary px-5 py-2 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
             >
-              Continue course <ArrowRight className="size-4" />
-            </Link>
+              Back to game <ArrowRight className="size-4" />
+            </button>
+          ) : (
+            <>
+              <Link
+                to={guest ? '/learn' : '/app/topics'}
+                className={cn(
+                  'inline-flex items-center gap-2 px-4 py-2 font-mono text-xs tracking-widest uppercase',
+                  nextLessonId
+                    ? 'border border-border hover:border-muted-foreground'
+                    : 'bg-primary px-5 text-primary-foreground hover:bg-primary/80',
+                )}
+              >
+                Back to topics
+                {!nextLessonId && <ArrowRight className="size-4" />}
+              </Link>
+              {nextLessonId && (
+                <Link
+                  to={lessonHref(nextLessonId)}
+                  className="inline-flex items-center gap-2 bg-primary px-5 py-2 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+                >
+                  Continue course <ArrowRight className="size-4" />
+                </Link>
+              )}
+            </>
           )}
         </div>
       </Panel>
