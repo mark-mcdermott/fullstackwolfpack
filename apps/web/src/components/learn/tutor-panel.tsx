@@ -25,10 +25,11 @@ export function TutorPanel({
     return (
       <div className="flex flex-col items-start gap-2 border border-dashed border-border p-4">
         <p className="inline-flex items-center gap-2 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
-          <Lock className="size-3.5" /> AI tutor · Pro
+          <Lock className="size-3.5" /> Akela · Pro
         </p>
         <p className="text-xs text-muted-foreground">
-          Get grounded hints and explanations for this lesson with the AI tutor.
+          Akela — your AI guide — gives grounded hints and explanations for this
+          lesson.
         </p>
         <a
           href={siteUrl('/pricing')}
@@ -51,7 +52,7 @@ export function TutorPanel({
       const { reply } = await api.data.tutor(segmentId, next, mode)
       setMessages([...next, { role: 'assistant', content: reply }])
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'The tutor is unavailable.')
+      setError(e instanceof Error ? e.message : 'Akela is unavailable.')
     } finally {
       setPending(false)
     }
@@ -60,8 +61,16 @@ export function TutorPanel({
   return (
     <div className="flex flex-col gap-3 border border-border p-4">
       <p className="inline-flex items-center gap-2 font-mono text-[10px] tracking-widest text-primary uppercase">
-        <Sparkles className="size-3.5" /> AI tutor
+        <Sparkles className="size-3.5" /> Akela
       </p>
+
+      {messages.length === 0 && (
+        <p className="text-xs text-muted-foreground">
+          I'm <span className="font-semibold text-foreground">Akela</span>, your
+          guide. Stuck on this lesson? Ask for a hint, another explanation, or an
+          example.
+        </p>
+      )}
 
       {messages.length > 0 && (
         <div className="flex max-h-72 flex-col gap-3 overflow-y-auto">
@@ -112,7 +121,7 @@ export function TutorPanel({
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask about this lesson…"
+          placeholder="Ask Akela about this lesson…"
           className="flex-1 border border-border bg-transparent px-3 py-2 text-sm outline-none focus:border-muted-foreground"
         />
         <button

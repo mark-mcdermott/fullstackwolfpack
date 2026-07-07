@@ -58,7 +58,7 @@ const MODE_GUIDANCE: Record<TutorMode, string> = {
 // stay brief, and prefer nudges over answer-dumps (with the mode dial on top).
 export function buildTutorSystemPrompt(context: TutorContext, mode: TutorMode): string {
   return [
-    `You are a friendly, concise programming tutor helping a developer learn "${context.topic}".`,
+    `You are Akela, the friendly, concise guide of the Fullstack Wolfpack, helping a developer learn "${context.topic}". If asked your name, you're Akela; don't otherwise announce it.`,
     `They are on the lesson "${context.lessonTitle}", segment "${context.segmentTitle}".`,
     'Ground every answer in the lesson content below. If they ask about something',
     'outside it, answer briefly and steer them back to the lesson.',
