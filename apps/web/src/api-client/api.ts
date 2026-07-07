@@ -53,6 +53,10 @@ import {
   type UserSearchView,
 } from '@/core/social'
 import {
+  publicTopicsSchema,
+  type PublicTopicsView,
+} from '@/core/public-content'
+import {
   achievementsViewSchema,
   adminUsersSchema,
   courseOutlineSchema,
@@ -461,6 +465,40 @@ export function createApi({ http, passkeys }: Adapters) {
     },
   }
 
+  // Public (guest) content — built-in tutorials, readable without a session.
+  const publicApi = {
+    async topics(): Promise<PublicTopicsView> {
+      return publicTopicsSchema.parse(
+        await http.request('/api/me/public-topics'),
+      )
+    },
+    async course(topicSlug: string): Promise<CourseOutline> {
+      return courseOutlineSchema.parse(
+        await http.request(
+          `/api/me/public-course?topic=${encodeURIComponent(topicSlug)}`,
+        ),
+      )
+    },
+    async lesson(lessonId: string): Promise<LessonView> {
+      return lessonViewSchema.parse(
+        await http.request(
+          `/api/me/public-lesson?id=${encodeURIComponent(lessonId)}`,
+        ),
+      )
+    },
+    async grade(
+      questionId: string,
+      input: { selectedIndex?: number; answerText?: string },
+    ): Promise<AnswerFeedback> {
+      return answerFeedbackSchema.parse(
+        await http.request('/api/me/public-grade', {
+          method: 'POST',
+          body: JSON.stringify({ questionId, ...input }),
+        }),
+      )
+    },
+  }
+
   // Community: friends + DMs + presence. All poll-based (no realtime service).
   const social = {
     async friends(): Promise<FriendsView> {
@@ -519,6 +557,7 @@ export function createApi({ http, passkeys }: Adapters) {
     billing,
     admin,
     social,
+    public: publicApi,
   }
 }
 

@@ -18,29 +18,37 @@ import type {
 } from '@/core/lesson-view'
 import { useAuth } from '@/hooks/auth-context'
 import { useAsync } from '@/hooks/use-async'
+import {
+  completeLessonGuest,
+  guestCompletedLessonIds,
+} from '@/lib/guest-progress'
 import { cn } from '@/lib/utils'
 
 // The lesson player: steps through a lesson's segments one at a time (bite-sized, for
 // studying between gaming sessions), grades quiz answers inline via the server, and
 // shows the server's authoritative score + XP on completion.
-export function LearnPage() {
+export function LearnPage({ guest = false }: { guest?: boolean }) {
   const { lessonId = '' } = useParams()
   // Key on the lesson id so moving between lessons ("Continue course" → the next
   // lesson) fully remounts the player: it refetches the lesson and resets
   // step/completion state. Without the key, React Router only re-renders the same
   // element — useAsync doesn't refetch and the stale completion panel stays up, so
   // the button appears to do nothing.
-  return <LessonRoute key={lessonId} lessonId={lessonId} />
+  return <LessonRoute key={lessonId} lessonId={lessonId} guest={guest} />
 }
 
-function LessonRoute({ lessonId }: { lessonId: string }) {
-  const state = useAsync(() => api.data.lesson(lessonId))
+function LessonRoute({ lessonId, guest }: { lessonId: string; guest: boolean }) {
+  const state = useAsync(() =>
+    guest ? api.public.lesson(lessonId) : api.data.lesson(lessonId),
+  )
   return (
-    <AsyncView state={state}>{(lesson) => <LessonPlayer lesson={lesson} />}</AsyncView>
+    <AsyncView state={state}>
+      {(lesson) => <LessonPlayer lesson={lesson} guest={guest} />}
+    </AsyncView>
   )
 }
 
-function LessonPlayer({ lesson }: { lesson: LessonView }) {
+function LessonPlayer({ lesson, guest }: { lesson: LessonView; guest: boolean }) {
   const { user } = useAuth()
   const canTutor = user ? can(user, 'feature.ai_tutor') : false
   const [index, setIndex] = useState(0)
@@ -51,7 +59,9 @@ function LessonPlayer({ lesson }: { lesson: LessonView }) {
   const [linkify, setLinkify] = useState(false)
 
   // Hyperlink key terms only when the reader opted in (global lesson pref).
+  // Guests have no server prefs — default off.
   useEffect(() => {
+    if (guest) return
     let active = true
     api.preferences
       .get()
@@ -60,7 +70,7 @@ function LessonPlayer({ lesson }: { lesson: LessonView }) {
     return () => {
       active = false
     }
-  }, [])
+  }, [guest])
 
   const totalQuestions = useMemo(
     () => lesson.segments.reduce((n, s) => n + s.questions.length, 0),
@@ -78,7 +88,15 @@ function LessonPlayer({ lesson }: { lesson: LessonView }) {
     if (completing) return
     setCompleting(true)
     try {
-      setCompletion(await api.data.completeLesson(lesson.lessonId))
+      const correct = Object.values(correctById).filter(Boolean).length
+      if (guest) {
+        // Guests: compute + persist to localStorage (same core math as the server).
+        setCompletion(
+          completeLessonGuest(lesson.lessonId, correct, totalQuestions, quizXp),
+        )
+      } else {
+        setCompletion(await api.data.completeLesson(lesson.lessonId))
+      }
     } catch {
       // Fallback so the learner still sees a result if the write fails.
       const correct = Object.values(correctById).filter(Boolean).length
@@ -103,7 +121,12 @@ function LessonPlayer({ lesson }: { lesson: LessonView }) {
 
   if (completion) {
     return (
-      <CompletionPanel lesson={lesson} completion={completion} onRestart={restart} />
+      <CompletionPanel
+        lesson={lesson}
+        completion={completion}
+        onRestart={restart}
+        guest={guest}
+      />
     )
   }
 
@@ -115,19 +138,21 @@ function LessonPlayer({ lesson }: { lesson: LessonView }) {
     <div className="mx-auto flex max-w-3xl flex-col gap-5">
       <div className="flex items-center justify-between">
         <Link
-          to="/app/topics"
+          to={guest ? '/learn' : '/app/topics'}
           className="inline-flex items-center gap-1 font-mono text-[10px] tracking-widest text-muted-foreground uppercase hover:text-foreground"
         >
           <ArrowLeft className="size-3" /> Topics
         </Link>
         <div className="flex items-center gap-3">
-          <Link
-            to={`/app/topics/${lesson.topicSlug}/settings`}
-            aria-label="Topic settings"
-            className="text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <Settings className="size-4" />
-          </Link>
+          {!guest && (
+            <Link
+              to={`/app/topics/${lesson.topicSlug}/settings`}
+              aria-label="Topic settings"
+              className="text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <Settings className="size-4" />
+            </Link>
+          )}
           <Pill>{lesson.topic}</Pill>
         </div>
       </div>
@@ -165,13 +190,22 @@ function LessonPlayer({ lesson }: { lesson: LessonView }) {
         {segment.questions.length > 0 && (
           <QuizSegment
             questions={segment.questions}
-            onGrade={(questionId, input) => api.data.answer(questionId, input)}
+            onGrade={(questionId, input) =>
+              guest
+                ? api.public.grade(questionId, input)
+                : api.data.answer(questionId, input)
+            }
             onAnswered={recordAnswer}
           />
         )}
       </Panel>
 
-      <TutorPanel key={segment.id} segmentId={segment.id} canUse={canTutor} />
+      <TutorPanel
+        key={segment.id}
+        segmentId={segment.id}
+        canUse={canTutor}
+        guest={guest}
+      />
 
       <div className="flex items-center justify-between">
         <button
@@ -200,23 +234,29 @@ function CompletionPanel({
   lesson,
   completion,
   onRestart,
+  guest,
 }: {
   lesson: LessonView
   completion: LessonCompletion
   onRestart: () => void
+  guest: boolean
 }) {
   const mastered = completion.score >= 90
   // Fetch the course so we can advance the learner to the next lesson instead of
-  // dead-ending at Topics. `nextLessonId` alone can't tell us "course finished" —
-  // it falls back to the first lesson for review once everything's done — so we
-  // derive the next lesson from the per-lesson status, skipping the one just
-  // completed (which also keeps us correct if the completion write hit its fallback).
-  const courseState = useAsync(() => api.data.course(lesson.topicSlug))
+  // dead-ending at Topics. For guests the outline carries no progress, so "done"
+  // comes from localStorage (the lesson just finished is already recorded there).
+  const courseState = useAsync(() =>
+    guest ? api.public.course(lesson.topicSlug) : api.data.course(lesson.topicSlug),
+  )
+  const done = guest ? guestCompletedLessonIds() : null
   const nextLessonId =
     courseState.data?.lessons.find(
-      (l) => l.status !== 'completed' && l.lessonId !== lesson.lessonId,
+      (l) =>
+        (done ? !done.has(l.lessonId) : l.status !== 'completed') &&
+        l.lessonId !== lesson.lessonId,
     )?.lessonId ?? null
   const courseComplete = courseState.data != null && nextLessonId == null
+  const lessonHref = (id: string) => (guest ? `/learn/${id}` : `/app/learn/${id}`)
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col">
@@ -243,7 +283,22 @@ function CompletionPanel({
           </div>
         )}
 
-        <NextDifficulty />
+        {!guest && <NextDifficulty />}
+
+        {guest && (
+          <div className="mt-4 flex items-center gap-2 border border-primary/40 bg-primary/10 px-4 py-3">
+            <Trophy className="size-4 shrink-0 text-primary" />
+            <p className="text-left text-xs text-muted-foreground">
+              You earned{' '}
+              <span className="font-bold text-foreground">+{completion.xp} XP</span>{' '}
+              as a guest.{' '}
+              <Link to="/signup" className="font-semibold text-primary hover:underline">
+                Create a free account
+              </Link>{' '}
+              to save it and keep your streak.
+            </p>
+          </div>
+        )}
 
         <div className="mt-4 flex flex-col items-center gap-3 sm:flex-row">
           <button
@@ -254,7 +309,7 @@ function CompletionPanel({
             <RotateCcw className="size-4" /> Review again
           </button>
           <Link
-            to="/app/topics"
+            to={guest ? '/learn' : '/app/topics'}
             className={cn(
               'inline-flex items-center gap-2 px-4 py-2 font-mono text-xs tracking-widest uppercase',
               nextLessonId
@@ -267,7 +322,7 @@ function CompletionPanel({
           </Link>
           {nextLessonId && (
             <Link
-              to={`/app/learn/${nextLessonId}`}
+              to={lessonHref(nextLessonId)}
               className="inline-flex items-center gap-2 bg-primary px-5 py-2 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
             >
               Continue course <ArrowRight className="size-4" />

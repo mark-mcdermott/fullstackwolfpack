@@ -1,5 +1,6 @@
 import { Lock, Send, Sparkles } from 'lucide-react'
 import { useState } from 'react'
+import { Link } from 'react-router'
 import { api } from '@/api-client'
 import { siteUrl } from '@/consts'
 import type { TutorMessage, TutorMode } from '@/core/tutor'
@@ -12,9 +13,11 @@ import { LessonMarkdown } from './lesson-markdown'
 export function TutorPanel({
   segmentId,
   canUse,
+  guest = false,
 }: {
   segmentId: string
   canUse: boolean
+  guest?: boolean
 }) {
   const [messages, setMessages] = useState<TutorMessage[]>([])
   const [input, setInput] = useState('')
@@ -25,18 +28,27 @@ export function TutorPanel({
     return (
       <div className="flex flex-col items-start gap-2 border border-dashed border-border p-4">
         <p className="inline-flex items-center gap-2 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
-          <Lock className="size-3.5" /> Akela · Pro
+          <Lock className="size-3.5" /> Akela · {guest ? 'Sign in' : 'Pro'}
         </p>
         <p className="text-xs text-muted-foreground">
           Akela — your AI guide — gives grounded hints and explanations for this
           lesson.
         </p>
-        <a
-          href={siteUrl('/pricing')}
-          className="mt-1 bg-primary px-4 py-2 font-mono text-[10px] tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
-        >
-          Upgrade to Pro
-        </a>
+        {guest ? (
+          <Link
+            to="/signup"
+            className="mt-1 bg-primary px-4 py-2 font-mono text-[10px] tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+          >
+            Create a free account
+          </Link>
+        ) : (
+          <a
+            href={siteUrl('/pricing')}
+            className="mt-1 bg-primary px-4 py-2 font-mono text-[10px] tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+          >
+            Upgrade to Pro
+          </a>
+        )}
       </div>
     )
   }
