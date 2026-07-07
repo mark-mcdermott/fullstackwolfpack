@@ -6,6 +6,13 @@ import type { EmulatorSession, LaunchOptions } from '@/lib/emulator'
 import type { RomEntry, UploadedRom } from '@/lib/rom-catalog'
 import { RomPlayer } from './rom-player'
 
+// The player mounts usePlaytimeTracker, which reads useAuth. Provide a signed-in
+// user so the tracker behaves as it does for logged-in players (guests are
+// covered by the /play route + hook guards).
+vi.mock('@/hooks/auth-context', () => ({
+  useAuth: () => ({ user: { id: 'test-user' } }),
+}))
+
 const catalogRom: RomEntry = {
   source: 'catalog',
   id: 'brick-buster',

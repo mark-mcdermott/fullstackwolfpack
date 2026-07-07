@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router'
 import { AppLayout } from '@/components/layout/app-layout'
 import { AuthChromeLayout } from '@/components/layout/auth-chrome-layout'
+import { GuestLayout } from '@/components/layout/guest-layout'
 import { RequireAuth, RequireRole } from '@/components/layout/guards'
 import { RootRedirect } from '@/components/layout/root-redirect'
 import { AchievementsPage } from '@/pages/app/achievements'
@@ -33,6 +34,11 @@ function App() {
       <Route element={<AuthChromeLayout />}>
         <Route path="/login" element={<SignInPage />} />
         <Route path="/signup" element={<SignUpPage />} />
+      </Route>
+
+      {/* Public (guest) — try before signup. No RequireAuth. */}
+      <Route element={<GuestLayout />}>
+        <Route path="/play" element={<ArcadePage />} />
       </Route>
 
       {/* Private */}

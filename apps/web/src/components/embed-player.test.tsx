@@ -4,6 +4,13 @@ import { describe, expect, it, vi } from 'vitest'
 import { EMBED_CATALOG } from '@/lib/embed-catalog'
 import { EmbedPlayer } from './embed-player'
 
+// The player mounts usePlaytimeTracker, which reads useAuth. Provide a signed-in
+// user so the tracker behaves as it does for logged-in players (guests are
+// covered by the /play route + hook guards).
+vi.mock('@/hooks/auth-context', () => ({
+  useAuth: () => ({ user: { id: 'test-user' } }),
+}))
+
 const game = EMBED_CATALOG[0]
 
 describe('EmbedPlayer', () => {
