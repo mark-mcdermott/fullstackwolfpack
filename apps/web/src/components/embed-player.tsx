@@ -1,6 +1,7 @@
 import { GraduationCap, LogOut, Maximize, Minimize } from 'lucide-react'
 import { Panel, Pill, SectionLabel } from '@fw/ui'
 import { FocusLessonOverlay } from '@/components/focus/focus-lesson-overlay'
+import { SessionTimerInline } from '@/components/focus/session-timer-inline'
 import { useFullscreen } from '@/hooks/use-fullscreen'
 import { usePlaytimeTracker } from '@/hooks/use-playtime-tracker'
 import { useTimer } from '@/hooks/timer-context'
@@ -47,15 +48,18 @@ export function EmbedPlayer({
           <SectionLabel>Now playing</SectionLabel>
           <h1 className="mt-1 text-3xl font-semibold uppercase">{game.title}</h1>
         </div>
-        <div className="flex items-center gap-3">
-          <Pill>Web</Pill>
-          <button
-            type="button"
-            onClick={onExit}
-            className="flex items-center justify-center gap-2 border border-border px-4 py-2.5 font-mono text-xs tracking-widest uppercase hover:bg-muted"
-          >
-            <LogOut className="size-4" /> Exit
-          </button>
+        <div className="flex flex-col items-end gap-2">
+          <SessionTimerInline />
+          <div className="flex items-center gap-3">
+            <Pill>Web</Pill>
+            <button
+              type="button"
+              onClick={onExit}
+              className="flex items-center justify-center gap-2 border border-border px-4 py-2.5 font-mono text-xs tracking-widest uppercase hover:bg-muted"
+            >
+              <LogOut className="size-4" /> Exit
+            </button>
+          </div>
         </div>
       </div>
 

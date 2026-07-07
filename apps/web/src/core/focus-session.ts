@@ -12,6 +12,9 @@ export type FocusConfig = {
   // Which phase each round opens with. Omit ⇒ 'play' (play first, then learn).
   // The launcher's ⇄ swap flips this to 'learn' (earn your game time first).
   startPhase?: FocusPhase
+  // When true, the plan repeats (play↔learn) until the user ends it — a launcher
+  // session keeps the loop going instead of stopping after `rounds`. Omit ⇒ false.
+  loop?: boolean
 }
 export type FocusStep = { phase: FocusPhase; seconds: number }
 
@@ -36,6 +39,7 @@ export function normalizeFocusConfig(config: FocusConfig): Required<FocusConfig>
     learnMinutes: clamp(config.learnMinutes, 1, 60),
     rounds: clamp(config.rounds, 1, 8),
     startPhase: config.startPhase === 'learn' ? 'learn' : 'play',
+    loop: config.loop === true,
   }
 }
 
@@ -170,13 +174,23 @@ export function reconcileFocusSession(
   now: number,
 ): FocusStepResult {
   if (session.endsAt === null) return { done: false, session }
+  const loop = session.config.loop === true
   let { stepIndex, endsAt, donePlay, doneLearn } = session
+  // Bound catch-up on a looping session so a long background gap can't bank hours
+  // of phantom play/learn time — past that, just end it.
+  let guard = session.plan.length * 4
   while (endsAt <= now) {
     const step = session.plan[stepIndex]
     if (step.phase === 'play') donePlay += step.seconds
     else doneLearn += step.seconds
     stepIndex += 1
     if (stepIndex >= session.plan.length) {
+      if (!loop) {
+        return { done: true, tally: { playSeconds: donePlay, learnSeconds: doneLearn } }
+      }
+      stepIndex = 0
+    }
+    if (loop && --guard <= 0) {
       return { done: true, tally: { playSeconds: donePlay, learnSeconds: doneLearn } }
     }
     endsAt += session.plan[stepIndex].seconds * 1000
@@ -220,13 +234,15 @@ export function skipFocusPhase(
   const step = session.plan[session.stepIndex]
   const elapsed = step.seconds - secondsLeftIn(session, now)
   const banked = bank(session, step.phase, elapsed)
-  const next = session.stepIndex + 1
-  if (next >= session.plan.length) {
+  const raw = session.stepIndex + 1
+  const wrapped = raw >= session.plan.length
+  if (wrapped && session.config.loop !== true) {
     return {
       done: true,
       tally: { playSeconds: banked.donePlay, learnSeconds: banked.doneLearn },
     }
   }
+  const next = wrapped ? 0 : raw // looping sessions wrap back to the first phase
   const paused = session.endsAt === null
   return {
     done: false,
