@@ -14,3 +14,23 @@ export const publicTopicsSchema = z.object({
   topics: z.array(publicTopicSchema),
 })
 export type PublicTopicsView = z.infer<typeof publicTopicsSchema>
+
+// Guest → account migration (on signup/login). The client posts its localStorage
+// progress; the server clamps score/xp (untrusted client input) and grants it for
+// built-in lessons the account hasn't already completed.
+export const guestProgressEntrySchema = z.object({
+  lessonId: z.string().min(1),
+  score: z.number().int().min(0).max(100),
+  xp: z.number().int().min(0).max(200),
+})
+export type GuestProgressEntry = z.infer<typeof guestProgressEntrySchema>
+
+export const importProgressRequest = z.object({
+  entries: z.array(guestProgressEntrySchema).max(500),
+})
+
+export const importProgressResult = z.object({
+  imported: z.number().int(),
+  xp: z.number().int(),
+})
+export type ImportProgressResult = z.infer<typeof importProgressResult>

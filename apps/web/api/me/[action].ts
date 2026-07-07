@@ -79,9 +79,11 @@ import {
   completeLesson,
   getCourseOutline,
   getLessonView,
+  importGuestProgress,
   resetTopicProgress,
   submitAnswer,
 } from '../../src/server/learning'
+import { importProgressRequest } from '../../src/core/public-content'
 import { getAdaptiveState } from '../../src/server/adaptive'
 import { getTopicTracks, setActiveDifficulty } from '../../src/server/tracks'
 import { tailorCourse } from '../../src/server/tailor'
@@ -345,6 +347,12 @@ export async function POST(req: Request): Promise<Response> {
     case 'heartbeat':
       await touchPresence(userId)
       return json({ ok: true })
+
+    case 'import-progress': {
+      const parsed = await parseBody(importProgressRequest, req)
+      if (!parsed.ok) return parsed.response
+      return json(await importGuestProgress(userId, parsed.data.entries))
+    }
 
     case 'friend-request': {
       const parsed = await parseBody(friendRequestBody, req)

@@ -53,7 +53,10 @@ import {
   type UserSearchView,
 } from '@/core/social'
 import {
+  importProgressResult,
   publicTopicsSchema,
+  type GuestProgressEntry,
+  type ImportProgressResult,
   type PublicTopicsView,
 } from '@/core/public-content'
 import {
@@ -251,6 +254,17 @@ export function createApi({ http, passkeys }: Adapters) {
         await http.request('/api/me/complete', {
           method: 'POST',
           body: JSON.stringify({ lessonId }),
+        }),
+      )
+    },
+    // Migrate a guest's localStorage progress into the account (on signup/login).
+    async importProgress(
+      entries: GuestProgressEntry[],
+    ): Promise<ImportProgressResult> {
+      return importProgressResult.parse(
+        await http.request('/api/me/import-progress', {
+          method: 'POST',
+          body: JSON.stringify({ entries }),
         }),
       )
     },

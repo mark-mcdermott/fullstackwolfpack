@@ -1,5 +1,6 @@
 import { lessonScore, xpForLesson } from '@/core/learning'
 import type { LessonCompletion } from '@/core/lesson-view'
+import type { GuestProgressEntry } from '@/core/public-content'
 
 // Guest (no-login) progress, mirrored in localStorage. Uses the SAME pure
 // core/learning math as the server so a guest's XP/score matches what they'd get
@@ -43,6 +44,24 @@ export function guestXp(): number {
 
 export function guestLessonsCompleted(): number {
   return Object.keys(read().completed).length
+}
+
+// The completed lessons as migration entries (posted to the account on signup).
+export function guestProgressEntries(): GuestProgressEntry[] {
+  return Object.entries(read().completed).map(([lessonId, v]) => ({
+    lessonId,
+    score: v.score,
+    xp: v.xp,
+  }))
+}
+
+// Cleared after a successful migration so it doesn't re-import on the next login.
+export function clearGuestProgress(): void {
+  try {
+    localStorage.removeItem(KEY)
+  } catch {
+    /* ignore */
+  }
 }
 
 // Compute a lesson result the same way the server does, and persist it (idempotent
