@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { api } from '@/api-client'
 import { gameKey, type PlaytimeSource } from '@/core/playtime'
+import { useAuth } from '@/hooks/auth-context'
 
 // How often a long, uninterrupted session banks its time server-side, so a hard
 // tab-crash loses at most this much. Normal exits flush immediately on unmount.
@@ -13,10 +14,12 @@ type TrackableGame = { source: PlaytimeSource; id: string; title: string }
 // it from the ROM / embed player. Time is wall-clock (mount→unmount); time while
 // the tab is hidden is dropped, since that isn't really play.
 export function usePlaytimeTracker(game: TrackableGame): void {
+  const loggedIn = !!useAuth().user
   const key = gameKey(game)
   const { source, title } = game
 
   useEffect(() => {
+    if (!loggedIn) return // guests: playtime isn't tracked server-side
     let last = Date.now()
 
     const send = (seconds: number, beacon: boolean) => {
@@ -68,5 +71,5 @@ export function usePlaytimeTracker(game: TrackableGame): void {
       window.removeEventListener('pagehide', onPageHide)
       flush(false)
     }
-  }, [key, source, title])
+  }, [key, source, title, loggedIn])
 }
