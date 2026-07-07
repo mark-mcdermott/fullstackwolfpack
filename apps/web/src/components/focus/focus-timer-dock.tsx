@@ -12,7 +12,8 @@ import { useLocation, useNavigate } from 'react-router'
 import { ProgressMeter } from '@fw/ui'
 import { formatClock } from '@/core/focus-session'
 import { useTimer } from '@/hooks/timer-context'
-import { continueLearningPath } from '@/lib/open-course'
+import { continueLearningPath, nextLessonPath } from '@/lib/open-course'
+import { getSessionTarget } from '@/lib/session-target'
 
 function DockButton({
   icon: Icon,
@@ -51,14 +52,23 @@ export function FocusTimerDock() {
   const location = useLocation()
   const [opening, setOpening] = useState(false)
 
-  // "Learn now" deep-links straight into the next unfinished lesson of the course
-  // the user should continue; if nothing resolves, fall back to the Topics page.
+  // "Learn now" deep-links to the next unfinished lesson of the session's chosen
+  // topic (from the launcher), else the course the user should continue; falls
+  // back to the Topics page.
   const goLearn = () => {
     setOpening(true)
-    continueLearningPath()
+    const target = getSessionTarget().topicSlug
+    const resolve = target ? nextLessonPath(target) : continueLearningPath()
+    Promise.resolve(resolve)
       .then((path) => navigate(path ?? '/app/topics'))
       .catch(() => navigate('/app/topics'))
       .finally(() => setOpening(false))
+  }
+
+  // "Play now" returns to the session's game, else the arcade gallery.
+  const goPlay = () => {
+    const game = getSessionTarget().gameId
+    navigate(game ? `/app/arcade?game=${encodeURIComponent(game)}` : '/app/arcade')
   }
 
   if (location.pathname === '/app/sessions') return null
@@ -127,7 +137,7 @@ export function FocusTimerDock() {
 
       <button
         type="button"
-        onClick={() => (isPlay ? navigate('/app/arcade') : goLearn())}
+        onClick={() => (isPlay ? goPlay() : goLearn())}
         disabled={!isPlay && opening}
         className="mt-3 flex w-full items-center justify-center gap-2 bg-primary px-3 py-2 font-mono text-[10px] tracking-widest text-primary-foreground uppercase hover:bg-primary/80 disabled:opacity-60"
       >

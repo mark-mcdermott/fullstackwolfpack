@@ -15,6 +15,7 @@ import {
   type FocusResult,
   type FocusTally,
 } from '@/core/focus-session'
+import { clearSessionTarget } from '@/lib/session-target'
 import { TimerContext, type TimerContextValue } from './timer-context'
 
 // The running session is mirrored to localStorage so a reload (or a return to
@@ -26,6 +27,7 @@ const storedSessionSchema = z.object({
     playMinutes: z.number(),
     learnMinutes: z.number(),
     rounds: z.number(),
+    startPhase: z.enum(['play', 'learn']).optional(),
   }),
   plan: z
     .array(z.object({ phase: z.enum(['play', 'learn']), seconds: z.number() }))
@@ -73,6 +75,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const finalize = useCallback((config: FocusConfig, tally: FocusTally) => {
     setSession(null)
     saveStoredSession(null)
+    clearSessionTarget()
     const res = focusResult(config, tally.playSeconds, tally.learnSeconds)
     setResult(res)
     setEarnedXp(null)

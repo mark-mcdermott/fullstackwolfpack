@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { MemoryRouter } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 import { AuthContext, type AuthContextValue } from '@/hooks/auth-context'
+import { TimerProvider } from '@/hooks/timer-provider'
 import type { PublicUser } from '@/core/schemas'
 
 const topic = {
@@ -88,7 +89,9 @@ const auth: AuthContextValue = {
 function renderPage(ui: ReactNode, path = '/') {
   return render(
     <AuthContext.Provider value={auth}>
-      <MemoryRouter initialEntries={[path]}>{ui}</MemoryRouter>
+      <TimerProvider>
+        <MemoryRouter initialEntries={[path]}>{ui}</MemoryRouter>
+      </TimerProvider>
     </AuthContext.Provider>,
   )
 }
