@@ -65,6 +65,12 @@ import {
   publishToUser,
 } from '../../src/server/realtime'
 import {
+  getPublicCourseOutline,
+  getPublicLessonView,
+  getPublicTopics,
+  gradeQuestionPublic,
+} from '../../src/server/public-learning'
+import {
   hasOpenAiKey,
   saveOpenAiKey,
 } from '../../src/server/provider-credentials'
@@ -105,6 +111,24 @@ async function requireAdmin(userId: string): Promise<Response | null> {
 }
 
 export async function GET(req: Request): Promise<Response> {
+  // Public (guest) reads over built-in content — served before the session gate.
+  switch (action(req)) {
+    case 'public-topics':
+      return json({ topics: await getPublicTopics() })
+    case 'public-course': {
+      const topic = new URL(req.url).searchParams.get('topic')
+      if (!topic) return json({ error: 'missing topic' }, { status: 400 })
+      const outline = await getPublicCourseOutline(topic)
+      return outline ? json(outline) : json({ error: 'not found' }, { status: 404 })
+    }
+    case 'public-lesson': {
+      const id = new URL(req.url).searchParams.get('id')
+      if (!id) return json({ error: 'missing id' }, { status: 400 })
+      const view = await getPublicLessonView(id)
+      return view ? json(view) : json({ error: 'not found' }, { status: 404 })
+    }
+  }
+
   const userId = await getSessionUserId(req)
   if (!userId) return json({ error: 'unauthorized' }, { status: 401 })
 
@@ -285,6 +309,14 @@ export async function POST(req: Request): Promise<Response> {
   if (action(req) === 'become') return devBecome(req)
   // Stripe webhook is also unauthenticated + raw-body (see above).
   if (action(req) === 'stripe-webhook') return stripeWebhook(req)
+
+  // Public (guest) MCQ grading over built-in content — before the session gate.
+  if (action(req) === 'public-grade') {
+    const parsed = await parseBody(answerRequestSchema, req)
+    if (!parsed.ok) return parsed.response
+    const fb = await gradeQuestionPublic(parsed.data.questionId, parsed.data)
+    return fb ? json(fb) : json({ error: 'not found' }, { status: 404 })
+  }
 
   const userId = await getSessionUserId(req)
   if (!userId) return json({ error: 'unauthorized' }, { status: 401 })

@@ -19,6 +19,8 @@ import { SettingsPage } from '@/pages/app/settings'
 import { StatsPage } from '@/pages/app/stats'
 import { TopicSettingsPage } from '@/pages/app/topic-settings'
 import { TopicsPage } from '@/pages/app/topics'
+import { GuestLearn } from '@/pages/public/guest-learn'
+import { LearnBrowse } from '@/pages/public/learn-browse'
 import { AdminUsersPage } from '@/pages/admin/users'
 import { SignInPage } from '@/pages/auth/sign-in'
 import { SignUpPage } from '@/pages/auth/sign-up'
@@ -39,6 +41,8 @@ function App() {
       {/* Public (guest) — try before signup. No RequireAuth. */}
       <Route element={<GuestLayout />}>
         <Route path="/play" element={<ArcadePage />} />
+        <Route path="/learn" element={<LearnBrowse />} />
+        <Route path="/learn/:lessonId" element={<GuestLearn />} />
       </Route>
 
       {/* Private */}
