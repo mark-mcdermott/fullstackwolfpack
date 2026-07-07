@@ -14,7 +14,7 @@ This is now a workspace monorepo. **The "## Layout" paths below are relative to 
 - `apps/site/` — the **Astro** static public site (landing + content-collections blog). Package `@fw/site`; SSG, zero serverless functions; reuses the FW-01 look via `@fw/ui/theme.css` + the mock art in its `public/images/`.
 - `packages/ui/` — `@fw/ui`, the FW-01 design system (ui-kit / charts / wolf-sun / theme-toggle + `theme.css` tokens), registry-ready (`registry.json`) for copy-in. Consumed by `apps/web` via the `@fw/ui` alias (vite/vitest/tsconfig → `packages/ui/src`). See `docs/astro-migration-plan.md` + `CLEANROOM-V2-ROADMAP.md`.
 - Root scripts delegate to `@fw/web` (`npm run dev|build|test|db:*` all `-w @fw/web`); `npm run build -w @fw/site` builds the site.
-- **Deploy:** Vercel Root Directory must be `apps/web` for the app; the Astro site deploys from `apps/site` (root-served, app under `/app` — migration plan step 7). Not yet wired.
+- **Deploy:** LIVE (subdomain split, not the old root-served `/app` plan). The app deploys from Vercel Root Directory `apps/web` (the `app.` subdomain); the Astro site deploys separately from `apps/site` at the root domain (`www.fullstackwolfpack.com`; the apex `fullstackwolfpack.com` 301s to `www`). Separate origins — the app links to the site via `SITE_URL` (`src/consts.ts`, default `https://fullstackwolfpack.com`), so the signed-out `/` redirect + sign-out land on the marketing site.
 - **Not yet done:** `packages/core` extraction (logic still in `apps/web/src/core`); the app still ships its own copy of the theme tokens (`apps/web/src/index.css`) pending de-dup onto `@fw/ui/theme.css`.
 
 ## Layout
