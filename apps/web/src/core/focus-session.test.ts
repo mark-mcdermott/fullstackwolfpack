@@ -32,7 +32,20 @@ describe('normalizeFocusConfig', () => {
       learnMinutes: 60,
       rounds: 8,
       startPhase: 'play',
+      loop: false,
     })
+  })
+
+  it('loops the plan when configured (launcher session)', () => {
+    const start = startFocusSession(
+      { playMinutes: 25, learnMinutes: 5, rounds: 1, loop: true },
+      0,
+    )
+    // Fast-forward past the whole [play, learn] plan; a looping session wraps
+    // back to play instead of ending.
+    const stepped = reconcileFocusSession(start, (25 + 5) * 60 * 1000 + 1000)
+    expect(stepped.done).toBe(false)
+    if (!stepped.done) expect(stepped.session.stepIndex).toBe(0)
   })
 
   it('honors startPhase in the plan (the launcher ⇄ swap)', () => {

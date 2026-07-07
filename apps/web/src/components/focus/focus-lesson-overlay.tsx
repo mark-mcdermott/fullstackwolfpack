@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { api } from '@/api-client'
 import { SectionLabel } from '@fw/ui'
 import { getSessionTarget } from '@/lib/session-target'
+import { SessionTimerInline } from '@/components/focus/session-timer-inline'
 import { LessonRoute } from '@/pages/app/learn'
 
 // The real lesson, shown full-screen over a paused game during a focus session's
@@ -32,6 +33,9 @@ export function FocusLessonOverlay({ onResume }: { onResume: () => void }) {
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-background">
       <div className="mx-auto max-w-3xl p-4 sm:p-6">
+        <div className="mb-4 flex justify-end">
+          <SessionTimerInline />
+        </div>
         {lessonId === undefined ? (
           <p className="mt-10 text-center font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
             Loading your lesson…

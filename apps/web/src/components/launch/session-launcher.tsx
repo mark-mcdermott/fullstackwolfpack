@@ -74,6 +74,7 @@ function LauncherForm({ topics }: { topics: TopicProgress[] }) {
         learnMinutes,
         rounds: 1,
         startPhase: learnFirst ? 'learn' : 'play',
+        loop: true, // keep the play↔learn loop going until the user ends it
       })
       // Play-first → drop into the game; learn-first → open the lesson first.
       if (learnFirst) {

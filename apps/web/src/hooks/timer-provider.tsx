@@ -28,6 +28,7 @@ const storedSessionSchema = z.object({
     learnMinutes: z.number(),
     rounds: z.number(),
     startPhase: z.enum(['play', 'learn']).optional(),
+    loop: z.boolean().optional(),
   }),
   plan: z
     .array(z.object({ phase: z.enum(['play', 'learn']), seconds: z.number() }))
