@@ -1,5 +1,5 @@
 import { ArrowLeftRight, ArrowRight } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router'
 import { api } from '@/api-client'
 import { AsyncView } from '@/components/layout/async-view'
@@ -11,12 +11,14 @@ import { nextLessonPath } from '@/lib/open-course'
 import { ROM_CATALOG } from '@/lib/rom-catalog'
 import { setSessionTarget } from '@/lib/session-target'
 import { useAsync } from '@/hooks/use-async'
+import { useRomLibrary } from '@/hooks/use-rom-library'
 import { useTimer } from '@/hooks/timer-context'
 import { cn } from '@/lib/utils'
 
-// Every playable game: instant-play web games first (the one-click default),
-// then the console ROM titles (NES/GB — launch the emulator).
-const GAMES = [
+// The always-present games: instant-play web games first (the one-click
+// default), then the console ROM titles (NES/GB — launch the emulator). The
+// user's own uploaded ROMs are appended per-device in the component.
+const STATIC_GAMES = [
   ...EMBED_CATALOG.map((g) => ({ id: g.id, title: g.title })),
   ...ROM_CATALOG.map((g) => ({
     id: g.id,
@@ -50,7 +52,19 @@ function LauncherForm({ topics }: { topics: TopicProgress[] }) {
   const playable = topics.filter((t) => t.lessonsTotal > 0)
   const initial = pickTopic(playable)
 
-  const [gameId, setGameId] = useState(GAMES[0]?.id ?? '')
+  const { uploads } = useRomLibrary()
+  // The user's own uploaded ROMs (IndexedDB, per-device) are selectable too.
+  const games = useMemo(
+    () => [
+      ...STATIC_GAMES,
+      ...uploads.map((u) => ({
+        id: u.id,
+        title: `${u.title} (${u.system.toUpperCase()})`,
+      })),
+    ],
+    [uploads],
+  )
+  const [gameId, setGameId] = useState(STATIC_GAMES[0]?.id ?? '')
   const [topicSlug, setTopicSlug] = useState(initial?.slug ?? '')
   const [level, setLevel] = useState<Difficulty>(
     (initial?.difficulty as Difficulty) ?? 'beginner',
@@ -114,7 +128,7 @@ function LauncherForm({ topics }: { topics: TopicProgress[] }) {
         <div className="grid flex-1 grid-cols-2 gap-3 sm:grid-cols-3">
           <Field label="Game">
             <Select value={gameId} onChange={setGameId}>
-              {GAMES.map((g) => (
+              {games.map((g) => (
                 <option key={g.id} value={g.id}>
                   {g.title}
                 </option>
