@@ -1,11 +1,14 @@
-import { Search, Upload } from 'lucide-react'
+import { Check, Search, Upload, X } from 'lucide-react'
 import { useId, useMemo, useState, type ReactNode } from 'react'
 import { GamePoster, type PosterGame } from '@/components/arcade/game-poster'
+import { SectionLabel } from '@fw/ui'
 import {
   type GamePlaytime,
   gameKey,
   type PlaytimeSource,
 } from '@/core/playtime'
+import { useCovers } from '@/hooks/use-covers'
+import { coverCropToBlob } from '@/lib/crop-image'
 import {
   ACCEPTED_EXTENSIONS,
   type RomSystem,
@@ -123,8 +126,45 @@ export function RomGallery({
   const [query, setQuery] = useState('')
   const q = query.trim().toLowerCase()
 
+  const { covers, setCover, removeCover } = useCovers()
+  // A dropped image, cropped to 2:3, awaiting confirm.
+  const [pending, setPending] = useState<{
+    gameId: string
+    url: string
+    blob: Blob
+  } | null>(null)
+
+  async function handleDropCover(gameId: string, file: File) {
+    try {
+      const blob = await coverCropToBlob(file)
+      setPending((prev) => {
+        if (prev) URL.revokeObjectURL(prev.url)
+        return { gameId, url: URL.createObjectURL(blob), blob }
+      })
+    } catch {
+      /* not a usable image — ignore */
+    }
+  }
+  async function confirmCover() {
+    if (!pending) return
+    await setCover(pending.gameId, pending.blob)
+    URL.revokeObjectURL(pending.url)
+    setPending(null)
+  }
+  function cancelCover() {
+    if (pending) URL.revokeObjectURL(pending.url)
+    setPending(null)
+  }
+
   const played = (game: { source: PlaytimeSource; id: string }) =>
     playtimeByGame.get(gameKey(game))?.seconds
+
+  // Shared cover wiring: custom cover from IndexedDB, drop-to-set, reset.
+  const coverProps = (id: string) => ({
+    coverUrl: covers.get(id),
+    onDropImage: (file: File) => handleDropCover(id, file),
+    onResetCover: covers.has(id) ? () => void removeCover(id) : undefined,
+  })
 
   const embedPoster = (g: EmbedEntry): PosterGame => ({
     title: g.title,
@@ -133,6 +173,7 @@ export function RomGallery({
     coverImage: g.coverImage,
     playedSeconds: played(g),
     onPlay: () => onSelect(g),
+    ...coverProps(g.id),
   })
   const romPoster = (r: RomEntry): PosterGame => ({
     title: r.title,
@@ -141,6 +182,7 @@ export function RomGallery({
     coverImage: r.coverImage,
     playedSeconds: played(r),
     onPlay: () => onSelect(r),
+    ...coverProps(r.id),
   })
   const uploadPoster = (r: UploadedRom): PosterGame => ({
     title: r.title,
@@ -149,6 +191,7 @@ export function RomGallery({
     playedSeconds: played(r),
     onPlay: () => onSelect(r),
     onDelete: () => onDelete(r.id),
+    ...coverProps(r.id),
   })
 
   const embeds = useMemo(
@@ -244,6 +287,41 @@ export function RomGallery({
             <UploadPoster onUpload={onUpload} />
           </PosterRow>
         </>
+      )}
+
+      {pending && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          onClick={cancelCover}
+        >
+          <div
+            className="flex flex-col items-center gap-4 border border-border bg-background p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <SectionLabel>New cover — cropped to fit</SectionLabel>
+            <img
+              src={pending.url}
+              alt="Cover preview"
+              className="aspect-[2/3] w-44 border border-border object-cover"
+            />
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={confirmCover}
+                className="inline-flex items-center gap-2 bg-primary px-4 py-2.5 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+              >
+                <Check className="size-4" /> Use this cover
+              </button>
+              <button
+                type="button"
+                onClick={cancelCover}
+                className="inline-flex items-center gap-2 border border-border px-4 py-2.5 font-mono text-xs tracking-widest uppercase hover:bg-muted"
+              >
+                <X className="size-4" /> Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
