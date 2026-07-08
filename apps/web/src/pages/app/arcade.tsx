@@ -17,16 +17,21 @@ export function ArcadePage() {
 
   // Deep-link from the session launcher: /app/arcade?game=<embed id> auto-launches.
   const [params, setParams] = useSearchParams()
+  // Deep-link from the session launcher: /app/arcade?game=<id> auto-launches.
+  // Uploaded ROMs live in IndexedDB (async), so re-run once `uploads` loads;
+  // the param is only consumed when the game is actually found.
   useEffect(() => {
     const id = params.get('game')
     if (!id) return
     const game =
       EMBED_CATALOG.find((g) => g.id === id) ??
-      ROM_CATALOG.find((g) => g.id === id)
-    if (game) setSelected(game)
-    setParams({}, { replace: true }) // consume it so Exit returns to the gallery
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+      ROM_CATALOG.find((g) => g.id === id) ??
+      uploads.find((u) => u.id === id)
+    if (game) {
+      setSelected(game)
+      setParams({}, { replace: true }) // so Exit returns to the gallery
+    }
+  }, [params, uploads, setParams])
 
   async function handleUpload(file: File, system: RomSystem) {
     setSelected(await add(file, system))
