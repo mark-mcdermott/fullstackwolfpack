@@ -13,6 +13,11 @@ vi.mock('@/hooks/auth-context', () => ({
   useAuth: () => ({ user: { id: 'test-user' } }),
 }))
 
+// No active focus session by default, so the in-game lesson overlay stays closed.
+vi.mock('@/hooks/timer-context', () => ({
+  useTimer: () => ({ active: false, step: null, skip: () => {} }),
+}))
+
 const catalogRom: RomEntry = {
   source: 'catalog',
   id: 'brick-buster',
@@ -153,18 +158,14 @@ describe('RomPlayer', () => {
     expect(session.resume).toHaveBeenCalledOnce()
   })
 
-  it('pauses for a lesson and resumes from the overlay', async () => {
-    const user = userEvent.setup()
-    const { session } = setup(uploadRom)
+  it('shows no lesson overlay or Learn-now button outside a focus session', async () => {
+    setup(uploadRom)
     await screen.findByRole('button', { name: 'Pause' })
-
-    await user.click(screen.getByRole('button', { name: 'Pause for lesson' }))
-    expect(session.pause).toHaveBeenCalledOnce()
-    expect(screen.getByText('Time to learn')).toBeInTheDocument()
-
-    await user.click(screen.getByRole('button', { name: 'Resume game' }))
-    expect(session.resume).toHaveBeenCalledOnce()
-    expect(screen.queryByText('Time to learn')).not.toBeInTheDocument()
+    // The in-game lesson only appears during a session's learn phase (mocked
+    // inactive here), so casual ROM play is uninterrupted.
+    expect(
+      screen.queryByRole('button', { name: /learn now/i }),
+    ).not.toBeInTheDocument()
   })
 
   it('exits on click and stops the session on unmount', async () => {

@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router'
 import { EmbedPlayer } from '@/components/embed-player'
 import { RomGallery, type PlayableGame } from '@/components/rom-gallery'
 import { EMBED_CATALOG } from '@/lib/embed-catalog'
+import { ROM_CATALOG } from '@/lib/rom-catalog'
 import { RomPlayer } from '@/components/rom-player'
 import { usePlaytime } from '@/hooks/use-playtime'
 import { useRomLibrary } from '@/hooks/use-rom-library'
@@ -19,7 +20,9 @@ export function ArcadePage() {
   useEffect(() => {
     const id = params.get('game')
     if (!id) return
-    const game = EMBED_CATALOG.find((g) => g.id === id)
+    const game =
+      EMBED_CATALOG.find((g) => g.id === id) ??
+      ROM_CATALOG.find((g) => g.id === id)
     if (game) setSelected(game)
     setParams({}, { replace: true }) // consume it so Exit returns to the gallery
     // eslint-disable-next-line react-hooks/exhaustive-deps

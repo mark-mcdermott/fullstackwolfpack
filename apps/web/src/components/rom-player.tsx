@@ -12,7 +12,10 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { ControlsReference } from '@/components/controls/controls-reference'
 import { TouchControls } from '@/components/controls/touch-controls'
+import { FocusLessonOverlay } from '@/components/focus/focus-lesson-overlay'
+import { SessionTimerInline } from '@/components/focus/session-timer-inline'
 import { Panel, Pill, SectionLabel } from '@fw/ui'
+import { useTimer } from '@/hooks/timer-context'
 import { bindsToRetroarchConfig, type RetroButton } from '@/core/controls'
 import { useCoarsePointer } from '@/hooks/use-coarse-pointer'
 import { useFullscreen } from '@/hooks/use-fullscreen'
@@ -74,11 +77,26 @@ export function RomPlayer({
   const sessionRef = useRef<EmulatorSession | null>(null)
   const [status, setStatus] = useState<Status>('loading')
   const [paused, setPaused] = useState(false)
-  const [lessonOpen, setLessonOpen] = useState(false)
   const [controlsOpen, setControlsOpen] = useState(false)
   const coarsePointer = useCoarsePointer()
   const fs = useFullscreen<HTMLDivElement>()
+  const timer = useTimer()
   usePlaytimeTracker(rom)
+
+  // During a focus session's learn phase, pause the emulator and overlay the real
+  // lesson; returning to play resumes it.
+  const learnPhase = timer.active && timer.step?.phase === 'learn'
+  useEffect(() => {
+    const session = sessionRef.current
+    if (!session) return
+    if (learnPhase) {
+      session.pause()
+      setPaused(true)
+    } else if (timer.active) {
+      session.resume()
+      setPaused(false)
+    }
+  }, [learnPhase, timer.active])
 
   const pressButton = useCallback((button: RetroButton) => {
     sessionRef.current?.pressDown(button)
@@ -91,7 +109,6 @@ export function RomPlayer({
     let cancelled = false
     setStatus('loading')
     setPaused(false)
-    setLessonOpen(false)
     setControlsOpen(false)
 
     const container = containerRef.current
@@ -159,17 +176,9 @@ export function RomPlayer({
     }
   }
 
-  function pauseForLesson() {
-    sessionRef.current?.pause()
-    setPaused(true)
-    setLessonOpen(true)
-  }
-
-  function resumeFromLesson() {
-    sessionRef.current?.resume()
-    setPaused(false)
-    setLessonOpen(false)
-  }
+  // Finish/exit the in-game lesson → advance the timer back to play (the pause
+  // effect above resumes the emulator).
+  const resumeFromLesson = () => timer.skip()
 
   const meta = SYSTEM_META[rom.system]
 
@@ -180,9 +189,12 @@ export function RomPlayer({
           <SectionLabel>Now playing</SectionLabel>
           <h1 className="mt-1 text-3xl font-semibold uppercase">{rom.title}</h1>
         </div>
-        <div className="flex items-center gap-3">
-          <Pill>{meta.label}</Pill>
-          <ControlButton icon={LogOut} label="Exit" onClick={onExit} />
+        <div className="flex flex-col items-end gap-2">
+          <SessionTimerInline />
+          <div className="flex items-center gap-3">
+            <Pill>{meta.label}</Pill>
+            <ControlButton icon={LogOut} label="Exit" onClick={onExit} />
+          </div>
         </div>
       </div>
 
@@ -227,28 +239,6 @@ export function RomPlayer({
             </div>
           )}
 
-          {lessonOpen && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-background/95 px-6 text-center">
-              <GraduationCap className="size-8 text-primary" />
-              <div>
-                <SectionLabel>Interval reached</SectionLabel>
-                <h2 className="mt-1 text-2xl font-bold uppercase">
-                  Time to learn
-                </h2>
-                <p className="mx-auto mt-2 max-w-sm font-mono text-xs text-muted-foreground">
-                  The game is paused. This is where your next lesson drops in —
-                  finish it to keep your streak, then jump back in.
-                </p>
-              </div>
-              <ControlButton
-                icon={Play}
-                label="Resume game"
-                onClick={resumeFromLesson}
-                variant="primary"
-              />
-            </div>
-          )}
-
           {controlsOpen && (
             <div className="absolute inset-0 flex flex-col gap-4 overflow-auto bg-background/97 p-5">
               <div className="flex items-center justify-between">
@@ -280,12 +270,14 @@ export function RomPlayer({
           label={paused ? 'Resume' : 'Pause'}
           onClick={togglePause}
         />
-        <ControlButton
-          icon={GraduationCap}
-          label="Pause for lesson"
-          onClick={pauseForLesson}
-          variant="primary"
-        />
+        {timer.active && timer.step?.phase === 'play' && (
+          <ControlButton
+            icon={GraduationCap}
+            label="Learn now"
+            onClick={timer.skip}
+            variant="primary"
+          />
+        )}
         <ControlButton
           icon={Gamepad2}
           label="Controls"
@@ -300,13 +292,15 @@ export function RomPlayer({
         )}
       </div>
 
-      {coarsePointer && status === 'playing' && !lessonOpen && (
+      {coarsePointer && status === 'playing' && !learnPhase && (
         <TouchControls
           system={rom.system}
           onDown={pressButton}
           onUp={releaseButton}
         />
       )}
+
+      {learnPhase && <FocusLessonOverlay onResume={resumeFromLesson} />}
     </div>
   )
 }

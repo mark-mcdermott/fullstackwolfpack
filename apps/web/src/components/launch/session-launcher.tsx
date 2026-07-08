@@ -8,14 +8,21 @@ import type { TopicProgress } from '@/core/app-data'
 import type { Difficulty } from '@/core/generation'
 import { EMBED_CATALOG } from '@/lib/embed-catalog'
 import { nextLessonPath } from '@/lib/open-course'
+import { ROM_CATALOG } from '@/lib/rom-catalog'
 import { setSessionTarget } from '@/lib/session-target'
 import { useAsync } from '@/hooks/use-async'
 import { useTimer } from '@/hooks/timer-context'
 import { cn } from '@/lib/utils'
 
-// Instant-play web games — the one-click launch. ROM titles (NES/GB) need the
-// emulator + a core download, so they stay in the full arcade for now.
-const GAMES = EMBED_CATALOG.map((g) => ({ id: g.id, title: g.title }))
+// Every playable game: instant-play web games first (the one-click default),
+// then the console ROM titles (NES/GB — launch the emulator).
+const GAMES = [
+  ...EMBED_CATALOG.map((g) => ({ id: g.id, title: g.title })),
+  ...ROM_CATALOG.map((g) => ({
+    id: g.id,
+    title: `${g.title} (${g.system.toUpperCase()})`,
+  })),
+]
 const LEVELS: Difficulty[] = ['beginner', 'intermediate', 'advanced']
 
 // The app-home hero: one row to start a play/learn focus session. Smart-defaulted
