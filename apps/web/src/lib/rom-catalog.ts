@@ -12,8 +12,11 @@ export type RomEntry = {
   license: string
   description: string
   fileName: string
-  // Tailwind text-color class for the tile's accent (no box art yet).
+  // Tailwind text-color class for the tile's accent.
   accent: string
+  // Optional cover art (a path under public/). Absent ⇒ a generated accent
+  // poster. Supply your own art — don't bundle third-party box art unlicensed.
+  coverImage?: string
 }
 
 // A ROM the user supplied from their own device. The bytes live in `file` and

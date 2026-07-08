@@ -18,6 +18,10 @@ export type EmbedEntry = {
   description: string
   // Tailwind text-color class for the tile's accent (matches the ROM tiles).
   accent: string
+  // Optional cover art (a path under public/, e.g. `/games/2048/cover.png`). When
+  // absent the gallery renders a generated accent poster. Supply your own art —
+  // don't bundle third-party screenshots/box art without a clear license.
+  coverImage?: string
   // Extra attribution lines beyond author/license (e.g. CC-BY asset authors).
   credits?: string[]
   // Set when we modified the vendored copy (e.g. stripped ads/trackers) — GPL's

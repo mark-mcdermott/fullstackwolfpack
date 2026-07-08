@@ -37,22 +37,20 @@ describe('RomGallery', () => {
     expect(screen.getByText('Add your ROM')).toBeInTheDocument()
   })
 
-  it('filters by system tab', async () => {
-    const user = userEvent.setup()
+  it('groups games into Netflix-style rows by lane', () => {
     renderGallery()
-
-    // Selecting a system tab shows that system's titles and hides the rest.
-    await user.click(
-      screen.getByRole('button', { name: SYSTEM_META[firstRom.system].label }),
-    )
-    for (const rom of ROM_CATALOG) {
-      const tile = screen.queryByText(rom.title)
-      if (rom.system === firstRom.system) {
-        expect(tile).toBeInTheDocument()
-      } else {
-        expect(tile).not.toBeInTheDocument()
-      }
-    }
+    // A "Web games" row, a row per ROM system, and a "Your library" row.
+    expect(
+      screen.getByRole('heading', { name: 'Web games' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', {
+        name: SYSTEM_META[firstRom.system].label,
+      }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /your library/i }),
+    ).toBeInTheDocument()
   })
 
   it('filters by search query', async () => {
@@ -86,7 +84,7 @@ describe('RomGallery', () => {
     const { onUpload } = renderGallery()
 
     const file = new File([new Uint8Array([1, 2, 3, 4])], 'my-game.gba')
-    await user.upload(screen.getByLabelText('Choose file'), file)
+    await user.upload(screen.getByLabelText('Add your ROM'), file)
 
     expect(onUpload).toHaveBeenCalledWith(file, 'gba')
   })
@@ -125,21 +123,6 @@ describe('RomGallery', () => {
     )
   })
 
-  it('the Web tab hides ROMs and shows only embed games', async () => {
-    const user = userEvent.setup()
-    renderGallery()
-
-    await user.click(screen.getByRole('button', { name: 'Web' }))
-    for (const rom of ROM_CATALOG) {
-      expect(screen.queryByText(rom.title)).not.toBeInTheDocument()
-    }
-    for (const game of EMBED_CATALOG) {
-      expect(screen.getByText(game.title)).toBeInTheDocument()
-    }
-    // The upload (ROM) tile is hidden on the Web tab.
-    expect(screen.queryByText('Add your ROM')).not.toBeInTheDocument()
-  })
-
   it('shows a played total and floats a recently-played title to the front of its lane', () => {
     const lastRom = ROM_CATALOG[ROM_CATALOG.length - 1]
     const playtimeByGame = new Map<string, GamePlaytime>([
@@ -156,8 +139,8 @@ describe('RomGallery', () => {
     ])
     renderGallery({ playtimeByGame })
 
-    // The played tile surfaces its running total…
-    expect(screen.getByText('42m played')).toBeInTheDocument()
+    // The played poster surfaces its running total…
+    expect(screen.getByText('42m')).toBeInTheDocument()
 
     // …and floats ahead of the first (unplayed) catalog ROM in DOM order.
     const played = screen.getByRole('heading', { name: lastRom.title })
@@ -173,7 +156,7 @@ describe('RomGallery', () => {
     // fireEvent bypasses the input's `accept` filter, exercising the same
     // guard that protects users who override the file picker.
     const file = new File(['hello'], 'cheats.txt', { type: 'text/plain' })
-    fireEvent.change(screen.getByLabelText('Choose file'), {
+    fireEvent.change(screen.getByLabelText('Add your ROM'), {
       target: { files: [file] },
     })
 
