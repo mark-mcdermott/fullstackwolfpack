@@ -1,4 +1,5 @@
-import { Clock, Play, Trash2 } from 'lucide-react'
+import { Clock, ImagePlus, Play, RotateCcw, Trash2 } from 'lucide-react'
+import { useState, type DragEvent } from 'react'
 import { formatPlaytime } from '@/core/playtime'
 import { cn } from '@/lib/utils'
 
@@ -6,28 +7,75 @@ export type PosterGame = {
   title: string
   accent: string // tailwind text-color class → drives currentColor
   badge: string
-  coverImage?: string
+  coverImage?: string // catalog cover (path under public/)
+  coverUrl?: string // user's custom cover (object URL from IndexedDB) — wins
   playedSeconds?: number
   onPlay: () => void
   onDelete?: () => void
+  onDropImage?: (file: File) => void
+  onResetCover?: () => void
 }
 
-// A Netflix-style poster tile. Uses the game's cover image when it has one, else
-// a generated accent poster. Portrait 2:3, hover-scales, play on hover.
-export function GamePoster({ game }: { game: PosterGame }) {
-  const { title, accent, badge, coverImage, playedSeconds, onPlay, onDelete } =
-    game
+function imageFrom(e: DragEvent): File | null {
   return (
-    <div className="group relative aspect-[2/3] w-36 shrink-0 overflow-hidden border border-border bg-neutral-950 transition-transform duration-200 hover:z-10 hover:scale-[1.04] sm:w-40">
+    [...e.dataTransfer.files].find((f) => f.type.startsWith('image/')) ?? null
+  )
+}
+
+// A Netflix-style poster tile that's also a cover dropzone: drop an image and it
+// crops to fit (preview + confirm handled by the gallery). Uses the custom cover
+// if set, else the catalog cover, else a generated accent poster.
+export function GamePoster({ game }: { game: PosterGame }) {
+  const {
+    title,
+    accent,
+    badge,
+    coverImage,
+    coverUrl,
+    playedSeconds,
+    onPlay,
+    onDelete,
+    onDropImage,
+    onResetCover,
+  } = game
+  const [dragging, setDragging] = useState(false)
+  const cover = coverUrl ?? coverImage
+
+  return (
+    <div
+      onDragOver={
+        onDropImage
+          ? (e) => {
+              e.preventDefault()
+              setDragging(true)
+            }
+          : undefined
+      }
+      onDragLeave={() => setDragging(false)}
+      onDrop={
+        onDropImage
+          ? (e) => {
+              e.preventDefault()
+              setDragging(false)
+              const file = imageFrom(e)
+              if (file) onDropImage(file)
+            }
+          : undefined
+      }
+      className={cn(
+        'group relative aspect-[2/3] w-36 shrink-0 overflow-hidden border border-border bg-neutral-950 transition-transform duration-200 hover:z-10 hover:scale-[1.04] sm:w-40',
+        dragging && 'ring-2 ring-primary',
+      )}
+    >
       <button
         type="button"
         onClick={onPlay}
         aria-label={`Play ${title}`}
         className="absolute inset-0 cursor-pointer text-left"
       >
-        {coverImage ? (
+        {cover ? (
           <img
-            src={coverImage}
+            src={cover}
             alt=""
             className="absolute inset-0 h-full w-full object-cover"
           />
@@ -35,10 +83,8 @@ export function GamePoster({ game }: { game: PosterGame }) {
           <GeneratedPoster title={title} accent={accent} />
         )}
 
-        {/* legibility wash for the title */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/10 to-black/25" />
 
-        {/* hover: play affordance */}
         <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
           <span className="flex size-11 items-center justify-center rounded-full bg-primary text-primary-foreground">
             <Play className="size-5" />
@@ -59,6 +105,29 @@ export function GamePoster({ game }: { game: PosterGame }) {
           )}
         </div>
       </button>
+
+      {/* Drag-over prompt */}
+      {dragging && (
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-primary/25 text-white backdrop-blur-sm">
+          <ImagePlus className="size-6" />
+          <span className="font-mono text-[9px] tracking-widest uppercase">
+            Drop cover
+          </span>
+        </div>
+      )}
+
+      {/* Reset a custom cover back to the default */}
+      {coverUrl && onResetCover && (
+        <button
+          type="button"
+          onClick={onResetCover}
+          aria-label={`Reset ${title} cover`}
+          title="Reset to default cover"
+          className="absolute top-1.5 left-1.5 z-10 flex size-6 items-center justify-center border border-white/20 bg-black/50 text-white/80 opacity-0 transition-opacity hover:bg-black/70 group-hover:opacity-100"
+        >
+          <RotateCcw className="size-3" />
+        </button>
+      )}
 
       {onDelete && (
         <button
