@@ -48,7 +48,7 @@ export const ROM_CATALOG: RomEntry[] = [
       'A one-on-one paddle duel — outlast the CPU in a test of pure reflex.',
     fileName: 'paddle-duel.nes',
     accent: 'text-emerald-400',
-    coverImage: '/covers/paddle-duel.png',
+    coverImage: '/covers/paddle-duel.jpg',
   },
   {
     source: 'catalog',
@@ -61,7 +61,7 @@ export const ROM_CATALOG: RomEntry[] = [
       'Angle the ball off your paddle and chip through the wall, brick by brick.',
     fileName: 'brick-buster.nes',
     accent: 'text-amber-400',
-    coverImage: '/covers/brick-buster.png',
+    coverImage: '/covers/brick-buster.jpg',
   },
   {
     source: 'catalog',
@@ -74,7 +74,7 @@ export const ROM_CATALOG: RomEntry[] = [
       'Chase the dots to grow longer — but never cross your own tail.',
     fileName: 'snake.nes',
     accent: 'text-violet-400',
-    coverImage: '/covers/opennes-snake.png',
+    coverImage: '/covers/opennes-snake.jpg',
   },
   {
     source: 'catalog',
@@ -87,7 +87,7 @@ export const ROM_CATALOG: RomEntry[] = [
       'A vertical arcade climber — bounce off enemies to chase your runaway pet across the sky.',
     fileName: 'tobu-tobu-girl.gb',
     accent: 'text-sky-400',
-    coverImage: '/covers/tobu-tobu-girl.png',
+    coverImage: '/covers/tobu-tobu-girl.jpg',
   },
 ]
 

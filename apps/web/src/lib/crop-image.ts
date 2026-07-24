@@ -2,8 +2,8 @@
 // scaling to FILL the frame — enlarging if the source is smaller — and
 // center-cropping the overflow. Returns a JPEG blob. Client-only (uses canvas).
 
-export const COVER_WIDTH = 480
-export const COVER_HEIGHT = 720 // 2:3, matching the poster tile
+export const COVER_WIDTH = 600
+export const COVER_HEIGHT = 800 // 3:4, matching the poster tile
 
 export async function coverCropToBlob(
   file: File,

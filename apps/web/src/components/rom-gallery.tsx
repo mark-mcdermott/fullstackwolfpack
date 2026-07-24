@@ -84,7 +84,7 @@ function UploadPoster({
   return (
     <label
       htmlFor={inputId}
-      className="group flex aspect-[2/3] w-36 shrink-0 cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed border-border bg-muted/20 p-3 text-center text-muted-foreground transition-colors hover:border-primary hover:text-foreground sm:w-40"
+      className="group flex aspect-[3/4] w-36 shrink-0 cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed border-border bg-muted/20 p-3 text-center text-muted-foreground transition-colors hover:border-primary hover:text-foreground sm:w-40"
     >
       <Upload className="size-5 text-primary" />
       <span className="font-mono text-[10px] tracking-widest uppercase">
@@ -302,7 +302,7 @@ export function RomGallery({
             <img
               src={pending.url}
               alt="Cover preview"
-              className="aspect-[2/3] w-44 border border-border object-cover"
+              className="aspect-[3/4] w-44 border border-border object-cover"
             />
             <div className="flex gap-2">
               <button
