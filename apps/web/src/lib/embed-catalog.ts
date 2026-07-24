@@ -43,7 +43,7 @@ export const EMBED_CATALOG: EmbedEntry[] = [
     description:
       'Slide the tiles, merge matching numbers, and chase the elusive 2048.',
     accent: 'text-amber-400',
-    coverImage: '/covers/2048.png',
+    coverImage: '/covers/2048.jpg',
   },
   {
     source: 'embed',
@@ -58,7 +58,7 @@ export const EMBED_CATALOG: EmbedEntry[] = [
     description:
       'A fast, hexagonal take on falling-block puzzles — rotate the stack and clear the layers.',
     accent: 'text-cyan-400',
-    coverImage: '/covers/hextris.png',
+    coverImage: '/covers/hextris.jpg',
     modifications:
       'Removed the bundled Google AdSense + Google Analytics scripts (no ads / no third-party tracking).',
   },
@@ -75,7 +75,7 @@ export const EMBED_CATALOG: EmbedEntry[] = [
     description:
       'A fast, futuristic WebGL racer — carve the neon tracks at breakneck speed.',
     accent: 'text-fuchsia-400',
-    coverImage: '/covers/hexgl.png',
+    coverImage: '/covers/hexgl.jpg',
     // MIT code/resources; a few sound effects are CC-BY 3.0 (credit required),
     // the rest are public domain (see the vendored audio/LICENSE).
     credits: [
@@ -99,6 +99,7 @@ export const EMBED_CATALOG: EmbedEntry[] = [
     description:
       'A neon twin-stick shooter — carve through a derelict facility before the reactor blows. (js13k 2018.)',
     accent: 'text-rose-400',
+    coverImage: '/covers/underrun.jpg',
   },
   {
     source: 'embed',
@@ -113,7 +114,7 @@ export const EMBED_CATALOG: EmbedEntry[] = [
     description:
       'Roll a marble through a first-person 3D maze and hunt down the exit — a tiny WebGL classic.',
     accent: 'text-emerald-400',
-    coverImage: '/covers/astray.png',
+    coverImage: '/covers/astray.jpg',
     modifications:
       'Changed three absolute texture paths (/ball.png etc.) to relative so it loads inside the sandboxed iframe.',
   },
@@ -130,7 +131,7 @@ export const EMBED_CATALOG: EmbedEntry[] = [
     description:
       'A deep ASCII roguelike — descend a procedurally-generated dungeon, grab loot, and try not to die. (Keyboard; best on desktop.)',
     accent: 'text-orange-400',
-    coverImage: '/covers/hauberk.png',
+    coverImage: '/covers/hauberk.jpg',
     modifications:
       'Removed a Google Fonts CDN link so the game makes no third-party requests (falls back to a system serif).',
   },
@@ -147,7 +148,7 @@ export const EMBED_CATALOG: EmbedEntry[] = [
     description:
       'Local two-player chess — legal moves enforced, alternating turns. Pass-and-play on one screen.',
     accent: 'text-sky-400',
-    coverImage: '/covers/chess.png',
+    coverImage: '/covers/chess.jpg',
     // Assembled from four permissive components (see the bundled LICENSE).
     credits: [
       'Rules engine: chess.js by Jeff Hlywa (BSD 2-Clause)',

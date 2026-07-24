@@ -63,7 +63,7 @@ export function GamePoster({ game }: { game: PosterGame }) {
           : undefined
       }
       className={cn(
-        'group relative aspect-[2/3] w-36 shrink-0 overflow-hidden border border-border bg-neutral-950 transition-transform duration-200 hover:z-10 hover:scale-[1.04] sm:w-40',
+        'group relative aspect-[3/4] w-36 shrink-0 overflow-hidden border border-border bg-neutral-950 transition-transform duration-200 hover:z-10 hover:scale-[1.04] sm:w-40',
         dragging && 'ring-2 ring-primary',
       )}
     >
