@@ -20,18 +20,23 @@ export type SeedTopic = {
 }
 
 export const SEED_TOPICS: SeedTopic[] = [
-  { slug: 'react', name: 'React', category: 'frontend', icon: 'react', description: 'Build component-driven UIs.' },
-  { slug: 'typescript', name: 'TypeScript', category: 'frontend', icon: 'typescript', description: 'Type-safe JavaScript at scale.' },
   { slug: 'javascript', name: 'JavaScript', category: 'frontend', icon: 'javascript', description: 'The language of the web.' },
-  { slug: 'nodejs', name: 'Node.js', category: 'backend', icon: 'nodejs', description: 'JavaScript on the server.' },
-  { slug: 'postgresql', name: 'PostgreSQL', category: 'databases', icon: 'postgresql', description: 'Relational data done right.' },
-  { slug: 'git-github', name: 'Git & GitHub', category: 'tools', icon: 'git', description: 'Version control and collaboration.' },
-  { slug: 'tailwind', name: 'Tailwind CSS', category: 'frontend', icon: 'tailwind', description: 'Utility-first styling.' },
-  { slug: 'docker', name: 'Docker', category: 'devops', icon: 'docker', description: 'Containerize anything.' },
-  { slug: 'aws', name: 'AWS Basics', category: 'devops', icon: 'aws', description: 'Cloud fundamentals.' },
-  { slug: 'python', name: 'Python', category: 'backend', icon: 'python', description: 'Readable, batteries-included.' },
-  { slug: 'nextjs', name: 'Next.js', category: 'frontend', icon: 'nextjs', description: 'The React framework.' },
-  { slug: 'ai-agents', name: 'AI Agents', category: 'ai_data', icon: 'ai', description: 'Build with LLMs and tools.' },
+  // Pruned to a focused set while we polish the core flow — uncomment to bring
+  // a topic back (each still has its built-in course in seed-content.generated).
+  // { slug: 'react', name: 'React', category: 'frontend', icon: 'react', description: 'Build component-driven UIs.' },
+  // { slug: 'typescript', name: 'TypeScript', category: 'frontend', icon: 'typescript', description: 'Type-safe JavaScript at scale.' },
+  // { slug: 'nodejs', name: 'Node.js', category: 'backend', icon: 'nodejs', description: 'JavaScript on the server.' },
+  // { slug: 'postgresql', name: 'PostgreSQL', category: 'databases', icon: 'postgresql', description: 'Relational data done right.' },
+  // { slug: 'git-github', name: 'Git & GitHub', category: 'tools', icon: 'git', description: 'Version control and collaboration.' },
+  // { slug: 'tailwind', name: 'Tailwind CSS', category: 'frontend', icon: 'tailwind', description: 'Utility-first styling.' },
+  // { slug: 'docker', name: 'Docker', category: 'devops', icon: 'docker', description: 'Containerize anything.' },
+  // { slug: 'aws', name: 'AWS Basics', category: 'devops', icon: 'aws', description: 'Cloud fundamentals.' },
+  // { slug: 'python', name: 'Python', category: 'backend', icon: 'python', description: 'Readable, batteries-included.' },
+  // { slug: 'nextjs', name: 'Next.js', category: 'frontend', icon: 'nextjs', description: 'The React framework.' },
+  // { slug: 'ai-agents', name: 'AI Agents', category: 'ai_data', icon: 'ai', description: 'Build with LLMs and tools.' },
+  // TODO(math): a non-coding subject — needs a built-in course with an MCQ /
+  // numeric-answer format (code exercises don't apply to arithmetic).
+  // { slug: 'math-grade-1', name: '1st Grade Math', category: 'math', icon: 'math', description: 'Counting, addition, and subtraction.' },
 ]
 
 export type SeedAchievement = {

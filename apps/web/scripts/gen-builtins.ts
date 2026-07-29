@@ -2,7 +2,7 @@ import { rename, writeFile } from 'node:fs/promises'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { solutionPassesTests } from '../src/core/exercise'
-import { COURSE_TARGET } from '../src/core/generation'
+import { COURSE_TARGET, type Difficulty } from '../src/core/generation'
 import { gitSolutionSatisfiesGoals } from '../src/core/git-sim'
 import { pythonSolutionPasses } from '../src/server/python-gate'
 import { generatedToSeedCourse } from '../src/db/generated-to-seed'
@@ -11,6 +11,25 @@ import { GENERATED_BUILTIN_COURSES } from '../src/db/seed-content.generated'
 import { SEED_TOPICS } from '../src/db/seed-data'
 import { anthropicGenerator } from '../src/server/anthropic-generator'
 import { openAiGenerator } from '../src/server/openai-generator'
+
+// Optional per-course syllabus, keyed by `slug:difficulty`. Passed to the
+// generator as `customization` to steer topic + ordering. Absent ⇒ the model
+// chooses its own outline.
+const SYLLABI: Record<string, string> = {
+  'javascript:intermediate': [
+    'Write a focused INTERMEDIATE JavaScript course for a developer who already knows the basics (variables, functions, loops, arrays/objects) and wants to level up. Cover, roughly in this order — one lesson each:',
+    '1. Scope & closures (lexical scope, closures, the classic loop-counter gotcha and its fix).',
+    '2. IIFEs & the module pattern (why they existed, encapsulation before ES modules).',
+    '3. Modules: ES modules (import/export) vs CommonJS (require/module.exports) — syntax and when each is used.',
+    '4. `this` & binding (call/apply/bind, how arrow functions capture `this`).',
+    '5. Promises (creating them, then/catch/finally, Promise.all vs Promise.race).',
+    '6. async/await (sugar over promises, error handling with try/catch).',
+    '7. Higher-order functions (callbacks, map/filter/reduce).',
+    '8. Destructuring, spread/rest, and default parameters.',
+    '9. Error handling (throw, try/catch/finally, custom Error subclasses).',
+    'Every lesson MUST include a runnable JavaScript code exercise and at least one multiple-choice question. Do NOT use short-answer questions (they need AI grading). Keep examples practical and idiomatic.',
+  ].join('\n'),
+}
 
 // Topics whose learners actually write JavaScript — the only place a JS-runner
 // exercise belongs. The prompt asks the model to omit exercises elsewhere, but it
@@ -125,6 +144,17 @@ async function main() {
   const slugArgs = rawArgs.filter((a) => !a.startsWith('--') && a !== 'all')
   const bySlug = new Map(SEED_TOPICS.map((t) => [t.slug, t]))
 
+  // Optional `--difficulty=beginner|intermediate|advanced` (default beginner) —
+  // the level the generated course is written at (drives depth + the syllabus).
+  const difficultyArg = rawArgs
+    .find((a) => a.startsWith('--difficulty='))
+    ?.split('=')[1]
+  const difficulty: Difficulty = ['intermediate', 'advanced'].includes(
+    difficultyArg ?? '',
+  )
+    ? (difficultyArg as Difficulty)
+    : 'beginner'
+
   // Hand-authored built-ins (e.g. git-github) live in seed-content.ts, not the
   // generated file — `all` regenerates everything except those.
   const generatedSlugs = new Set(GENERATED_BUILTIN_COURSES.map((c) => c.topicSlug))
@@ -155,7 +185,9 @@ async function main() {
     process.exit(0)
   }
 
-  console.log(`Generating ${targets.length} course(s) with ${model}…`)
+  console.log(
+    `Generating ${targets.length} ${difficulty} course(s) with ${model}…`,
+  )
   const generated = new Map<string, SeedCourse>()
   const failed: string[] = []
   const MAX_ATTEMPTS = 4
@@ -178,9 +210,10 @@ async function main() {
       try {
         const raw = await generator.generate({
           topic: topic.name,
-          difficulty: 'beginner',
+          difficulty,
+          customization: SYLLABI[`${slug}:${difficulty}`],
         })
-        course = generatedToSeedCourse(slug, 'beginner', raw)
+        course = generatedToSeedCourse(slug, difficulty, raw)
       } catch (err) {
         lastErr = err
         continue
@@ -214,9 +247,17 @@ async function main() {
     GENERATED_BUILTIN_COURSES.map((c) => [c.topicSlug, c]),
   )
   for (const [slug, course] of generated) merged.set(slug, course)
-  const ordered = SEED_TOPICS.map((t) => merged.get(t.slug)).filter(
+  // Order by the topic catalog for stable diffs, then APPEND any generated
+  // course whose topic isn't currently in SEED_TOPICS (e.g. temporarily pruned)
+  // so a targeted run never drops other topics' committed courses.
+  const catalogSlugs = new Set(SEED_TOPICS.map((t) => t.slug))
+  const inCatalog = SEED_TOPICS.map((t) => merged.get(t.slug)).filter(
     (c): c is SeedCourse => c !== undefined,
   )
+  const extras = [...merged.values()].filter(
+    (c) => !catalogSlugs.has(c.topicSlug),
+  )
+  const ordered = [...inCatalog, ...extras]
 
   // Write atomically (temp + rename) so an interrupted run can never leave the
   // committed file truncated — which would brick the next run, since this script
