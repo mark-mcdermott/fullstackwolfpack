@@ -19,6 +19,7 @@ import { StatsPage } from '@/pages/app/stats'
 import { TopicSettingsPage } from '@/pages/app/topic-settings'
 import { TopicsPage } from '@/pages/app/topics'
 import { GuestHome } from '@/pages/public/guest-home'
+import { GuestLeaderboard } from '@/pages/public/guest-leaderboard'
 import { GuestLearn } from '@/pages/public/guest-learn'
 import { LearnBrowse } from '@/pages/public/learn-browse'
 import { AdminUsersPage } from '@/pages/admin/users'
@@ -42,6 +43,7 @@ function App() {
         <Route path="/play" element={<ArcadePage />} />
         <Route path="/learn" element={<LearnBrowse />} />
         <Route path="/learn/:lessonId" element={<GuestLearn />} />
+        <Route path="/leaderboard" element={<GuestLeaderboard />} />
       </Route>
 
       {/* Private */}

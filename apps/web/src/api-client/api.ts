@@ -511,6 +511,11 @@ export function createApi({ http, passkeys }: Adapters) {
         }),
       )
     },
+    async leaderboard(): Promise<LeaderboardView> {
+      return leaderboardViewSchema.parse(
+        await http.request('/api/me/public-leaderboard'),
+      )
+    },
   }
 
   // Community: friends + DMs + presence. All poll-based (no realtime service).

@@ -47,6 +47,7 @@ import { recordFocusSession } from '../../src/server/focus'
 import { getPlaytime, recordPlaytime } from '../../src/server/playtime'
 import {
   getLeaderboard,
+  getPublicLeaderboard,
   setLeaderboardOptIn,
 } from '../../src/server/leaderboard'
 import { getGenerationEta } from '../../src/server/generation-timing'
@@ -129,6 +130,8 @@ export async function GET(req: Request): Promise<Response> {
       const view = await getPublicLessonView(id)
       return view ? json(view) : json({ error: 'not found' }, { status: 404 })
     }
+    case 'public-leaderboard':
+      return json(await getPublicLeaderboard())
   }
 
   const userId = await getSessionUserId(req)

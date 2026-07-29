@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router'
+import { clearClaimedUsername, getClaimedUsername } from '@/lib/guest-identity'
 import { AuthCardShell } from '@/components/auth/auth-card-shell'
 import { AuthField } from '@/components/auth/auth-field'
 import { HeroWolf } from '@/components/auth/hero-wolf'
@@ -42,7 +43,8 @@ const WHY: WhyItem[] = [
 
 export function SignUpPage() {
   const { register } = useAuth()
-  const [name, setName] = useState('')
+  // Prefill the name from a username a guest claimed (e.g. on the leaderboard).
+  const [name, setName] = useState(() => getClaimedUsername())
   const [email, setEmail] = useState('')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -53,6 +55,7 @@ export function SignUpPage() {
     setPending(true)
     try {
       await register(email, name)
+      clearClaimedUsername()
       // On success the auth context sets `user`; AuthChromeLayout redirects.
     } catch (err) {
       setError(authErrorMessage(err))

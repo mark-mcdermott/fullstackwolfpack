@@ -8,10 +8,9 @@ import {
 import { db } from '../db'
 import { users, userSettings } from '../db/schema'
 
-// The top N opted-in players by XP, plus the current user's own row (even when
-// they rank below the cut) and whether they're currently opted in.
-export async function getLeaderboard(userId: string): Promise<LeaderboardView> {
-  const rows = await db
+// The top N opted-in players by XP (shared by the authed + public reads).
+async function topRankedRows() {
+  return db
     .select({
       userId: users.id,
       username: users.username,
@@ -25,6 +24,30 @@ export async function getLeaderboard(userId: string): Promise<LeaderboardView> {
     .where(eq(userSettings.leaderboardOptIn, true))
     .orderBy(desc(users.xp), asc(users.id))
     .limit(LEADERBOARD_TOP_N)
+}
+
+// Public (guest) leaderboard: the top-N ranking with no "me" row — guests aren't
+// on it (their XP is local), so the client compares its guest XP to the board's
+// cutoff to decide the "you made the board" nudge.
+export async function getPublicLeaderboard(): Promise<LeaderboardView> {
+  const rows = await topRankedRows()
+  const entries = rankEntries(
+    rows.map((r) => ({
+      userId: r.userId,
+      name: r.username ?? r.displayName,
+      level: r.level,
+      xp: r.xp,
+      streak: r.streak,
+    })),
+    '', // no user → no isMe
+  )
+  return { entries, me: null, optedIn: false }
+}
+
+// The top N opted-in players by XP, plus the current user's own row (even when
+// they rank below the cut) and whether they're currently opted in.
+export async function getLeaderboard(userId: string): Promise<LeaderboardView> {
+  const rows = await topRankedRows()
 
   const entries = rankEntries(
     rows.map((r) => ({
