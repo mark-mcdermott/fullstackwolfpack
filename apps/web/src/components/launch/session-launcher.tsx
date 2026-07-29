@@ -227,11 +227,12 @@ function LauncherForm({
         </span>
       </div>
 
-      {/* Game · skill · difficulty · times · XP+go, spread evenly across the
-          row so the XP block sits near the right edge (no giant middle gap). */}
+      {/* One row when it fits (>=1150). The first wrap keeps game/skill/
+          difficulty on row 1 and moves play/learn + estimated XP + start to
+          row 2 together. `contents` flattens the two groups back into the even
+          single row at >=1150. */}
       <div className="flex flex-wrap items-start gap-x-6 gap-y-6 min-[1150px]:flex-nowrap min-[1150px]:justify-between min-[1150px]:gap-x-4">
-        {/* game + skill break together; `contents` flattens them into the even
-            single row at xl. */}
+        {/* Row 1 on the first wrap: game + skill + difficulty. */}
         <div className="flex flex-wrap items-start gap-x-6 gap-y-6 min-[1150px]:contents">
           <Control label="Choose a game" className="w-full sm:w-52">
             <SelectCard
@@ -273,14 +274,14 @@ function LauncherForm({
               onClick={cycleTopic}
             />
           </Control>
-        </div>
 
-        {/* difficulty + play/learn break together. */}
-        <div className="flex flex-wrap items-start gap-x-6 gap-y-6 min-[1150px]:contents">
           <Control label="Skill difficulty">
             <RatingStars rating={currentTopic ? LEVEL_RATING[level] : null} />
           </Control>
+        </div>
 
+        {/* Row 2 on the first wrap: play/learn + estimated XP + start. */}
+        <div className="flex flex-wrap items-end gap-x-6 gap-y-6 min-[1150px]:contents">
           <div className="flex items-start gap-2">
             <Control label={first.label}>
               <TimeStepper
@@ -313,54 +314,55 @@ function LauncherForm({
               />
             </Control>
           </div>
-        </div>
 
-        {/* Estimated XP + go. At xl it's a fixed-width column on the right
-            (histogram right edge lines up with the button below). At medium
-            widths it takes a full second row — XP left, START right — so it
-            doesn't orphan on the left as items wrap. */}
-        <div className="flex flex-col gap-3 md:max-[1149px]:w-full md:max-[1149px]:flex-row md:max-[1149px]:items-end md:max-[1149px]:justify-between md:max-[1149px]:gap-6 min-[1150px]:w-52">
-          <div className="flex flex-col gap-1.5">
-            <FieldLabel>Estimated XP</FieldLabel>
-            <div className="flex h-16 items-center">
-              {ready ? (
-                <div className="flex w-full items-center justify-between gap-2">
-                  <span className="flex items-baseline gap-1">
-                    <span className="text-2xl font-bold tabular-nums text-blue-600 dark:text-blue-400">
-                      +{estimatedXp}
+          {/* Estimated XP + go. At >=1150 it's a fixed-width column on the right
+              (histogram right edge lines up with the button below); on the
+              first wrap it sits inline on row 2 (XP then START). */}
+          <div className="flex flex-col gap-3 md:max-[1149px]:flex-row md:max-[1149px]:items-end md:max-[1149px]:gap-4 min-[1150px]:w-52">
+            <div className="flex flex-col gap-1.5">
+              <FieldLabel>Estimated XP</FieldLabel>
+              <div className="flex h-16 items-center">
+                {ready ? (
+                  <div className="flex w-full items-center justify-between gap-2">
+                    <span className="flex items-baseline gap-1">
+                      <span className="text-2xl font-bold tabular-nums text-blue-600 dark:text-blue-400">
+                        +{estimatedXp}
+                      </span>
+                      <span className="font-mono text-sm font-semibold text-muted-foreground">
+                        XP
+                      </span>
                     </span>
-                    <span className="font-mono text-sm font-semibold text-muted-foreground">
-                      XP
-                    </span>
-                  </span>
-                  <XpBars />
-                </div>
-              ) : (
-                <div className="w-full">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-lg font-bold">
-                      <span className="text-blue-600 dark:text-blue-400">--</span>
-                      <span className="text-muted-foreground"> XP</span>
-                    </span>
-                    <XpBars muted />
+                    <XpBars />
                   </div>
-                  <p className="mt-0.5 font-mono text-[11px] leading-tight text-muted-foreground">
-                    Complete the selections to see your XP
-                  </p>
-                </div>
-              )}
+                ) : (
+                  <div className="w-full">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-mono text-lg font-bold">
+                        <span className="text-blue-600 dark:text-blue-400">
+                          --
+                        </span>
+                        <span className="text-muted-foreground"> XP</span>
+                      </span>
+                      <XpBars muted />
+                    </div>
+                    <p className="mt-0.5 font-mono text-[11px] leading-tight text-muted-foreground">
+                      Complete the selections to see your XP
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
 
-          <button
-            type="button"
-            onClick={start}
-            disabled={!ready || starting}
-            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90 disabled:opacity-50 md:max-[1149px]:w-auto md:max-[1149px]:px-8"
-          >
-            {starting ? 'Starting…' : 'Start mission'}
-            <ArrowRight className="size-4" />
-          </button>
+            <button
+              type="button"
+              onClick={start}
+              disabled={!ready || starting}
+              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90 disabled:opacity-50 md:max-[1149px]:w-auto md:max-[1149px]:px-8"
+            >
+              {starting ? 'Starting…' : 'Start mission'}
+              <ArrowRight className="size-4" />
+            </button>
+          </div>
         </div>
       </div>
     </Panel>
