@@ -1,17 +1,12 @@
 import {
-  BarChart3,
   Gamepad2,
   LayoutDashboard,
   Layers,
-  LineChart,
   type LucideIcon,
-  Medal,
-  Repeat,
-  Settings,
-  ShieldCheck,
   Timer,
-  Trophy,
   Users,
+  // Temporarily hidden while we tighten the core flow (see NAV below):
+  // BarChart3, LineChart, Medal, Repeat, Settings, ShieldCheck, Trophy,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -29,13 +24,16 @@ export const NAV: NavItem[] = [
   { to: '/app/arcade', label: 'Arcade', icon: Gamepad2 },
   { to: '/app/friends', label: 'Friends', icon: Users },
   { to: '/app/topics', label: 'Topics', icon: Layers },
-  { to: '/app/review', label: 'Review', icon: Repeat },
-  { to: '/app/progress', label: 'Progress', icon: BarChart3 },
-  { to: '/app/stats', label: 'Stats', icon: LineChart },
-  { to: '/app/achievements', label: 'Achievements', icon: Trophy },
-  { to: '/app/badges', label: 'Badges', icon: ShieldCheck },
-  { to: '/app/leaderboard', label: 'Leaderboard', icon: Medal },
-  { to: '/app/settings', label: 'Settings', icon: Settings },
+  // Hidden for now — zooming in on the core flow (Dashboard → Sessions →
+  // Arcade → Friends → Topics). The routes still exist; only the nav links are
+  // out. Restore by uncommenting these (and their icon imports above).
+  // { to: '/app/review', label: 'Review', icon: Repeat },
+  // { to: '/app/progress', label: 'Progress', icon: BarChart3 },
+  // { to: '/app/stats', label: 'Stats', icon: LineChart },
+  // { to: '/app/achievements', label: 'Achievements', icon: Trophy },
+  // { to: '/app/badges', label: 'Badges', icon: ShieldCheck },
+  // { to: '/app/leaderboard', label: 'Leaderboard', icon: Medal },
+  // { to: '/app/settings', label: 'Settings', icon: Settings },
 ]
 
 export const navItemClass = ({ isActive }: { isActive: boolean }) =>
