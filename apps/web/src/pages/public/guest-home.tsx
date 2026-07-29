@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router'
 import { SessionLauncher } from '@/components/launch/session-launcher'
-import { PageHeading } from '@fw/ui'
+import { HomeHero } from '@/components/home/hero'
 import { useAuth } from '@/hooks/auth-context'
 
 // The guest front door (`/`): logged-out visitors land here — the session
@@ -14,11 +14,7 @@ export function GuestHome() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeading
-        label="Play & learn"
-        title="Turn screen time into skills"
-        subtitle="Pick a game and a topic, and we'll slot a short lesson between rounds. No account needed — your progress saves on this device."
-      />
+      <HomeHero />
       <SessionLauncher />
     </div>
   )
