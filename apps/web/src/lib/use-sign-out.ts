@@ -1,13 +1,13 @@
 import { useCallback } from 'react'
-import { SITE_URL } from '@/consts'
 import { useAuth } from '@/hooks/auth-context'
 
-// Sign out, then leave the app for the public site's logged-out home. The site
-// is a separate origin (Astro on www), so this is a hard navigation.
+// Sign out, then return to the app's front door — the guest home at `/`. The app
+// is self-sufficient now (it IS the landing experience), so there's no bounce to
+// the marketing site. A hard navigation guarantees a clean, signed-out state.
 export function useSignOut() {
   const { logout } = useAuth()
   return useCallback(async () => {
     await logout()
-    window.location.assign(SITE_URL)
+    window.location.assign('/')
   }, [logout])
 }

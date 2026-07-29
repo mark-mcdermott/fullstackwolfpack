@@ -1,7 +1,6 @@
 import { renderHook } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { SITE_URL } from '@/consts'
 import { AuthContext, type AuthContextValue } from '@/hooks/auth-context'
 import { useSignOut } from './use-sign-out'
 
@@ -37,7 +36,7 @@ function wrapper(logout: AuthContextValue['logout']) {
 }
 
 describe('useSignOut', () => {
-  it('logs out, then navigates to the public site', async () => {
+  it('logs out, then returns to the in-app front door (/)', async () => {
     const order: string[] = []
     const logout = vi.fn(async () => {
       order.push('logout')
@@ -50,7 +49,7 @@ describe('useSignOut', () => {
     await result.current()
 
     expect(logout).toHaveBeenCalledTimes(1)
-    expect(assign).toHaveBeenCalledWith(SITE_URL)
+    expect(assign).toHaveBeenCalledWith('/')
     expect(order).toEqual(['logout', 'assign']) // log out before leaving
   })
 })
