@@ -45,6 +45,7 @@ function renderAt(ctxUser: PublicUser | null) {
     <Routes>
       <Route path="/" element={<RootRedirect />} />
       <Route path="/app" element={<div>APP HOME</div>} />
+      <Route path="/login" element={<div>LOGIN</div>} />
     </Routes>
   )
   render(
@@ -55,9 +56,27 @@ function renderAt(ctxUser: PublicUser | null) {
 }
 
 describe('RootRedirect', () => {
-  it('sends signed-out visitors to the public site', () => {
+  afterEach(() => vi.unstubAllEnvs())
+
+  it('sends signed-out visitors to the public site in production', () => {
+    vi.stubEnv('DEV', false) // production build
     renderAt(null)
     expect(replace).toHaveBeenCalledWith(SITE_URL)
+  })
+
+  it('keeps signed-out visitors on /login in dev (no external bounce)', () => {
+    vi.stubEnv('DEV', true)
+    vi.stubEnv('VITE_SITE_URL', '') // no override → stay local
+    renderAt(null)
+    expect(screen.getByText('LOGIN')).toBeInTheDocument()
+    expect(replace).not.toHaveBeenCalled()
+  })
+
+  it('honors VITE_SITE_URL even in dev', () => {
+    vi.stubEnv('DEV', true)
+    vi.stubEnv('VITE_SITE_URL', 'http://localhost:4321')
+    renderAt(null)
+    expect(replace).toHaveBeenCalled()
   })
 
   it('sends signed-in users to /app', () => {

@@ -19,4 +19,12 @@ interface ImportMetaEnv {
    * static files (e.g. `https://games.example.com`) to drop `allow-same-origin`.
    */
   readonly VITE_GAMES_ORIGIN?: string
+  /**
+   * Marketing (Astro) site origin. The app links out here for marketing pages
+   * and the signed-out `/` redirect. Empty ⇒ the prod site
+   * (`https://fullstackwolfpack.com`) in prod builds, or stays on localhost
+   * (`/login`) in dev. Set to a local Astro origin (e.g. `http://localhost:4321`)
+   * to send `/` there instead.
+   */
+  readonly VITE_SITE_URL?: string
 }
