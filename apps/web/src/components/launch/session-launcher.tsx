@@ -7,6 +7,7 @@ import {
   Code,
   Gamepad2,
   Star,
+  StarHalf,
 } from 'lucide-react'
 import { useMemo, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router'
@@ -55,12 +56,12 @@ const STATIC_GAMES: Game[] = [
   })),
 ]
 
-// Difficulty ⇄ 5-star mapping (the enum has three rungs; stars just make it
-// tactile). Estimated XP scales with the learn slice and the difficulty.
-const LEVEL_STARS: Record<Difficulty, number> = {
-  beginner: 2,
-  intermediate: 4,
-  advanced: 5,
+// The course level as a read-only 0–5 star rating (half-stars allowed). Estimated
+// XP scales with the learn slice and the difficulty.
+const LEVEL_RATING: Record<Difficulty, number> = {
+  beginner: 1.5,
+  intermediate: 2.5,
+  advanced: 4.5,
 }
 const LEVEL_MULT: Record<Difficulty, number> = {
   beginner: 1,
@@ -68,9 +69,6 @@ const LEVEL_MULT: Record<Difficulty, number> = {
   advanced: 1.5,
 }
 const XP_PER_MIN = 40
-function starToLevel(i: number): Difficulty {
-  return i <= 2 ? 'beginner' : i <= 4 ? 'intermediate' : 'advanced'
-}
 const cleanTitle = (t: string) => t.replace(/\s*\([^)]*\)\s*$/, '')
 
 // The app-home hero: one compact strip to start a play/learn focus session.
@@ -83,7 +81,9 @@ export function SessionLauncher() {
           v.topics.map((t) => ({
             slug: t.slug,
             name: t.name,
-            difficulty: 'beginner' as Difficulty,
+            // Public topics carry no difficulty field yet; treat them as
+            // intermediate for now (the JS course is intermediate).
+            difficulty: 'intermediate' as Difficulty,
             lessonsCompleted: 0,
             lessonsTotal: 1, // public topics all have a built-in course
           })),
@@ -271,11 +271,8 @@ function LauncherForm({
             />
           </Control>
 
-          <Control label="Difficulty">
-            <StarRating
-              level={currentTopic ? level : null}
-              onChange={setLevel}
-            />
+          <Control label="Skill difficulty">
+            <RatingStars rating={currentTopic ? LEVEL_RATING[level] : null} />
           </Control>
 
           <div className="flex items-start gap-2">
@@ -311,13 +308,14 @@ function LauncherForm({
             </Control>
           </div>
 
-        {/* Estimated XP + go */}
-        <div className="flex flex-col gap-3">
+        {/* Estimated XP + go — fixed width so the histogram's right edge lines
+            up with the START MISSION button below it. */}
+        <div className="flex flex-col gap-3 xl:w-52">
           <div className="flex flex-col gap-1.5">
             <FieldLabel>Estimated XP</FieldLabel>
-            <div className="flex h-16 items-center gap-3">
+            <div className="flex h-16 items-center">
               {ready ? (
-                <>
+                <div className="flex w-full items-center justify-between gap-2">
                   <span className="flex items-baseline gap-1">
                     <span className="text-2xl font-bold tabular-nums text-blue-600 dark:text-blue-400">
                       +{estimatedXp}
@@ -327,20 +325,20 @@ function LauncherForm({
                     </span>
                   </span>
                   <XpBars />
-                </>
+                </div>
               ) : (
-                <>
-                  <div className="leading-tight">
+                <div className="w-full">
+                  <div className="flex items-center justify-between gap-2">
                     <span className="font-mono text-lg font-bold">
                       <span className="text-blue-600 dark:text-blue-400">--</span>
                       <span className="text-muted-foreground"> XP</span>
                     </span>
-                    <p className="font-mono text-[11px] text-muted-foreground">
-                      Complete the selections to see your XP
-                    </p>
+                    <XpBars muted />
                   </div>
-                  <XpBars muted />
-                </>
+                  <p className="mt-0.5 font-mono text-[11px] leading-tight text-muted-foreground">
+                    Complete the selections to see your XP
+                  </p>
+                </div>
               )}
             </div>
           </div>
@@ -437,34 +435,31 @@ function SelectCard({
   )
 }
 
-function StarRating({
-  level,
-  onChange,
-}: {
-  level: Difficulty | null
-  onChange: (l: Difficulty) => void
-}) {
-  const filled = level ? LEVEL_STARS[level] : 0
+// Read-only difficulty rating — full/half/empty stars for a 0–5 value. A half
+// star overlays a lucide StarHalf (coral left half) on an empty outline.
+function RatingStars({ rating }: { rating: number | null }) {
+  const r = rating ?? 0
   return (
-    <div className="flex items-center gap-1">
-      {[1, 2, 3, 4, 5].map((i) => (
-        <button
-          key={i}
-          type="button"
-          onClick={() => onChange(starToLevel(i))}
-          aria-label={`Set difficulty: ${starToLevel(i)}`}
-          className="transition-transform hover:scale-110"
-        >
+    <div className="flex items-center gap-1" aria-label={`Difficulty ${r} of 5`}>
+      {[1, 2, 3, 4, 5].map((i) => {
+        if (r >= i) {
+          return <Star key={i} className="size-5 fill-primary text-primary" />
+        }
+        if (r >= i - 0.5) {
+          return (
+            <span key={i} className="relative inline-flex size-5">
+              <Star className="size-5 fill-transparent text-muted-foreground/40" />
+              <StarHalf className="absolute inset-0 size-5 fill-primary text-primary" />
+            </span>
+          )
+        }
+        return (
           <Star
-            className={cn(
-              'size-5',
-              i <= filled
-                ? 'fill-primary text-primary'
-                : 'fill-transparent text-muted-foreground/40',
-            )}
+            key={i}
+            className="size-5 fill-transparent text-muted-foreground/40"
           />
-        </button>
-      ))}
+        )
+      })}
     </div>
   )
 }
