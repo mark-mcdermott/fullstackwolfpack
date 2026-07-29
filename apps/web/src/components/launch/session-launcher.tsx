@@ -230,6 +230,9 @@ function LauncherForm({
       {/* Game · skill · difficulty · times · XP+go, spread evenly across the
           row so the XP block sits near the right edge (no giant middle gap). */}
       <div className="flex flex-wrap items-start gap-x-6 gap-y-6 xl:flex-nowrap xl:justify-between">
+        {/* game + skill break together; `contents` flattens them into the even
+            single row at xl. */}
+        <div className="flex flex-wrap items-start gap-x-6 gap-y-6 xl:contents">
           <Control label="Choose a game" className="w-full sm:w-56">
             <SelectCard
               icon={
@@ -270,7 +273,10 @@ function LauncherForm({
               onClick={cycleTopic}
             />
           </Control>
+        </div>
 
+        {/* difficulty + play/learn break together. */}
+        <div className="flex flex-wrap items-start gap-x-6 gap-y-6 xl:contents">
           <Control label="Skill difficulty">
             <RatingStars rating={currentTopic ? LEVEL_RATING[level] : null} />
           </Control>
@@ -307,6 +313,7 @@ function LauncherForm({
               />
             </Control>
           </div>
+        </div>
 
         {/* Estimated XP + go. At xl it's a fixed-width column on the right
             (histogram right edge lines up with the button below). At medium
