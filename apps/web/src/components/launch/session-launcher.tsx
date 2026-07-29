@@ -227,9 +227,9 @@ function LauncherForm({
         </span>
       </div>
 
-      <div className="flex flex-col gap-6 xl:flex-row xl:justify-between xl:gap-8">
-        {/* Selections */}
-        <div className="flex flex-wrap gap-x-6 gap-y-5">
+      {/* Game · skill · difficulty · times · XP+go, spread evenly across the
+          row so the XP block sits near the right edge (no giant middle gap). */}
+      <div className="flex flex-wrap items-start gap-x-6 gap-y-6 xl:flex-nowrap xl:justify-between">
           <Control label="Choose a game" className="w-full sm:w-56">
             <SelectCard
               icon={
@@ -310,10 +310,9 @@ function LauncherForm({
               />
             </Control>
           </div>
-        </div>
 
         {/* Estimated XP + go */}
-        <div className="flex shrink-0 flex-col gap-3 xl:w-52">
+        <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
             <FieldLabel>Estimated XP</FieldLabel>
             <div className="flex h-16 items-center gap-3">
