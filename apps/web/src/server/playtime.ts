@@ -1,11 +1,13 @@
-import { desc, eq, sql } from 'drizzle-orm'
-import type {
-  GamePlaytime,
-  PlaytimeRecordInput,
-  PlaytimeSource,
+import { and, desc, eq, gte, sql } from 'drizzle-orm'
+import {
+  xpForPlaySeconds,
+  type GamePlaytime,
+  type PlaytimeRecordInput,
+  type PlaytimeSource,
 } from '../core/playtime'
 import { db } from '../db'
-import { gamePlaytime } from '../db/schema'
+import { gamePlaytime, xpEvents } from '../db/schema'
+import { grantXp } from './rewards'
 
 // Add a flush of seconds to a game's running total. Upserts on the
 // (user, game) unique index — the first flush inserts, every later one
@@ -37,7 +39,35 @@ export async function recordPlaytime(
     })
     .returning({ seconds: gamePlaytime.seconds })
 
+  // Modest, daily-capped play XP so gaming contributes to level/leaderboard.
+  const [today] = await db
+    .select({ earned: sql<number>`coalesce(sum(${xpEvents.xp}), 0)` })
+    .from(xpEvents)
+    .where(
+      and(
+        eq(xpEvents.userId, userId),
+        eq(xpEvents.type, 'play'),
+        gte(xpEvents.createdAt, startOfDay(now)),
+      ),
+    )
+  const playXp = xpForPlaySeconds(input.seconds, Number(today?.earned ?? 0))
+  if (playXp > 0) {
+    await grantXp(userId, {
+      type: 'play',
+      xp: playXp,
+      refType: 'game',
+      refId: input.gameId,
+      description: 'Playtime',
+    })
+  }
+
   return { seconds: row?.seconds ?? input.seconds }
+}
+
+function startOfDay(now: Date): Date {
+  const d = new Date(now)
+  d.setHours(0, 0, 0, 0)
+  return d
 }
 
 // Every game the user has played, most-recently-played first.

@@ -14,6 +14,18 @@ export function gameKey(game: { source: PlaytimeSource; id: string }): string {
   return `${game.source}:${game.id}`
 }
 
+// Modest XP for playing, so games contribute to level/leaderboard — but learning
+// stays the fast path (lessons/quizzes are worth far more). Daily-capped so the
+// board can't be topped by idle gaming. `earnedTodayXp` is how much play XP the
+// user has already banked today; a flush earns up to the remaining cap.
+export const PLAY_XP_PER_MINUTE = 1
+export const PLAY_XP_DAILY_CAP = 30
+export function xpForPlaySeconds(seconds: number, earnedTodayXp: number): number {
+  const gross = Math.floor(Math.max(0, seconds) / 60) * PLAY_XP_PER_MINUTE
+  const remaining = Math.max(0, PLAY_XP_DAILY_CAP - Math.max(0, earnedTodayXp))
+  return Math.min(gross, remaining)
+}
+
 // A single flush from the player: the seconds played since the last flush.
 // Bounded so a forged request can't inflate a user's own hours — one flush can
 // only ever add up to two hours (the interval flush fires far more often).

@@ -5,9 +5,14 @@ import { BUILTIN_COURSES } from './seed-content'
 import { SEED_TOPICS } from './seed-data'
 
 describe('builtin courses', () => {
-  it('reference real seeded topics', () => {
-    const slugs = new Set(SEED_TOPICS.map((t) => t.slug))
-    for (const c of BUILTIN_COURSES) expect(slugs.has(c.topicSlug)).toBe(true)
+  it('cover every seeded topic (parked courses for pruned topics are allowed)', () => {
+    // Topics can be temporarily pruned (commented out in seed-data) while their
+    // built-in course stays parked in seed-content.generated — the seeder skips a
+    // course whose topic isn't seeded. So: every SEEDED topic must have a course
+    // (no active topic ships empty), but parked courses referencing pruned topics
+    // are fine.
+    const courseSlugs = new Set(BUILTIN_COURSES.map((c) => c.topicSlug))
+    for (const t of SEED_TOPICS) expect(courseSlugs.has(t.slug)).toBe(true)
   })
 
   it('have globally unique ids (courses, lessons, segments, questions, exercises)', () => {

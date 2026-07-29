@@ -47,6 +47,7 @@ import { recordFocusSession } from '../../src/server/focus'
 import { getPlaytime, recordPlaytime } from '../../src/server/playtime'
 import {
   getLeaderboard,
+  getPublicLeaderboard,
   setLeaderboardOptIn,
 } from '../../src/server/leaderboard'
 import { getGenerationEta } from '../../src/server/generation-timing'
@@ -129,6 +130,8 @@ export async function GET(req: Request): Promise<Response> {
       const view = await getPublicLessonView(id)
       return view ? json(view) : json({ error: 'not found' }, { status: 404 })
     }
+    case 'public-leaderboard':
+      return json(await getPublicLeaderboard())
   }
 
   const userId = await getSessionUserId(req)
@@ -351,7 +354,13 @@ export async function POST(req: Request): Promise<Response> {
     case 'import-progress': {
       const parsed = await parseBody(importProgressRequest, req)
       if (!parsed.ok) return parsed.response
-      return json(await importGuestProgress(userId, parsed.data.entries))
+      return json(
+        await importGuestProgress(
+          userId,
+          parsed.data.entries,
+          parsed.data.playXp,
+        ),
+      )
     }
 
     case 'friend-request': {

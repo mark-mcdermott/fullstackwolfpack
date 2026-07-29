@@ -4,16 +4,26 @@ import { useNavigate } from 'react-router'
 import { api } from '@/api-client'
 import { AsyncView } from '@/components/layout/async-view'
 import { Panel, SectionLabel } from '@fw/ui'
-import type { TopicProgress } from '@/core/app-data'
 import type { Difficulty } from '@/core/generation'
 import { EMBED_CATALOG } from '@/lib/embed-catalog'
-import { nextLessonPath } from '@/lib/open-course'
+import { guestNextLessonPath, nextLessonPath } from '@/lib/open-course'
 import { ROM_CATALOG } from '@/lib/rom-catalog'
 import { setSessionTarget } from '@/lib/session-target'
 import { useAsync } from '@/hooks/use-async'
+import { useAuth } from '@/hooks/auth-context'
 import { useRomLibrary } from '@/hooks/use-rom-library'
 import { useTimer } from '@/hooks/timer-context'
 import { cn } from '@/lib/utils'
+
+// The launcher works for both signed-in users and guests. A normalized topic
+// shape covers both the authed (TopicProgress) and public (guest) topic lists.
+type LauncherTopic = {
+  slug: string
+  name: string
+  difficulty: Difficulty
+  lessonsCompleted: number
+  lessonsTotal: number
+}
 
 // The always-present games: instant-play web games first (the one-click
 // default), then the console ROM titles (NES/GB — launch the emulator). The
@@ -28,17 +38,38 @@ const STATIC_GAMES = [
 const LEVELS: Difficulty[] = ['beginner', 'intermediate', 'advanced']
 
 // The app-home hero: one row to start a play/learn focus session. Smart-defaulted
-// so a returning user just hits Start.
+// so a returning user (or a guest) just hits Start.
 export function SessionLauncher() {
-  const state = useAsync(() => api.data.topics())
+  const guest = !useAuth().user
+  const state = useAsync<LauncherTopic[]>(() =>
+    guest
+      ? api.public.topics().then((v) =>
+          v.topics.map((t) => ({
+            slug: t.slug,
+            name: t.name,
+            difficulty: 'beginner' as Difficulty,
+            lessonsCompleted: 0,
+            lessonsTotal: 1, // public topics all have a built-in course
+          })),
+        )
+      : api.data.topics().then((ts) =>
+          ts.map((t) => ({
+            slug: t.slug,
+            name: t.name,
+            difficulty: (t.difficulty as Difficulty) ?? 'beginner',
+            lessonsCompleted: t.lessonsCompleted,
+            lessonsTotal: t.lessonsTotal,
+          })),
+        ),
+  )
   return (
     <AsyncView state={state}>
-      {(topics) => <LauncherForm topics={topics} />}
+      {(topics) => <LauncherForm topics={topics} guest={guest} />}
     </AsyncView>
   )
 }
 
-function pickTopic(playable: TopicProgress[]): TopicProgress | undefined {
+function pickTopic(playable: LauncherTopic[]): LauncherTopic | undefined {
   return (
     playable.find(
       (t) => t.lessonsCompleted > 0 && t.lessonsCompleted < t.lessonsTotal,
@@ -46,7 +77,13 @@ function pickTopic(playable: TopicProgress[]): TopicProgress | undefined {
   )
 }
 
-function LauncherForm({ topics }: { topics: TopicProgress[] }) {
+function LauncherForm({
+  topics,
+  guest,
+}: {
+  topics: LauncherTopic[]
+  guest: boolean
+}) {
   const timer = useTimer()
   const nav = useNavigate()
   const playable = topics.filter((t) => t.lessonsTotal > 0)
@@ -86,7 +123,9 @@ function LauncherForm({ topics }: { topics: TopicProgress[] }) {
     if (!topicSlug || starting) return
     setStarting(true)
     try {
-      if (currentTopic && level !== currentTopic.difficulty) {
+      // Guests have no persistent difficulty track — the level selector is just
+      // a session preference for them, so skip the server write.
+      if (!guest && currentTopic && level !== currentTopic.difficulty) {
         await api.courses.setDifficulty(topicSlug, level).catch(() => {})
       }
       setSessionTarget({ gameId, topicSlug })
@@ -98,10 +137,12 @@ function LauncherForm({ topics }: { topics: TopicProgress[] }) {
         loop: true, // keep the play↔learn loop going until the user ends it
       })
       // Play-first → drop into the game; learn-first → open the lesson first.
+      // Guests use the public arcade (/play) + guest lesson routes.
+      const arcadePath = guest ? '/play' : '/app/arcade'
       if (learnFirst) {
-        nav(await nextLessonPath(topicSlug))
+        nav(await (guest ? guestNextLessonPath : nextLessonPath)(topicSlug))
       } else {
-        nav(`/app/arcade?game=${encodeURIComponent(gameId)}`)
+        nav(`${arcadePath}?game=${encodeURIComponent(gameId)}`)
       }
     } catch {
       setStarting(false)

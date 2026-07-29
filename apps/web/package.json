@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "db:seed": "tsx --env-file=.env scripts/seed.ts",
+    "db:reset-dev": "tsx --env-file=.env scripts/reset-dev-users.ts",
     "gen:builtins": "tsx --env-file=.env scripts/gen-builtins.ts",
     "tauri": "tauri",
     "tauri:build:prod": "VITE_API_BASE=\"${VITE_API_BASE:-https://app.fullstackwolfpack.com}\" npm run tauri build",

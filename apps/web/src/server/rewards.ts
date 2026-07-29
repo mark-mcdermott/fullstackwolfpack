@@ -16,6 +16,7 @@ export type XpType =
   | 'streak'
   | 'achievement'
   | 'session'
+  | 'play'
 
 export type XpGrant = {
   type: XpType

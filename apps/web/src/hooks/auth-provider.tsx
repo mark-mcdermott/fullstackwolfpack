@@ -9,6 +9,7 @@ import { api } from '@/api-client'
 import type { PublicUser } from '@/core/schemas'
 import {
   clearGuestProgress,
+  guestPlayXp,
   guestProgressEntries,
 } from '@/lib/guest-progress'
 import { AuthContext } from './auth-context'
@@ -33,9 +34,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // failure the localStorage is kept so the next login can retry.
   const migrateGuestProgress = useCallback(async () => {
     const entries = guestProgressEntries()
-    if (entries.length === 0) return
+    const playXp = guestPlayXp()
+    if (entries.length === 0 && playXp === 0) return
     try {
-      await api.data.importProgress(entries)
+      await api.data.importProgress(entries, playXp)
       clearGuestProgress()
     } catch {
       /* keep localStorage for a later retry */

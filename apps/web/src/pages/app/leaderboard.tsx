@@ -16,7 +16,7 @@ const RANK_ACCENT: Record<number, string> = {
   3: 'text-orange-400',
 }
 
-function EntryRow({ entry }: { entry: LeaderboardEntry }) {
+export function EntryRow({ entry }: { entry: LeaderboardEntry }) {
   return (
     <div
       className={cn(

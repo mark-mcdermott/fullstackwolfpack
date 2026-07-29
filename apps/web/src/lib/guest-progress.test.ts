@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { lessonScore, xpForLesson } from '@/core/learning'
+import { PLAY_XP_DAILY_CAP } from '@/core/playtime'
 import {
   clearGuestProgress,
   completeLessonGuest,
@@ -7,6 +8,7 @@ import {
   guestLessonsCompleted,
   guestProgressEntries,
   guestXp,
+  recordGuestPlaytime,
 } from './guest-progress'
 
 describe('guest progress (localStorage)', () => {
@@ -16,6 +18,17 @@ describe('guest progress (localStorage)', () => {
     expect(guestXp()).toBe(0)
     expect(guestLessonsCompleted()).toBe(0)
     expect(guestCompletedLessonIds().size).toBe(0)
+  })
+
+  it('banks modest play XP toward the daily cap', () => {
+    expect(recordGuestPlaytime(600, '2026-07-28')).toBe(10) // 10 min → 10 XP
+    expect(guestXp()).toBe(10)
+    // Same day, past the cap → clamps at the daily cap.
+    recordGuestPlaytime(60 * 60, '2026-07-28')
+    expect(guestXp()).toBe(PLAY_XP_DAILY_CAP)
+    // A new day resets the cap → more can be earned.
+    expect(recordGuestPlaytime(120, '2026-07-29')).toBe(2)
+    expect(guestXp()).toBe(PLAY_XP_DAILY_CAP + 2)
   })
 
   it('records a completion with the same math as the server', () => {

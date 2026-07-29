@@ -260,11 +260,12 @@ export function createApi({ http, passkeys }: Adapters) {
     // Migrate a guest's localStorage progress into the account (on signup/login).
     async importProgress(
       entries: GuestProgressEntry[],
+      playXp = 0,
     ): Promise<ImportProgressResult> {
       return importProgressResult.parse(
         await http.request('/api/me/import-progress', {
           method: 'POST',
-          body: JSON.stringify({ entries }),
+          body: JSON.stringify({ entries, playXp }),
         }),
       )
     },
@@ -509,6 +510,11 @@ export function createApi({ http, passkeys }: Adapters) {
           method: 'POST',
           body: JSON.stringify({ questionId, ...input }),
         }),
+      )
+    },
+    async leaderboard(): Promise<LeaderboardView> {
+      return leaderboardViewSchema.parse(
+        await http.request('/api/me/public-leaderboard'),
       )
     },
   }

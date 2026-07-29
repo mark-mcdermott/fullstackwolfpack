@@ -47,6 +47,19 @@ describe('DevModeSwitcher', () => {
     }
   })
 
+  it('collapses to just the label when "Dev Mode" is clicked, and restores', async () => {
+    renderSwitch(ctx(null))
+    const label = screen.getByRole('button', { name: /dev mode/i })
+    // Collapse: the role buttons disappear, the label stays.
+    await userEvent.click(label)
+    expect(screen.queryByRole('button', { name: 'Off' })).not.toBeInTheDocument()
+    expect(label).toHaveAttribute('aria-expanded', 'false')
+    // Restore.
+    await userEvent.click(label)
+    expect(screen.getByRole('button', { name: 'Off' })).toBeInTheDocument()
+    expect(label).toHaveAttribute('aria-expanded', 'true')
+  })
+
   it('marks Off active when logged out', () => {
     renderSwitch(ctx(null))
     expect(screen.getByRole('button', { name: 'Off' })).toHaveAttribute('aria-pressed', 'true')
