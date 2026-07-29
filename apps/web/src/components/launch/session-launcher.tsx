@@ -227,142 +227,140 @@ function LauncherForm({
         </span>
       </div>
 
-      {/* One row when it fits (>=1150). The first wrap keeps game/skill/
-          difficulty on row 1 and moves play/learn + estimated XP + start to
-          row 2 together. `contents` flattens the two groups back into the even
-          single row at >=1150. */}
-      <div className="flex flex-wrap items-start gap-x-6 gap-y-6 min-[1150px]:flex-nowrap min-[1150px]:justify-between min-[1150px]:gap-x-4">
-        {/* Row 1 on the first wrap: game + skill + difficulty. */}
-        <div className="flex flex-wrap items-start gap-x-6 gap-y-6 min-[1150px]:contents">
-          <Control label="Choose a game" className="w-full sm:w-52">
-            <SelectCard
-              icon={
-                currentGame?.cover ? (
-                  <img
-                    src={currentGame.cover}
-                    alt=""
-                    className="size-10 shrink-0 rounded-md object-cover"
-                  />
-                ) : (
-                  <Gamepad2
-                    className={cn(
-                      'size-6 shrink-0',
-                      currentGame ? 'text-primary' : 'text-muted-foreground',
-                    )}
-                  />
-                )
-              }
-              title={currentGame ? cleanTitle(currentGame.title) : 'Select a game'}
-              subtitle={currentGame ? 'Ready to play' : 'Pick a game to begin'}
-              selected={!!currentGame}
-              onClick={cycleGame}
+      {/* Single row that sheds its two optional readouts to stay on one line.
+          Below 1150 it drops the estimated-XP readout and the skill-difficulty
+          rating together — dropping XP alone can't reclaim the row (START lives
+          in that column) — leaving game · skill · play · learn · start. Both
+          return when the panel stacks on mobile. */}
+      <div className="flex flex-wrap items-start gap-x-4 gap-y-6 md:max-[1149px]:justify-center min-[1150px]:flex-nowrap min-[1150px]:justify-between">
+        <Control label="Choose a game" className="w-full sm:w-52">
+          <SelectCard
+            icon={
+              currentGame?.cover ? (
+                <img
+                  src={currentGame.cover}
+                  alt=""
+                  className="size-10 shrink-0 rounded-md object-cover"
+                />
+              ) : (
+                <Gamepad2
+                  className={cn(
+                    'size-6 shrink-0',
+                    currentGame ? 'text-primary' : 'text-muted-foreground',
+                  )}
+                />
+              )
+            }
+            title={currentGame ? cleanTitle(currentGame.title) : 'Select a game'}
+            subtitle={currentGame ? 'Ready to play' : 'Pick a game to begin'}
+            selected={!!currentGame}
+            onClick={cycleGame}
+          />
+        </Control>
+
+        <Control label="Choose a skill" className="w-full sm:w-52">
+          <SelectCard
+            icon={
+              currentTopic ? (
+                <SkillIcon topic={currentTopic} />
+              ) : (
+                <Code className="size-6 shrink-0 text-muted-foreground" />
+              )
+            }
+            title={currentTopic ? currentTopic.name : 'Select a skill'}
+            subtitle={currentTopic ? 'Ready to learn' : 'Pick a skill to focus on'}
+            selected={!!currentTopic}
+            onClick={cycleTopic}
+          />
+        </Control>
+
+        {/* Dropped below 1150 alongside the XP readout. */}
+        <Control
+          label="Skill difficulty"
+          className="md:max-[1149px]:hidden"
+        >
+          <RatingStars rating={currentTopic ? LEVEL_RATING[level] : null} />
+        </Control>
+
+        <div className="flex items-start gap-2">
+          <Control label={first.label}>
+            <TimeStepper
+              value={first.value}
+              onChange={first.set}
+              name={first.name}
             />
           </Control>
-
-          <Control label="Choose a skill" className="w-full sm:w-52">
-            <SelectCard
-              icon={
-                currentTopic ? (
-                  <SkillIcon topic={currentTopic} />
-                ) : (
-                  <Code className="size-6 shrink-0 text-muted-foreground" />
-                )
-              }
-              title={currentTopic ? currentTopic.name : 'Select a skill'}
-              subtitle={currentTopic ? 'Ready to learn' : 'Pick a skill to focus on'}
-              selected={!!currentTopic}
-              onClick={cycleTopic}
+          <div className="flex flex-col gap-1.5">
+            <FieldLabel aria-hidden="true" className="opacity-0">
+              swap
+            </FieldLabel>
+            <div className="flex h-16 items-center">
+              <button
+                type="button"
+                onClick={() => setLearnFirst((v) => !v)}
+                aria-label="Swap play/learn order"
+                title="Swap which comes first"
+                className="flex h-11 w-9 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+              >
+                <ArrowLeftRight className="size-4" />
+              </button>
+            </div>
+          </div>
+          <Control label={second.label}>
+            <TimeStepper
+              value={second.value}
+              onChange={second.set}
+              name={second.name}
             />
-          </Control>
-
-          <Control label="Skill difficulty">
-            <RatingStars rating={currentTopic ? LEVEL_RATING[level] : null} />
           </Control>
         </div>
 
-        {/* Row 2 on the first wrap: play/learn + estimated XP + start. */}
-        <div className="flex flex-wrap items-end gap-x-6 gap-y-6 min-[1150px]:contents">
-          <div className="flex items-start gap-2">
-            <Control label={first.label}>
-              <TimeStepper
-                value={first.value}
-                onChange={first.set}
-                name={first.name}
-              />
-            </Control>
-            <div className="flex flex-col gap-1.5">
-              <FieldLabel aria-hidden="true" className="opacity-0">
-                swap
-              </FieldLabel>
-              <div className="flex h-16 items-center">
-                <button
-                  type="button"
-                  onClick={() => setLearnFirst((v) => !v)}
-                  aria-label="Swap play/learn order"
-                  title="Swap which comes first"
-                  className="flex h-11 w-9 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-                >
-                  <ArrowLeftRight className="size-4" />
-                </button>
-              </div>
-            </div>
-            <Control label={second.label}>
-              <TimeStepper
-                value={second.value}
-                onChange={second.set}
-                name={second.name}
-              />
-            </Control>
-          </div>
-
-          {/* Estimated XP + go. At >=1150 it's a fixed-width column on the right
-              (histogram right edge lines up with the button below); on the
-              first wrap it sits inline on row 2 (XP then START). */}
-          <div className="flex flex-col gap-3 md:max-[1149px]:flex-row md:max-[1149px]:items-end md:max-[1149px]:gap-4 min-[1150px]:w-52">
-            <div className="flex flex-col gap-1.5">
-              <FieldLabel>Estimated XP</FieldLabel>
-              <div className="flex h-16 items-center">
-                {ready ? (
-                  <div className="flex w-full items-center justify-between gap-2">
-                    <span className="flex items-baseline gap-1">
-                      <span className="text-2xl font-bold tabular-nums text-blue-600 dark:text-blue-400">
-                        +{estimatedXp}
-                      </span>
-                      <span className="font-mono text-sm font-semibold text-muted-foreground">
-                        XP
-                      </span>
+        {/* Estimated XP + go. At >=1150 XP sits above the button in a fixed
+            column (histogram right edge lines up with the button); the XP
+            readout is the first to drop (768–1149), and START then goes inline
+            at the end of the row. */}
+        <div className="flex flex-col gap-3 md:max-[1149px]:flex-1 md:max-[1149px]:flex-row md:max-[1149px]:items-end md:max-[1149px]:justify-center md:max-[1149px]:gap-4 min-[1150px]:w-52">
+          <div className="flex flex-col gap-1.5 md:max-[1149px]:hidden">
+            <FieldLabel>Estimated XP</FieldLabel>
+            <div className="flex h-16 items-center">
+              {ready ? (
+                <div className="flex w-full items-center justify-between gap-2">
+                  <span className="flex items-baseline gap-1">
+                    <span className="text-2xl font-bold tabular-nums text-blue-600 dark:text-blue-400">
+                      +{estimatedXp}
                     </span>
-                    <XpBars />
+                    <span className="font-mono text-sm font-semibold text-muted-foreground">
+                      XP
+                    </span>
+                  </span>
+                  <XpBars />
+                </div>
+              ) : (
+                <div className="w-full">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-lg font-bold">
+                      <span className="text-blue-600 dark:text-blue-400">--</span>
+                      <span className="text-muted-foreground"> XP</span>
+                    </span>
+                    <XpBars muted />
                   </div>
-                ) : (
-                  <div className="w-full">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-mono text-lg font-bold">
-                        <span className="text-blue-600 dark:text-blue-400">
-                          --
-                        </span>
-                        <span className="text-muted-foreground"> XP</span>
-                      </span>
-                      <XpBars muted />
-                    </div>
-                    <p className="mt-0.5 font-mono text-[11px] leading-tight text-muted-foreground">
-                      Complete the selections to see your XP
-                    </p>
-                  </div>
-                )}
-              </div>
+                  <p className="mt-0.5 font-mono text-[11px] leading-tight text-muted-foreground">
+                    Complete the selections to see your XP
+                  </p>
+                </div>
+              )}
             </div>
-
-            <button
-              type="button"
-              onClick={start}
-              disabled={!ready || starting}
-              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90 disabled:opacity-50 md:max-[1149px]:w-auto md:max-[1149px]:px-8"
-            >
-              {starting ? 'Starting…' : 'Start mission'}
-              <ArrowRight className="size-4" />
-            </button>
           </div>
+
+          <button
+            type="button"
+            onClick={start}
+            disabled={!ready || starting}
+            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90 disabled:opacity-50 md:max-[1149px]:mt-5 md:max-[1149px]:w-auto md:max-[1149px]:px-8"
+          >
+            {starting ? 'Starting…' : 'Start mission'}
+            <ArrowRight className="size-4" />
+          </button>
         </div>
       </div>
     </Panel>
