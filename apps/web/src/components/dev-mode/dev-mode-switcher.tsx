@@ -16,9 +16,10 @@ export function DevModeSwitcher() {
   const { user, refresh, logout } = useAuth()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  // Click the "Dev Mode" label to collapse the switcher down to just the label
-  // (and back). Keeps it out of the way while working on the UI underneath.
-  const [collapsed, setCollapsed] = useState(false)
+  // Collapsed on load — just the "User" label — to stay out of the way of the
+  // UI underneath. Click the label to expand to the full "Test User" switch
+  // (and click again to collapse).
+  const [collapsed, setCollapsed] = useState(true)
   const active = resolveDevRole(user)
 
   async function select(role: DevRole) {
@@ -52,13 +53,13 @@ export function DevModeSwitcher() {
         type="button"
         onClick={() => setCollapsed((c) => !c)}
         aria-expanded={!collapsed}
-        title={collapsed ? 'Expand Dev Mode' : 'Collapse Dev Mode'}
+        title={collapsed ? 'Expand Test User' : 'Collapse Test User'}
         className={cn(
           'block w-full cursor-pointer text-center text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground',
           !collapsed && 'mb-1',
         )}
       >
-        Dev Mode
+        {collapsed ? 'User' : 'Test User'}
       </button>
       {!collapsed && (
         <>

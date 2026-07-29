@@ -36,44 +36,63 @@ function renderSwitch(value: AuthContextValue) {
   )
 }
 
+// The collapse toggle — named "User" collapsed, "Test User" expanded (both
+// match /user/i, and no role button does).
+const labelButton = () => screen.getByRole('button', { name: /user/i })
+// The switcher loads collapsed; expand it to reach the role buttons.
+async function expand() {
+  await userEvent.click(labelButton())
+}
+
 afterEach(() => vi.unstubAllGlobals())
 
 describe('DevModeSwitcher', () => {
-  it('renders all four positions under a "Dev Mode" label', () => {
+  it('loads collapsed as just a "User" label, no role buttons', () => {
     renderSwitch(ctx(null))
-    expect(screen.getByText('Dev Mode')).toBeInTheDocument()
-    for (const label of ['Off', 'Unpaid', 'Paid', 'Admin']) {
+    expect(screen.getByText('User')).toBeInTheDocument()
+    expect(labelButton()).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByRole('button', { name: 'None' })).not.toBeInTheDocument()
+  })
+
+  it('renders all four positions under a "Test User" label once expanded', async () => {
+    renderSwitch(ctx(null))
+    await expand()
+    expect(screen.getByText('Test User')).toBeInTheDocument()
+    for (const label of ['None', 'Unpaid', 'Paid', 'Admin']) {
       expect(screen.getByRole('button', { name: label })).toBeInTheDocument()
     }
   })
 
-  it('collapses to just the label when "Dev Mode" is clicked, and restores', async () => {
+  it('expands and collapses again when the label is clicked', async () => {
     renderSwitch(ctx(null))
-    const label = screen.getByRole('button', { name: /dev mode/i })
-    // Collapse: the role buttons disappear, the label stays.
+    const label = labelButton()
+    // Expand: the role buttons appear.
     await userEvent.click(label)
-    expect(screen.queryByRole('button', { name: 'Off' })).not.toBeInTheDocument()
-    expect(label).toHaveAttribute('aria-expanded', 'false')
-    // Restore.
-    await userEvent.click(label)
-    expect(screen.getByRole('button', { name: 'Off' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'None' })).toBeInTheDocument()
     expect(label).toHaveAttribute('aria-expanded', 'true')
+    // Collapse: they disappear, the label stays.
+    await userEvent.click(label)
+    expect(screen.queryByRole('button', { name: 'None' })).not.toBeInTheDocument()
+    expect(label).toHaveAttribute('aria-expanded', 'false')
   })
 
-  it('marks Off active when logged out', () => {
+  it('marks None active when logged out', async () => {
     renderSwitch(ctx(null))
-    expect(screen.getByRole('button', { name: 'Off' })).toHaveAttribute('aria-pressed', 'true')
+    await expand()
+    expect(screen.getByRole('button', { name: 'None' })).toHaveAttribute('aria-pressed', 'true')
   })
 
-  it('marks Admin active for an admin user', () => {
+  it('marks Admin active for an admin user', async () => {
     renderSwitch(ctx(admin))
+    await expand()
     expect(screen.getByRole('button', { name: 'Admin' })).toHaveAttribute('aria-pressed', 'true')
   })
 
-  it('clicking Off signs the user out', async () => {
+  it('clicking None signs the user out', async () => {
     const logout = vi.fn(async () => {})
     renderSwitch(ctx(freeUser, { logout }))
-    await userEvent.click(screen.getByRole('button', { name: 'Off' }))
+    await expand()
+    await userEvent.click(screen.getByRole('button', { name: 'None' }))
     await waitFor(() => expect(logout).toHaveBeenCalledTimes(1))
   })
 
@@ -82,6 +101,7 @@ describe('DevModeSwitcher', () => {
     vi.stubGlobal('fetch', fetchMock)
     const refresh = vi.fn(async () => {})
     renderSwitch(ctx(null, { refresh }))
+    await expand()
 
     await userEvent.click(screen.getByRole('button', { name: 'Paid' }))
 
@@ -100,6 +120,7 @@ describe('DevModeSwitcher', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 500 }))
     const refresh = vi.fn(async () => {})
     renderSwitch(ctx(null, { refresh }))
+    await expand()
 
     await userEvent.click(screen.getByRole('button', { name: 'Paid' }))
 
@@ -112,8 +133,9 @@ describe('DevModeSwitcher', () => {
     vi.stubGlobal('fetch', fetchMock)
     const logout = vi.fn(async () => {})
     renderSwitch(ctx(null, { logout }))
+    await expand()
 
-    await userEvent.click(screen.getByRole('button', { name: 'Off' }))
+    await userEvent.click(screen.getByRole('button', { name: 'None' }))
     expect(fetchMock).not.toHaveBeenCalled()
     expect(logout).not.toHaveBeenCalled()
   })
