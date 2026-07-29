@@ -107,7 +107,7 @@ export function FwFooter() {
           <div className="fw-notch-tr w-full max-w-[15rem] shrink-0 border border-neutral-700 bg-neutral-950/70 p-4 pt-6 backdrop-blur-sm">
             <div className="flex flex-col gap-2 font-mono text-sm tracking-wide">
               <span className="text-primary">&gt; LOCK IN</span>
-              <span className="text-green-500">&gt; KEEP LEARNING</span>
+              <span className="text-blue-400">&gt; KEEP LEARNING</span>
               <span className="text-primary">&gt; LEVEL UP</span>
             </div>
             <div className="fw-barcode mt-6 h-3 w-full text-neutral-600" />

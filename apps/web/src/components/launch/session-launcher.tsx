@@ -319,19 +319,22 @@ function LauncherForm({
             <div className="flex h-16 items-center gap-3">
               {ready ? (
                 <>
-                  <span className="flex items-baseline gap-1 text-green-600 dark:text-green-500">
-                    <span className="text-2xl font-bold tabular-nums">
+                  <span className="flex items-baseline gap-1">
+                    <span className="text-2xl font-bold tabular-nums text-blue-600 dark:text-blue-400">
                       +{estimatedXp}
                     </span>
-                    <span className="font-mono text-sm font-semibold">XP</span>
+                    <span className="font-mono text-sm font-semibold text-muted-foreground">
+                      XP
+                    </span>
                   </span>
                   <XpBars />
                 </>
               ) : (
                 <>
                   <div className="leading-tight">
-                    <span className="font-mono text-lg font-bold text-muted-foreground">
-                      -- XP
+                    <span className="font-mono text-lg font-bold">
+                      <span className="text-blue-600 dark:text-blue-400">--</span>
+                      <span className="text-muted-foreground"> XP</span>
                     </span>
                     <p className="font-mono text-[11px] text-muted-foreground">
                       Complete the selections to see your XP
@@ -524,8 +527,8 @@ function XpBars({ muted = false }: { muted?: boolean }) {
       className={cn(
         'flex h-8 w-20 items-end gap-px',
         muted
-          ? 'text-muted-foreground/40'
-          : 'text-green-600 dark:text-green-500',
+          ? 'text-muted-foreground/50'
+          : 'text-blue-600 dark:text-blue-400',
       )}
       aria-hidden="true"
     >
