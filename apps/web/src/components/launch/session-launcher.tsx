@@ -1,4 +1,5 @@
 import {
+  ArrowLeftRight,
   ArrowRight,
   ChevronDown,
   ChevronRight,
@@ -15,6 +16,7 @@ import { SkillIcon } from '@/components/launch/skill-icon'
 import { Panel, SectionLabel } from '@fw/ui'
 import type { Difficulty } from '@/core/generation'
 import { EMBED_CATALOG } from '@/lib/embed-catalog'
+import { guestNextLessonPath, nextLessonPath } from '@/lib/open-course'
 import { ROM_CATALOG } from '@/lib/rom-catalog'
 import { setSessionTarget } from '@/lib/session-target'
 import { useAsync } from '@/hooks/use-async'
@@ -147,12 +149,22 @@ function LauncherForm({
   )
   const [playMinutes, setPlayMinutes] = useState(25)
   const [learnMinutes, setLearnMinutes] = useState(5)
+  const [learnFirst, setLearnFirst] = useState(false)
   const [starting, setStarting] = useState(false)
 
   const currentTopic = playable.find((t) => t.slug === topicSlug)
   const currentGame = games.find((g) => g.id === gameId) ?? games[0]
   const estimatedXp = Math.round(learnMinutes * XP_PER_MIN * LEVEL_MULT[level])
   const ready = !!currentGame && !!currentTopic
+
+  // The order swap reorders the two time fields (learn-first opens a lesson
+  // before the game; play-first drops straight into the game).
+  const first = learnFirst
+    ? { label: 'Learn time', name: 'Learn', value: learnMinutes, set: setLearnMinutes }
+    : { label: 'Play time', name: 'Play', value: playMinutes, set: setPlayMinutes }
+  const second = learnFirst
+    ? { label: 'Play time', name: 'Play', value: playMinutes, set: setPlayMinutes }
+    : { label: 'Learn time', name: 'Learn', value: learnMinutes, set: setLearnMinutes }
 
   function onTopicChange(slug: string) {
     setTopicSlug(slug)
@@ -182,12 +194,21 @@ function LauncherForm({
         await api.courses.setDifficulty(topicSlug, level).catch(() => {})
       }
       setSessionTarget({ gameId, topicSlug })
-      // Sessions start play-first (the order-swap was dropped for the cleaner
-      // launcher); the play↔learn loop keeps going until the user ends it.
-      timer.start({ playMinutes, learnMinutes, rounds: 1, loop: true })
+      timer.start({
+        playMinutes,
+        learnMinutes,
+        rounds: 1,
+        startPhase: learnFirst ? 'learn' : 'play',
+        loop: true, // keep the play↔learn loop going until the user ends it
+      })
+      // Play-first → drop into the game; learn-first → open the lesson first.
       // Guests use the public arcade (/play) + guest lesson routes.
       const arcadePath = guest ? '/play' : '/app/arcade'
-      nav(`${arcadePath}?game=${encodeURIComponent(gameId)}`)
+      if (learnFirst) {
+        nav(await (guest ? guestNextLessonPath : nextLessonPath)(topicSlug))
+      } else {
+        nav(`${arcadePath}?game=${encodeURIComponent(gameId)}`)
+      }
     } catch {
       setStarting(false)
     }
@@ -257,21 +278,38 @@ function LauncherForm({
             />
           </Control>
 
-          <Control label="Play time">
-            <TimeStepper
-              value={playMinutes}
-              onChange={setPlayMinutes}
-              name="Play"
-            />
-          </Control>
-
-          <Control label="Learn time">
-            <TimeStepper
-              value={learnMinutes}
-              onChange={setLearnMinutes}
-              name="Learn"
-            />
-          </Control>
+          <div className="flex items-start gap-2">
+            <Control label={first.label}>
+              <TimeStepper
+                value={first.value}
+                onChange={first.set}
+                name={first.name}
+              />
+            </Control>
+            <div className="flex flex-col gap-1.5">
+              <FieldLabel aria-hidden="true" className="opacity-0">
+                swap
+              </FieldLabel>
+              <div className="flex h-16 items-center">
+                <button
+                  type="button"
+                  onClick={() => setLearnFirst((v) => !v)}
+                  aria-label="Swap play/learn order"
+                  title="Swap which comes first"
+                  className="flex h-11 w-9 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                >
+                  <ArrowLeftRight className="size-4" />
+                </button>
+              </div>
+            </div>
+            <Control label={second.label}>
+              <TimeStepper
+                value={second.value}
+                onChange={second.set}
+                name={second.name}
+              />
+            </Control>
+          </div>
         </div>
 
         {/* Estimated XP + go */}
