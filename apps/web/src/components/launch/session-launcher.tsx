@@ -9,7 +9,7 @@ import {
   Gamepad2,
   Star,
 } from 'lucide-react'
-import { useMemo, useRef, useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router'
 import { api } from '@/api-client'
 import { AsyncView } from '@/components/layout/async-view'
@@ -73,8 +73,8 @@ function starToLevel(i: number): Difficulty {
   return i <= 2 ? 'beginner' : i <= 4 ? 'intermediate' : 'advanced'
 }
 
-// The app-home hero: one panel to start a play/learn focus session. Smart-
-// defaulted so a returning user (or a guest) just picks and hits Start.
+// The app-home hero: one compact strip to start a play/learn focus session.
+// Smart-defaulted so a returning user (or a guest) just picks and hits Start.
 export function SessionLauncher() {
   const guest = !useAuth().user
   const state = useAsync<LauncherTopic[]>(() =>
@@ -153,12 +153,25 @@ function LauncherForm({
   const [starting, setStarting] = useState(false)
 
   const currentTopic = playable.find((t) => t.slug === topicSlug)
+  const currentGame = games.find((g) => g.id === gameId) ?? games[0]
   const estimatedXp = Math.round(learnMinutes * XP_PER_MIN * LEVEL_MULT[level])
 
   function onTopicChange(slug: string) {
     setTopicSlug(slug)
     const t = playable.find((x) => x.slug === slug)
     setLevel((t?.difficulty as Difficulty) ?? 'beginner')
+  }
+
+  // Prev/next through the game list; cycle to the next topic on skill-tap.
+  function cycleGame(dir: number) {
+    if (!games.length) return
+    const i = Math.max(0, games.findIndex((g) => g.id === gameId))
+    setGameId(games[(i + dir + games.length) % games.length].id)
+  }
+  function cycleTopic() {
+    if (playable.length < 2) return
+    const i = Math.max(0, playable.findIndex((t) => t.slug === topicSlug))
+    onTopicChange(playable[(i + 1) % playable.length].slug)
   }
 
   async function start() {
@@ -199,7 +212,10 @@ function LauncherForm({
     : { label: 'Learn', value: learnMinutes, set: setLearnMinutes }
 
   return (
-    <Panel brackets={false} className="flex flex-col gap-6 rounded-2xl p-5 sm:p-7">
+    <Panel
+      brackets={false}
+      className="flex flex-col gap-5 rounded-2xl p-5 sm:p-6"
+    >
       <div className="flex items-center justify-between gap-4">
         <SectionLabel>Start a session</SectionLabel>
         <span className="hidden font-mono text-[10px] tracking-widest text-muted-foreground uppercase sm:inline">
@@ -207,33 +223,27 @@ function LauncherForm({
         </span>
       </div>
 
-      {/* Choose a game — a scrollable cover carousel. */}
-      <div className="flex flex-col gap-3">
-        <FieldLabel>Choose a game</FieldLabel>
-        <GameCarousel games={games} selected={gameId} onSelect={setGameId} />
-      </div>
+      {/* One compact control strip: game · skill · difficulty · times · XP · go. */}
+      <div className="flex flex-wrap items-end gap-x-5 gap-y-5">
+        <Control label="Choose a game">
+          <div className="flex items-center gap-2">
+            <Chevron dir="left" onClick={() => cycleGame(-1)} />
+            {currentGame && <GameThumb game={currentGame} />}
+            <Chevron dir="right" onClick={() => cycleGame(1)} />
+          </div>
+        </Control>
 
-      {/* Choose a skill — the playable topics as icon tiles. */}
-      <div className="flex flex-col gap-3">
-        <FieldLabel>Choose a skill</FieldLabel>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
-          {playable.map((t) => (
-            <SkillCard
-              key={t.slug}
-              topic={t}
-              selected={t.slug === topicSlug}
-              onSelect={() => onTopicChange(t.slug)}
-            />
-          ))}
-        </div>
-      </div>
+        <Control label="Choose a skill">
+          {currentTopic && (
+            <SkillChip topic={currentTopic} onClick={cycleTopic} />
+          )}
+        </Control>
 
-      {/* Difficulty · play/learn times (+ order swap) · estimated XP. */}
-      <div className="flex flex-col gap-6 sm:flex-row sm:flex-wrap sm:items-end">
-        <div className="flex flex-col gap-1.5">
-          <FieldLabel>Difficulty</FieldLabel>
-          <StarRating level={level} onChange={setLevel} />
-        </div>
+        <Control label="Difficulty">
+          <div className="flex h-14 items-center">
+            <StarRating level={level} onChange={setLevel} />
+          </div>
+        </Control>
 
         <div className="flex items-end gap-2">
           <TimeStepper
@@ -257,9 +267,8 @@ function LauncherForm({
           />
         </div>
 
-        <div className="flex flex-col gap-1.5 sm:ml-auto">
-          <FieldLabel>Estimated XP</FieldLabel>
-          <div className="flex items-center gap-3">
+        <Control label="Estimated XP">
+          <div className="flex h-14 items-center gap-3">
             <span className="flex items-baseline gap-1 text-green-600 dark:text-green-500">
               <span className="text-2xl font-bold tabular-nums">
                 +{estimatedXp}
@@ -268,19 +277,28 @@ function LauncherForm({
             </span>
             <XpBars />
           </div>
-        </div>
-      </div>
+        </Control>
 
-      <button
-        type="button"
-        onClick={start}
-        disabled={!topicSlug || starting}
-        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90 disabled:opacity-50"
-      >
-        {starting ? 'Starting…' : 'Start mission'}
-        <ArrowRight className="size-4" />
-      </button>
+        <button
+          type="button"
+          onClick={start}
+          disabled={!topicSlug || starting}
+          className="inline-flex h-14 min-w-[11rem] flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90 disabled:opacity-50"
+        >
+          {starting ? 'Starting…' : 'Start mission'}
+          <ArrowRight className="size-4" />
+        </button>
+      </div>
     </Panel>
+  )
+}
+
+function Control({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <FieldLabel>{label}</FieldLabel>
+      {children}
+    </div>
   )
 }
 
@@ -303,39 +321,6 @@ function FieldLabel({
   )
 }
 
-function GameCarousel({
-  games,
-  selected,
-  onSelect,
-}: {
-  games: Game[]
-  selected: string
-  onSelect: (id: string) => void
-}) {
-  const scroller = useRef<HTMLDivElement>(null)
-  const nudge = (dir: number) =>
-    scroller.current?.scrollBy({ left: dir * 340, behavior: 'smooth' })
-  return (
-    <div className="flex items-stretch gap-2">
-      <Chevron dir="left" onClick={() => nudge(-1)} />
-      <div
-        ref={scroller}
-        className="flex flex-1 gap-3 overflow-x-auto scroll-smooth pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        {games.map((g) => (
-          <GameCard
-            key={g.id}
-            game={g}
-            selected={g.id === selected}
-            onSelect={() => onSelect(g.id)}
-          />
-        ))}
-      </div>
-      <Chevron dir="right" onClick={() => nudge(1)} />
-    </div>
-  )
-}
-
 function Chevron({
   dir,
   onClick,
@@ -348,86 +333,59 @@ function Chevron({
     <button
       type="button"
       onClick={onClick}
-      aria-label={dir === 'left' ? 'Scroll games left' : 'Scroll games right'}
-      className="hidden w-8 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary sm:flex"
+      aria-label={dir === 'left' ? 'Previous game' : 'Next game'}
+      className="flex h-14 w-7 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
     >
       <Icon className="size-4" />
     </button>
   )
 }
 
-function GameCard({
-  game,
-  selected,
-  onSelect,
-}: {
-  game: Game
-  selected: boolean
-  onSelect: () => void
-}) {
+function GameThumb({ game }: { game: Game }) {
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      aria-pressed={selected}
-      className={cn(
-        'relative flex h-28 w-40 shrink-0 flex-col overflow-hidden rounded-xl border-2 text-left transition-colors',
-        selected
-          ? 'border-primary'
-          : 'border-border hover:border-muted-foreground/50',
-      )}
-    >
-      <span className="truncate px-3 pt-2 pb-1.5 font-heading text-sm font-bold tracking-wide text-foreground uppercase">
-        {game.title}
-      </span>
-      <div className="relative flex-1 bg-muted">
-        {game.cover ? (
-          <img
-            src={game.cover}
-            alt=""
-            loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover"
+    <div className="relative h-14 w-40 shrink-0 overflow-hidden rounded-lg border-2 border-primary">
+      {game.cover ? (
+        <img
+          src={game.cover}
+          alt=""
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      ) : (
+        <div className="flex h-full items-center justify-center bg-muted">
+          <Gamepad2
+            className={cn('size-6', game.accent ?? 'text-muted-foreground')}
           />
-        ) : (
-          <div className="flex h-full items-center justify-center">
-            <Gamepad2
-              className={cn('size-8', game.accent ?? 'text-muted-foreground')}
-            />
-          </div>
-        )}
-      </div>
-      {selected && (
-        <span className="absolute top-0 right-0 flex size-6 items-center justify-center rounded-bl-lg bg-primary text-primary-foreground">
-          <Check className="size-4" strokeWidth={3} />
-        </span>
+        </div>
       )}
-    </button>
+      <div className="absolute inset-x-0 top-0 bg-gradient-to-b from-black/75 to-transparent px-2 pt-1 pb-2">
+        <span className="block truncate font-heading text-[11px] font-bold tracking-wide text-white uppercase">
+          {game.title}
+        </span>
+      </div>
+      <span className="absolute top-0 right-0 flex size-5 items-center justify-center rounded-bl-md bg-primary text-primary-foreground">
+        <Check className="size-3.5" strokeWidth={3} />
+      </span>
+    </div>
   )
 }
 
-function SkillCard({
+function SkillChip({
   topic,
-  selected,
-  onSelect,
+  onClick,
 }: {
   topic: LauncherTopic
-  selected: boolean
-  onSelect: () => void
+  onClick: () => void
 }) {
   return (
     <button
       type="button"
-      onClick={onSelect}
-      aria-pressed={selected}
-      className={cn(
-        'flex flex-col items-center justify-center gap-2.5 rounded-xl border-2 px-2 py-4 transition-colors',
-        selected
-          ? 'border-primary'
-          : 'border-border hover:border-muted-foreground/50',
-      )}
+      onClick={onClick}
+      title="Change skill"
+      className="flex h-14 items-center gap-2.5 rounded-lg border-2 border-primary px-3"
     >
       <SkillIcon topic={topic} />
-      <span className="w-full truncate text-center font-mono text-xs font-medium text-foreground">
+      <span className="font-mono text-sm font-medium text-foreground">
         {topic.name}
       </span>
     </button>
@@ -524,7 +482,7 @@ const XP_BARS = [
 function XpBars() {
   return (
     <div
-      className="flex h-9 w-28 items-end gap-px text-green-600 dark:text-green-500"
+      className="flex h-8 w-24 items-end gap-px text-green-600 dark:text-green-500"
       aria-hidden="true"
     >
       {XP_BARS.map((h, i) => (

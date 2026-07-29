@@ -37,8 +37,8 @@ export function HomeHero() {
             <h1 className="font-heading text-3xl leading-[0.95] font-bold uppercase sm:text-4xl md:text-5xl">
               <span className="block text-foreground">Your next level</span>
               <span className="block text-primary">
-                Starts here.
-                <span className="ml-0.5 animate-pulse text-foreground">_</span>
+                Starts here
+                <span className="animate-pulse text-foreground">_</span>
               </span>
             </h1>
             <div className="mt-5 flex flex-col gap-0.5 font-mono text-sm tracking-wide text-muted-foreground sm:text-base">
