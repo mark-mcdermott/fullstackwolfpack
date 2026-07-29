@@ -1,7 +1,7 @@
 import { BookOpen, Home, type LucideProps } from 'lucide-react'
 import type { ComponentType } from 'react'
 import { NavLink } from 'react-router'
-import { WolfMark } from '@fw/ui'
+import { ThemeToggle, WolfMark } from '@fw/ui'
 import { cn } from '@/lib/utils'
 
 // FW-01 header — a floating pill with the wolf brand, the primary nav (icon +
@@ -23,7 +23,7 @@ const NAV: {
 export function FwHeader() {
   return (
     <header className="px-3 pt-3 sm:px-4 sm:pt-4">
-      <div className="relative mx-auto max-w-7xl overflow-hidden rounded-2xl border border-white/10 bg-neutral-950/90 backdrop-blur">
+      <div className="relative mx-auto max-w-7xl overflow-hidden rounded-2xl border border-border bg-card/90 backdrop-blur">
         {/* Red glow bleeding in from the top-left corner. */}
         <div className="pointer-events-none absolute -top-16 -left-16 size-48 rounded-full bg-primary/25 blur-3xl" />
         <div className="pointer-events-none absolute top-0 left-0 h-px w-40 bg-gradient-to-r from-primary to-transparent" />
@@ -32,12 +32,12 @@ export function FwHeader() {
         <div className="relative flex items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4">
           {/* Brand */}
           <NavLink to="/" className="flex shrink-0 items-center gap-3 sm:gap-4">
-            <WolfMark className="h-10 text-white sm:h-14" />
+            <WolfMark className="h-10 text-foreground sm:h-14" />
             <span className="flex flex-col font-heading leading-[0.95]">
-              <span className="text-lg font-bold tracking-wide text-white sm:text-2xl">
+              <span className="text-lg font-bold tracking-wide text-foreground sm:text-2xl">
                 FULLSTACK
               </span>
-              <span className="text-lg font-bold tracking-wide text-white sm:text-2xl">
+              <span className="text-lg font-bold tracking-wide text-foreground sm:text-2xl">
                 WOLFPACK
               </span>
               <span className="mt-0.5 text-xs font-normal tracking-widest text-primary sm:text-base">
@@ -62,7 +62,7 @@ export function FwHeader() {
                         'size-6 transition-colors',
                         isActive
                           ? 'text-primary'
-                          : 'text-neutral-300 group-hover:text-white',
+                          : 'text-muted-foreground group-hover:text-foreground',
                       )}
                     />
                     <span
@@ -70,7 +70,7 @@ export function FwHeader() {
                         'font-heading text-xs tracking-widest uppercase transition-colors sm:text-sm',
                         isActive
                           ? 'text-primary'
-                          : 'text-neutral-300 group-hover:text-white',
+                          : 'text-muted-foreground group-hover:text-foreground',
                       )}
                     >
                       {label}
@@ -87,8 +87,11 @@ export function FwHeader() {
             ))}
           </nav>
 
-          {/* System status */}
-          <SystemStatus />
+          {/* System status + light/dark toggle (toggle sits on the far right) */}
+          <div className="flex items-center gap-1 sm:gap-2">
+            <SystemStatus />
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </header>
@@ -98,20 +101,20 @@ export function FwHeader() {
 // Decorative status readout (the latency is cosmetic — no real ping yet).
 function SystemStatus() {
   return (
-    <div className="fw-notch-tr hidden min-w-[190px] border border-neutral-700 bg-black/40 px-3 py-2 lg:block">
+    <div className="fw-notch-tr hidden min-w-[190px] border border-border bg-muted/40 px-3 py-2 lg:block">
       <div className="flex items-center justify-between gap-3">
-        <span className="font-mono text-[10px] font-bold tracking-widest text-neutral-400 uppercase">
+        <span className="font-mono text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
           System status
         </span>
-        <span className="size-2 rounded-full bg-green-500 shadow-[0_0_6px] shadow-green-500/70" />
+        <span className="size-2 rounded-full bg-green-600 shadow-[0_0_6px] shadow-green-500/70 dark:bg-green-500" />
       </div>
       <div className="mt-1 flex items-baseline justify-between">
-        <span className="font-mono text-sm font-bold tracking-widest text-green-500 uppercase">
+        <span className="font-mono text-sm font-bold tracking-widest text-green-600 uppercase dark:text-green-500">
           Online
         </span>
-        <span className="font-mono text-xs tabular-nums text-green-500">12ms</span>
+        <span className="font-mono text-xs tabular-nums text-green-600 dark:text-green-500">12ms</span>
       </div>
-      <span className="fw-barcode-regular mt-1.5 block h-1.5 w-full text-green-500/70" />
+      <span className="fw-barcode-regular mt-1.5 block h-1.5 w-full text-green-600/70 dark:text-green-500/70" />
     </div>
   )
 }
