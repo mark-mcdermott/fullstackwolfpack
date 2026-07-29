@@ -30,6 +30,7 @@ export const xpEventType = pgEnum('xp_event_type', [
   'streak',
   'achievement',
   'session',
+  'play', // modest, daily-capped XP for arcade playtime
 ])
 
 // Per-user topic enrollment + progress (Topics %, Current Focus).

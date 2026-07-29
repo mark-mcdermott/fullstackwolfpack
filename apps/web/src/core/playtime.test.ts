@@ -2,8 +2,24 @@ import { describe, expect, it } from 'vitest'
 import {
   formatPlaytime,
   gameKey,
+  PLAY_XP_DAILY_CAP,
   playtimeRecordRequest,
+  xpForPlaySeconds,
 } from './playtime'
+
+describe('xpForPlaySeconds', () => {
+  it('grants ~1 XP per full minute', () => {
+    expect(xpForPlaySeconds(0, 0)).toBe(0)
+    expect(xpForPlaySeconds(59, 0)).toBe(0) // sub-minute earns nothing
+    expect(xpForPlaySeconds(60, 0)).toBe(1)
+    expect(xpForPlaySeconds(600, 0)).toBe(10)
+  })
+
+  it('respects the daily cap already earned', () => {
+    expect(xpForPlaySeconds(600, PLAY_XP_DAILY_CAP - 3)).toBe(3) // only 3 left
+    expect(xpForPlaySeconds(600, PLAY_XP_DAILY_CAP)).toBe(0) // cap reached
+  })
+})
 
 describe('gameKey', () => {
   it('composes a globally-unique key from source + id', () => {

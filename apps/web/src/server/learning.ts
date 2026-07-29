@@ -537,10 +537,22 @@ export async function resetTopicProgress(
 export async function importGuestProgress(
   userId: string,
   entries: GuestProgressEntry[],
+  playXp = 0,
 ): Promise<{ imported: number; xp: number }> {
   const now = new Date()
   let imported = 0
   let xpTotal = 0
+
+  // Carry over the guest's banked play XP (already daily-capped client-side) so
+  // the leaderboard spot earned by playing survives signup.
+  if (playXp > 0) {
+    await grantXp(userId, {
+      type: 'play',
+      xp: playXp,
+      description: 'Imported guest playtime',
+    })
+    xpTotal += playXp
+  }
   for (const e of entries) {
     const [row] = await db
       .select({ topicId: courses.topicId, owner: courses.ownerUserId })

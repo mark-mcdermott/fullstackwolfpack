@@ -354,7 +354,13 @@ export async function POST(req: Request): Promise<Response> {
     case 'import-progress': {
       const parsed = await parseBody(importProgressRequest, req)
       if (!parsed.ok) return parsed.response
-      return json(await importGuestProgress(userId, parsed.data.entries))
+      return json(
+        await importGuestProgress(
+          userId,
+          parsed.data.entries,
+          parsed.data.playXp,
+        ),
+      )
     }
 
     case 'friend-request': {

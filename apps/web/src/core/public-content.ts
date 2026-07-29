@@ -27,6 +27,9 @@ export type GuestProgressEntry = z.infer<typeof guestProgressEntrySchema>
 
 export const importProgressRequest = z.object({
   entries: z.array(guestProgressEntrySchema).max(500),
+  // Cumulative play XP the guest banked (already daily-capped client-side).
+  // Clamped server-side to a sane ceiling so a forged request can't inflate.
+  playXp: z.number().int().min(0).max(3650).optional(),
 })
 
 export const importProgressResult = z.object({

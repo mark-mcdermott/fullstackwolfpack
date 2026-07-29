@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { api } from '@/api-client'
 import { gameKey, type PlaytimeSource } from '@/core/playtime'
 import { useAuth } from '@/hooks/auth-context'
+import { recordGuestPlaytime } from '@/lib/guest-progress'
 
 // How often a long, uninterrupted session banks its time server-side, so a hard
 // tab-crash loses at most this much. Normal exits flush immediately on unmount.
@@ -19,16 +20,17 @@ export function usePlaytimeTracker(game: TrackableGame): void {
   const { source, title } = game
 
   useEffect(() => {
-    if (!loggedIn) return // guests: playtime isn't tracked server-side
     let last = Date.now()
 
     const send = (seconds: number, beacon: boolean) => {
-      const body = {
-        gameId: key,
-        source,
-        title,
-        seconds: Math.min(seconds, MAX_FLUSH_SECONDS),
+      const capped = Math.min(seconds, MAX_FLUSH_SECONDS)
+      // Guests: bank modest play XP to localStorage (no server row). A localStorage
+      // write survives unload, so no beacon is needed.
+      if (!loggedIn) {
+        recordGuestPlaytime(capped)
+        return
       }
+      const body = { gameId: key, source, title, seconds: capped }
       // On tab-hide/unload a normal fetch may be cancelled — beacon survives it.
       if (beacon && typeof navigator !== 'undefined' && navigator.sendBeacon) {
         navigator.sendBeacon(
