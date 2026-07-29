@@ -308,9 +308,11 @@ function LauncherForm({
             </Control>
           </div>
 
-        {/* Estimated XP + go — fixed width so the histogram's right edge lines
-            up with the START MISSION button below it. */}
-        <div className="flex flex-col gap-3 xl:w-52">
+        {/* Estimated XP + go. At xl it's a fixed-width column on the right
+            (histogram right edge lines up with the button below). At medium
+            widths it takes a full second row — XP left, START right — so it
+            doesn't orphan on the left as items wrap. */}
+        <div className="flex flex-col gap-3 md:w-full md:flex-row md:items-end md:justify-between md:gap-6 xl:w-52 xl:flex-col xl:items-stretch xl:justify-start xl:gap-3">
           <div className="flex flex-col gap-1.5">
             <FieldLabel>Estimated XP</FieldLabel>
             <div className="flex h-16 items-center">
@@ -347,7 +349,7 @@ function LauncherForm({
             type="button"
             onClick={start}
             disabled={!ready || starting}
-            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90 disabled:opacity-50"
+            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90 disabled:opacity-50 md:w-auto md:px-8 xl:w-full xl:px-6"
           >
             {starting ? 'Starting…' : 'Start mission'}
             <ArrowRight className="size-4" />
