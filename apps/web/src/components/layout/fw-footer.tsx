@@ -128,7 +128,7 @@ export function FwFooter() {
               ウルフパック
             </span>
           </a>
-          {/* Nav links parked while we focus the flow — just a copyright for now.
+          {/* Nav links parked while we focus the flow — a status readout for now.
           <nav className="flex flex-wrap items-center justify-center gap-x-7 gap-y-2">
             {NAV.map(([label, to]) => (
               <a
@@ -141,9 +141,19 @@ export function FwFooter() {
             ))}
           </nav>
           */}
-          <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-            &copy; 2026
-          </span>
+          {/* Status readout — all one muted color; each item reads as a phrase,
+              not a key/value pair. */}
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 font-mono text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              API
+              <span className="size-1.5 rounded-full bg-green-500" />
+              Healthy
+            </span>
+            <span>Build v0.1.0</span>
+            <span>Deployed 2h ago</span>
+            <span>Env Production</span>
+            <span>&copy; 2026</span>
+          </div>
         </div>
       </div>
 

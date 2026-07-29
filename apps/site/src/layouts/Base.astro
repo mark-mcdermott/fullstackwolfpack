@@ -253,7 +253,7 @@ const path = Astro.url.pathname
             <WolfMark class="h-8 text-primary" />
             <span class="font-mono text-lg font-bold text-primary">ウルフパック</span>
           </a>
-          {/* Nav links parked while we focus the flow — just a copyright for now.
+          {/* Nav links parked while we focus the flow — a status readout for now.
           <nav class="flex flex-wrap items-center justify-center gap-x-7 gap-y-2">
             {
               footerNav.map((n) => (
@@ -267,9 +267,19 @@ const path = Astro.url.pathname
             }
           </nav>
           */}
-          <span class="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-            &copy; 2026
-          </span>
+          {/* Status readout — all one muted color; each item reads as a phrase,
+              not a key/value pair. */}
+          <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 font-mono text-xs text-muted-foreground">
+            <span class="flex items-center gap-1.5">
+              API
+              <span class="size-1.5 rounded-full bg-green-500"></span>
+              Healthy
+            </span>
+            <span>Build v0.1.0</span>
+            <span>Deployed 2h ago</span>
+            <span>Env Production</span>
+            <span>&copy; 2026</span>
+          </div>
         </div>
       </div>
 
