@@ -10,6 +10,14 @@ export async function nextLessonPath(topicSlug: string): Promise<string> {
   return `/app/learn/${outline.nextLessonId}`
 }
 
+// Guest version: reads the public course outline and returns the guest player
+// path (/learn/:id). Guests have no per-user progress, so "next" is the first.
+export async function guestNextLessonPath(topicSlug: string): Promise<string> {
+  const outline = await api.public.course(topicSlug)
+  if (!outline.nextLessonId) throw new Error('This course has no lessons yet.')
+  return `/learn/${outline.nextLessonId}`
+}
+
 // Pick the single topic slug to *continue* — for a topic-agnostic entry point
 // like the focus timer's "Learn now". Recency wins: match the newest recent
 // lesson (ordered completedAt-desc, but it only carries the topic display name)

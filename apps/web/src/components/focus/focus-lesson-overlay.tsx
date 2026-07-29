@@ -4,13 +4,16 @@ import { api } from '@/api-client'
 import { SectionLabel } from '@fw/ui'
 import { getSessionTarget } from '@/lib/session-target'
 import { SessionTimerInline } from '@/components/focus/session-timer-inline'
+import { useAuth } from '@/hooks/auth-context'
 import { LessonRoute } from '@/pages/app/learn'
 
 // The real lesson, shown full-screen over a paused game during a focus session's
 // learn phase (the game iframe stays mounted underneath, so state is preserved).
 // Resolves the session's chosen topic → its next unfinished lesson, embeds the
 // lesson player, and `onResume` (finish / "Back to game") returns to the game.
+// Works for guests too — via the public course outline + guest lesson player.
 export function FocusLessonOverlay({ onResume }: { onResume: () => void }) {
+  const guest = !useAuth().user
   // undefined = resolving · null = nothing to show · string = the lesson id
   const [lessonId, setLessonId] = useState<string | null | undefined>(undefined)
 
@@ -21,14 +24,13 @@ export function FocusLessonOverlay({ onResume }: { onResume: () => void }) {
       return
     }
     let active = true
-    api.data
-      .course(topic)
+    ;(guest ? api.public.course(topic) : api.data.course(topic))
       .then((o) => active && setLessonId(o.nextLessonId ?? null))
       .catch(() => active && setLessonId(null))
     return () => {
       active = false
     }
-  }, [])
+  }, [guest])
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-background">
@@ -59,7 +61,12 @@ export function FocusLessonOverlay({ onResume }: { onResume: () => void }) {
             </button>
           </div>
         ) : (
-          <LessonRoute key={lessonId} lessonId={lessonId} onExit={onResume} />
+          <LessonRoute
+            key={lessonId}
+            lessonId={lessonId}
+            guest={guest}
+            onExit={onResume}
+          />
         )}
       </div>
     </div>

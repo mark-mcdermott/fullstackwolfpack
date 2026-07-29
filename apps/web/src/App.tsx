@@ -3,7 +3,6 @@ import { AppLayout } from '@/components/layout/app-layout'
 import { AuthChromeLayout } from '@/components/layout/auth-chrome-layout'
 import { GuestLayout } from '@/components/layout/guest-layout'
 import { RequireAuth, RequireRole } from '@/components/layout/guards'
-import { RootRedirect } from '@/components/layout/root-redirect'
 import { AchievementsPage } from '@/pages/app/achievements'
 import { ArcadePage } from '@/pages/app/arcade'
 import { BadgesPage } from '@/pages/app/badges'
@@ -19,6 +18,7 @@ import { SettingsPage } from '@/pages/app/settings'
 import { StatsPage } from '@/pages/app/stats'
 import { TopicSettingsPage } from '@/pages/app/topic-settings'
 import { TopicsPage } from '@/pages/app/topics'
+import { GuestHome } from '@/pages/public/guest-home'
 import { GuestLearn } from '@/pages/public/guest-learn'
 import { LearnBrowse } from '@/pages/public/learn-browse'
 import { AdminUsersPage } from '@/pages/admin/users'
@@ -29,17 +29,16 @@ import { NotFound } from '@/pages/not-found'
 function App() {
   return (
     <Routes>
-      {/* Root: signed-in → app, signed-out → the public site */}
-      <Route path="/" element={<RootRedirect />} />
-
       {/* Auth */}
       <Route element={<AuthChromeLayout />}>
         <Route path="/login" element={<SignInPage />} />
         <Route path="/signup" element={<SignUpPage />} />
       </Route>
 
-      {/* Public (guest) — try before signup. No RequireAuth. */}
+      {/* Public (guest) — the app IS the front door. `/` lands guests on the
+          launcher (signed-in → /app); no marketing bounce. No RequireAuth. */}
       <Route element={<GuestLayout />}>
+        <Route path="/" element={<GuestHome />} />
         <Route path="/play" element={<ArcadePage />} />
         <Route path="/learn" element={<LearnBrowse />} />
         <Route path="/learn/:lessonId" element={<GuestLearn />} />
