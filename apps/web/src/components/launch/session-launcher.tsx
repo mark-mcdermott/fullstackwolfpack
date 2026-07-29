@@ -229,11 +229,11 @@ function LauncherForm({
 
       {/* Game · skill · difficulty · times · XP+go, spread evenly across the
           row so the XP block sits near the right edge (no giant middle gap). */}
-      <div className="flex flex-wrap items-start gap-x-6 gap-y-6 xl:flex-nowrap xl:justify-between">
+      <div className="flex flex-wrap items-start gap-x-6 gap-y-6 min-[1150px]:flex-nowrap min-[1150px]:justify-between min-[1150px]:gap-x-4">
         {/* game + skill break together; `contents` flattens them into the even
             single row at xl. */}
-        <div className="flex flex-wrap items-start gap-x-6 gap-y-6 xl:contents">
-          <Control label="Choose a game" className="w-full sm:w-56">
+        <div className="flex flex-wrap items-start gap-x-6 gap-y-6 min-[1150px]:contents">
+          <Control label="Choose a game" className="w-full sm:w-52">
             <SelectCard
               icon={
                 currentGame?.cover ? (
@@ -258,7 +258,7 @@ function LauncherForm({
             />
           </Control>
 
-          <Control label="Choose a skill" className="w-full sm:w-56">
+          <Control label="Choose a skill" className="w-full sm:w-52">
             <SelectCard
               icon={
                 currentTopic ? (
@@ -276,7 +276,7 @@ function LauncherForm({
         </div>
 
         {/* difficulty + play/learn break together. */}
-        <div className="flex flex-wrap items-start gap-x-6 gap-y-6 xl:contents">
+        <div className="flex flex-wrap items-start gap-x-6 gap-y-6 min-[1150px]:contents">
           <Control label="Skill difficulty">
             <RatingStars rating={currentTopic ? LEVEL_RATING[level] : null} />
           </Control>
@@ -319,7 +319,7 @@ function LauncherForm({
             (histogram right edge lines up with the button below). At medium
             widths it takes a full second row — XP left, START right — so it
             doesn't orphan on the left as items wrap. */}
-        <div className="flex flex-col gap-3 md:w-full md:flex-row md:items-end md:justify-between md:gap-6 xl:w-52 xl:flex-col xl:items-stretch xl:justify-start xl:gap-3">
+        <div className="flex flex-col gap-3 md:max-[1149px]:w-full md:max-[1149px]:flex-row md:max-[1149px]:items-end md:max-[1149px]:justify-between md:max-[1149px]:gap-6 min-[1150px]:w-52">
           <div className="flex flex-col gap-1.5">
             <FieldLabel>Estimated XP</FieldLabel>
             <div className="flex h-16 items-center">
@@ -356,7 +356,7 @@ function LauncherForm({
             type="button"
             onClick={start}
             disabled={!ready || starting}
-            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90 disabled:opacity-50 md:w-auto md:px-8 xl:w-full xl:px-6"
+            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90 disabled:opacity-50 md:max-[1149px]:w-auto md:max-[1149px]:px-8"
           >
             {starting ? 'Starting…' : 'Start mission'}
             <ArrowRight className="size-4" />
