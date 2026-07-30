@@ -90,7 +90,7 @@ export function HomeHero() {
               </cite>
             </blockquote>
 
-            <div className="rounded-lg border border-white/15 bg-white/5 p-3 backdrop-blur-sm">
+            <div className="rounded-lg border border-white/15 bg-[#161616] p-3">
               <span className="block font-mono text-[10px] leading-none font-bold tracking-widest text-white/60 uppercase">
                 Today&rsquo;s challenge
               </span>
