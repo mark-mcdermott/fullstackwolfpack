@@ -186,10 +186,10 @@ export function ReadyToJoin() {
       <div className="pointer-events-none absolute -top-12 -left-12 size-56 rounded-full bg-primary/20 blur-3xl" />
       {/* Moody wolf on the far right, faded into the card. */}
       <img
-        src="/images/akela.png"
+        src="/images/akela-eyes.png"
         alt=""
         aria-hidden="true"
-        className="absolute inset-y-0 right-0 hidden w-72 object-cover object-[center_20%] opacity-70 md:block"
+        className="absolute inset-y-0 right-0 hidden w-72 object-cover object-[center_42%] opacity-70 md:block"
       />
       <div className="absolute inset-y-0 right-0 hidden w-72 bg-gradient-to-l from-transparent via-card/70 to-card md:block" />
 
