@@ -30,7 +30,7 @@ export function HomeHero() {
               <span className="block text-foreground">Your next level</span>
               <span className="block text-primary">
                 Starts here
-                <span className="animate-pulse text-foreground">_</span>
+                <span className="animate-pulse text-primary">_</span>
               </span>
             </h1>
             <div className="mt-5 flex flex-col gap-0.5 font-mono text-sm tracking-wide text-muted-foreground sm:text-base">
