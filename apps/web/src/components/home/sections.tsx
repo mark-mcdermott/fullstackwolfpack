@@ -189,7 +189,7 @@ export function ReadyToJoin() {
         src="/images/akela-eyes.png"
         alt=""
         aria-hidden="true"
-        className="absolute inset-y-0 right-0 hidden w-72 object-cover object-[center_42%] opacity-70 md:block"
+        className="absolute inset-y-0 right-0 hidden w-72 object-cover object-center opacity-70 md:block"
       />
       <div className="absolute inset-y-0 right-0 hidden w-72 bg-gradient-to-l from-transparent via-card/70 to-card md:block" />
 
