@@ -66,7 +66,7 @@ export function HomeHero() {
         <img
           src="/images/akela.png"
           alt="Akela, your AI mentor"
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[center_30%] md:max-[1023px]:top-5 md:max-[1023px]:right-5 md:max-[1023px]:bottom-auto md:max-[1023px]:left-auto md:max-[1023px]:h-auto md:max-[1023px]:w-[100px] md:max-[1023px]:rounded-xl"
+          className="pointer-events-none absolute inset-0 h-full object-cover object-[center_30%] md:max-[1023px]:top-5 md:max-[1023px]:right-5 md:max-[1023px]:bottom-auto md:max-[1023px]:left-auto md:max-[1023px]:h-auto md:max-[1023px]:w-[100px] md:max-[1023px]:rounded-xl"
         />
         {/* Fade the portrait down to the challenge box (media layout only). */}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-20% via-neutral-950/55 via-65% to-neutral-950/95 md:max-[1023px]:hidden" />
