@@ -66,10 +66,10 @@ export function HomeHero() {
         <img
           src="/images/akela.png"
           alt="Akela, your AI mentor"
-          className="pointer-events-none absolute inset-0 h-full object-cover object-[center_30%] max-[767px]:left-auto md:max-[1023px]:top-5 md:max-[1023px]:right-5 md:max-[1023px]:bottom-auto md:max-[1023px]:left-auto md:max-[1023px]:h-auto md:max-[1023px]:w-[100px] md:max-[1023px]:rounded-xl"
+          className="pointer-events-none absolute inset-0 h-full object-cover object-[center_30%] max-lg:left-auto md:max-lg:top-5 md:max-lg:right-5 md:max-lg:bottom-auto md:max-lg:h-auto md:max-lg:w-[100px] md:max-lg:rounded-xl"
         />
         {/* Fade the portrait down to the challenge box (media layout only). */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-20% via-neutral-950/55 via-65% to-neutral-950/95 md:max-[1023px]:hidden" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-20% via-neutral-950/55 via-65% to-neutral-950/95 md:max-lg:hidden" />
 
         <div className="relative flex flex-1 flex-col p-5">
           <div className="flex items-center gap-2">
@@ -79,9 +79,9 @@ export function HomeHero() {
             <span className="size-1.5 rounded-full bg-primary shadow-[0_0_6px] shadow-primary/70" />
           </div>
 
-          <div className="mt-auto flex flex-col gap-4 md:max-[1023px]:mt-4">
+          <div className="mt-auto flex flex-col gap-4 md:max-lg:mt-4">
             <blockquote>
-              <p className="font-mono text-xs leading-relaxed text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)] max-[767px]:max-w-[70%]">
+              <p className="font-mono text-xs leading-relaxed text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)] max-md:max-w-[70%]">
                 &ldquo;Discipline is choosing between what you want now and what
                 you want most.&rdquo;
               </p>
