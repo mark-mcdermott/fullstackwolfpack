@@ -61,12 +61,13 @@ export function HomeHero() {
         {/* Dark base so the card stays dark where the portrait doesn't cover it
             — i.e. the md compact layout, where Akela shrinks to the right. */}
         <div className="pointer-events-none absolute inset-0 bg-neutral-950" />
-        {/* Full-bleed portrait at mobile + lg; a small portrait pinned to the
-            right in the md compact layout. */}
+        {/* Portrait pinned to the right (natural width via left:auto — the img
+            is a replaced element, so no w-full); a small thumbnail in the md
+            compact layout. */}
         <img
           src="/images/akela.png"
           alt="Akela, your AI mentor"
-          className="pointer-events-none absolute inset-0 h-full object-cover object-[center_30%] max-lg:left-auto md:max-lg:top-5 md:max-lg:right-5 md:max-lg:bottom-auto md:max-lg:h-auto md:max-lg:w-[100px] md:max-lg:rounded-xl"
+          className="pointer-events-none absolute inset-y-0 right-0 h-full object-cover object-[center_30%] md:max-lg:top-5 md:max-lg:right-5 md:max-lg:bottom-auto md:max-lg:h-auto md:max-lg:w-[100px] md:max-lg:rounded-xl"
         />
         {/* Fade the portrait down to the challenge box (media layout only). */}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-20% via-neutral-950/55 via-65% to-neutral-950/95 md:max-lg:hidden" />
