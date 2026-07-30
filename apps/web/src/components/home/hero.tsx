@@ -71,7 +71,7 @@ export function HomeHero() {
         {/* Fade the portrait down to the challenge box (media layout only). */}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-20% via-neutral-950/55 via-65% to-neutral-950/95 md:max-[1023px]:hidden" />
 
-        <div className="relative flex flex-1 flex-col p-5 md:max-[1023px]:pr-32">
+        <div className="relative flex flex-1 flex-col p-5">
           <div className="flex items-center gap-2">
             <span className="font-heading text-sm font-bold tracking-widest text-white">
               AKELA
