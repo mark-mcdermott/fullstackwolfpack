@@ -56,7 +56,7 @@ export function HomeHero() {
           both themes (like the skyline bands). */}
       <Panel
         brackets={false}
-        className="relative flex min-h-[25rem] flex-col overflow-hidden rounded-2xl p-0 md:max-[1023px]:min-h-0"
+        className="relative flex flex-col overflow-hidden rounded-2xl p-0"
       >
         {/* Dark base so the card stays dark where the portrait doesn't cover it
             — i.e. the md compact layout, where Akela shrinks to the right. */}
