@@ -81,7 +81,7 @@ export function HomeHero() {
 
           <div className="mt-auto flex flex-col gap-4 md:max-[1023px]:mt-4">
             <blockquote>
-              <p className="font-mono text-xs leading-relaxed text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
+              <p className="font-mono text-xs leading-relaxed text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)] max-[767px]:max-w-[60%]">
                 &ldquo;Discipline is choosing between what you want now and what
                 you want most.&rdquo;
               </p>
