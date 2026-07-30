@@ -233,62 +233,66 @@ function LauncherForm({
           stack into three centered rows — [game·skill] / [play·learn] / [start].
           <768: cards stack, difficulty returns, XP stays hidden, START centered. */}
       <div className="flex flex-wrap items-start gap-x-4 gap-y-6 md:max-[1149px]:justify-center min-[1150px]:flex-nowrap min-[1150px]:justify-between">
-        {/* game + skill — their own centered row in the md 3-row layout;
-            `contents` flattens them back into the single line at >=1024. */}
-        <div className="flex w-full flex-wrap gap-x-4 gap-y-6 md:max-[1023px]:justify-center lg:contents">
-          <Control label="Choose a game" className="w-full sm:w-52">
-            <SelectCard
-              icon={
-                currentGame?.cover ? (
-                  <img
-                    src={currentGame.cover}
-                    alt=""
-                    className="size-10 shrink-0 rounded-md object-cover"
-                  />
-                ) : (
-                  <Gamepad2
-                    className={cn(
-                      'size-6 shrink-0',
-                      currentGame ? 'text-primary' : 'text-muted-foreground',
-                    )}
-                  />
-                )
-              }
-              title={
-                currentGame ? cleanTitle(currentGame.title) : 'Select a game'
-              }
-              subtitle={currentGame ? 'Ready to play' : 'Pick a game to begin'}
-              selected={!!currentGame}
-              onClick={cycleGame}
-            />
-          </Control>
+        {/* game + skill — full-width stacked cards below md; fluid width sharing
+            the md single line (title wraps as they narrow); fixed w-52 at
+            >=1024. */}
+        <Control
+          label="Choose a game"
+          className="w-full md:max-[1023px]:w-auto md:max-[1023px]:min-w-0 md:max-[1023px]:flex-1 lg:w-52"
+        >
+          <SelectCard
+            icon={
+              currentGame?.cover ? (
+                <img
+                  src={currentGame.cover}
+                  alt=""
+                  className="size-10 shrink-0 rounded-md object-cover"
+                />
+              ) : (
+                <Gamepad2
+                  className={cn(
+                    'size-6 shrink-0',
+                    currentGame ? 'text-primary' : 'text-muted-foreground',
+                  )}
+                />
+              )
+            }
+            title={currentGame ? cleanTitle(currentGame.title) : 'Select a game'}
+            subtitle={currentGame ? 'Ready to play' : 'Pick a game to begin'}
+            selected={!!currentGame}
+            onClick={cycleGame}
+          />
+        </Control>
 
-          <Control label="Choose a skill" className="w-full sm:w-52">
-            <SelectCard
-              icon={
-                currentTopic ? (
-                  <SkillIcon topic={currentTopic} />
-                ) : (
-                  <Code className="size-6 shrink-0 text-muted-foreground" />
-                )
-              }
-              title={currentTopic ? currentTopic.name : 'Select a skill'}
-              subtitle={
-                currentTopic ? 'Ready to learn' : 'Pick a skill to focus on'
-              }
-              selected={!!currentTopic}
-              onClick={cycleTopic}
-            />
-          </Control>
-        </div>
+        <Control
+          label="Choose a skill"
+          className="w-full md:max-[1023px]:w-auto md:max-[1023px]:min-w-0 md:max-[1023px]:flex-1 lg:w-52"
+        >
+          <SelectCard
+            icon={
+              currentTopic ? (
+                <SkillIcon topic={currentTopic} />
+              ) : (
+                <Code className="size-6 shrink-0 text-muted-foreground" />
+              )
+            }
+            title={currentTopic ? currentTopic.name : 'Select a skill'}
+            subtitle={
+              currentTopic ? 'Ready to learn' : 'Pick a skill to focus on'
+            }
+            selected={!!currentTopic}
+            onClick={cycleTopic}
+          />
+        </Control>
 
-        {/* Dropped below 1150 alongside the XP readout; returns on mobile. */}
-        <Control label="Skill difficulty" className="md:max-[1149px]:hidden">
+        {/* Shown only at >=1150. */}
+        <Control label="Skill difficulty" className="max-[1149px]:hidden">
           <RatingStars rating={currentTopic ? LEVEL_RATING[level] : null} />
         </Control>
 
-        {/* play + learn — their own centered row in the md 3-row layout. */}
-        <div className="flex items-start gap-2 md:max-[1023px]:w-full md:max-[1023px]:justify-center">
+        {/* play + learn — a centered row of their own below md; inline on the
+            shared line at md and up. */}
+        <div className="flex items-start gap-2 max-[767px]:w-full max-[767px]:justify-center">
           <Control label={first.label}>
             <TimeStepper
               value={first.value}
@@ -325,7 +329,7 @@ function LauncherForm({
             column (histogram right edge lines up with the button); the XP
             readout is the first to drop (768–1149), and START then goes inline
             at the end of the row. */}
-        <div className="flex flex-col items-center gap-3 max-[767px]:w-full md:max-[1149px]:flex-1 md:max-[1149px]:flex-row md:max-[1149px]:items-end md:max-[1149px]:justify-center md:max-[1149px]:gap-4 min-[1150px]:items-stretch min-[1150px]:w-52">
+        <div className="flex flex-col items-center gap-3 max-[1023px]:w-full lg:max-[1149px]:flex-1 lg:max-[1149px]:flex-row lg:max-[1149px]:items-end lg:max-[1149px]:justify-center lg:max-[1149px]:gap-4 min-[1150px]:items-stretch min-[1150px]:w-52">
           <div className="flex flex-col gap-1.5 max-[1149px]:hidden">
             <FieldLabel>Estimated XP</FieldLabel>
             <div className="flex h-16 items-center">
@@ -362,7 +366,7 @@ function LauncherForm({
             type="button"
             onClick={start}
             disabled={!ready || starting}
-            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90 disabled:opacity-50 max-[1149px]:w-auto md:max-[1149px]:mt-5 md:max-[1149px]:px-8"
+            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90 disabled:opacity-50 max-[1149px]:w-auto max-[1149px]:px-8 lg:max-[1149px]:mt-5"
           >
             {starting ? 'Starting…' : 'Start mission'}
             <ArrowRight className="size-4" />
@@ -438,10 +442,13 @@ function SelectCard({
     >
       {icon}
       <div className="min-w-0 flex-1">
-        <div className="truncate font-heading text-sm font-bold text-foreground">
+        {/* 2x title on the big stacked mobile cards; normal size but wrapping in
+            the narrow md cards; single-line truncated at >=1024. */}
+        <div className="font-heading text-2xl leading-tight font-bold text-foreground md:text-sm md:leading-normal lg:truncate">
           {title}
         </div>
-        <div className="truncate font-mono text-[11px] text-muted-foreground">
+        {/* "Ready to play / learn" — hidden below 1024. */}
+        <div className="truncate font-mono text-[11px] text-muted-foreground max-[1023px]:hidden">
           {subtitle}
         </div>
       </div>
