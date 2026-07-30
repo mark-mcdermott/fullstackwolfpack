@@ -18,7 +18,7 @@ export function HomeHero() {
           src="/images/footer-1.png"
           alt=""
           aria-hidden="true"
-          className="absolute inset-y-0 right-0 h-full w-full object-cover object-center md:w-[62%]"
+          className="absolute inset-y-0 right-0 h-full w-full object-cover object-left md:w-[62%]"
         />
         {/* Theme-colored wash: fades the photo into the card, stronger on the
             left (behind the copy) and lighter on mobile-vs-desktop. */}
