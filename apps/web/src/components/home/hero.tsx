@@ -50,48 +50,53 @@ export function HomeHero() {
         </div>
       </Panel>
 
-      {/* Akela — creed + today's challenge */}
+      {/* Akela — a dark media card: the full portrait (head + jacket) fills it
+          and dissolves downward into a dark scrim so the creed reads over the
+          fade and the challenge box sits on the darkened base. Stays dark in
+          both themes (like the skyline bands). */}
       <Panel
         brackets={false}
-        className="flex flex-col overflow-hidden rounded-2xl p-0"
+        className="relative flex min-h-[25rem] flex-col overflow-hidden rounded-2xl p-0"
       >
-        <div className="relative h-44 shrink-0">
-          <img
-            src="/images/akela.png"
-            alt="Akela, your AI mentor"
-            className="h-full w-full object-cover object-[center_12%]"
-          />
-          <div className="absolute inset-x-0 top-0 flex items-center gap-2 p-4">
+        <img
+          src="/images/akela.png"
+          alt="Akela, your AI mentor"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[center_30%]"
+        />
+        {/* Fade the portrait down to the challenge box. */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-20% via-neutral-950/55 via-65% to-neutral-950/95" />
+
+        <div className="relative flex flex-1 flex-col p-5">
+          <div className="flex items-center gap-2">
             <span className="font-heading text-sm font-bold tracking-widest text-white">
               AKELA
             </span>
             <span className="size-1.5 rounded-full bg-primary shadow-[0_0_6px] shadow-primary/70" />
           </div>
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-card to-transparent" />
-        </div>
 
-        <div className="flex flex-1 flex-col gap-4 p-5">
-          <blockquote>
-            <p className="font-mono text-xs leading-relaxed text-foreground">
-              &ldquo;Discipline is choosing between what you want now and what
-              you want most.&rdquo;
-            </p>
-            <cite className="mt-1.5 block font-mono text-xs text-primary not-italic">
-              — Akela
-            </cite>
-          </blockquote>
-
-          <div className="mt-auto rounded-lg border border-border p-3">
-            <span className="font-mono text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
-              Today&rsquo;s challenge
-            </span>
-            <div className="mt-1.5 flex items-end justify-between gap-3">
-              <p className="font-mono text-xs leading-relaxed text-muted-foreground">
-                Finish one JavaScript lesson without looking anything up.
+          <div className="mt-auto flex flex-col gap-4">
+            <blockquote>
+              <p className="font-mono text-xs leading-relaxed text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
+                &ldquo;Discipline is choosing between what you want now and what
+                you want most.&rdquo;
               </p>
-              <span className="shrink-0 font-mono text-xs font-bold text-primary">
-                0&nbsp;/&nbsp;1
+              <cite className="mt-1.5 block font-mono text-xs text-primary not-italic">
+                — Akela
+              </cite>
+            </blockquote>
+
+            <div className="rounded-lg border border-white/15 bg-white/5 p-3 backdrop-blur-sm">
+              <span className="block font-mono text-[10px] leading-none font-bold tracking-widest text-white/60 uppercase">
+                Today&rsquo;s challenge
               </span>
+              <div className="mt-2 flex items-end justify-between gap-3">
+                <p className="font-mono text-xs leading-relaxed text-white/80">
+                  Finish one JavaScript lesson without looking anything up.
+                </p>
+                <span className="shrink-0 font-mono text-xs font-bold text-primary">
+                  0&nbsp;/&nbsp;1
+                </span>
+              </div>
             </div>
           </div>
         </div>
