@@ -23,7 +23,7 @@ export function CreedBand() {
         src="/images/creed-bg.png"
         alt=""
         aria-hidden="true"
-        className="absolute inset-0 h-full w-full object-cover object-center"
+        className="absolute inset-0 h-full w-full object-cover object-center md:[mask-image:linear-gradient(to_right,transparent,black_30%,black_85%,transparent)]"
       />
       <div className="absolute inset-0 bg-neutral-950/55" />
       <div className="absolute inset-0 bg-gradient-to-r from-neutral-950 via-neutral-950/40 to-transparent" />
