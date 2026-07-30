@@ -56,17 +56,22 @@ export function HomeHero() {
           both themes (like the skyline bands). */}
       <Panel
         brackets={false}
-        className="relative flex min-h-[25rem] flex-col overflow-hidden rounded-2xl p-0"
+        className="relative flex min-h-[25rem] flex-col overflow-hidden rounded-2xl p-0 md:max-[1023px]:min-h-0"
       >
+        {/* Dark base so the card stays dark where the portrait doesn't cover it
+            — i.e. the md compact layout, where Akela shrinks to the right. */}
+        <div className="pointer-events-none absolute inset-0 bg-neutral-950" />
+        {/* Full-bleed portrait at mobile + lg; a small portrait pinned to the
+            right in the md compact layout. */}
         <img
           src="/images/akela.png"
           alt="Akela, your AI mentor"
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[center_30%]"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[center_30%] md:max-[1023px]:top-1/2 md:max-[1023px]:right-5 md:max-[1023px]:bottom-auto md:max-[1023px]:left-auto md:max-[1023px]:h-auto md:max-[1023px]:w-[100px] md:max-[1023px]:-translate-y-1/2 md:max-[1023px]:rounded-xl"
         />
-        {/* Fade the portrait down to the challenge box. */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-20% via-neutral-950/55 via-65% to-neutral-950/95" />
+        {/* Fade the portrait down to the challenge box (media layout only). */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-20% via-neutral-950/55 via-65% to-neutral-950/95 md:max-[1023px]:hidden" />
 
-        <div className="relative flex flex-1 flex-col p-5">
+        <div className="relative flex flex-1 flex-col p-5 md:max-[1023px]:pr-32">
           <div className="flex items-center gap-2">
             <span className="font-heading text-sm font-bold tracking-widest text-white">
               AKELA
@@ -74,7 +79,7 @@ export function HomeHero() {
             <span className="size-1.5 rounded-full bg-primary shadow-[0_0_6px] shadow-primary/70" />
           </div>
 
-          <div className="mt-auto flex flex-col gap-4">
+          <div className="mt-auto flex flex-col gap-4 md:max-[1023px]:mt-4">
             <blockquote>
               <p className="font-mono text-xs leading-relaxed text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
                 &ldquo;Discipline is choosing between what you want now and what
