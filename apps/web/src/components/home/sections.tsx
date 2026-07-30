@@ -20,7 +20,7 @@ export function CreedBand() {
   return (
     <div className="relative overflow-hidden rounded-2xl border border-border">
       <img
-        src="/images/footer-2.png"
+        src="/images/creed-bg.png"
         alt=""
         aria-hidden="true"
         className="absolute inset-0 h-full w-full object-cover object-center"
