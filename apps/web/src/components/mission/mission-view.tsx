@@ -1,13 +1,9 @@
 import {
-  ArrowLeft,
-  ArrowRight,
-  ArrowUp,
   ChevronDown,
   ChevronRight,
   Clock,
   Code,
   Gamepad2,
-  Heart,
   Pause,
   Star,
   Trophy,
@@ -15,7 +11,11 @@ import {
 } from 'lucide-react'
 import { Fragment, type ReactNode } from 'react'
 import { Panel } from '@fw/ui'
+import { MissionGame } from '@/components/mission/mission-game'
+import { ROM_CATALOG } from '@/lib/rom-catalog'
 import { cn } from '@/lib/utils'
+
+const TOBU = ROM_CATALOG.find((g) => g.id === 'tobu-tobu-girl')
 
 // The "mission in progress" screen the launcher morphs into: a mission bar, the
 // game stage (poster placeholder until the live embed is wired), a MISSION
@@ -111,78 +111,30 @@ function GameStage() {
   return (
     <Panel
       brackets={false}
-      className="relative overflow-hidden rounded-2xl bg-neutral-950 p-0"
+      className="relative flex min-h-[24rem] flex-col overflow-hidden rounded-2xl bg-neutral-950 p-5"
     >
-      <img
-        src="/covers/tobu-tobu-girl.jpg"
-        alt=""
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-30"
-      />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/50 to-neutral-950/70" />
+      <div className="flex items-center justify-between">
+        <span className="font-heading text-lg font-bold tracking-wide text-white uppercase">
+          Tobu Tobu Girl
+        </span>
+        <span className="font-mono text-[10px] tracking-widest text-white/40 uppercase">
+          Arrow keys · Z / X
+        </span>
+      </div>
 
-      <div className="relative flex min-h-[24rem] flex-col p-5">
-        <div className="flex items-center justify-between">
-          <span className="font-heading text-lg font-bold tracking-wide text-white uppercase">
-            Tobu Tobu Girl
-          </span>
-          <div className="flex gap-1">
-            {[0, 1, 2].map((i) => (
-              <Heart key={i} className="size-5 fill-primary text-primary" />
-            ))}
+      {/* The live game, centered at the Game Boy aspect ratio. */}
+      <div className="flex flex-1 items-center justify-center py-4">
+        {TOBU ? (
+          <div className="aspect-[10/9] h-full max-h-[20rem] overflow-hidden rounded-md border border-white/10">
+            <MissionGame rom={TOBU} />
           </div>
-        </div>
-
-        {/* Placeholder for the live game embed. */}
-        <div className="flex flex-1 items-center justify-center">
+        ) : (
           <span className="rounded-md border border-white/10 px-3 py-1.5 font-mono text-[11px] tracking-wide text-white/40">
-            Game embed mounts here
+            Game unavailable
           </span>
-        </div>
-
-        <div className="flex items-end justify-between">
-          <div className="flex items-center gap-2">
-            <StageButton>
-              <ArrowLeft className="size-5" />
-            </StageButton>
-            <StageButton>
-              <ArrowRight className="size-5" />
-            </StageButton>
-            <StageButton className="ml-2 rounded-full">
-              <ArrowUp className="size-5" />
-            </StageButton>
-          </div>
-          <div className="text-right">
-            <span className="font-mono text-[10px] tracking-widest text-white/50 uppercase">
-              Score
-            </span>
-            <div className="font-heading text-2xl font-bold tabular-nums text-white">
-              001250
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </Panel>
-  )
-}
-
-function StageButton({
-  children,
-  className,
-}: {
-  children: ReactNode
-  className?: string
-}) {
-  return (
-    <button
-      type="button"
-      className={cn(
-        'flex h-11 w-14 items-center justify-center rounded-md border border-white/20 text-white/80 transition-colors hover:border-white/50 hover:text-white',
-        className,
-      )}
-    >
-      {children}
-    </button>
   )
 }
 
