@@ -375,8 +375,12 @@ function LauncherForm({
           <button
             type="button"
             onClick={start}
-            disabled={!ready || starting}
-            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90 disabled:opacity-50 max-[767px]:w-auto max-[1149px]:px-8 md:max-[1023px]:w-1/2 md:max-[1023px]:max-w-[27rem] lg:max-[1149px]:mt-5 lg:max-[1149px]:w-auto"
+            disabled={!ready}
+            className={cn(
+              'inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-all duration-300 hover:bg-primary/90 disabled:opacity-50 max-[767px]:w-auto max-[1149px]:px-8 md:max-[1023px]:w-1/2 md:max-[1023px]:max-w-[27rem] lg:max-[1149px]:mt-5 lg:max-[1149px]:w-auto',
+              // Glow + expand as the mission kicks off (the launcher then fades out).
+              starting && 'scale-[1.04] shadow-[0_0_45px] shadow-primary/70',
+            )}
           >
             {starting ? 'Starting…' : 'Start mission'}
             <ArrowRight className="size-4" />
