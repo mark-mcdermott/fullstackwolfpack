@@ -122,10 +122,12 @@ function GameStage() {
         </span>
       </div>
 
-      {/* The live game, centered at the Game Boy aspect ratio. */}
+      {/* The live game, centered at the Game Boy aspect ratio (160x144 = 10:9);
+          fills the stage width up to a generous cap, so it scales down cleanly on
+          narrow screens. */}
       <div className="flex flex-1 items-center justify-center py-4">
         {TOBU ? (
-          <div className="aspect-[10/9] h-full max-h-[20rem] overflow-hidden rounded-md border border-white/10">
+          <div className="aspect-[10/9] w-full max-w-[42rem] overflow-hidden rounded-md border border-white/10">
             <MissionGame rom={TOBU} />
           </div>
         ) : (
