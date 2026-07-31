@@ -67,53 +67,9 @@ import { siteUrl } from '@/consts'
 export function FwFooter() {
   return (
     <footer className="bg-background text-muted-foreground">
-      {/* Skyline band — Akela's creed + the terminal readout over the city.
-          The band stays dark in both themes (it's a photograph; light text over
-          it reads in either mode) — only the chrome around it flips. */}
-      <div className="relative overflow-hidden">
-        <img
-          src="/images/footer-2.png"
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 h-full w-full object-cover object-center"
-        />
-        {/* Scrims: an overall darken, a heavier left wash for the quote, and a
-            bottom fade into the nav row. */}
-        <div className="absolute inset-0 bg-neutral-950/55" />
-        <div className="absolute inset-0 bg-gradient-to-r from-neutral-950 via-neutral-950/50 to-transparent" />
-        {/* Fades the image's lower edge into the nav row — `background` so it
-            blends in both themes. */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background to-transparent" />
-
-        <div className="relative mx-auto flex min-h-[7.5rem] max-w-7xl flex-col justify-center gap-8 px-5 py-6 md:min-h-[9.5rem] md:flex-row md:items-center md:justify-between md:px-8">
-          {/* Akela's creed */}
-          <blockquote className="max-w-md">
-            <span
-              aria-hidden="true"
-              className="block font-heading text-6xl leading-none text-primary"
-            >
-              &ldquo;
-            </span>
-            <p className="-mt-4 font-mono text-sm leading-relaxed text-neutral-100 sm:text-base">
-              Discipline is choosing between what you want now and what you want
-              most.
-            </p>
-            <cite className="mt-3 block font-mono text-xs tracking-widest text-primary uppercase not-italic">
-              — Akela
-            </cite>
-          </blockquote>
-
-          {/* Terminal readout */}
-          <div className="fw-notch-tr w-full max-w-[15rem] shrink-0 border border-neutral-700 bg-neutral-950/70 p-4 pt-6 backdrop-blur-sm">
-            <div className="flex flex-col gap-2 font-mono text-sm tracking-wide">
-              <span className="text-primary">&gt; LOCK IN</span>
-              <span className="text-green-500">&gt; KEEP LEARNING</span>
-              <span className="text-primary">&gt; LEVEL UP</span>
-            </div>
-            <div className="fw-barcode mt-6 h-3 w-full text-neutral-600" />
-          </div>
-        </div>
-      </div>
+      {/* The skyline creed + terminal band moved into the guest homepage as
+          `<CreedBand />` (a bordered card under the session launcher); the
+          footer is now just the slim status bar. */}
 
       {/* Slim brand + nav row */}
       <div className="border-t border-border">
@@ -128,7 +84,7 @@ export function FwFooter() {
               ウルフパック
             </span>
           </a>
-          {/* Nav links parked while we focus the flow — just a copyright for now.
+          {/* Nav links parked while we focus the flow — a status readout for now.
           <nav className="flex flex-wrap items-center justify-center gap-x-7 gap-y-2">
             {NAV.map(([label, to]) => (
               <a
@@ -141,9 +97,19 @@ export function FwFooter() {
             ))}
           </nav>
           */}
-          <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-            &copy; 2026
-          </span>
+          {/* Status readout — all one muted color; each item reads as a phrase,
+              not a key/value pair. */}
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 font-mono text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              API
+              <span className="size-1.5 rounded-full bg-green-500" />
+              Healthy
+            </span>
+            <span>Build v0.1.0</span>
+            <span>Deployed 2h ago</span>
+            <span>Env Production</span>
+            <span>&copy; 2026</span>
+          </div>
         </div>
       </div>
 

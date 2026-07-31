@@ -1,6 +1,12 @@
 import { Navigate } from 'react-router'
 import { SessionLauncher } from '@/components/launch/session-launcher'
 import { HomeHero } from '@/components/home/hero'
+import {
+  BuiltForDevs,
+  CreedBand,
+  HowItWorks,
+  ReadyToJoin,
+} from '@/components/home/sections'
 import { useAuth } from '@/hooks/auth-context'
 
 // The guest front door (`/`): logged-out visitors land here — the session
@@ -16,6 +22,10 @@ export function GuestHome() {
     <div className="flex flex-col gap-6">
       <HomeHero />
       <SessionLauncher />
+      <CreedBand />
+      <BuiltForDevs />
+      <HowItWorks />
+      <ReadyToJoin />
     </div>
   )
 }

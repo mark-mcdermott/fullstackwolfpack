@@ -13,7 +13,7 @@ export const DEV_LOGIN_ROLES = ['unpaid', 'paid', 'admin'] as const
 export type DevLoginRole = (typeof DEV_LOGIN_ROLES)[number]
 
 export const DEV_ROLE_LABELS: Record<DevRole, string> = {
-  off: 'Off',
+  off: 'None',
   unpaid: 'Unpaid',
   paid: 'Paid',
   admin: 'Admin',

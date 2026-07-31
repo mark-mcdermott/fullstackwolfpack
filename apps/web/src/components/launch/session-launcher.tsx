@@ -1,15 +1,15 @@
 import {
   ArrowLeftRight,
   ArrowRight,
-  Check,
   ChevronDown,
-  ChevronLeft,
   ChevronRight,
   ChevronUp,
+  Code,
   Gamepad2,
   Star,
+  StarHalf,
 } from 'lucide-react'
-import { useMemo, useRef, useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router'
 import { api } from '@/api-client'
 import { AsyncView } from '@/components/layout/async-view'
@@ -56,12 +56,12 @@ const STATIC_GAMES: Game[] = [
   })),
 ]
 
-// Difficulty ⇄ 5-star mapping (the enum has three rungs; stars just make it
-// tactile). Estimated XP scales with the learn slice and the difficulty.
-const LEVEL_STARS: Record<Difficulty, number> = {
-  beginner: 2,
-  intermediate: 4,
-  advanced: 5,
+// The course level as a read-only 0–5 star rating (half-stars allowed). Estimated
+// XP scales with the learn slice and the difficulty.
+const LEVEL_RATING: Record<Difficulty, number> = {
+  beginner: 1.5,
+  intermediate: 2.5,
+  advanced: 4.5,
 }
 const LEVEL_MULT: Record<Difficulty, number> = {
   beginner: 1,
@@ -69,12 +69,10 @@ const LEVEL_MULT: Record<Difficulty, number> = {
   advanced: 1.5,
 }
 const XP_PER_MIN = 40
-function starToLevel(i: number): Difficulty {
-  return i <= 2 ? 'beginner' : i <= 4 ? 'intermediate' : 'advanced'
-}
+const cleanTitle = (t: string) => t.replace(/\s*\([^)]*\)\s*$/, '')
 
-// The app-home hero: one panel to start a play/learn focus session. Smart-
-// defaulted so a returning user (or a guest) just picks and hits Start.
+// The app-home hero: one compact strip to start a play/learn focus session.
+// Smart-defaulted so a returning user (or a guest) just picks and hits Start.
 export function SessionLauncher() {
   const guest = !useAuth().user
   const state = useAsync<LauncherTopic[]>(() =>
@@ -83,7 +81,9 @@ export function SessionLauncher() {
           v.topics.map((t) => ({
             slug: t.slug,
             name: t.name,
-            difficulty: 'beginner' as Difficulty,
+            // Public topics carry no difficulty field yet; treat them as
+            // intermediate for now (the JS course is intermediate).
+            difficulty: 'intermediate' as Difficulty,
             lessonsCompleted: 0,
             lessonsTotal: 1, // public topics all have a built-in course
           })),
@@ -153,12 +153,35 @@ function LauncherForm({
   const [starting, setStarting] = useState(false)
 
   const currentTopic = playable.find((t) => t.slug === topicSlug)
+  const currentGame = games.find((g) => g.id === gameId) ?? games[0]
   const estimatedXp = Math.round(learnMinutes * XP_PER_MIN * LEVEL_MULT[level])
+  const ready = !!currentGame && !!currentTopic
+
+  // The order swap reorders the two time fields (learn-first opens a lesson
+  // before the game; play-first drops straight into the game).
+  const first = learnFirst
+    ? { label: 'Learn time', name: 'Learn', value: learnMinutes, set: setLearnMinutes }
+    : { label: 'Play time', name: 'Play', value: playMinutes, set: setPlayMinutes }
+  const second = learnFirst
+    ? { label: 'Play time', name: 'Play', value: playMinutes, set: setPlayMinutes }
+    : { label: 'Learn time', name: 'Learn', value: learnMinutes, set: setLearnMinutes }
 
   function onTopicChange(slug: string) {
     setTopicSlug(slug)
     const t = playable.find((x) => x.slug === slug)
     setLevel((t?.difficulty as Difficulty) ?? 'beginner')
+  }
+
+  // The select cards cycle to the next option (or pick the first from empty).
+  function cycleGame() {
+    if (!games.length) return
+    const i = games.findIndex((g) => g.id === gameId)
+    setGameId(games[(i + 1 + games.length) % games.length].id)
+  }
+  function cycleTopic() {
+    if (!playable.length) return
+    const i = playable.findIndex((t) => t.slug === topicSlug)
+    onTopicChange(playable[(i + 1 + playable.length) % playable.length].slug)
   }
 
   async function start() {
@@ -191,15 +214,12 @@ function LauncherForm({
     }
   }
 
-  const first = learnFirst
-    ? { label: 'Learn', value: learnMinutes, set: setLearnMinutes }
-    : { label: 'Play', value: playMinutes, set: setPlayMinutes }
-  const second = learnFirst
-    ? { label: 'Play', value: playMinutes, set: setPlayMinutes }
-    : { label: 'Learn', value: learnMinutes, set: setLearnMinutes }
-
   return (
-    <Panel brackets={false} className="flex flex-col gap-6 rounded-2xl p-5 sm:p-7">
+    <Panel
+      id="start-session"
+      brackets={false}
+      className="flex scroll-mt-24 flex-col gap-5 rounded-2xl p-5 sm:p-6"
+    >
       <div className="flex items-center justify-between gap-4">
         <SectionLabel>Start a session</SectionLabel>
         <span className="hidden font-mono text-[10px] tracking-widest text-muted-foreground uppercase sm:inline">
@@ -207,80 +227,170 @@ function LauncherForm({
         </span>
       </div>
 
-      {/* Choose a game — a scrollable cover carousel. */}
-      <div className="flex flex-col gap-3">
-        <FieldLabel>Choose a game</FieldLabel>
-        <GameCarousel games={games} selected={gameId} onSelect={setGameId} />
-      </div>
-
-      {/* Choose a skill — the playable topics as icon tiles. */}
-      <div className="flex flex-col gap-3">
-        <FieldLabel>Choose a skill</FieldLabel>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
-          {playable.map((t) => (
-            <SkillCard
-              key={t.slug}
-              topic={t}
-              selected={t.slug === topicSlug}
-              onSelect={() => onTopicChange(t.slug)}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Difficulty · play/learn times (+ order swap) · estimated XP. */}
-      <div className="flex flex-col gap-6 sm:flex-row sm:flex-wrap sm:items-end">
-        <div className="flex flex-col gap-1.5">
-          <FieldLabel>Difficulty</FieldLabel>
-          <StarRating level={level} onChange={setLevel} />
-        </div>
-
-        <div className="flex items-end gap-2">
-          <TimeStepper
-            label={first.label}
-            value={first.value}
-            onChange={first.set}
+      {/* Responsive control row. >=1150: everything on one line (XP + START in a
+          right-hand column). 1024–1149: drop XP + difficulty, one line, START
+          centered in the leftover gap. md (768–1023): drop XP + difficulty and
+          stack into three centered rows — [game·skill] / [play·learn] / [start].
+          <768: cards stack, difficulty returns, XP stays hidden, START centered. */}
+      <div className="flex flex-wrap items-start gap-x-4 gap-y-6 md:max-[1149px]:justify-center min-[1150px]:flex-nowrap min-[1150px]:justify-between">
+        {/* game + skill — full-width stacked cards below md; fluid width sharing
+            the md single line (title wraps as they narrow); fixed w-52 at
+            >=1024. */}
+        <Control
+          label="Choose a game"
+          className="w-full md:max-[1023px]:w-auto md:max-[1023px]:min-w-0 md:max-[1023px]:flex-1 lg:w-52"
+        >
+          <SelectCard
+            icon={
+              currentGame?.cover ? (
+                <img
+                  src={currentGame.cover}
+                  alt=""
+                  className="size-10 shrink-0 rounded-md object-cover"
+                />
+              ) : (
+                <Gamepad2
+                  className={cn(
+                    'size-6 shrink-0',
+                    currentGame ? 'text-primary' : 'text-muted-foreground',
+                  )}
+                />
+              )
+            }
+            title={currentGame ? cleanTitle(currentGame.title) : 'Select a game'}
+            subtitle={currentGame ? 'Ready to play' : 'Pick a game to begin'}
+            selected={!!currentGame}
+            onClick={cycleGame}
           />
+        </Control>
+
+        <Control
+          label="Choose a skill"
+          className="w-full md:max-[1023px]:w-auto md:max-[1023px]:min-w-0 md:max-[1023px]:flex-1 lg:w-52"
+        >
+          <SelectCard
+            icon={
+              currentTopic ? (
+                <SkillIcon topic={currentTopic} />
+              ) : (
+                <Code className="size-6 shrink-0 text-muted-foreground" />
+              )
+            }
+            title={currentTopic ? currentTopic.name : 'Select a skill'}
+            subtitle={
+              currentTopic ? 'Ready to learn' : 'Pick a skill to focus on'
+            }
+            selected={!!currentTopic}
+            onClick={cycleTopic}
+          />
+        </Control>
+
+        {/* Shown only at >=1150. */}
+        <Control label="Skill difficulty" className="max-[1149px]:hidden">
+          <RatingStars rating={currentTopic ? LEVEL_RATING[level] : null} />
+        </Control>
+
+        {/* play + learn — a centered row of their own below md; inline on the
+            shared line at md and up. */}
+        <div className="flex items-start gap-2 max-[767px]:w-full max-[767px]:justify-center">
+          <Control label={first.label}>
+            <TimeStepper
+              value={first.value}
+              onChange={first.set}
+              name={first.name}
+            />
+          </Control>
+          <div className="flex flex-col gap-1.5">
+            <FieldLabel aria-hidden="true" className="opacity-0">
+              swap
+            </FieldLabel>
+            <div className="flex h-16 items-center">
+              <button
+                type="button"
+                onClick={() => setLearnFirst((v) => !v)}
+                aria-label="Swap play/learn order"
+                title="Swap which comes first"
+                className="flex h-11 w-9 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+              >
+                <ArrowLeftRight className="size-4" />
+              </button>
+            </div>
+          </div>
+          <Control label={second.label}>
+            <TimeStepper
+              value={second.value}
+              onChange={second.set}
+              name={second.name}
+            />
+          </Control>
+        </div>
+
+        {/* Estimated XP + go. At >=1150 XP sits above the button in a fixed
+            column (histogram right edge lines up with the button); the XP
+            readout is the first to drop (768–1149), and START then goes inline
+            at the end of the row. */}
+        <div className="flex flex-col items-center gap-3 max-[1023px]:w-full lg:max-[1149px]:flex-1 lg:max-[1149px]:flex-row lg:max-[1149px]:items-end lg:max-[1149px]:justify-center lg:max-[1149px]:gap-4 min-[1150px]:items-stretch min-[1150px]:w-52">
+          <div className="flex flex-col gap-1.5 max-[1149px]:hidden">
+            <FieldLabel>Estimated XP</FieldLabel>
+            <div className="flex h-16 items-center">
+              {ready ? (
+                <div className="flex w-full items-center justify-between gap-2">
+                  <span className="flex items-baseline gap-1">
+                    <span className="text-2xl font-bold tabular-nums text-blue-600 dark:text-blue-400">
+                      +{estimatedXp}
+                    </span>
+                    <span className="font-mono text-sm font-semibold text-muted-foreground">
+                      XP
+                    </span>
+                  </span>
+                  <XpBars />
+                </div>
+              ) : (
+                <div className="w-full">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-lg font-bold">
+                      <span className="text-blue-600 dark:text-blue-400">--</span>
+                      <span className="text-muted-foreground"> XP</span>
+                    </span>
+                    <XpBars muted />
+                  </div>
+                  <p className="mt-0.5 font-mono text-[11px] leading-tight text-muted-foreground">
+                    Complete the selections to see your XP
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
           <button
             type="button"
-            onClick={() => setLearnFirst((v) => !v)}
-            aria-label="Swap play/learn order"
-            title="Swap which comes first"
-            className="flex h-11 w-9 shrink-0 items-center justify-center border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+            onClick={start}
+            disabled={!ready || starting}
+            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90 disabled:opacity-50 max-[767px]:w-auto max-[1149px]:px-8 md:max-[1023px]:w-1/2 md:max-[1023px]:max-w-[27rem] lg:max-[1149px]:mt-5 lg:max-[1149px]:w-auto"
           >
-            <ArrowLeftRight className="size-4" />
+            {starting ? 'Starting…' : 'Start mission'}
+            <ArrowRight className="size-4" />
           </button>
-          <TimeStepper
-            label={second.label}
-            value={second.value}
-            onChange={second.set}
-          />
-        </div>
-
-        <div className="flex flex-col gap-1.5 sm:ml-auto">
-          <FieldLabel>Estimated XP</FieldLabel>
-          <div className="flex items-center gap-3">
-            <span className="flex items-baseline gap-1 text-green-600 dark:text-green-500">
-              <span className="text-2xl font-bold tabular-nums">
-                +{estimatedXp}
-              </span>
-              <span className="font-mono text-sm font-semibold">XP</span>
-            </span>
-            <XpBars />
-          </div>
         </div>
       </div>
-
-      <button
-        type="button"
-        onClick={start}
-        disabled={!topicSlug || starting}
-        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90 disabled:opacity-50"
-      >
-        {starting ? 'Starting…' : 'Start mission'}
-        <ArrowRight className="size-4" />
-      </button>
     </Panel>
+  )
+}
+
+function Control({
+  label,
+  children,
+  className,
+}: {
+  label: string
+  children: ReactNode
+  className?: string
+}) {
+  return (
+    <div className={cn('flex flex-col gap-1.5', className)}>
+      <FieldLabel>{label}</FieldLabel>
+      <div className="flex h-16 items-center">{children}</div>
+    </div>
   )
 }
 
@@ -303,216 +413,122 @@ function FieldLabel({
   )
 }
 
-function GameCarousel({
-  games,
+// A "select a game / skill" card — icon + title + subtitle + a next chevron.
+// Renders a placeholder when nothing's chosen (or nothing's available); shows a
+// coral border once a selection is active. Clicking cycles to the next option.
+function SelectCard({
+  icon,
+  title,
+  subtitle,
   selected,
-  onSelect,
-}: {
-  games: Game[]
-  selected: string
-  onSelect: (id: string) => void
-}) {
-  const scroller = useRef<HTMLDivElement>(null)
-  const nudge = (dir: number) =>
-    scroller.current?.scrollBy({ left: dir * 340, behavior: 'smooth' })
-  return (
-    <div className="flex items-stretch gap-2">
-      <Chevron dir="left" onClick={() => nudge(-1)} />
-      <div
-        ref={scroller}
-        className="flex flex-1 gap-3 overflow-x-auto scroll-smooth pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        {games.map((g) => (
-          <GameCard
-            key={g.id}
-            game={g}
-            selected={g.id === selected}
-            onSelect={() => onSelect(g.id)}
-          />
-        ))}
-      </div>
-      <Chevron dir="right" onClick={() => nudge(1)} />
-    </div>
-  )
-}
-
-function Chevron({
-  dir,
   onClick,
 }: {
-  dir: 'left' | 'right'
+  icon: ReactNode
+  title: string
+  subtitle: string
+  selected: boolean
   onClick: () => void
 }) {
-  const Icon = dir === 'left' ? ChevronLeft : ChevronRight
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label={dir === 'left' ? 'Scroll games left' : 'Scroll games right'}
-      className="hidden w-8 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary sm:flex"
-    >
-      <Icon className="size-4" />
-    </button>
-  )
-}
-
-function GameCard({
-  game,
-  selected,
-  onSelect,
-}: {
-  game: Game
-  selected: boolean
-  onSelect: () => void
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      aria-pressed={selected}
       className={cn(
-        'relative flex h-28 w-40 shrink-0 flex-col overflow-hidden rounded-xl border-2 text-left transition-colors',
+        'flex h-16 w-full items-center gap-3 rounded-lg border bg-card px-3 text-left transition-colors',
         selected
-          ? 'border-primary'
+          ? 'border-primary/60 hover:border-primary'
           : 'border-border hover:border-muted-foreground/50',
       )}
     >
-      <span className="truncate px-3 pt-2 pb-1.5 font-heading text-sm font-bold tracking-wide text-foreground uppercase">
-        {game.title}
-      </span>
-      <div className="relative flex-1 bg-muted">
-        {game.cover ? (
-          <img
-            src={game.cover}
-            alt=""
-            loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center">
-            <Gamepad2
-              className={cn('size-8', game.accent ?? 'text-muted-foreground')}
-            />
-          </div>
-        )}
+      {icon}
+      <div className="min-w-0 flex-1">
+        {/* 2x title on the big stacked mobile cards; normal size but wrapping in
+            the narrow md cards; single-line truncated at >=1024. */}
+        <div className="font-heading text-2xl leading-tight font-bold text-foreground md:text-sm md:leading-normal lg:truncate">
+          {title}
+        </div>
+        {/* "Ready to play / learn" — hidden below 1024. */}
+        <div className="truncate font-mono text-[11px] text-muted-foreground max-[1023px]:hidden">
+          {subtitle}
+        </div>
       </div>
-      {selected && (
-        <span className="absolute top-0 right-0 flex size-6 items-center justify-center rounded-bl-lg bg-primary text-primary-foreground">
-          <Check className="size-4" strokeWidth={3} />
-        </span>
-      )}
+      <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
     </button>
   )
 }
 
-function SkillCard({
-  topic,
-  selected,
-  onSelect,
-}: {
-  topic: LauncherTopic
-  selected: boolean
-  onSelect: () => void
-}) {
+// Read-only difficulty rating — full/half/empty stars for a 0–5 value. A half
+// star overlays a lucide StarHalf (coral left half) on an empty outline.
+function RatingStars({ rating }: { rating: number | null }) {
+  const r = rating ?? 0
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      aria-pressed={selected}
-      className={cn(
-        'flex flex-col items-center justify-center gap-2.5 rounded-xl border-2 px-2 py-4 transition-colors',
-        selected
-          ? 'border-primary'
-          : 'border-border hover:border-muted-foreground/50',
-      )}
-    >
-      <SkillIcon topic={topic} />
-      <span className="w-full truncate text-center font-mono text-xs font-medium text-foreground">
-        {topic.name}
-      </span>
-    </button>
-  )
-}
-
-function StarRating({
-  level,
-  onChange,
-}: {
-  level: Difficulty
-  onChange: (l: Difficulty) => void
-}) {
-  return (
-    <div className="flex items-center gap-1">
-      {[1, 2, 3, 4, 5].map((i) => (
-        <button
-          key={i}
-          type="button"
-          onClick={() => onChange(starToLevel(i))}
-          aria-label={`Set difficulty: ${starToLevel(i)}`}
-          className="transition-transform hover:scale-110"
-        >
+    <div className="flex items-center gap-1" aria-label={`Difficulty ${r} of 5`}>
+      {[1, 2, 3, 4, 5].map((i) => {
+        if (r >= i) {
+          return <Star key={i} className="size-5 fill-primary text-primary" />
+        }
+        if (r >= i - 0.5) {
+          return (
+            <span key={i} className="relative inline-flex size-5">
+              <Star className="size-5 fill-transparent text-muted-foreground/40" />
+              <StarHalf className="absolute inset-0 size-5 fill-primary text-primary" />
+            </span>
+          )
+        }
+        return (
           <Star
-            className={cn(
-              'size-5',
-              i <= LEVEL_STARS[level]
-                ? 'fill-primary text-primary'
-                : 'fill-transparent text-muted-foreground/40',
-            )}
+            key={i}
+            className="size-5 fill-transparent text-muted-foreground/40"
           />
-        </button>
-      ))}
+        )
+      })}
     </div>
   )
 }
 
 function TimeStepper({
-  label,
   value,
   onChange,
+  name,
 }: {
-  label: string
   value: number
   onChange: (v: number) => void
+  name: string
 }) {
   const clamp = (v: number) => Math.min(120, Math.max(1, v))
   return (
-    <label className="flex flex-col gap-1.5">
-      <FieldLabel className={label === 'Play' ? 'text-primary' : undefined}>
-        {label} time
-      </FieldLabel>
-      <div className="flex h-11 items-stretch border border-border focus-within:border-primary">
-        <input
-          type="number"
-          min={1}
-          max={120}
-          value={value}
-          onChange={(e) => onChange(clamp(Number(e.target.value) || 1))}
-          aria-label={`${label} minutes`}
-          className="w-11 bg-transparent pl-3 text-sm tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-        />
-        <span className="flex items-center pr-2 font-mono text-[10px] tracking-wide text-muted-foreground uppercase">
-          min
-        </span>
-        <div className="flex flex-col border-l border-border">
-          <button
-            type="button"
-            aria-label={`Increase ${label.toLowerCase()} time`}
-            onClick={() => onChange(clamp(value + 5))}
-            className="flex flex-1 items-center justify-center px-1.5 text-muted-foreground transition-colors hover:text-primary"
-          >
-            <ChevronUp className="size-3.5" />
-          </button>
-          <button
-            type="button"
-            aria-label={`Decrease ${label.toLowerCase()} time`}
-            onClick={() => onChange(clamp(value - 5))}
-            className="flex flex-1 items-center justify-center border-t border-border px-1.5 text-muted-foreground transition-colors hover:text-primary"
-          >
-            <ChevronDown className="size-3.5" />
-          </button>
-        </div>
+    <div className="flex h-11 items-stretch border border-border focus-within:border-primary">
+      <input
+        type="number"
+        min={1}
+        max={120}
+        value={value}
+        onChange={(e) => onChange(clamp(Number(e.target.value) || 1))}
+        aria-label={`${name} minutes`}
+        className="w-11 bg-transparent pl-3 text-sm tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+      />
+      <span className="flex items-center pr-2 font-mono text-[10px] tracking-wide text-muted-foreground uppercase">
+        min
+      </span>
+      <div className="flex flex-col border-l border-border">
+        <button
+          type="button"
+          aria-label={`Increase ${name.toLowerCase()} time`}
+          onClick={() => onChange(clamp(value + 5))}
+          className="flex flex-1 items-center justify-center px-1.5 text-muted-foreground transition-colors hover:text-primary"
+        >
+          <ChevronUp className="size-3.5" />
+        </button>
+        <button
+          type="button"
+          aria-label={`Decrease ${name.toLowerCase()} time`}
+          onClick={() => onChange(clamp(value - 5))}
+          className="flex flex-1 items-center justify-center border-t border-border px-1.5 text-muted-foreground transition-colors hover:text-primary"
+        >
+          <ChevronDown className="size-3.5" />
+        </button>
       </div>
-    </label>
+    </div>
   )
 }
 
@@ -521,10 +537,15 @@ const XP_BARS = [
   8, 12, 7, 15, 11, 19, 14, 24, 18, 30, 22, 38, 28, 46, 36, 56, 44, 68, 54, 82,
   66, 100,
 ]
-function XpBars() {
+function XpBars({ muted = false }: { muted?: boolean }) {
   return (
     <div
-      className="flex h-9 w-28 items-end gap-px text-green-600 dark:text-green-500"
+      className={cn(
+        'flex h-8 w-20 items-end gap-px',
+        muted
+          ? 'text-muted-foreground/50'
+          : 'text-blue-600 dark:text-blue-400',
+      )}
       aria-hidden="true"
     >
       {XP_BARS.map((h, i) => (
