@@ -73,7 +73,7 @@ const cleanTitle = (t: string) => t.replace(/\s*\([^)]*\)\s*$/, '')
 
 // The app-home hero: one compact strip to start a play/learn focus session.
 // Smart-defaulted so a returning user (or a guest) just picks and hits Start.
-export function SessionLauncher() {
+export function SessionLauncher({ onStart }: { onStart?: () => void }) {
   const guest = !useAuth().user
   const state = useAsync<LauncherTopic[]>(() =>
     guest
@@ -100,7 +100,9 @@ export function SessionLauncher() {
   )
   return (
     <AsyncView state={state}>
-      {(topics) => <LauncherForm topics={topics} guest={guest} />}
+      {(topics) => (
+        <LauncherForm topics={topics} guest={guest} onStart={onStart} />
+      )}
     </AsyncView>
   )
 }
@@ -116,9 +118,11 @@ function pickTopic(playable: LauncherTopic[]): LauncherTopic | undefined {
 function LauncherForm({
   topics,
   guest,
+  onStart,
 }: {
   topics: LauncherTopic[]
   guest: boolean
+  onStart?: () => void
 }) {
   const timer = useTimer()
   const nav = useNavigate()
@@ -188,6 +192,12 @@ function LauncherForm({
     if (!topicSlug || starting) return
     setStarting(true)
     try {
+      // In-place mission transition: hand off to the parent to morph into the
+      // mission view instead of navigating to a game/lesson route.
+      if (onStart) {
+        onStart()
+        return
+      }
       // Guests have no persistent difficulty track — the level selector is just
       // a session preference for them, so skip the server write.
       if (!guest && currentTopic && level !== currentTopic.difficulty) {
