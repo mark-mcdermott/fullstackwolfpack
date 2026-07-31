@@ -49,7 +49,7 @@ export function GuestHome() {
               'animate-out fade-out slide-out-to-top-6 fill-mode-forwards duration-[460ms]',
           )}
         >
-          <HomeHero />
+          <HomeHero onStart={startMission} />
           <SessionLauncher onStart={startMission} />
         </div>
       )}
