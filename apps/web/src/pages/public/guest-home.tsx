@@ -12,9 +12,13 @@ import {
 import { useAuth } from '@/hooks/auth-context'
 import { cn } from '@/lib/utils'
 
-// idle → exiting (launcher slides up + fades) → running (mission rises + fades in).
-type Phase = 'idle' | 'exiting' | 'running'
+// Start: idle → exiting (launcher slides up + fades) → running (mission rises in).
+// Pause: running → pausing (mission slides down + fades) → idle (launcher drops
+// back in from the top). `launcherEntering` gates that re-entry so the launcher
+// only animates back after a pause, never on first load.
+type Phase = 'idle' | 'exiting' | 'running' | 'pausing'
 const EXIT_MS = 460
+const ENTER_MS = 500
 
 // The guest front door (`/`): logged-out visitors land here — the session
 // launcher in guest mode — instead of being bounced to the marketing site.
@@ -22,24 +26,43 @@ const EXIT_MS = 460
 // carries the guest header/footer + the "sign up to save progress" banner.
 //
 // Starting a mission MORPHS the launcher into the in-place "mission in progress"
-// view (no page navigation): the launcher slides up and fades, then the mission
-// view rises and fades in. The Wolfpack shell + CreedBand stay put.
+// view (no page navigation); Pause reverses it. The Wolfpack shell + CreedBand
+// stay put throughout.
 export function GuestHome() {
   const { user, loading } = useAuth()
   const [phase, setPhase] = useState<Phase>('idle')
+  const [launcherEntering, setLauncherEntering] = useState(false)
   if (loading) return null
   if (user) return <Navigate to="/app" replace />
 
   function startMission() {
+    setLauncherEntering(false)
     setPhase('exiting')
     window.setTimeout(() => setPhase('running'), EXIT_MS)
   }
 
+  function pauseMission() {
+    setPhase('pausing')
+    window.setTimeout(() => {
+      setPhase('idle')
+      setLauncherEntering(true)
+      window.setTimeout(() => setLauncherEntering(false), ENTER_MS)
+    }, EXIT_MS)
+  }
+
+  const showMission = phase === 'running' || phase === 'pausing'
+
   return (
     <div className="flex flex-col gap-6">
-      {phase === 'running' ? (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <MissionView onPause={() => setPhase('idle')} />
+      {showMission ? (
+        <div
+          className={cn(
+            phase === 'pausing'
+              ? 'animate-out fade-out slide-out-to-bottom-6 fill-mode-forwards duration-[460ms]'
+              : 'animate-in fade-in slide-in-from-bottom-4 duration-500',
+          )}
+        >
+          <MissionView onPause={pauseMission} />
         </div>
       ) : (
         <div
@@ -47,6 +70,8 @@ export function GuestHome() {
             'flex flex-col gap-6',
             phase === 'exiting' &&
               'animate-out fade-out slide-out-to-top-6 fill-mode-forwards duration-[460ms]',
+            launcherEntering &&
+              'animate-in fade-in slide-in-from-top-6 duration-500',
           )}
         >
           <HomeHero onStart={startMission} />
