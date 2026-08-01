@@ -427,7 +427,7 @@ function LessonToc() {
                   isDone
                     ? 'text-emerald-600 dark:text-emerald-400'
                     : isCurrent
-                      ? 'text-primary'
+                      ? 'text-blue-600 dark:text-blue-400'
                       : 'text-muted-foreground/40',
                 )}
               />
