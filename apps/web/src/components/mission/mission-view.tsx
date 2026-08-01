@@ -8,7 +8,6 @@ import {
   Pause,
   Play,
   SkipForward,
-  Star,
   X,
   type LucideIcon,
 } from 'lucide-react'
@@ -17,7 +16,6 @@ import { Panel } from '@fw/ui'
 import { LessonStage } from '@/components/mission/lesson-stage'
 import { MissionGame } from '@/components/mission/mission-game'
 import { SessionProgress } from '@/components/mission/session-progress'
-import type { Difficulty } from '@/core/generation'
 import type { FocusPhase } from '@/core/focus-session'
 import { useTimer } from '@/hooks/timer-context'
 import { useMissionLessonToc } from '@/lib/mission-lesson-store'
@@ -28,12 +26,6 @@ import { cn } from '@/lib/utils'
 export { DEFAULT_SESSION } from '@/lib/mission'
 export type { MissionSession } from '@/lib/mission'
 
-const DIFF_STARS: Record<Difficulty, number> = {
-  beginner: 1,
-  intermediate: 3,
-  advanced: 5,
-}
-const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 const mmss = (sec: number) =>
   `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`
 
@@ -72,11 +64,11 @@ export function MissionView({
 
       <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
         <div className="relative min-w-0">
-          {/* The game stays mounted the whole session so its state is preserved.
-              During learn we take it out of the layout (the lesson takes the
-              stage) but keep it *rendered* — off-screen with `display:none`
-              loses the WebGL context and the game comes back black, so instead
-              it sits behind, transparent, at its natural size. */}
+          {/* Both the game and the lesson stay mounted the whole session — the
+              game so its WebGL state survives (going `display:none` loses the
+              context and it comes back black), the lesson so it keeps feeding the
+              Mission Control table of contents in both phases. The inactive one
+              sits behind, transparent, out of the layout. */}
           <div
             className={cn(
               learnPhase &&
@@ -85,7 +77,14 @@ export function MissionView({
           >
             <GameStage session={session} paused={learnPhase || paused} />
           </div>
-          {learnPhase && <LessonStage onResume={timer.skip} />}
+          <div
+            className={cn(
+              !learnPhase &&
+                'pointer-events-none absolute inset-0 -z-10 overflow-hidden opacity-0',
+            )}
+          >
+            <LessonStage onResume={timer.skip} />
+          </div>
         </div>
         <MissionControl session={session} phase={phase} onSkip={timer.skip} />
       </div>
@@ -289,7 +288,6 @@ function MissionControl({
   phase: FocusPhase | null
   onSkip: () => void
 }) {
-  const stars = DIFF_STARS[session.difficulty]
   const learn = phase === 'learn'
 
   return (
@@ -320,34 +318,9 @@ function MissionControl({
           </button>
         </div>
 
-        {learn ? (
-          <LessonToc />
-        ) : (
-          <div>
-            <Label>Now playing</Label>
-            <p className="mt-1.5 font-mono text-sm text-foreground">
-              Survive and collect the flag
-            </p>
-            <div className="mt-1.5 flex items-center gap-2">
-              <span className="font-mono text-xs font-semibold text-muted-foreground">
-                {cap(session.difficulty)}
-              </span>
-              <div className="flex gap-0.5">
-                {[0, 1, 2, 3, 4].map((i) => (
-                  <Star
-                    key={i}
-                    className={cn(
-                      'size-3.5',
-                      i < stars
-                        ? 'fill-amber-400 text-amber-400'
-                        : 'fill-transparent text-muted-foreground/40',
-                    )}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+        {/* The lesson TOC rides along in both phases — while playing it's a
+            read-only "where am I in the lesson" glance; in learn it navigates. */}
+        <LessonToc readOnly={!learn} />
 
         <div className="border-t border-border" />
 
@@ -393,8 +366,9 @@ function MissionControl({
 
 // The live lesson table of contents, fed by the embedded lesson player: each
 // section marked done / current / upcoming so you can see where you are in the
-// lesson at a glance.
-function LessonToc() {
+// lesson at a glance. Clickable to navigate during learn; read-only while
+// playing (a glance, not a control).
+function LessonToc({ readOnly = false }: { readOnly?: boolean }) {
   const toc = useMissionLessonToc()
   if (!toc) {
     return (
@@ -428,36 +402,50 @@ function LessonToc() {
           const isCurrent = i === toc.index
           const isDone = isDoneAt(i)
           const Icon = isDone ? CircleCheck : isCurrent ? CircleDot : Circle
+          const icon = (
+            <Icon
+              className={cn(
+                'mt-px size-3.5 shrink-0',
+                isDone
+                  ? 'text-emerald-600 dark:text-emerald-400'
+                  : isCurrent
+                    ? 'text-blue-600 dark:text-blue-400'
+                    : 'text-muted-foreground/40',
+              )}
+            />
+          )
+          const label = (
+            <span
+              className={cn(
+                'font-mono text-xs leading-tight transition-colors',
+                isCurrent
+                  ? 'font-semibold text-foreground'
+                  : isDone
+                    ? 'text-muted-foreground'
+                    : 'text-muted-foreground/60',
+                !readOnly && !isCurrent && 'group-hover:text-foreground',
+              )}
+            >
+              {seg.title}
+            </span>
+          )
           return (
             <li key={seg.id}>
-              <button
-                type="button"
-                onClick={() => toc.onJump(i)}
-                className="group flex w-full items-start gap-2 rounded-md py-0.5 text-left"
-              >
-                <Icon
-                  className={cn(
-                    'mt-px size-3.5 shrink-0',
-                    isDone
-                      ? 'text-emerald-600 dark:text-emerald-400'
-                      : isCurrent
-                        ? 'text-blue-600 dark:text-blue-400'
-                        : 'text-muted-foreground/40',
-                  )}
-                />
-                <span
-                  className={cn(
-                    'font-mono text-xs leading-tight transition-colors',
-                    isCurrent
-                      ? 'font-semibold text-foreground'
-                      : isDone
-                        ? 'text-muted-foreground group-hover:text-foreground'
-                        : 'text-muted-foreground/60 group-hover:text-foreground',
-                  )}
+              {readOnly ? (
+                <div className="flex w-full items-start gap-2 py-0.5">
+                  {icon}
+                  {label}
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => toc.onJump(i)}
+                  className="group flex w-full cursor-pointer items-start gap-2 rounded-md py-0.5 text-left"
                 >
-                  {seg.title}
-                </span>
-              </button>
+                  {icon}
+                  {label}
+                </button>
+              )}
             </li>
           )
         })}
