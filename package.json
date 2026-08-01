@@ -8,13 +8,11 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev -w @fw/web",
-    "dev:site": "npm run dev -w @fw/site",
-    "dev:all": "concurrently -k -n web,site -c blue,magenta \"npm run dev -w @fw/web\" \"npm run dev -w @fw/site\"",
-    "build": "npm run build -w @fw/web",
-    "preview": "npm run preview -w @fw/web",
-    "test": "npm run test -w @fw/web",
-    "test:watch": "npm run test:watch -w @fw/web",
+    "dev": "npm run dev -w @fw/site",
+    "build": "npm run build -w @fw/site",
+    "preview": "npm run preview -w @fw/site",
+    "test": "npm run test -w @fw/site",
+    "test:watch": "npm run test:watch -w @fw/site",
     "lint": "npm run lint -w @fw/web",
     "db:seed": "npm run db:seed -w @fw/web",
     "db:reset-dev": "npm run db:reset-dev -w @fw/web",
