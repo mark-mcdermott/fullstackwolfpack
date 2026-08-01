@@ -49,6 +49,29 @@ vi.mock('@/api-client', () => ({
       }),
       series: async () => ({ xpCumulative: [] }),
       topics: async () => [topic],
+      // Feeds the Topics page's "Continue" hero.
+      course: async () => ({
+        courseId: 'c1',
+        topicSlug: topic.slug,
+        status: 'ready',
+        lessons: [
+          {
+            lessonId: 'l1',
+            title: 'Components',
+            orderIndex: 0,
+            estMinutes: 20,
+            status: 'completed',
+          },
+          {
+            lessonId: 'l2',
+            title: 'Hooks',
+            orderIndex: 1,
+            estMinutes: 25,
+            status: 'not_started',
+          },
+        ],
+        nextLessonId: 'l2',
+      }),
     },
     courses: {
       generationEta: async () => ({ etaMs: 20000, samples: 0 }),
