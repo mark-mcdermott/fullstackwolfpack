@@ -36,9 +36,9 @@ export function SessionProgress() {
                     className={cn(
                       'flex size-9 items-center justify-center rounded-full border transition-colors',
                       active
-                        ? 'border-primary text-primary'
+                        ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
                         : done
-                          ? 'border-primary/60 bg-primary/10 text-primary/80'
+                          ? 'border-emerald-600/60 bg-emerald-500/10 text-emerald-600 dark:border-emerald-400/50 dark:text-emerald-400'
                           : 'border-border text-muted-foreground group-hover:border-muted-foreground',
                     )}
                   >
@@ -56,7 +56,9 @@ export function SessionProgress() {
                     <div
                       className={cn(
                         'font-mono text-[11px] tabular-nums',
-                        active ? 'text-primary' : 'text-muted-foreground',
+                        active
+                          ? 'text-blue-600 dark:text-blue-400'
+                          : 'text-muted-foreground',
                       )}
                     >
                       {formatClock(step.seconds)}
@@ -67,7 +69,9 @@ export function SessionProgress() {
                   <div
                     className={cn(
                       'mx-2 mb-6 h-px flex-1',
-                      i < timer.stepIndex ? 'bg-primary/50' : 'bg-border',
+                      i < timer.stepIndex
+                        ? 'bg-emerald-500/40'
+                        : 'bg-border',
                     )}
                   />
                 )}

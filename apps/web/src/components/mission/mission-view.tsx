@@ -407,9 +407,11 @@ function LessonToc() {
     )
   }
   const seen = new Set(toc.seen)
-  const done = toc.segments.filter(
-    (_, i) => i !== toc.index && seen.has(i),
-  ).length
+  // Done = a section you've moved past (before the current one — survives a
+  // resume via the persisted index) or one you've visited by jumping around.
+  const isDoneAt = (i: number) =>
+    i !== toc.index && (i < toc.index || seen.has(i))
+  const done = toc.segments.filter((_, i) => isDoneAt(i)).length
   return (
     <div>
       <div className="flex items-baseline justify-between gap-2">
@@ -424,7 +426,7 @@ function LessonToc() {
       <ul className="mt-2.5 flex flex-col gap-1">
         {toc.segments.map((seg, i) => {
           const isCurrent = i === toc.index
-          const isDone = !isCurrent && seen.has(i)
+          const isDone = isDoneAt(i)
           const Icon = isDone ? CircleCheck : isCurrent ? CircleDot : Circle
           return (
             <li key={seg.id}>
