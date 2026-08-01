@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Navigate } from 'react-router'
 import { SessionLauncher } from '@/components/launch/session-launcher'
 import { HomeHero } from '@/components/home/hero'
@@ -16,6 +16,7 @@ import {
 } from '@/components/home/sections'
 import { useAuth } from '@/hooks/auth-context'
 import { useTimer } from '@/hooks/timer-context'
+import { setMissionExit } from '@/lib/mission-exit-store'
 import { clearMission, loadMission, saveMission } from '@/lib/mission-store'
 import { setSessionTarget } from '@/lib/session-target'
 import { cn } from '@/lib/utils'
@@ -44,6 +45,16 @@ export function GuestHome() {
   const [session, setSession] = useState<MissionSession>(DEFAULT_SESSION)
   // The paused mission to offer resuming, if any (drives the resume card).
   const [resumable, setResumable] = useState<MissionSession | null>(null)
+  // Latest leave handler, so the header brand can exit the mission like the ✕.
+  const leaveRef = useRef<() => void>(() => {})
+
+  // Expose the "take a break" handler to chrome outside the page (the header
+  // brand) while the mission is on screen; clear it otherwise.
+  useEffect(() => {
+    if (phase !== 'running') return
+    setMissionExit(() => leaveRef.current())
+    return () => setMissionExit(null)
+  }, [phase])
 
   // The timer auto-resumes any persisted session on load. Reconcile the mission
   // view with it: mid-mission (running) → drop straight back in; paused ("took a
@@ -117,6 +128,8 @@ export function GuestHome() {
     clearMission()
     setResumable(null)
   }
+
+  leaveRef.current = leaveMission
 
   const showMission = phase === 'running' || phase === 'pausing'
 

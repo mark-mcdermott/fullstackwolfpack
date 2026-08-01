@@ -1,5 +1,5 @@
+import { Link } from 'react-router'
 import { WolfMark } from '@fw/ui'
-import { siteUrl } from '@/consts'
 // Parked while we zoom in on the core loop — restore alongside the fuller
 // footer below:
 // import { Globe } from 'lucide-react'
@@ -74,8 +74,8 @@ export function FwFooter() {
       {/* Slim brand + nav row */}
       <div className="border-t border-border">
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-5 px-5 py-6 md:flex-row md:justify-between md:px-8">
-          <a
-            href={siteUrl()}
+          <Link
+            to="/"
             aria-label="Fullstack Wolfpack home"
             className="flex items-center gap-2.5"
           >
@@ -83,7 +83,7 @@ export function FwFooter() {
             <span className="font-mono text-lg font-bold text-primary">
               ウルフパック
             </span>
-          </a>
+          </Link>
           {/* Nav links parked while we focus the flow — a status readout for now.
           <nav className="flex flex-wrap items-center justify-center gap-x-7 gap-y-2">
             {NAV.map(([label, to]) => (
@@ -108,7 +108,7 @@ export function FwFooter() {
             <span>Build v0.1.0</span>
             <span>Deployed 2h ago</span>
             <span>Env Production</span>
-            <span>&copy; 2026</span>
+            <span>&copy; {new Date().getFullYear()}</span>
           </div>
         </div>
       </div>

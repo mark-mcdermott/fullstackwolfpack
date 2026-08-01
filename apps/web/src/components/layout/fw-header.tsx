@@ -2,6 +2,7 @@ import { BookOpen, Gamepad2, Home, Signal, type LucideProps } from 'lucide-react
 import type { ComponentType } from 'react'
 import { NavLink } from 'react-router'
 import { ThemeToggle, WolfMark } from '@fw/ui'
+import { useMissionExit } from '@/lib/mission-exit-store'
 import { cn } from '@/lib/utils'
 
 // FW-01 header — a full-width bar with the wolf brand, the primary nav (icon +
@@ -22,11 +23,24 @@ const NAV: {
 ]
 
 export function FwHeader() {
+  // While a mission is on screen, clicking the brand leaves it (same as the
+  // bar's ✕ / "take a break") instead of re-navigating to the already-current
+  // route, which would do nothing and strand you in the session.
+  const missionExit = useMissionExit()
   return (
     <header className="border-b border-border bg-background">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3 sm:px-6">
         {/* Brand */}
-        <NavLink to="/" className="flex shrink-0 items-center gap-3 sm:gap-4">
+        <NavLink
+          to="/"
+          onClick={(e) => {
+            if (missionExit) {
+              e.preventDefault()
+              missionExit()
+            }
+          }}
+          className="flex shrink-0 items-center gap-3 sm:gap-4"
+        >
           <WolfMark className="h-10 text-foreground sm:h-12" />
           <span className="flex flex-col font-heading leading-[0.95]">
             <span className="text-base font-bold tracking-wide text-foreground sm:text-xl">
