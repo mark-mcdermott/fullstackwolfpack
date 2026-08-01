@@ -23,48 +23,65 @@ export function SessionProgress() {
           {timer.plan.map((step, i) => {
             const done = i < timer.stepIndex
             const active = i === timer.stepIndex
+            // Only future phases are navigable (skip ahead). Past/current phases
+            // are read-only — you can't replay a finished phase.
+            const clickable = i > timer.stepIndex
             const Icon = step.phase === 'learn' ? Code : Gamepad2
-            return (
-              <Fragment key={i}>
-                <button
-                  type="button"
-                  onClick={() => timer.jump(i)}
-                  aria-current={active ? 'step' : undefined}
-                  className="group flex shrink-0 flex-col items-center gap-1.5 text-center"
+            const node = (
+              <>
+                <span
+                  className={cn(
+                    'flex size-9 items-center justify-center rounded-full border transition-colors',
+                    active
+                      ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                      : done
+                        ? 'border-emerald-600/60 bg-emerald-500/10 text-emerald-600 dark:border-emerald-400/50 dark:text-emerald-400'
+                        : 'border-border text-muted-foreground group-hover:border-muted-foreground',
+                  )}
                 >
-                  <span
+                  <Icon className="size-4" />
+                </span>
+                <div className="leading-tight">
+                  <div
                     className={cn(
-                      'flex size-9 items-center justify-center rounded-full border transition-colors',
-                      active
-                        ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
-                        : done
-                          ? 'border-emerald-600/60 bg-emerald-500/10 text-emerald-600 dark:border-emerald-400/50 dark:text-emerald-400'
-                          : 'border-border text-muted-foreground group-hover:border-muted-foreground',
+                      'font-mono text-[11px] capitalize',
+                      active || done ? 'text-foreground' : 'text-muted-foreground',
                     )}
                   >
-                    <Icon className="size-4" />
-                  </span>
-                  <div className="leading-tight">
-                    <div
-                      className={cn(
-                        'font-mono text-[11px] capitalize',
-                        active || done ? 'text-foreground' : 'text-muted-foreground',
-                      )}
-                    >
-                      {step.phase}
-                    </div>
-                    <div
-                      className={cn(
-                        'font-mono text-[11px] tabular-nums',
-                        active
-                          ? 'text-blue-600 dark:text-blue-400'
-                          : 'text-muted-foreground',
-                      )}
-                    >
-                      {formatClock(step.seconds)}
-                    </div>
+                    {step.phase}
                   </div>
-                </button>
+                  <div
+                    className={cn(
+                      'font-mono text-[11px] tabular-nums',
+                      active
+                        ? 'text-blue-600 dark:text-blue-400'
+                        : 'text-muted-foreground',
+                    )}
+                  >
+                    {formatClock(step.seconds)}
+                  </div>
+                </div>
+              </>
+            )
+            return (
+              <Fragment key={i}>
+                {clickable ? (
+                  <button
+                    type="button"
+                    onClick={() => timer.jump(i)}
+                    aria-label={`Skip to ${step.phase}`}
+                    className="group flex shrink-0 cursor-pointer flex-col items-center gap-1.5 text-center"
+                  >
+                    {node}
+                  </button>
+                ) : (
+                  <div
+                    aria-current={active ? 'step' : undefined}
+                    className="flex shrink-0 cursor-default flex-col items-center gap-1.5 text-center"
+                  >
+                    {node}
+                  </div>
+                )}
                 {i < timer.plan.length - 1 && (
                   <div
                     className={cn(
