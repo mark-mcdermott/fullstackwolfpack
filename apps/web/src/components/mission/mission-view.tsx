@@ -172,7 +172,7 @@ function MissionBar({
 
   return (
     <Panel brackets={false} className="rounded-2xl p-0">
-      <div className="flex flex-wrap items-center gap-x-8 gap-y-4 p-4 md:px-6 md:py-5">
+      <div className="flex flex-wrap items-center gap-x-8 gap-y-4 px-4 pt-2 pb-4 md:px-6 md:pt-2.5 md:pb-5">
         <div className="flex items-center gap-4">
           <div className="text-center">
             <Label>Mission</Label>

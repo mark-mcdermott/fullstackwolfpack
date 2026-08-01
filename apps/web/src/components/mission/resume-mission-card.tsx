@@ -20,7 +20,7 @@ export function ResumeMissionCard({
           <Pause className="size-5" />
         </span>
         <div className="min-w-0 flex-1">
-          <span className="my-2 block font-mono text-[10px] leading-none font-medium tracking-widest text-primary uppercase">
+          <span className="mt-1 mb-2 block font-mono text-[10px] leading-none font-medium tracking-widest text-primary uppercase">
             Mission paused
           </span>
           <div className="font-heading text-lg font-bold tracking-wide text-foreground uppercase">
