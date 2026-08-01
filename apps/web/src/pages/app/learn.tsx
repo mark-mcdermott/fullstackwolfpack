@@ -43,10 +43,15 @@ export function LessonRoute({
   lessonId,
   guest = false,
   onExit,
+  focusMode = false,
 }: {
   lessonId: string
   guest?: boolean
   onExit?: () => void
+  // Embedded inside the mission's center stage: drops the page chrome (its own
+  // back-nav header + centering) and the guest tutor upsell so it reads as one
+  // tile in the mission, not a standalone page.
+  focusMode?: boolean
 }) {
   const state = useAsync(() =>
     guest ? api.public.lesson(lessonId) : api.data.lesson(lessonId),
@@ -54,7 +59,12 @@ export function LessonRoute({
   return (
     <AsyncView state={state}>
       {(lesson) => (
-        <LessonPlayer lesson={lesson} guest={guest} onExit={onExit} />
+        <LessonPlayer
+          lesson={lesson}
+          guest={guest}
+          onExit={onExit}
+          focusMode={focusMode}
+        />
       )}
     </AsyncView>
   )
@@ -64,10 +74,12 @@ function LessonPlayer({
   lesson,
   guest,
   onExit,
+  focusMode = false,
 }: {
   lesson: LessonView
   guest: boolean
   onExit?: () => void
+  focusMode?: boolean
 }) {
   const { user } = useAuth()
   const canTutor = user ? can(user, 'feature.ai_tutor') : false
@@ -156,37 +168,44 @@ function LessonPlayer({
   const stepPct = Math.round(((index + 1) / lesson.segments.length) * 100)
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-5">
-      <div className="flex items-center justify-between">
-        {onExit ? (
-          <button
-            type="button"
-            onClick={onExit}
-            className="inline-flex items-center gap-1 font-mono text-[10px] tracking-widest text-muted-foreground uppercase hover:text-foreground"
-          >
-            <ArrowLeft className="size-3" /> Resume game
-          </button>
-        ) : (
-          <Link
-            to={guest ? '/learn' : '/app/topics'}
-            className="inline-flex items-center gap-1 font-mono text-[10px] tracking-widest text-muted-foreground uppercase hover:text-foreground"
-          >
-            <ArrowLeft className="size-3" /> Topics
-          </Link>
-        )}
-        <div className="flex items-center gap-3">
-          {!guest && !onExit && (
-            <Link
-              to={`/app/topics/${lesson.topicSlug}/settings`}
-              aria-label="Topic settings"
-              className="text-muted-foreground transition-colors hover:text-foreground"
+    <div
+      className={cn(
+        'flex flex-col gap-5',
+        !focusMode && 'mx-auto max-w-3xl',
+      )}
+    >
+      {!focusMode && (
+        <div className="flex items-center justify-between">
+          {onExit ? (
+            <button
+              type="button"
+              onClick={onExit}
+              className="inline-flex items-center gap-1 font-mono text-[10px] tracking-widest text-muted-foreground uppercase hover:text-foreground"
             >
-              <Settings className="size-4" />
+              <ArrowLeft className="size-3" /> Resume game
+            </button>
+          ) : (
+            <Link
+              to={guest ? '/learn' : '/app/topics'}
+              className="inline-flex items-center gap-1 font-mono text-[10px] tracking-widest text-muted-foreground uppercase hover:text-foreground"
+            >
+              <ArrowLeft className="size-3" /> Topics
             </Link>
           )}
-          <Pill>{lesson.topic}</Pill>
+          <div className="flex items-center gap-3">
+            {!guest && !onExit && (
+              <Link
+                to={`/app/topics/${lesson.topicSlug}/settings`}
+                aria-label="Topic settings"
+                className="text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <Settings className="size-4" />
+              </Link>
+            )}
+            <Pill>{lesson.topic}</Pill>
+          </div>
         </div>
-      </div>
+      )}
 
       <div>
         <SectionLabel>Lesson</SectionLabel>
@@ -236,6 +255,7 @@ function LessonPlayer({
         segmentId={segment.id}
         canUse={canTutor}
         guest={guest}
+        focusMode={focusMode}
       />
 
       <div className="flex items-center justify-between">

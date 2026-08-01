@@ -61,7 +61,10 @@ export function GuestHome() {
     window.setTimeout(() => setPhase('running'), EXIT_MS)
   }
 
-  function pauseMission() {
+  // End the mission (records the session) and reverse-morph back to the launcher.
+  // In-mission Pause/Resume is handled in place by the mission bar — this is the
+  // way *out*.
+  function exitMission() {
     timer.end()
     setPhase('pausing')
     window.setTimeout(() => {
@@ -83,7 +86,7 @@ export function GuestHome() {
               : 'animate-in fade-in slide-in-from-bottom-4 duration-500',
           )}
         >
-          <MissionView session={session} onPause={pauseMission} />
+          <MissionView session={session} onExit={exitMission} />
         </div>
       ) : (
         <div
@@ -99,9 +102,9 @@ export function GuestHome() {
           <SessionLauncher onStart={startMission} />
         </div>
       )}
-      <CreedBand />
       {phase === 'idle' && (
         <>
+          <CreedBand />
           <BuiltForDevs />
           <HowItWorks />
           <ReadyToJoin />

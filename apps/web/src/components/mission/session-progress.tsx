@@ -1,0 +1,81 @@
+import { Code, Gamepad2 } from 'lucide-react'
+import { Fragment } from 'react'
+import { Panel } from '@fw/ui'
+import { formatClock } from '@/core/focus-session'
+import { useTimer } from '@/hooks/timer-context'
+import { cn } from '@/lib/utils'
+
+// The session's play↔learn plan as a horizontal rail, driven live by the timer:
+// finished phases are filled, the current one is ringed, and every node is a
+// button that jumps straight to that phase. Shared by the mission stage and the
+// learn view so the loop's spine is always in view.
+export function SessionProgress() {
+  const timer = useTimer()
+  if (!timer.active || timer.plan.length === 0) return null
+
+  return (
+    <Panel brackets={false} className="rounded-2xl p-5">
+      <span className="font-mono text-[10px] font-medium tracking-widest text-muted-foreground uppercase">
+        Session progress
+      </span>
+      <div className="mt-4 overflow-x-auto">
+        <div className="flex min-w-[34rem] items-center">
+          {timer.plan.map((step, i) => {
+            const done = i < timer.stepIndex
+            const active = i === timer.stepIndex
+            const Icon = step.phase === 'learn' ? Code : Gamepad2
+            return (
+              <Fragment key={i}>
+                <button
+                  type="button"
+                  onClick={() => timer.jump(i)}
+                  aria-current={active ? 'step' : undefined}
+                  className="group flex shrink-0 flex-col items-center gap-1.5 text-center"
+                >
+                  <span
+                    className={cn(
+                      'flex size-9 items-center justify-center rounded-full border transition-colors',
+                      active
+                        ? 'border-primary text-primary'
+                        : done
+                          ? 'border-primary/60 bg-primary/10 text-primary/80'
+                          : 'border-border text-muted-foreground group-hover:border-muted-foreground',
+                    )}
+                  >
+                    <Icon className="size-4" />
+                  </span>
+                  <div className="leading-tight">
+                    <div
+                      className={cn(
+                        'font-mono text-[11px] capitalize',
+                        active || done ? 'text-foreground' : 'text-muted-foreground',
+                      )}
+                    >
+                      {step.phase}
+                    </div>
+                    <div
+                      className={cn(
+                        'font-mono text-[11px] tabular-nums',
+                        active ? 'text-primary' : 'text-muted-foreground',
+                      )}
+                    >
+                      {formatClock(step.seconds)}
+                    </div>
+                  </div>
+                </button>
+                {i < timer.plan.length - 1 && (
+                  <div
+                    className={cn(
+                      'mx-2 mb-6 h-px flex-1',
+                      i < timer.stepIndex ? 'bg-primary/50' : 'bg-border',
+                    )}
+                  />
+                )}
+              </Fragment>
+            )
+          })}
+        </div>
+      </div>
+    </Panel>
+  )
+}
