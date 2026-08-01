@@ -1,5 +1,8 @@
 import {
   ChevronRight,
+  Circle,
+  CircleCheck,
+  CircleDot,
   Code,
   Gamepad2,
   Pause,
@@ -17,35 +20,13 @@ import { SessionProgress } from '@/components/mission/session-progress'
 import type { Difficulty } from '@/core/generation'
 import type { FocusPhase } from '@/core/focus-session'
 import { useTimer } from '@/hooks/timer-context'
+import { useMissionLessonToc } from '@/lib/mission-lesson-store'
+import { type MissionSession } from '@/lib/mission'
 import { ROM_CATALOG } from '@/lib/rom-catalog'
 import { cn } from '@/lib/utils'
 
-// The chosen session, handed over by the launcher (or the hero's quick-start).
-export type MissionSession = {
-  gameId: string
-  gameTitle: string
-  skillName: string
-  topicSlug: string
-  difficulty: Difficulty
-  playMinutes: number
-  learnMinutes: number
-  learnFirst: boolean
-  estimatedXp: number
-}
-
-// The hero "Start your first mission" quick-start uses these (mirrors the guest
-// launcher's defaults) when no explicit selection is handed over.
-export const DEFAULT_SESSION: MissionSession = {
-  gameId: 'tobu-tobu-girl',
-  gameTitle: 'Tobu Tobu Girl',
-  skillName: 'JavaScript',
-  topicSlug: 'javascript',
-  difficulty: 'intermediate',
-  playMinutes: 25,
-  learnMinutes: 5,
-  learnFirst: false,
-  estimatedXp: 240,
-}
+export { DEFAULT_SESSION } from '@/lib/mission'
+export type { MissionSession } from '@/lib/mission'
 
 const DIFF_STARS: Record<Difficulty, number> = {
   beginner: 1,
@@ -250,8 +231,8 @@ function MissionBar({
           <BarButton
             icon={X}
             onClick={onExit}
-            ariaLabel="End session"
-            className="px-2.5 text-muted-foreground hover:border-destructive hover:text-destructive"
+            ariaLabel="Take a break — resume later"
+            className="px-2.5 text-muted-foreground"
           />
         </div>
       </div>
@@ -339,38 +320,34 @@ function MissionControl({
           </button>
         </div>
 
-        <div>
-          <Label>{learn ? 'Now learning' : 'Now playing'}</Label>
-          {learn ? (
+        {learn ? (
+          <LessonToc />
+        ) : (
+          <div>
+            <Label>Now playing</Label>
             <p className="mt-1.5 font-mono text-sm text-foreground">
-              {session.skillName} lesson in progress
+              Survive and collect the flag
             </p>
-          ) : (
-            <>
-              <p className="mt-1.5 font-mono text-sm text-foreground">
-                Survive and collect the flag
-              </p>
-              <div className="mt-1.5 flex items-center gap-2">
-                <span className="font-mono text-xs font-semibold text-muted-foreground">
-                  {cap(session.difficulty)}
-                </span>
-                <div className="flex gap-0.5">
-                  {[0, 1, 2, 3, 4].map((i) => (
-                    <Star
-                      key={i}
-                      className={cn(
-                        'size-3.5',
-                        i < stars
-                          ? 'fill-amber-400 text-amber-400'
-                          : 'fill-transparent text-muted-foreground/40',
-                      )}
-                    />
-                  ))}
-                </div>
+            <div className="mt-1.5 flex items-center gap-2">
+              <span className="font-mono text-xs font-semibold text-muted-foreground">
+                {cap(session.difficulty)}
+              </span>
+              <div className="flex gap-0.5">
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <Star
+                    key={i}
+                    className={cn(
+                      'size-3.5',
+                      i < stars
+                        ? 'fill-amber-400 text-amber-400'
+                        : 'fill-transparent text-muted-foreground/40',
+                    )}
+                  />
+                ))}
               </div>
-            </>
-          )}
-        </div>
+            </div>
+          </div>
+        )}
 
         <div className="border-t border-border" />
 
@@ -407,6 +384,70 @@ function MissionControl({
         </div>
       </div>
     </Panel>
+  )
+}
+
+// The live lesson table of contents, fed by the embedded lesson player: each
+// section marked done / current / upcoming so you can see where you are in the
+// lesson at a glance.
+function LessonToc() {
+  const toc = useMissionLessonToc()
+  if (!toc) {
+    return (
+      <div>
+        <Label>This lesson</Label>
+        <p className="mt-1.5 font-mono text-sm text-muted-foreground">
+          Loading sections…
+        </p>
+      </div>
+    )
+  }
+  const done = toc.segments.filter((_, i) => i < toc.index).length
+  return (
+    <div>
+      <div className="flex items-baseline justify-between gap-2">
+        <Label>This lesson</Label>
+        <span className="font-mono text-[10px] tabular-nums text-muted-foreground">
+          {done}/{toc.segments.length}
+        </span>
+      </div>
+      <p className="mt-1.5 font-heading text-sm font-bold text-foreground">
+        {toc.title}
+      </p>
+      <ul className="mt-2.5 flex flex-col gap-2">
+        {toc.segments.map((seg, i) => {
+          const isDone = i < toc.index
+          const isCurrent = i === toc.index
+          const Icon = isDone ? CircleCheck : isCurrent ? CircleDot : Circle
+          return (
+            <li key={seg.id} className="flex items-start gap-2">
+              <Icon
+                className={cn(
+                  'mt-px size-3.5 shrink-0',
+                  isDone
+                    ? 'text-primary'
+                    : isCurrent
+                      ? 'text-primary'
+                      : 'text-muted-foreground/40',
+                )}
+              />
+              <span
+                className={cn(
+                  'font-mono text-xs leading-tight',
+                  isCurrent
+                    ? 'font-semibold text-foreground'
+                    : isDone
+                      ? 'text-muted-foreground'
+                      : 'text-muted-foreground/60',
+                )}
+              >
+                {seg.title}
+              </span>
+            </li>
+          )
+        })}
+      </ul>
+    </div>
   )
 }
 

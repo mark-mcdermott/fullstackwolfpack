@@ -22,6 +22,12 @@ import {
   completeLessonGuest,
   guestCompletedLessonIds,
 } from '@/lib/guest-progress'
+import {
+  clearLessonProgress,
+  loadLessonProgress,
+  saveLessonProgress,
+} from '@/lib/lesson-progress-store'
+import { setMissionLessonToc } from '@/lib/mission-lesson-store'
 import { cn } from '@/lib/utils'
 
 // The lesson player: steps through a lesson's segments one at a time (bite-sized, for
@@ -83,12 +89,40 @@ function LessonPlayer({
 }) {
   const { user } = useAuth()
   const canTutor = user ? can(user, 'feature.ai_tutor') : false
-  const [index, setIndex] = useState(0)
-  const [correctById, setCorrectById] = useState<Record<string, boolean>>({})
-  const [quizXp, setQuizXp] = useState(0)
+  // Restore mid-lesson position (segment + answers) so leaving and coming back
+  // resumes here instead of restarting. Keyed by lesson; cleared on completion.
+  const [index, setIndex] = useState(
+    () => loadLessonProgress(lesson.lessonId)?.index ?? 0,
+  )
+  const [correctById, setCorrectById] = useState<Record<string, boolean>>(
+    () => loadLessonProgress(lesson.lessonId)?.correctById ?? {},
+  )
+  const [quizXp, setQuizXp] = useState(
+    () => loadLessonProgress(lesson.lessonId)?.quizXp ?? 0,
+  )
   const [completion, setCompletion] = useState<LessonCompletion | null>(null)
   const [completing, setCompleting] = useState(false)
   const [linkify, setLinkify] = useState(false)
+
+  // Mirror position to localStorage as it changes (survives refresh / break).
+  useEffect(() => {
+    saveLessonProgress(lesson.lessonId, { index, correctById, quizXp })
+  }, [lesson.lessonId, index, correctById, quizXp])
+
+  // Feed the mission's Mission Control a live table of contents while embedded.
+  useEffect(() => {
+    if (!focusMode) return
+    setMissionLessonToc({
+      title: lesson.title,
+      segments: lesson.segments.map((s) => ({
+        id: s.id,
+        title: s.title,
+        type: s.type,
+      })),
+      index,
+    })
+  }, [focusMode, lesson, index])
+  useEffect(() => () => setMissionLessonToc(null), [])
 
   // Hyperlink key terms only when the reader opted in (global lesson pref).
   // Guests have no server prefs — default off.
@@ -141,6 +175,8 @@ function LessonPlayer({
       })
     } finally {
       setCompleting(false)
+      // The lesson is done — drop its saved position so it doesn't resume mid-way.
+      clearLessonProgress(lesson.lessonId)
     }
   }
 
