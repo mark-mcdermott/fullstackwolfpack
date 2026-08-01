@@ -20,7 +20,7 @@ export function ResumeMissionCard({
           <Pause className="size-5" />
         </span>
         <div className="min-w-0 flex-1">
-          <span className="font-mono text-[10px] font-medium tracking-widest text-primary uppercase">
+          <span className="my-2 block font-mono text-[10px] leading-none font-medium tracking-widest text-primary uppercase">
             Mission paused
           </span>
           <div className="font-heading text-lg font-bold tracking-wide text-foreground uppercase">
@@ -42,7 +42,7 @@ export function ResumeMissionCard({
           <button
             type="button"
             onClick={onDiscard}
-            className="font-mono text-[11px] tracking-widest text-muted-foreground uppercase transition-colors hover:text-foreground"
+            className="inline-flex h-11 items-center rounded-lg border border-border px-4 font-mono text-xs font-semibold tracking-widest text-muted-foreground uppercase transition-colors hover:border-foreground hover:text-foreground"
           >
             End
           </button>
