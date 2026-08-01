@@ -204,6 +204,7 @@ function LauncherForm({
           gameId,
           gameTitle: currentGame ? cleanTitle(currentGame.title) : gameId,
           skillName: currentTopic?.name ?? '',
+          topicSlug,
           difficulty: level,
           playMinutes,
           learnMinutes,

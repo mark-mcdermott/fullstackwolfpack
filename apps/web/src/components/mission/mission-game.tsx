@@ -16,7 +16,13 @@ type Status = 'loading' | 'playing' | 'missing' | 'error'
 // Mounts the emulator canvas for a ROM — the lean core of RomPlayer without its
 // full-page chrome — centered at the game's aspect. Keyboard-playable on desktop;
 // on touch devices an on-screen gamepad (TouchControls) drives the same session.
-export function MissionGame({ rom }: { rom: PlayableRom }) {
+export function MissionGame({
+  rom,
+  paused,
+}: {
+  rom: PlayableRom
+  paused: boolean
+}) {
   const containerRef = useRef<HTMLDivElement>(null)
   const sessionRef = useRef<EmulatorSession | null>(null)
   const [status, setStatus] = useState<Status>('loading')
@@ -78,6 +84,20 @@ export function MissionGame({ rom }: { rom: PlayableRom }) {
     }
   }, [rom])
 
+  // Pause the emulator while the lesson (learn phase) is up; resume after.
+  // The core's pause/resume can throw inside the WASM runtime; swallow it so a
+  // toggle hiccup never unmounts the mission view (it runs in an effect).
+  useEffect(() => {
+    const session = sessionRef.current
+    if (!session || status !== 'playing') return
+    try {
+      if (paused) session.pause()
+      else session.resume()
+    } catch {
+      // Core-level pause/resume failure — the lesson overlay hides the game anyway.
+    }
+  }, [paused, status])
+
   return (
     <div className="flex w-full flex-col items-center gap-4">
       <div className="relative aspect-[10/9] w-full max-w-[42rem] overflow-hidden rounded-md border border-white/10 bg-black">
@@ -94,7 +114,7 @@ export function MissionGame({ rom }: { rom: PlayableRom }) {
           </div>
         )}
       </div>
-      {coarse && status === 'playing' && (
+      {coarse && status === 'playing' && !paused && (
         <TouchControls system={rom.system} onDown={pressDown} onUp={pressUp} />
       )}
     </div>

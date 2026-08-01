@@ -14,6 +14,8 @@ import {
   ReadyToJoin,
 } from '@/components/home/sections'
 import { useAuth } from '@/hooks/auth-context'
+import { useTimer } from '@/hooks/timer-context'
+import { setSessionTarget } from '@/lib/session-target'
 import { cn } from '@/lib/utils'
 
 // Start: idle → exiting (launcher slides up + fades) → running (mission rises in).
@@ -34,6 +36,7 @@ const ENTER_MS = 500
 // chosen session; the hero's quick-start uses the defaults.
 export function GuestHome() {
   const { user, loading } = useAuth()
+  const timer = useTimer()
   const [phase, setPhase] = useState<Phase>('idle')
   const [launcherEntering, setLauncherEntering] = useState(false)
   const [session, setSession] = useState<MissionSession>(DEFAULT_SESSION)
@@ -41,13 +44,25 @@ export function GuestHome() {
   if (user) return <Navigate to="/app" replace />
 
   function startMission(next?: MissionSession) {
-    setSession(next ?? DEFAULT_SESSION)
+    const s = next ?? DEFAULT_SESSION
+    setSession(s)
+    // Set the target the lesson overlay reads, and start the real play↔learn
+    // timer so the mission bar counts down and 0:00 flips to the learn phase.
+    setSessionTarget({ gameId: s.gameId, topicSlug: s.topicSlug })
+    timer.start({
+      playMinutes: s.playMinutes,
+      learnMinutes: s.learnMinutes,
+      rounds: 3,
+      startPhase: s.learnFirst ? 'learn' : 'play',
+      loop: true,
+    })
     setLauncherEntering(false)
     setPhase('exiting')
     window.setTimeout(() => setPhase('running'), EXIT_MS)
   }
 
   function pauseMission() {
+    timer.end()
     setPhase('pausing')
     window.setTimeout(() => {
       setPhase('idle')
