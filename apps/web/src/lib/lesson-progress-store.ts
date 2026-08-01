@@ -11,6 +11,9 @@ const entrySchema = z.object({
   index: z.number().int().min(0),
   correctById: z.record(z.string(), z.boolean()),
   quizXp: z.number(),
+  // Sections the learner has visited — kept so done/upcoming styling in the
+  // mission TOC survives a break even after jumping around.
+  seen: z.array(z.number().int().min(0)).optional(),
 })
 const storeSchema = z.record(z.string(), entrySchema)
 

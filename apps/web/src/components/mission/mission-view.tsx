@@ -406,7 +406,10 @@ function LessonToc() {
       </div>
     )
   }
-  const done = toc.segments.filter((_, i) => i < toc.index).length
+  const seen = new Set(toc.seen)
+  const done = toc.segments.filter(
+    (_, i) => i !== toc.index && seen.has(i),
+  ).length
   return (
     <div>
       <div className="flex items-baseline justify-between gap-2">
@@ -418,35 +421,41 @@ function LessonToc() {
       <p className="mt-1.5 font-heading text-sm font-bold text-foreground">
         {toc.title}
       </p>
-      <ul className="mt-2.5 flex flex-col gap-2">
+      <ul className="mt-2.5 flex flex-col gap-1">
         {toc.segments.map((seg, i) => {
-          const isDone = i < toc.index
           const isCurrent = i === toc.index
+          const isDone = !isCurrent && seen.has(i)
           const Icon = isDone ? CircleCheck : isCurrent ? CircleDot : Circle
           return (
-            <li key={seg.id} className="flex items-start gap-2">
-              <Icon
-                className={cn(
-                  'mt-px size-3.5 shrink-0',
-                  isDone
-                    ? 'text-emerald-600 dark:text-emerald-400'
-                    : isCurrent
-                      ? 'text-blue-600 dark:text-blue-400'
-                      : 'text-muted-foreground/40',
-                )}
-              />
-              <span
-                className={cn(
-                  'font-mono text-xs leading-tight',
-                  isCurrent
-                    ? 'font-semibold text-foreground'
-                    : isDone
-                      ? 'text-muted-foreground'
-                      : 'text-muted-foreground/60',
-                )}
+            <li key={seg.id}>
+              <button
+                type="button"
+                onClick={() => toc.onJump(i)}
+                className="group flex w-full items-start gap-2 rounded-md py-0.5 text-left"
               >
-                {seg.title}
-              </span>
+                <Icon
+                  className={cn(
+                    'mt-px size-3.5 shrink-0',
+                    isDone
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : isCurrent
+                        ? 'text-blue-600 dark:text-blue-400'
+                        : 'text-muted-foreground/40',
+                  )}
+                />
+                <span
+                  className={cn(
+                    'font-mono text-xs leading-tight transition-colors',
+                    isCurrent
+                      ? 'font-semibold text-foreground'
+                      : isDone
+                        ? 'text-muted-foreground group-hover:text-foreground'
+                        : 'text-muted-foreground/60 group-hover:text-foreground',
+                  )}
+                >
+                  {seg.title}
+                </span>
+              </button>
             </li>
           )
         })}

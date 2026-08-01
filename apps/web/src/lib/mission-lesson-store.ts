@@ -10,6 +10,10 @@ export type MissionLessonToc = {
   title: string
   segments: { id: string; title: string; type: string }[]
   index: number
+  // Indices the learner has visited (for done/upcoming styling under free jumps).
+  seen: number[]
+  // Jump the lesson player straight to a section (any direction).
+  onJump: (index: number) => void
 }
 
 let snapshot: MissionLessonToc | null = null

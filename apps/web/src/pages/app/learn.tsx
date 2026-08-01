@@ -100,16 +100,32 @@ function LessonPlayer({
   const [quizXp, setQuizXp] = useState(
     () => loadLessonProgress(lesson.lessonId)?.quizXp ?? 0,
   )
+  // Sections visited — so the TOC can mark done vs upcoming correctly even when
+  // the learner jumps around via the table of contents.
+  const [seen, setSeen] = useState<Set<number>>(() => {
+    const r = loadLessonProgress(lesson.lessonId)
+    return new Set(r?.seen ?? [r?.index ?? 0])
+  })
   const [completion, setCompletion] = useState<LessonCompletion | null>(null)
   const [completing, setCompleting] = useState(false)
   const [linkify, setLinkify] = useState(false)
 
+  useEffect(() => {
+    setSeen((prev) => (prev.has(index) ? prev : new Set(prev).add(index)))
+  }, [index])
+
   // Mirror position to localStorage as it changes (survives refresh / break).
   useEffect(() => {
-    saveLessonProgress(lesson.lessonId, { index, correctById, quizXp })
-  }, [lesson.lessonId, index, correctById, quizXp])
+    saveLessonProgress(lesson.lessonId, {
+      index,
+      correctById,
+      quizXp,
+      seen: [...seen],
+    })
+  }, [lesson.lessonId, index, correctById, quizXp, seen])
 
-  // Feed the mission's Mission Control a live table of contents while embedded.
+  // Feed the mission's Mission Control a live table of contents while embedded —
+  // including a jump callback so its sections can navigate the lesson.
   useEffect(() => {
     if (!focusMode) return
     setMissionLessonToc({
@@ -120,8 +136,10 @@ function LessonPlayer({
         type: s.type,
       })),
       index,
+      seen: [...seen],
+      onJump: setIndex,
     })
-  }, [focusMode, lesson, index])
+  }, [focusMode, lesson, index, seen])
   useEffect(() => () => setMissionLessonToc(null), [])
 
   // Hyperlink key terms only when the reader opted in (global lesson pref).
@@ -184,6 +202,7 @@ function LessonPlayer({
     setIndex(0)
     setCorrectById({})
     setQuizXp(0)
+    setSeen(new Set([0]))
     setCompletion(null)
   }
 
