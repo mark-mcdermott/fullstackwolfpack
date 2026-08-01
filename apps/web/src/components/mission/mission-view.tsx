@@ -425,7 +425,7 @@ function LessonToc() {
                 className={cn(
                   'mt-px size-3.5 shrink-0',
                   isDone
-                    ? 'text-primary'
+                    ? 'text-emerald-600 dark:text-emerald-400'
                     : isCurrent
                       ? 'text-primary'
                       : 'text-muted-foreground/40',
