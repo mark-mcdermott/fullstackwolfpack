@@ -1,14 +1,17 @@
+import type { APIRoute } from 'astro'
+export const prerender = false
+
 import { eq } from 'drizzle-orm'
-import { db } from '../../../src/db'
-import { users } from '../../../src/db/schema'
-import { generateTotpSecret, totpAuthUri } from '../../../src/lib/auth'
-import { sealSecret } from '../../../src/server/crypto'
+import { db } from '@/db'
+import { users } from '@/db/schema'
+import { generateTotpSecret, totpAuthUri } from '@/lib/auth'
+import { sealSecret } from '@/server/crypto'
 import { json } from '../../_lib/http'
 import { getSessionUserId } from '../../_lib/session'
 
 // Authed. Mint a secret and store it as pending (not enabled until confirmed).
 // Returns the otpauth URI for a QR code plus the base32 secret for manual entry.
-export async function POST(req: Request): Promise<Response> {
+export const POST: APIRoute = async ({ request: req }) => {
   const userId = await getSessionUserId(req)
   if (!userId) return json({ error: 'unauthorized' }, { status: 401 })
 

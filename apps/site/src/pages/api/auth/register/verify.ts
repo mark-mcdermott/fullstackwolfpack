@@ -1,12 +1,15 @@
+import type { APIRoute } from 'astro'
+export const prerender = false
+
 import {
   verifyRegistrationResponse,
   type RegistrationResponseJSON,
 } from '@simplewebauthn/server'
 import { eq } from 'drizzle-orm'
-import { passkeyVerifyRequest } from '../../../src/core/schemas'
-import { db } from '../../../src/db'
-import { credentials, users, webauthnChallenges } from '../../../src/db/schema'
-import { origin, requireUserVerification, rpID } from '../../../src/lib/auth'
+import { passkeyVerifyRequest } from '@/core/schemas'
+import { db } from '@/db'
+import { credentials, users, webauthnChallenges } from '@/db/schema'
+import { origin, requireUserVerification, rpID } from '@/lib/auth'
 import { json } from '../../_lib/http'
 import { createSessionCookie } from '../../_lib/session'
 import { publicUser } from '../../_lib/user'
@@ -14,7 +17,7 @@ import { parseBody } from '../../_lib/validate'
 
 // Step 2 of registration: verify the signed attestation, store the public key,
 // and start a session.
-export async function POST(req: Request): Promise<Response> {
+export const POST: APIRoute = async ({ request: req }) => {
   const parsed = await parseBody(passkeyVerifyRequest, req)
   if (!parsed.ok) return parsed.response
   const { email } = parsed.data

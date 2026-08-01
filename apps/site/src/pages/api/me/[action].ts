@@ -1,18 +1,21 @@
+import type { APIRoute } from 'astro'
+export const prerender = false
+
 import { eq } from 'drizzle-orm'
 import {
   answerRequestSchema,
   completeRequestSchema,
-} from '../../src/core/lesson-view'
-import { can } from '../../src/core/access'
-import { reviewGradeRequestSchema } from '../../src/core/review-view'
-import { tutorRequestSchema } from '../../src/core/tutor'
-import { playtimeRecordRequest } from '../../src/core/playtime'
-import { leaderboardOptInRequest } from '../../src/core/leaderboard'
+} from '@/core/lesson-view'
+import { can } from '@/core/access'
+import { reviewGradeRequestSchema } from '@/core/review-view'
+import { tutorRequestSchema } from '@/core/tutor'
+import { playtimeRecordRequest } from '@/core/playtime'
+import { leaderboardOptInRequest } from '@/core/leaderboard'
 import {
   friendRequestBody,
   friendRespondBody,
   sendMessageBody,
-} from '../../src/core/social'
+} from '@/core/social'
 import {
   adminUpdateRequest,
   anthropicKeyRequest,
@@ -23,9 +26,9 @@ import {
   setDifficultyRequest,
   tailorRequest,
   userPreferencesPatch,
-} from '../../src/core/schemas'
-import { db } from '../../src/db'
-import { topics, users } from '../../src/db/schema'
+} from '@/core/schemas'
+import { db } from '@/db'
+import { topics, users } from '@/db/schema'
 import {
   getAchievementsView,
   getActivity,
@@ -35,22 +38,22 @@ import {
   getTopicsView,
   getUserSummary,
   updateUserAccess,
-} from '../../src/server/app-data'
+} from '@/server/app-data'
 import {
   BillingNotConfiguredError,
   createBillingPortalUrl,
   createCheckoutUrl,
   handleStripeWebhook,
-} from '../../src/server/billing'
-import { enrollAndGenerate } from '../../src/server/enroll'
-import { recordFocusSession } from '../../src/server/focus'
-import { getPlaytime, recordPlaytime } from '../../src/server/playtime'
+} from '@/server/billing'
+import { enrollAndGenerate } from '@/server/enroll'
+import { recordFocusSession } from '@/server/focus'
+import { getPlaytime, recordPlaytime } from '@/server/playtime'
 import {
   getLeaderboard,
   getPublicLeaderboard,
   setLeaderboardOptIn,
-} from '../../src/server/leaderboard'
-import { getGenerationEta } from '../../src/server/generation-timing'
+} from '@/server/leaderboard'
+import { getGenerationEta } from '@/server/generation-timing'
 import {
   getConversation,
   getFriendsView,
@@ -59,23 +62,23 @@ import {
   sendFriendRequest,
   sendMessage,
   touchPresence,
-} from '../../src/server/social'
+} from '@/server/social'
 import {
   createUserTokenRequest,
   isRealtimeEnabled,
   publishToUser,
-} from '../../src/server/realtime'
+} from '@/server/realtime'
 import {
   getPublicCourseOutline,
   getPublicLessonView,
   getPublicTopics,
   gradeQuestionPublic,
-} from '../../src/server/public-learning'
+} from '@/server/public-learning'
 import {
   hasOpenAiKey,
   saveOpenAiKey,
-} from '../../src/server/provider-credentials'
-import { hasProviderKey, saveProviderKey } from '../../src/server/provider'
+} from '@/server/provider-credentials'
+import { hasProviderKey, saveProviderKey } from '@/server/provider'
 import {
   completeLesson,
   getCourseOutline,
@@ -83,15 +86,15 @@ import {
   importGuestProgress,
   resetTopicProgress,
   submitAnswer,
-} from '../../src/server/learning'
-import { importProgressRequest } from '../../src/core/public-content'
-import { getAdaptiveState } from '../../src/server/adaptive'
-import { getTopicTracks, setActiveDifficulty } from '../../src/server/tracks'
-import { tailorCourse } from '../../src/server/tailor'
-import { getPreferences, savePreferences } from '../../src/server/preferences'
-import { generateDiagnostic } from '../../src/server/diagnostic'
-import { runTutor } from '../../src/server/tutor'
-import { getDueReviews, gradeReview } from '../../src/server/review'
+} from '@/server/learning'
+import { importProgressRequest } from '@/core/public-content'
+import { getAdaptiveState } from '@/server/adaptive'
+import { getTopicTracks, setActiveDifficulty } from '@/server/tracks'
+import { tailorCourse } from '@/server/tailor'
+import { getPreferences, savePreferences } from '@/server/preferences'
+import { generateDiagnostic } from '@/server/diagnostic'
+import { runTutor } from '@/server/tutor'
+import { getDueReviews, gradeReview } from '@/server/review'
 import { json } from '../_lib/http'
 import { getSessionUserId } from '../_lib/session'
 import { parseBody } from '../_lib/validate'
@@ -113,7 +116,7 @@ async function requireAdmin(userId: string): Promise<Response | null> {
   return null
 }
 
-export async function GET(req: Request): Promise<Response> {
+export const GET: APIRoute = async ({ request: req }) => {
   // Public (guest) reads over built-in content — served before the session gate.
   switch (action(req)) {
     case 'public-topics':
@@ -308,7 +311,7 @@ async function stripeWebhook(req: Request): Promise<Response> {
   }
 }
 
-export async function POST(req: Request): Promise<Response> {
+export const POST: APIRoute = async ({ request: req }) => {
   // Dev Mode role switcher (off unless VITE_ENABLE_DEV_MODE=1). Unauthenticated
   // — it mints the session — so it runs before the auth gate below.
   if (action(req) === 'become') return devBecome(req)

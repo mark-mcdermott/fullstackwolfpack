@@ -6,13 +6,13 @@
 // with NO authentication — anyone who can reach it can become admin. It stays
 // 404 unless devModeEnabled() returns true, so a plain production deploy (no
 // flag) never exposes it and never creates a test user.
-import { db } from '../../src/db'
-import { users } from '../../src/db/schema'
+import { db } from '@/db'
+import { users } from '@/db/schema'
 import {
   DEV_ROLE_ACCESS,
   isDevLoginRole,
   type DevLoginRole,
-} from '../../src/core/dev-mode'
+} from '@/core/dev-mode'
 import { json } from './http'
 import { createSessionCookie } from './session'
 
