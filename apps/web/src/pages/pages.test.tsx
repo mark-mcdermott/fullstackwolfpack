@@ -145,9 +145,16 @@ describe('app pages render', () => {
     renderPage(<TopicsPage />)
     expect(await screen.findByText('React')).toBeInTheDocument()
   })
-  it('arcade shows the game gallery', () => {
+  it('arcade features the single title with its play CTA and the loop', () => {
     renderPage(<ArcadePage />)
-    expect(screen.getByText('Add your ROM')).toBeInTheDocument()
+    // TEMP (single-title focus): the featured hero stands in for the gallery —
+    // assert the lanes again when they come back.
+    expect(screen.getByText('Tobu Tobu Girl')).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Play Tobu Tobu Girl' }),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/how the loop works/i)).toBeInTheDocument()
+    expect(screen.getByText('gambatte')).toBeInTheDocument() // about-this-ROM facts
   })
   it('credits lists bundled games', () => {
     renderPage(<CreditsPage />)

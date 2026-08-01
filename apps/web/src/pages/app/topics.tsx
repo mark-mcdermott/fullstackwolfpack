@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import { api } from '@/api-client'
 import { AsyncView, EmptyState } from '@/components/layout/async-view'
+import { CourseHero } from '@/components/learn/course-hero'
 import { IntakeDialog } from '@/components/topics/intake-dialog'
 import { PageHeading, Panel, ProgressMeter } from '@fw/ui'
 import { DIFFICULTIES } from '@/core/adaptive'
@@ -221,6 +222,41 @@ function TopicCard({
   )
 }
 
+// The course to resume: one already underway, else the first with lessons.
+function pickFeatured(topics: TopicProgress[]): TopicProgress | undefined {
+  return (
+    topics.find(
+      (t) => t.lessonsCompleted > 0 && t.lessonsCompleted < t.lessonsTotal,
+    ) ?? topics.find((t) => t.lessonsTotal > 0)
+  )
+}
+
+// "Pick up where you left off" — the same featured-course hero the guest Learn
+// page opens with, over the user's own course. Renders nothing until the
+// outline is in (the catalog below is the page's real content).
+function ContinueCourse({ topic }: { topic: TopicProgress }) {
+  const state = useAsync(() => api.data.course(topic.slug))
+  const outline = state.data
+  if (!outline || outline.lessons.length === 0) return null
+
+  const completedIds = new Set(
+    outline.lessons
+      .filter((l) => l.status === 'completed')
+      .map((l) => l.lessonId),
+  )
+  return (
+    <div className="mb-6">
+      <CourseHero
+        eyebrow="Continue"
+        topic={topic}
+        lessons={outline.lessons}
+        completedIds={completedIds}
+        hrefFor={(lessonId) => `/app/learn/${lessonId}`}
+      />
+    </div>
+  )
+}
+
 export function TopicsPage() {
   const [tab, setTab] = useState<string | null>(null)
   const [q, setQ] = useState('')
@@ -232,6 +268,7 @@ export function TopicsPage() {
     askCoverage: false,
   })
   const state = useAsync(() => api.data.topics())
+  const featured = state.data ? pickFeatured(state.data) : undefined
 
   // Prefetch the generation ETA (progress bar) + the user's intake preferences
   // (whether to run the pre-generation skill/coverage step). Both degrade to off.
@@ -260,10 +297,11 @@ export function TopicsPage() {
   return (
     <div>
       <PageHeading
-        label="Topics"
+        label="Learn"
         title="Topics"
         subtitle="Explore topics, track your progress, and master new skills."
       />
+      {featured && <ContinueCourse key={featured.slug} topic={featured} />}
       <div className="mb-4 flex items-center gap-2 border border-border px-3">
         <Search className="size-4 text-muted-foreground" />
         <input
