@@ -6,7 +6,9 @@ import { Panel } from '@fw/ui'
 // Theme-aware (bg-card / border / foreground tokens flip light↔dark); the
 // skyline photo stays dark in both themes with a `from-card` gradient fading it
 // into the card so the copy reads.
-export function HomeHero() {
+export function HomeHero({ onStart }: { onStart?: () => void }) {
+  const ctaClass =
+    'inline-flex h-11 w-fit items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-xs font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90'
   return (
     <section className="grid gap-6 lg:grid-cols-[1fr_21rem]">
       {/* Splash card */}
@@ -40,13 +42,17 @@ export function HomeHero() {
             </div>
           </div>
 
-          <a
-            href="#start-session"
-            className="inline-flex h-11 w-fit items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-xs font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90"
-          >
-            Start your first mission
-            <ArrowRight className="size-4" />
-          </a>
+          {onStart ? (
+            <button type="button" onClick={() => onStart()} className={ctaClass}>
+              Start your first mission
+              <ArrowRight className="size-4" />
+            </button>
+          ) : (
+            <a href="#start-session" className={ctaClass}>
+              Start your first mission
+              <ArrowRight className="size-4" />
+            </a>
+          )}
         </div>
       </Panel>
 

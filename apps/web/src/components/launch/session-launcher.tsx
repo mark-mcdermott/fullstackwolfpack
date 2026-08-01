@@ -15,6 +15,7 @@ import { api } from '@/api-client'
 import { AsyncView } from '@/components/layout/async-view'
 import { SkillIcon } from '@/components/launch/skill-icon'
 import { Panel, SectionLabel } from '@fw/ui'
+import type { MissionSession } from '@/components/mission/mission-view'
 import type { Difficulty } from '@/core/generation'
 import { EMBED_CATALOG } from '@/lib/embed-catalog'
 import { guestNextLessonPath, nextLessonPath } from '@/lib/open-course'
@@ -73,7 +74,11 @@ const cleanTitle = (t: string) => t.replace(/\s*\([^)]*\)\s*$/, '')
 
 // The app-home hero: one compact strip to start a play/learn focus session.
 // Smart-defaulted so a returning user (or a guest) just picks and hits Start.
-export function SessionLauncher() {
+export function SessionLauncher({
+  onStart,
+}: {
+  onStart?: (session: MissionSession) => void
+}) {
   const guest = !useAuth().user
   const state = useAsync<LauncherTopic[]>(() =>
     guest
@@ -100,7 +105,9 @@ export function SessionLauncher() {
   )
   return (
     <AsyncView state={state}>
-      {(topics) => <LauncherForm topics={topics} guest={guest} />}
+      {(topics) => (
+        <LauncherForm topics={topics} guest={guest} onStart={onStart} />
+      )}
     </AsyncView>
   )
 }
@@ -116,9 +123,11 @@ function pickTopic(playable: LauncherTopic[]): LauncherTopic | undefined {
 function LauncherForm({
   topics,
   guest,
+  onStart,
 }: {
   topics: LauncherTopic[]
   guest: boolean
+  onStart?: (session: MissionSession) => void
 }) {
   const timer = useTimer()
   const nav = useNavigate()
@@ -188,6 +197,21 @@ function LauncherForm({
     if (!topicSlug || starting) return
     setStarting(true)
     try {
+      // In-place mission transition: hand the chosen session to the parent to
+      // morph into the mission view instead of navigating to a game/lesson route.
+      if (onStart) {
+        onStart({
+          gameId,
+          gameTitle: currentGame ? cleanTitle(currentGame.title) : gameId,
+          skillName: currentTopic?.name ?? '',
+          difficulty: level,
+          playMinutes,
+          learnMinutes,
+          learnFirst,
+          estimatedXp,
+        })
+        return
+      }
       // Guests have no persistent difficulty track — the level selector is just
       // a session preference for them, so skip the server write.
       if (!guest && currentTopic && level !== currentTopic.difficulty) {
@@ -365,8 +389,12 @@ function LauncherForm({
           <button
             type="button"
             onClick={start}
-            disabled={!ready || starting}
-            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90 disabled:opacity-50 max-[767px]:w-auto max-[1149px]:px-8 md:max-[1023px]:w-1/2 md:max-[1023px]:max-w-[27rem] lg:max-[1149px]:mt-5 lg:max-[1149px]:w-auto"
+            disabled={!ready}
+            className={cn(
+              'inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-all duration-300 hover:bg-primary/90 disabled:opacity-50 max-[767px]:w-auto max-[1149px]:px-8 md:max-[1023px]:w-1/2 md:max-[1023px]:max-w-[27rem] lg:max-[1149px]:mt-5 lg:max-[1149px]:w-auto',
+              // Glow + expand as the mission kicks off (the launcher then fades out).
+              starting && 'scale-[1.04] shadow-[0_0_45px] shadow-primary/70',
+            )}
           >
             {starting ? 'Starting…' : 'Start mission'}
             <ArrowRight className="size-4" />
