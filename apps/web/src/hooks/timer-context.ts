@@ -8,6 +8,10 @@ export type TimerContextValue = {
   active: boolean
   paused: boolean
   step: FocusStep | null
+  // The full play/learn plan and the index of the phase currently running —
+  // drives the clickable session-progress timeline.
+  plan: FocusStep[]
+  stepIndex: number
   secondsLeft: number
   currentRound: number
   rounds: number
@@ -18,6 +22,8 @@ export type TimerContextValue = {
   pause: () => void
   resume: () => void
   skip: () => void
+  // Jump straight to a phase by plan index (the progress timeline's nodes).
+  jump: (index: number) => void
   end: () => void
   dismiss: () => void
 }

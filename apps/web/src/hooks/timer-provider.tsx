@@ -4,6 +4,7 @@ import { api } from '@/api-client'
 import {
   endFocusSession,
   focusResult,
+  jumpToStep,
   pauseFocusSession,
   reconcileFocusSession,
   resumeFocusSession,
@@ -13,6 +14,7 @@ import {
   type ActiveFocusSession,
   type FocusConfig,
   type FocusResult,
+  type FocusStep,
   type FocusTally,
 } from '@/core/focus-session'
 import { clearSessionTarget } from '@/lib/session-target'
@@ -144,6 +146,10 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     else setSession(stepped.session)
   }, [finalize])
 
+  const jump = useCallback((index: number) => {
+    setSession((s) => (s ? jumpToStep(s, index, Date.now()) : s))
+  }, [])
+
   const end = useCallback(() => {
     const cur = sessionRef.current
     if (!cur) return
@@ -156,12 +162,16 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     setSaveError(null)
   }, [])
 
+  const EMPTY_PLAN: FocusStep[] = useMemo(() => [], [])
+
   const value = useMemo<TimerContextValue>(() => {
     const step = session ? session.plan[session.stepIndex] : null
     return {
       active: session !== null,
       paused: session !== null && session.endsAt === null,
       step,
+      plan: session ? session.plan : EMPTY_PLAN,
+      stepIndex: session ? session.stepIndex : 0,
       secondsLeft: session ? secondsLeftIn(session, now) : 0,
       currentRound: session ? Math.floor(session.stepIndex / 2) + 1 : 0,
       rounds: session ? session.plan.length / 2 : 0,
@@ -172,10 +182,11 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       pause,
       resume,
       skip,
+      jump,
       end,
       dismiss,
     }
-  }, [session, now, result, earnedXp, saveError, start, pause, resume, skip, end, dismiss])
+  }, [session, now, result, earnedXp, saveError, EMPTY_PLAN, start, pause, resume, skip, jump, end, dismiss])
 
   return <TimerContext.Provider value={value}>{children}</TimerContext.Provider>
 }

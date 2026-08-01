@@ -256,6 +256,29 @@ export function skipFocusPhase(
   }
 }
 
+// Jump straight to a given phase in the plan — the progress timeline's clickable
+// nodes. The current phase's elapsed time is still banked; the target phase
+// starts fresh. Preserves the paused/running state. Out-of-range targets clamp.
+export function jumpToStep(
+  session: ActiveFocusSession,
+  index: number,
+  now: number,
+): ActiveFocusSession {
+  const target = clamp(index, 0, session.plan.length - 1)
+  if (target === session.stepIndex) return session
+  const step = session.plan[session.stepIndex]
+  const elapsed = step.seconds - secondsLeftIn(session, now)
+  const banked = bank(session, step.phase, elapsed)
+  const paused = session.endsAt === null
+  return {
+    ...session,
+    ...banked,
+    stepIndex: target,
+    endsAt: paused ? null : now + session.plan[target].seconds * 1000,
+    pausedSecondsLeft: paused ? session.plan[target].seconds : 0,
+  }
+}
+
 // End the session now, banking the current phase's elapsed time.
 export function endFocusSession(
   session: ActiveFocusSession,
