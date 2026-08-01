@@ -359,9 +359,9 @@ function MissionControl({
             className="group mt-1.5 flex w-full items-center gap-2 text-left"
           >
             {learn ? (
-              <Gamepad2 className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
+              <Gamepad2 className="size-4 shrink-0 text-muted-foreground" />
             ) : (
-              <Code className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
+              <Code className="size-4 shrink-0 text-muted-foreground" />
             )}
             <span className="flex-1 font-mono text-sm text-foreground transition-colors group-hover:text-primary">
               {learn ? 'Back to the game' : `${session.skillName} Functions`}
