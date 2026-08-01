@@ -14,17 +14,18 @@ export function HomeHero({ onStart }: { onStart?: () => void }) {
       {/* Splash card */}
       <Panel
         brackets={false}
-        className="relative min-h-[16rem] overflow-hidden rounded-2xl p-0 md:min-h-[19rem]"
+        className="relative min-h-[19rem] overflow-hidden rounded-2xl p-0 md:min-h-[22rem] lg:min-h-[24.5rem]"
       >
         <img
           src="/images/footer-1.png"
           alt=""
           aria-hidden="true"
-          className="absolute inset-y-0 right-0 h-full w-full object-cover object-left [mask-image:linear-gradient(to_right,transparent,black_20%)] md:w-[62%]"
+          className="absolute inset-y-0 right-0 h-full w-full object-cover object-left brightness-105 contrast-[1.12] saturate-[1.25] [mask-image:linear-gradient(to_right,transparent,black_20%)] md:w-[62%]"
         />
-        {/* Theme-colored wash: fades the photo into the card, stronger on the
-            left (behind the copy) and lighter on mobile-vs-desktop. */}
-        <div className="absolute inset-0 bg-gradient-to-r from-card from-25% via-card/85 to-card/40 md:via-card/70 md:to-transparent" />
+        {/* Theme-colored wash: fades the photo into the card behind the copy,
+            then clears well before the skyline so the neon stays punchy — a
+            veil carried across the whole photo is what made it read hazy. */}
+        <div className="absolute inset-0 bg-gradient-to-r from-card from-25% via-card/85 to-card/40 md:via-card/60 md:via-45% md:to-transparent md:to-64%" />
 
         <div className="relative flex h-full flex-col justify-center gap-6 p-6 sm:p-8">
           <div>

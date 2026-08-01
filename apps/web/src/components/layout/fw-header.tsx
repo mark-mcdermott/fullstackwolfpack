@@ -28,7 +28,9 @@ export function FwHeader() {
   // route, which would do nothing and strand you in the session.
   const missionExit = useMissionExit()
   return (
-    <header className="border-b border-border bg-background">
+    // Transparent so the page grain/glow (index.css `body::before`) runs behind
+    // it unbroken; the layout wrapper supplies the base color.
+    <header className="border-b border-border">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3 sm:px-6">
         {/* Brand */}
         <NavLink
