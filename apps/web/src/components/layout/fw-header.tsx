@@ -31,7 +31,10 @@ export function FwHeader() {
     // Transparent so the page grain/glow (index.css `body::before`) runs behind
     // it unbroken; the layout wrapper supplies the base color.
     <header className="border-b border-border">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3 sm:px-6">
+      {/* Brand + nav + toggle all refuse to shrink, so below `sm` every gap and
+          type step tightens instead — the row overflowed the viewport on 320–370px
+          phones otherwise. */}
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-6">
         {/* Brand */}
         <NavLink
           to="/"
@@ -41,24 +44,24 @@ export function FwHeader() {
               missionExit()
             }
           }}
-          className="flex shrink-0 items-center gap-3 sm:gap-4"
+          className="flex shrink-0 items-center gap-2 sm:gap-4"
         >
-          <WolfMark className="h-10 text-foreground sm:h-12" />
+          <WolfMark className="h-9 text-foreground sm:h-12" />
           <span className="flex flex-col font-heading leading-[0.95]">
-            <span className="text-base font-bold tracking-wide text-foreground sm:text-xl">
+            <span className="text-sm font-bold tracking-wide text-foreground sm:text-xl">
               FULLSTACK
             </span>
-            <span className="text-base font-bold tracking-wide text-foreground sm:text-xl">
+            <span className="text-sm font-bold tracking-wide text-foreground sm:text-xl">
               WOLFPACK
             </span>
-            <span className="mt-0.5 text-[10px] font-normal tracking-widest text-primary sm:text-xs">
+            <span className="mt-0.5 text-[9px] font-normal tracking-widest text-primary sm:text-xs">
               ウルフパック
             </span>
           </span>
         </NavLink>
 
         {/* Primary nav */}
-        <nav className="flex items-center gap-5 sm:gap-9">
+        <nav className="flex items-center gap-4 sm:gap-9">
           {NAV.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
