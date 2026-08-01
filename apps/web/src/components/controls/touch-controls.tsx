@@ -235,7 +235,7 @@ export function TouchControls({
         </div>
       )}
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-center gap-3">
         <DPad {...handlers} />
         <FaceCluster face={face} {...handlers} />
       </div>
@@ -244,13 +244,13 @@ export function TouchControls({
         <PadButton
           button="select"
           label="Select"
-          className="h-8 w-24 text-[10px] tracking-widest uppercase"
+          className="h-6 w-16 text-[9px] tracking-wide uppercase"
           {...handlers}
         />
         <PadButton
           button="start"
           label="Start"
-          className="h-8 w-24 text-[10px] tracking-widest uppercase"
+          className="h-6 w-16 text-[9px] tracking-wide uppercase"
           {...handlers}
         />
       </div>
