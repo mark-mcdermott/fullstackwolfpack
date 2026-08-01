@@ -1,7 +1,5 @@
 import { ArrowRight, Pause } from 'lucide-react'
-import type { MissionSession } from '@/lib/mission'
-
-const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+import { missionName, type MissionSession } from '@/lib/mission'
 
 // Shown on the homepage when a mission is paused ("take a break" / a fresh tab
 // that reloaded a paused session): pick it up exactly where you left off, or end
@@ -26,11 +24,10 @@ export function ResumeMissionCard({
             Mission paused
           </span>
           <div className="font-heading text-lg font-bold tracking-wide text-foreground uppercase">
-            {session.gameTitle}
+            {missionName(session)}
           </div>
           <div className="font-mono text-xs text-muted-foreground">
-            {session.skillName} · {cap(session.difficulty)} · pick up where you
-            left off
+            Pick up where you left off
           </div>
         </div>
         <div className="flex items-center gap-3">
