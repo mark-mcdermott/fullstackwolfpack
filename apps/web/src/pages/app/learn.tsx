@@ -22,6 +22,12 @@ import {
   completeLessonGuest,
   guestCompletedLessonIds,
 } from '@/lib/guest-progress'
+import {
+  clearLessonProgress,
+  loadLessonProgress,
+  saveLessonProgress,
+} from '@/lib/lesson-progress-store'
+import { setMissionLessonToc } from '@/lib/mission-lesson-store'
 import { cn } from '@/lib/utils'
 
 // The lesson player: steps through a lesson's segments one at a time (bite-sized, for
@@ -43,10 +49,15 @@ export function LessonRoute({
   lessonId,
   guest = false,
   onExit,
+  focusMode = false,
 }: {
   lessonId: string
   guest?: boolean
   onExit?: () => void
+  // Embedded inside the mission's center stage: drops the page chrome (its own
+  // back-nav header + centering) and the guest tutor upsell so it reads as one
+  // tile in the mission, not a standalone page.
+  focusMode?: boolean
 }) {
   const state = useAsync(() =>
     guest ? api.public.lesson(lessonId) : api.data.lesson(lessonId),
@@ -54,7 +65,12 @@ export function LessonRoute({
   return (
     <AsyncView state={state}>
       {(lesson) => (
-        <LessonPlayer lesson={lesson} guest={guest} onExit={onExit} />
+        <LessonPlayer
+          lesson={lesson}
+          guest={guest}
+          onExit={onExit}
+          focusMode={focusMode}
+        />
       )}
     </AsyncView>
   )
@@ -64,19 +80,67 @@ function LessonPlayer({
   lesson,
   guest,
   onExit,
+  focusMode = false,
 }: {
   lesson: LessonView
   guest: boolean
   onExit?: () => void
+  focusMode?: boolean
 }) {
   const { user } = useAuth()
   const canTutor = user ? can(user, 'feature.ai_tutor') : false
-  const [index, setIndex] = useState(0)
-  const [correctById, setCorrectById] = useState<Record<string, boolean>>({})
-  const [quizXp, setQuizXp] = useState(0)
+  // Restore mid-lesson position (segment + answers) so leaving and coming back
+  // resumes here instead of restarting. Keyed by lesson; cleared on completion.
+  const [index, setIndex] = useState(
+    () => loadLessonProgress(lesson.lessonId)?.index ?? 0,
+  )
+  const [correctById, setCorrectById] = useState<Record<string, boolean>>(
+    () => loadLessonProgress(lesson.lessonId)?.correctById ?? {},
+  )
+  const [quizXp, setQuizXp] = useState(
+    () => loadLessonProgress(lesson.lessonId)?.quizXp ?? 0,
+  )
+  // Sections visited — so the TOC can mark done vs upcoming correctly even when
+  // the learner jumps around via the table of contents.
+  const [seen, setSeen] = useState<Set<number>>(() => {
+    const r = loadLessonProgress(lesson.lessonId)
+    return new Set(r?.seen ?? [r?.index ?? 0])
+  })
   const [completion, setCompletion] = useState<LessonCompletion | null>(null)
   const [completing, setCompleting] = useState(false)
   const [linkify, setLinkify] = useState(false)
+
+  useEffect(() => {
+    setSeen((prev) => (prev.has(index) ? prev : new Set(prev).add(index)))
+  }, [index])
+
+  // Mirror position to localStorage as it changes (survives refresh / break).
+  useEffect(() => {
+    saveLessonProgress(lesson.lessonId, {
+      index,
+      correctById,
+      quizXp,
+      seen: [...seen],
+    })
+  }, [lesson.lessonId, index, correctById, quizXp, seen])
+
+  // Feed the mission's Mission Control a live table of contents while embedded —
+  // including a jump callback so its sections can navigate the lesson.
+  useEffect(() => {
+    if (!focusMode) return
+    setMissionLessonToc({
+      title: lesson.title,
+      segments: lesson.segments.map((s) => ({
+        id: s.id,
+        title: s.title,
+        type: s.type,
+      })),
+      index,
+      seen: [...seen],
+      onJump: setIndex,
+    })
+  }, [focusMode, lesson, index, seen])
+  useEffect(() => () => setMissionLessonToc(null), [])
 
   // Hyperlink key terms only when the reader opted in (global lesson pref).
   // Guests have no server prefs — default off.
@@ -129,6 +193,8 @@ function LessonPlayer({
       })
     } finally {
       setCompleting(false)
+      // The lesson is done — drop its saved position so it doesn't resume mid-way.
+      clearLessonProgress(lesson.lessonId)
     }
   }
 
@@ -136,6 +202,7 @@ function LessonPlayer({
     setIndex(0)
     setCorrectById({})
     setQuizXp(0)
+    setSeen(new Set([0]))
     setCompletion(null)
   }
 
@@ -156,37 +223,44 @@ function LessonPlayer({
   const stepPct = Math.round(((index + 1) / lesson.segments.length) * 100)
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-5">
-      <div className="flex items-center justify-between">
-        {onExit ? (
-          <button
-            type="button"
-            onClick={onExit}
-            className="inline-flex items-center gap-1 font-mono text-[10px] tracking-widest text-muted-foreground uppercase hover:text-foreground"
-          >
-            <ArrowLeft className="size-3" /> Resume game
-          </button>
-        ) : (
-          <Link
-            to={guest ? '/learn' : '/app/topics'}
-            className="inline-flex items-center gap-1 font-mono text-[10px] tracking-widest text-muted-foreground uppercase hover:text-foreground"
-          >
-            <ArrowLeft className="size-3" /> Topics
-          </Link>
-        )}
-        <div className="flex items-center gap-3">
-          {!guest && !onExit && (
-            <Link
-              to={`/app/topics/${lesson.topicSlug}/settings`}
-              aria-label="Topic settings"
-              className="text-muted-foreground transition-colors hover:text-foreground"
+    <div
+      className={cn(
+        'flex flex-col gap-5',
+        !focusMode && 'mx-auto max-w-3xl',
+      )}
+    >
+      {!focusMode && (
+        <div className="flex items-center justify-between">
+          {onExit ? (
+            <button
+              type="button"
+              onClick={onExit}
+              className="inline-flex items-center gap-1 font-mono text-[10px] tracking-widest text-muted-foreground uppercase hover:text-foreground"
             >
-              <Settings className="size-4" />
+              <ArrowLeft className="size-3" /> Resume game
+            </button>
+          ) : (
+            <Link
+              to={guest ? '/learn' : '/app/topics'}
+              className="inline-flex items-center gap-1 font-mono text-[10px] tracking-widest text-muted-foreground uppercase hover:text-foreground"
+            >
+              <ArrowLeft className="size-3" /> Topics
             </Link>
           )}
-          <Pill>{lesson.topic}</Pill>
+          <div className="flex items-center gap-3">
+            {!guest && !onExit && (
+              <Link
+                to={`/app/topics/${lesson.topicSlug}/settings`}
+                aria-label="Topic settings"
+                className="text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <Settings className="size-4" />
+              </Link>
+            )}
+            <Pill>{lesson.topic}</Pill>
+          </div>
         </div>
-      </div>
+      )}
 
       <div>
         <SectionLabel>Lesson</SectionLabel>
@@ -236,6 +310,7 @@ function LessonPlayer({
         segmentId={segment.id}
         canUse={canTutor}
         guest={guest}
+        focusMode={focusMode}
       />
 
       <div className="flex items-center justify-between">

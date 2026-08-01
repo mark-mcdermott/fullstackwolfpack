@@ -1,90 +1,93 @@
 import {
-  ChevronDown,
   ChevronRight,
-  Clock,
+  Circle,
+  CircleCheck,
+  CircleDot,
   Code,
   Gamepad2,
   Pause,
-  Star,
-  Trophy,
+  Play,
+  SkipForward,
+  X,
   type LucideIcon,
 } from 'lucide-react'
-import { Fragment, type ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { Panel } from '@fw/ui'
-import { FocusLessonOverlay } from '@/components/focus/focus-lesson-overlay'
+import { LessonStage } from '@/components/mission/lesson-stage'
 import { MissionGame } from '@/components/mission/mission-game'
-import type { Difficulty } from '@/core/generation'
+import { MissionLessonResolver } from '@/components/mission/mission-lesson-resolver'
+import { SessionProgress } from '@/components/mission/session-progress'
+import type { FocusPhase } from '@/core/focus-session'
 import { useTimer } from '@/hooks/timer-context'
+import { useMissionLessonToc } from '@/lib/mission-lesson-store'
+import { type MissionSession } from '@/lib/mission'
 import { ROM_CATALOG } from '@/lib/rom-catalog'
 import { cn } from '@/lib/utils'
 
-// The chosen session, handed over by the launcher (or the hero's quick-start).
-export type MissionSession = {
-  gameId: string
-  gameTitle: string
-  skillName: string
-  topicSlug: string
-  difficulty: Difficulty
-  playMinutes: number
-  learnMinutes: number
-  learnFirst: boolean
-  estimatedXp: number
-}
+export { DEFAULT_SESSION } from '@/lib/mission'
+export type { MissionSession } from '@/lib/mission'
 
-// The hero "Start your first mission" quick-start uses these (mirrors the guest
-// launcher's defaults) when no explicit selection is handed over.
-export const DEFAULT_SESSION: MissionSession = {
-  gameId: 'tobu-tobu-girl',
-  gameTitle: 'Tobu Tobu Girl',
-  skillName: 'JavaScript',
-  topicSlug: 'javascript',
-  difficulty: 'intermediate',
-  playMinutes: 25,
-  learnMinutes: 5,
-  learnFirst: false,
-  estimatedXp: 240,
-}
-
-const DIFF_STARS: Record<Difficulty, number> = {
-  beginner: 1,
-  intermediate: 3,
-  advanced: 5,
-}
-const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 const mmss = (sec: number) =>
   `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`
 
-// The "mission in progress" screen the launcher morphs into: a mission bar, the
-// live game stage, a MISSION CONTROL panel, and the session-progress timeline.
-// Theme-aware panels; the game stage stays dark (it's a game screen).
+// The "mission in progress" screen the launcher morphs into. One frame holds the
+// whole play↔learn loop: a phase-aware bar, the center stage (game during play,
+// the lesson during learn — the game stays mounted + paused behind it), the
+// Mission Control narrator, and the clickable session-progress rail. `onExit`
+// ends the session and morphs back to the launcher.
 export function MissionView({
   session,
-  onPause,
+  onExit,
 }: {
   session: MissionSession
-  onPause?: () => void
+  onExit?: () => void
 }) {
   const timer = useTimer()
-  const learnPhase = timer.active && timer.step?.phase === 'learn'
+  const phase: FocusPhase | null = timer.active ? (timer.step?.phase ?? null) : null
+  const learnPhase = phase === 'learn'
+  const paused = timer.active && timer.paused
+  const phaseTotal = timer.step ? timer.step.seconds : session.playMinutes * 60
 
   return (
     <div className="flex flex-col gap-4">
       <MissionBar
         session={session}
+        phase={phase}
         secondsLeft={timer.active ? timer.secondsLeft : session.playMinutes * 60}
+        phaseTotal={phaseTotal}
         round={timer.active ? timer.currentRound : 1}
         rounds={timer.active ? timer.rounds : 3}
-        onPause={onPause}
+        paused={paused}
+        onSkip={timer.skip}
+        onPauseToggle={paused ? timer.resume : timer.pause}
+        onExit={onExit}
       />
-      <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
-        <GameStage session={session} paused={learnPhase} />
-        <MissionControl session={session} onOpenLesson={timer.skip} />
-      </div>
-      <SessionProgress session={session} />
 
-      {/* At 0:00 (or via the skill chevron) the timer flips to the learn phase:
-          the game pauses and the real lesson takes over full-screen. */}
-      {learnPhase && <FocusLessonOverlay onResume={timer.skip} />}
+      <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
+        <div className="relative min-w-0">
+          {/* The game stays mounted the whole session so its state is preserved.
+              During learn we take it out of the layout (the lesson takes the
+              stage) but keep it *rendered* — off-screen with `display:none`
+              loses the WebGL context and the game comes back black, so instead
+              it sits behind, transparent, at its natural size. */}
+          <div
+            className={cn(
+              learnPhase &&
+                'pointer-events-none absolute top-0 left-0 -z-10 w-full opacity-0',
+            )}
+          >
+            <GameStage session={session} paused={learnPhase || paused} />
+          </div>
+          {learnPhase && <LessonStage onResume={timer.skip} />}
+        </div>
+        <MissionControl session={session} phase={phase} onSkip={timer.skip} />
+      </div>
+
+      <SessionProgress />
+
+      {/* Feeds the Mission Control TOC during play (the lesson player, which
+          feeds it during learn, isn't mounted then). */}
+      <MissionLessonResolver active={!learnPhase} onEnterSection={timer.skip} />
     </div>
   )
 }
@@ -108,22 +111,64 @@ function Label({
   )
 }
 
+function BarButton({
+  onClick,
+  icon: Icon,
+  children,
+  className,
+  ariaLabel,
+}: {
+  onClick?: () => void
+  icon: LucideIcon
+  children?: ReactNode
+  className?: string
+  ariaLabel?: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={ariaLabel}
+      title={ariaLabel}
+      className={cn(
+        'inline-flex h-10 items-center gap-2 rounded-lg border border-border px-3 font-mono text-xs font-semibold tracking-widest text-foreground uppercase transition-colors hover:border-primary hover:text-primary',
+        className,
+      )}
+    >
+      <Icon className="size-4" />
+      {children}
+    </button>
+  )
+}
+
 function MissionBar({
   session,
+  phase,
   secondsLeft,
+  phaseTotal,
   round,
   rounds,
-  onPause,
+  paused,
+  onSkip,
+  onPauseToggle,
+  onExit,
 }: {
   session: MissionSession
+  phase: FocusPhase | null
   secondsLeft: number
+  phaseTotal: number
   round: number
   rounds: number
-  onPause?: () => void
+  paused: boolean
+  onSkip: () => void
+  onPauseToggle: () => void
+  onExit?: () => void
 }) {
-  const total = session.playMinutes * 60
+  const learn = phase === 'learn'
   const elapsed =
-    total > 0 ? Math.max(0, Math.min(100, (1 - secondsLeft / total) * 100)) : 0
+    phaseTotal > 0
+      ? Math.max(0, Math.min(100, (1 - secondsLeft / phaseTotal) * 100))
+      : 0
 
   return (
     <Panel brackets={false} className="rounded-2xl p-0">
@@ -141,14 +186,14 @@ function MissionBar({
               {session.gameTitle}
             </div>
             <div className="font-mono text-xs text-muted-foreground">
-              Arcade · Platformer
+              {learn ? `Learning · ${session.skillName}` : 'Arcade · Platformer'}
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-8">
           <div className="min-w-[9rem]">
-            <Label>Play time left</Label>
+            <Label>{learn ? 'Learn time left' : 'Play time left'}</Label>
             <div className="font-mono text-xl font-bold tabular-nums text-foreground">
               {mmss(secondsLeft)}
             </div>
@@ -167,14 +212,26 @@ function MissionBar({
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={onPause}
-          className="ml-auto inline-flex h-10 items-center gap-2 rounded-lg border border-border px-4 font-mono text-xs font-semibold tracking-widest text-foreground uppercase transition-colors hover:border-primary hover:text-primary"
-        >
-          <Pause className="size-4" />
-          Pause Session
-        </button>
+        <div className="ml-auto flex items-center gap-2">
+          <BarButton icon={SkipForward} onClick={onSkip}>
+            <span className="hidden sm:inline">
+              Skip to {learn ? 'Play' : 'Learning'}
+            </span>
+          </BarButton>
+          <BarButton
+            icon={paused ? Play : Pause}
+            onClick={onPauseToggle}
+            className={cn(paused && 'border-primary text-primary')}
+          >
+            {paused ? 'Resume' : 'Pause'}
+          </BarButton>
+          <BarButton
+            icon={X}
+            onClick={onExit}
+            ariaLabel="Take a break — resume later"
+            className="px-2.5 text-muted-foreground"
+          />
+        </div>
       </div>
     </Panel>
   )
@@ -216,14 +273,21 @@ function GameStage({
   )
 }
 
+// One persistent panel that narrates the whole loop: what you're doing now and
+// what's up next, re-pointed at the active phase. The primary action advances to
+// the next phase (skip) — "start learning" during play, "back to the game"
+// during learn.
 function MissionControl({
   session,
-  onOpenLesson,
+  phase,
+  onSkip,
 }: {
   session: MissionSession
-  onOpenLesson: () => void
+  phase: FocusPhase | null
+  onSkip: () => void
 }) {
-  const stars = DIFF_STARS[session.difficulty]
+  const learn = phase === 'learn'
+
   return (
     <Panel brackets={false} className="rounded-2xl p-5">
       <div className="flex flex-col gap-5">
@@ -235,7 +299,7 @@ function MissionControl({
           <Label>Current skill</Label>
           <button
             type="button"
-            onClick={onOpenLesson}
+            onClick={onSkip}
             className="mt-1.5 flex w-full items-center gap-3 rounded-lg border border-border bg-muted/40 p-2.5 text-left transition-colors hover:border-primary/60"
           >
             <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-yellow-400 font-heading text-xs font-bold text-black">
@@ -244,55 +308,41 @@ function MissionControl({
             <span className="flex-1 font-heading text-sm font-bold text-foreground">
               {session.skillName}
             </span>
-            <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+            {learn ? (
+              <Play className="size-4 shrink-0 text-muted-foreground" />
+            ) : (
+              <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+            )}
           </button>
         </div>
 
-        <div>
-          <Label>Difficulty</Label>
-          <div className="mt-1.5 flex items-center gap-2">
-            <span className="font-mono text-sm font-semibold text-foreground">
-              {cap(session.difficulty)}
-            </span>
-            <div className="flex gap-0.5">
-              {[0, 1, 2, 3, 4].map((i) => (
-                <Star
-                  key={i}
-                  className={cn(
-                    'size-4',
-                    i < stars
-                      ? 'fill-amber-400 text-amber-400'
-                      : 'fill-transparent text-muted-foreground/40',
-                  )}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <Label>Round goal</Label>
-          <p className="mt-1.5 font-mono text-sm text-foreground">
-            Survive and collect the flag
-          </p>
-          <p className="font-mono text-xs text-muted-foreground">
-            Reach the goal to continue.
-          </p>
-        </div>
+        {/* The lesson table of contents — shown in both phases so you can see
+            where you are in the lesson while playing, not just while learning. */}
+        <LessonToc />
 
         <div className="border-t border-border" />
 
         <div>
-          <Label>Up next: learn time</Label>
-          <div className="mt-1.5 flex items-center gap-2">
-            <Clock className="size-4 shrink-0 text-primary" />
-            <span className="flex-1 font-mono text-sm text-foreground">
-              {session.skillName} Functions
+          <Label>Up next</Label>
+          <button
+            type="button"
+            onClick={onSkip}
+            className="group mt-1.5 flex w-full items-center gap-2 text-left"
+          >
+            {learn ? (
+              <Gamepad2 className="size-4 shrink-0 text-muted-foreground" />
+            ) : (
+              <Code className="size-4 shrink-0 text-muted-foreground" />
+            )}
+            <span className="flex-1 font-mono text-sm text-foreground transition-colors group-hover:text-primary">
+              {learn ? 'Back to the game' : `${session.skillName} Functions`}
             </span>
             <span className="shrink-0 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
-              {session.learnMinutes} min lesson
+              {learn
+                ? `${session.playMinutes} min`
+                : `${session.learnMinutes} min lesson`}
             </span>
-          </div>
+          </button>
         </div>
 
         <div>
@@ -312,6 +362,81 @@ function MissionControl({
   )
 }
 
+// The live lesson table of contents, fed by the embedded lesson player: each
+// section marked done / current / upcoming so you can see where you are in the
+// lesson at a glance.
+function LessonToc() {
+  const toc = useMissionLessonToc()
+  if (!toc) {
+    return (
+      <div>
+        <Label>This lesson</Label>
+        <p className="mt-1.5 font-mono text-sm text-muted-foreground">
+          Loading sections…
+        </p>
+      </div>
+    )
+  }
+  const seen = new Set(toc.seen)
+  // Done = a section you've moved past (before the current one — survives a
+  // resume via the persisted index) or one you've visited by jumping around.
+  const isDoneAt = (i: number) =>
+    i !== toc.index && (i < toc.index || seen.has(i))
+  const done = toc.segments.filter((_, i) => isDoneAt(i)).length
+  return (
+    <div>
+      <div className="flex items-baseline justify-between gap-2">
+        <Label>This lesson</Label>
+        <span className="font-mono text-[10px] tabular-nums text-muted-foreground">
+          {done}/{toc.segments.length}
+        </span>
+      </div>
+      <p className="mt-1.5 font-heading text-sm font-bold text-foreground">
+        {toc.title}
+      </p>
+      <ul className="mt-2.5 flex flex-col gap-1">
+        {toc.segments.map((seg, i) => {
+          const isCurrent = i === toc.index
+          const isDone = isDoneAt(i)
+          const Icon = isDone ? CircleCheck : isCurrent ? CircleDot : Circle
+          return (
+            <li key={seg.id}>
+              <button
+                type="button"
+                onClick={() => toc.onJump(i)}
+                className="group flex w-full items-start gap-2 rounded-md py-0.5 text-left"
+              >
+                <Icon
+                  className={cn(
+                    'mt-px size-3.5 shrink-0',
+                    isDone
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : isCurrent
+                        ? 'text-blue-600 dark:text-blue-400'
+                        : 'text-muted-foreground/40',
+                  )}
+                />
+                <span
+                  className={cn(
+                    'font-mono text-xs leading-tight transition-colors',
+                    isCurrent
+                      ? 'font-semibold text-foreground'
+                      : isDone
+                        ? 'text-muted-foreground group-hover:text-foreground'
+                        : 'text-muted-foreground/60 group-hover:text-foreground',
+                  )}
+                >
+                  {seg.title}
+                </span>
+              </button>
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+}
+
 const BARS = [30, 25, 35, 45, 40, 55, 50, 65, 75, 70, 85, 100]
 
 function Histogram() {
@@ -325,70 +450,5 @@ function Histogram() {
         />
       ))}
     </div>
-  )
-}
-
-function SessionProgress({ session }: { session: MissionSession }) {
-  const play = mmss(session.playMinutes * 60)
-  const learn = mmss(session.learnMinutes * 60)
-  const steps: { icon: LucideIcon; label: string; time?: string; active?: boolean }[] =
-    [
-      { icon: Gamepad2, label: 'Play', time: play, active: true },
-      { icon: Code, label: 'Learn', time: learn },
-      { icon: Gamepad2, label: 'Play', time: play },
-      { icon: Code, label: 'Learn', time: learn },
-      { icon: Gamepad2, label: 'Play', time: play },
-      { icon: Trophy, label: 'Complete' },
-    ]
-  return (
-    <Panel brackets={false} className="rounded-2xl p-5">
-      <div className="flex items-center gap-2">
-        <Label>Session progress</Label>
-        <ChevronDown className="size-3.5 text-muted-foreground" />
-      </div>
-      <div className="mt-4 overflow-x-auto">
-        <div className="flex min-w-[34rem] items-center">
-          {steps.map((s, i) => (
-          <Fragment key={i}>
-            <div className="flex shrink-0 flex-col items-center gap-1.5 text-center">
-              <span
-                className={cn(
-                  'flex size-9 items-center justify-center rounded-full border',
-                  s.active
-                    ? 'border-primary text-primary'
-                    : 'border-border text-muted-foreground',
-                )}
-              >
-                <s.icon className="size-4" />
-              </span>
-              <div className="leading-tight">
-                <div
-                  className={cn(
-                    'font-mono text-[11px]',
-                    s.active ? 'text-foreground' : 'text-muted-foreground',
-                  )}
-                >
-                  {s.label}
-                </div>
-                {s.time && (
-                  <div
-                    className={cn(
-                      'font-mono text-[11px] tabular-nums',
-                      s.active ? 'text-primary' : 'text-muted-foreground',
-                    )}
-                  >
-                    {s.time}
-                  </div>
-                )}
-              </div>
-            </div>
-            {i < steps.length - 1 && (
-              <div className="mx-2 mb-6 h-px flex-1 bg-border" />
-            )}
-          </Fragment>
-        ))}
-        </div>
-      </div>
-    </Panel>
   )
 }

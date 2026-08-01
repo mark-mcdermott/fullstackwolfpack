@@ -14,10 +14,14 @@ export function TutorPanel({
   segmentId,
   canUse,
   guest = false,
+  focusMode = false,
 }: {
   segmentId: string
   canUse: boolean
   guest?: boolean
+  // In the mission's learn stage the tutor upsell reads as spam mid-session —
+  // suppress it there. Pro users still get the real tutor.
+  focusMode?: boolean
 }) {
   const [messages, setMessages] = useState<TutorMessage[]>([])
   const [input, setInput] = useState('')
@@ -25,6 +29,7 @@ export function TutorPanel({
   const [error, setError] = useState<string | null>(null)
 
   if (!canUse) {
+    if (focusMode) return null
     return (
       <div className="flex flex-col items-start gap-2 border border-dashed border-border p-4">
         <p className="inline-flex items-center gap-2 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">

@@ -5,6 +5,7 @@ import {
   focusResult,
   focusScore,
   formatClock,
+  jumpToStep,
   normalizeFocusConfig,
   pauseFocusSession,
   planTotals,
@@ -202,6 +203,34 @@ describe('skipFocusPhase', () => {
       const end = skipFocusPhase(afterPlay.session, T0)
       expect(end.done).toBe(true)
     }
+  })
+})
+
+describe('jumpToStep', () => {
+  it('banks the current phase elapsed and jumps to the target phase fresh', () => {
+    const s = startFocusSession(CONFIG, T0)
+    const j = jumpToStep(s, 2, T0 + 60_000) // 60s into play → jump to the 2nd play
+    expect(j.stepIndex).toBe(2)
+    expect(j.donePlay).toBe(60)
+    expect(secondsLeftIn(j, T0 + 60_000)).toBe(1500) // target play phase, fresh
+  })
+
+  it('clamps an out-of-range index to the last phase', () => {
+    const s = startFocusSession(CONFIG, T0)
+    expect(jumpToStep(s, 99, T0).stepIndex).toBe(3)
+  })
+
+  it('is a no-op when the target is the current phase', () => {
+    const s = startFocusSession(CONFIG, T0)
+    expect(jumpToStep(s, 0, T0 + 30_000)).toBe(s)
+  })
+
+  it('preserves the paused state into the target phase', () => {
+    const paused = pauseFocusSession(startFocusSession(CONFIG, T0), T0 + 60_000)
+    const j = jumpToStep(paused, 1, T0 + 60_000)
+    expect(j.endsAt).toBeNull()
+    expect(j.pausedSecondsLeft).toBe(300) // learn phase length, frozen
+    expect(j.donePlay).toBe(60)
   })
 })
 
