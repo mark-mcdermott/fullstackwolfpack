@@ -43,7 +43,7 @@ export function HomeHero({ onStart }: { onStart?: () => void }) {
           </div>
 
           {onStart ? (
-            <button type="button" onClick={onStart} className={ctaClass}>
+            <button type="button" onClick={() => onStart()} className={ctaClass}>
               Start your first mission
               <ArrowRight className="size-4" />
             </button>

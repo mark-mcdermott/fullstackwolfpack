@@ -9,28 +9,65 @@ import {
   Trophy,
   type LucideIcon,
 } from 'lucide-react'
-import { Fragment, type ReactNode } from 'react'
+import { Fragment, useEffect, useState, type ReactNode } from 'react'
 import { Panel } from '@fw/ui'
 import { MissionGame } from '@/components/mission/mission-game'
+import type { Difficulty } from '@/core/generation'
 import { ROM_CATALOG } from '@/lib/rom-catalog'
 import { cn } from '@/lib/utils'
 
-const TOBU = ROM_CATALOG.find((g) => g.id === 'tobu-tobu-girl')
+// The chosen session, handed over by the launcher (or the hero's quick-start).
+export type MissionSession = {
+  gameId: string
+  gameTitle: string
+  skillName: string
+  difficulty: Difficulty
+  playMinutes: number
+  learnMinutes: number
+  learnFirst: boolean
+  estimatedXp: number
+}
+
+// The hero "Start your first mission" quick-start uses these (mirrors the guest
+// launcher's defaults) when no explicit selection is handed over.
+export const DEFAULT_SESSION: MissionSession = {
+  gameId: 'tobu-tobu-girl',
+  gameTitle: 'Tobu Tobu Girl',
+  skillName: 'JavaScript',
+  difficulty: 'intermediate',
+  playMinutes: 25,
+  learnMinutes: 5,
+  learnFirst: false,
+  estimatedXp: 240,
+}
+
+const DIFF_STARS: Record<Difficulty, number> = {
+  beginner: 1,
+  intermediate: 3,
+  advanced: 5,
+}
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+const mmss = (sec: number) =>
+  `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`
 
 // The "mission in progress" screen the launcher morphs into: a mission bar, the
-// game stage (poster placeholder until the live embed is wired), a MISSION
-// CONTROL panel, and the session-progress timeline. Theme-aware panels; the game
-// stage stays dark (it's a game screen). Content is mock-accurate placeholder
-// for now — real session data gets threaded in once the morph lands.
-export function MissionView({ onPause }: { onPause?: () => void }) {
+// live game stage, a MISSION CONTROL panel, and the session-progress timeline.
+// Theme-aware panels; the game stage stays dark (it's a game screen).
+export function MissionView({
+  session,
+  onPause,
+}: {
+  session: MissionSession
+  onPause?: () => void
+}) {
   return (
     <div className="flex flex-col gap-4">
-      <MissionBar onPause={onPause} />
+      <MissionBar session={session} onPause={onPause} />
       <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
-        <GameStage />
-        <MissionControl />
+        <GameStage session={session} />
+        <MissionControl session={session} />
       </div>
-      <SessionProgress />
+      <SessionProgress session={session} />
     </div>
   )
 }
@@ -54,7 +91,22 @@ function Label({
   )
 }
 
-function MissionBar({ onPause }: { onPause?: () => void }) {
+function MissionBar({
+  session,
+  onPause,
+}: {
+  session: MissionSession
+  onPause?: () => void
+}) {
+  const total = session.playMinutes * 60
+  const [left, setLeft] = useState(total)
+  useEffect(() => {
+    setLeft(total)
+    const id = setInterval(() => setLeft((s) => (s > 0 ? s - 1 : 0)), 1000)
+    return () => clearInterval(id)
+  }, [total])
+  const elapsed = total > 0 ? (1 - left / total) * 100 : 0
+
   return (
     <Panel brackets={false} className="rounded-2xl p-0">
       <div className="flex flex-wrap items-center gap-x-8 gap-y-4 p-4 md:px-6 md:py-5">
@@ -68,7 +120,7 @@ function MissionBar({ onPause }: { onPause?: () => void }) {
           <div className="h-9 w-px bg-border" />
           <div>
             <div className="font-heading text-lg font-bold tracking-wide text-foreground uppercase">
-              Tobu Tobu Girl
+              {session.gameTitle}
             </div>
             <div className="font-mono text-xs text-muted-foreground">
               Arcade · Platformer
@@ -80,10 +132,13 @@ function MissionBar({ onPause }: { onPause?: () => void }) {
           <div className="min-w-[9rem]">
             <Label>Play time left</Label>
             <div className="font-mono text-xl font-bold tabular-nums text-foreground">
-              18:42
+              {mmss(left)}
             </div>
             <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-muted">
-              <div className="h-full w-1/3 rounded-full bg-primary" />
+              <div
+                className="h-full rounded-full bg-primary transition-[width] duration-1000 ease-linear"
+                style={{ width: `${elapsed}%` }}
+              />
             </div>
           </div>
           <div>
@@ -107,7 +162,8 @@ function MissionBar({ onPause }: { onPause?: () => void }) {
   )
 }
 
-function GameStage() {
+function GameStage({ session }: { session: MissionSession }) {
+  const rom = ROM_CATALOG.find((g) => g.id === session.gameId)
   return (
     <Panel
       brackets={false}
@@ -115,7 +171,7 @@ function GameStage() {
     >
       <div className="flex items-center justify-between">
         <span className="font-heading text-lg font-bold tracking-wide text-white uppercase">
-          Tobu Tobu Girl
+          {session.gameTitle}
         </span>
         <span className="font-mono text-[10px] tracking-widest text-white/40 uppercase">
           Arrow keys · Z / X
@@ -126,9 +182,9 @@ function GameStage() {
           fills the stage width up to a generous cap, so it scales down cleanly on
           narrow screens. */}
       <div className="flex flex-1 items-center justify-center py-4">
-        {TOBU ? (
+        {rom ? (
           <div className="aspect-[10/9] w-full max-w-[42rem] overflow-hidden rounded-md border border-white/10">
-            <MissionGame rom={TOBU} />
+            <MissionGame rom={rom} />
           </div>
         ) : (
           <span className="rounded-md border border-white/10 px-3 py-1.5 font-mono text-[11px] tracking-wide text-white/40">
@@ -140,7 +196,8 @@ function GameStage() {
   )
 }
 
-function MissionControl() {
+function MissionControl({ session }: { session: MissionSession }) {
+  const stars = DIFF_STARS[session.difficulty]
   return (
     <Panel brackets={false} className="rounded-2xl p-5">
       <div className="flex flex-col gap-5">
@@ -158,7 +215,7 @@ function MissionControl() {
               JS
             </span>
             <span className="flex-1 font-heading text-sm font-bold text-foreground">
-              JavaScript Basics
+              {session.skillName}
             </span>
             <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
           </button>
@@ -168,7 +225,7 @@ function MissionControl() {
           <Label>Difficulty</Label>
           <div className="mt-1.5 flex items-center gap-2">
             <span className="font-mono text-sm font-semibold text-foreground">
-              Beginner
+              {cap(session.difficulty)}
             </span>
             <div className="flex gap-0.5">
               {[0, 1, 2, 3, 4].map((i) => (
@@ -176,7 +233,7 @@ function MissionControl() {
                   key={i}
                   className={cn(
                     'size-4',
-                    i === 0
+                    i < stars
                       ? 'fill-amber-400 text-amber-400'
                       : 'fill-transparent text-muted-foreground/40',
                   )}
@@ -203,10 +260,10 @@ function MissionControl() {
           <div className="mt-1.5 flex items-center gap-2">
             <Clock className="size-4 shrink-0 text-primary" />
             <span className="flex-1 font-mono text-sm text-foreground">
-              JavaScript Functions
+              {session.skillName} Functions
             </span>
             <span className="shrink-0 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
-              5 min lesson
+              {session.learnMinutes} min lesson
             </span>
           </div>
         </div>
@@ -215,7 +272,7 @@ function MissionControl() {
           <Label>Estimated reward</Label>
           <div className="mt-1.5 flex items-end justify-between gap-3">
             <span className="font-heading text-xl font-bold text-blue-600 dark:text-blue-400">
-              +200
+              +{session.estimatedXp}
               <span className="ml-1 font-mono text-sm text-muted-foreground">
                 XP
               </span>
@@ -244,17 +301,18 @@ function Histogram() {
   )
 }
 
-const STEPS: { icon: LucideIcon; label: string; time?: string; active?: boolean }[] =
-  [
-    { icon: Gamepad2, label: 'Play', time: '18:42', active: true },
-    { icon: Code, label: 'Learn', time: '5:00' },
-    { icon: Gamepad2, label: 'Play', time: '18:00' },
-    { icon: Code, label: 'Learn', time: '5:00' },
-    { icon: Gamepad2, label: 'Play', time: '18:00' },
-    { icon: Trophy, label: 'Complete' },
-  ]
-
-function SessionProgress() {
+function SessionProgress({ session }: { session: MissionSession }) {
+  const play = mmss(session.playMinutes * 60)
+  const learn = mmss(session.learnMinutes * 60)
+  const steps: { icon: LucideIcon; label: string; time?: string; active?: boolean }[] =
+    [
+      { icon: Gamepad2, label: 'Play', time: play, active: true },
+      { icon: Code, label: 'Learn', time: learn },
+      { icon: Gamepad2, label: 'Play', time: play },
+      { icon: Code, label: 'Learn', time: learn },
+      { icon: Gamepad2, label: 'Play', time: play },
+      { icon: Trophy, label: 'Complete' },
+    ]
   return (
     <Panel brackets={false} className="rounded-2xl p-5">
       <div className="flex items-center gap-2">
@@ -262,7 +320,7 @@ function SessionProgress() {
         <ChevronDown className="size-3.5 text-muted-foreground" />
       </div>
       <div className="mt-4 flex items-center">
-        {STEPS.map((s, i) => (
+        {steps.map((s, i) => (
           <Fragment key={i}>
             <div className="flex shrink-0 flex-col items-center gap-1.5 text-center">
               <span
@@ -296,7 +354,7 @@ function SessionProgress() {
                 )}
               </div>
             </div>
-            {i < STEPS.length - 1 && (
+            {i < steps.length - 1 && (
               <div className="mx-2 mb-6 h-px flex-1 bg-border" />
             )}
           </Fragment>

@@ -15,6 +15,7 @@ import { api } from '@/api-client'
 import { AsyncView } from '@/components/layout/async-view'
 import { SkillIcon } from '@/components/launch/skill-icon'
 import { Panel, SectionLabel } from '@fw/ui'
+import type { MissionSession } from '@/components/mission/mission-view'
 import type { Difficulty } from '@/core/generation'
 import { EMBED_CATALOG } from '@/lib/embed-catalog'
 import { guestNextLessonPath, nextLessonPath } from '@/lib/open-course'
@@ -73,7 +74,11 @@ const cleanTitle = (t: string) => t.replace(/\s*\([^)]*\)\s*$/, '')
 
 // The app-home hero: one compact strip to start a play/learn focus session.
 // Smart-defaulted so a returning user (or a guest) just picks and hits Start.
-export function SessionLauncher({ onStart }: { onStart?: () => void }) {
+export function SessionLauncher({
+  onStart,
+}: {
+  onStart?: (session: MissionSession) => void
+}) {
   const guest = !useAuth().user
   const state = useAsync<LauncherTopic[]>(() =>
     guest
@@ -122,7 +127,7 @@ function LauncherForm({
 }: {
   topics: LauncherTopic[]
   guest: boolean
-  onStart?: () => void
+  onStart?: (session: MissionSession) => void
 }) {
   const timer = useTimer()
   const nav = useNavigate()
@@ -192,10 +197,19 @@ function LauncherForm({
     if (!topicSlug || starting) return
     setStarting(true)
     try {
-      // In-place mission transition: hand off to the parent to morph into the
-      // mission view instead of navigating to a game/lesson route.
+      // In-place mission transition: hand the chosen session to the parent to
+      // morph into the mission view instead of navigating to a game/lesson route.
       if (onStart) {
-        onStart()
+        onStart({
+          gameId,
+          gameTitle: currentGame ? cleanTitle(currentGame.title) : gameId,
+          skillName: currentTopic?.name ?? '',
+          difficulty: level,
+          playMinutes,
+          learnMinutes,
+          learnFirst,
+          estimatedXp,
+        })
         return
       }
       // Guests have no persistent difficulty track — the level selector is just

@@ -2,7 +2,11 @@ import { useState } from 'react'
 import { Navigate } from 'react-router'
 import { SessionLauncher } from '@/components/launch/session-launcher'
 import { HomeHero } from '@/components/home/hero'
-import { MissionView } from '@/components/mission/mission-view'
+import {
+  DEFAULT_SESSION,
+  MissionView,
+  type MissionSession,
+} from '@/components/mission/mission-view'
 import {
   BuiltForDevs,
   CreedBand,
@@ -26,16 +30,18 @@ const ENTER_MS = 500
 // carries the guest header/footer + the "sign up to save progress" banner.
 //
 // Starting a mission MORPHS the launcher into the in-place "mission in progress"
-// view (no page navigation); Pause reverses it. The Wolfpack shell + CreedBand
-// stay put throughout.
+// view (no page navigation); Pause reverses it. The launcher hands over the
+// chosen session; the hero's quick-start uses the defaults.
 export function GuestHome() {
   const { user, loading } = useAuth()
   const [phase, setPhase] = useState<Phase>('idle')
   const [launcherEntering, setLauncherEntering] = useState(false)
+  const [session, setSession] = useState<MissionSession>(DEFAULT_SESSION)
   if (loading) return null
   if (user) return <Navigate to="/app" replace />
 
-  function startMission() {
+  function startMission(next?: MissionSession) {
+    setSession(next ?? DEFAULT_SESSION)
     setLauncherEntering(false)
     setPhase('exiting')
     window.setTimeout(() => setPhase('running'), EXIT_MS)
@@ -62,7 +68,7 @@ export function GuestHome() {
               : 'animate-in fade-in slide-in-from-bottom-4 duration-500',
           )}
         >
-          <MissionView onPause={pauseMission} />
+          <MissionView session={session} onPause={pauseMission} />
         </div>
       ) : (
         <div
