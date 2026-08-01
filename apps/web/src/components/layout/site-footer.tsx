@@ -65,7 +65,7 @@ export function SiteFooter() {
         ))}
       </div>
       <div className="border-t border-background/20 px-6 py-3 text-center font-mono text-[10px] tracking-widest text-background/50 uppercase">
-        © 2025 Fullstack Wolfpack · All rights reserved
+        © {new Date().getFullYear()} Fullstack Wolfpack · All rights reserved
       </div>
     </footer>
   )
