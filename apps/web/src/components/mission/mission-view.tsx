@@ -15,6 +15,7 @@ import { type ReactNode } from 'react'
 import { Panel } from '@fw/ui'
 import { LessonStage } from '@/components/mission/lesson-stage'
 import { MissionGame } from '@/components/mission/mission-game'
+import { MissionLessonResolver } from '@/components/mission/mission-lesson-resolver'
 import { SessionProgress } from '@/components/mission/session-progress'
 import type { FocusPhase } from '@/core/focus-session'
 import { useTimer } from '@/hooks/timer-context'
@@ -64,11 +65,11 @@ export function MissionView({
 
       <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
         <div className="relative min-w-0">
-          {/* Both the game and the lesson stay mounted the whole session — the
-              game so its WebGL state survives (going `display:none` loses the
-              context and it comes back black), the lesson so it keeps feeding the
-              Mission Control table of contents in both phases. The inactive one
-              sits behind, transparent, out of the layout. */}
+          {/* The game stays mounted the whole session so its state is preserved.
+              During learn we take it out of the layout (the lesson takes the
+              stage) but keep it *rendered* — off-screen with `display:none`
+              loses the WebGL context and the game comes back black, so instead
+              it sits behind, transparent, at its natural size. */}
           <div
             className={cn(
               learnPhase &&
@@ -77,19 +78,16 @@ export function MissionView({
           >
             <GameStage session={session} paused={learnPhase || paused} />
           </div>
-          <div
-            className={cn(
-              !learnPhase &&
-                'pointer-events-none absolute inset-0 -z-10 overflow-hidden opacity-0',
-            )}
-          >
-            <LessonStage onResume={timer.skip} />
-          </div>
+          {learnPhase && <LessonStage onResume={timer.skip} />}
         </div>
         <MissionControl session={session} phase={phase} onSkip={timer.skip} />
       </div>
 
       <SessionProgress />
+
+      {/* Feeds the Mission Control TOC during play (the lesson player, which
+          feeds it during learn, isn't mounted then). */}
+      <MissionLessonResolver active={!learnPhase} onEnterSection={timer.skip} />
     </div>
   )
 }
@@ -318,9 +316,9 @@ function MissionControl({
           </button>
         </div>
 
-        {/* The lesson TOC rides along in both phases — while playing it's a
-            read-only "where am I in the lesson" glance; in learn it navigates. */}
-        <LessonToc readOnly={!learn} />
+        {/* The lesson table of contents — shown in both phases so you can see
+            where you are in the lesson while playing, not just while learning. */}
+        <LessonToc />
 
         <div className="border-t border-border" />
 
@@ -366,9 +364,8 @@ function MissionControl({
 
 // The live lesson table of contents, fed by the embedded lesson player: each
 // section marked done / current / upcoming so you can see where you are in the
-// lesson at a glance. Clickable to navigate during learn; read-only while
-// playing (a glance, not a control).
-function LessonToc({ readOnly = false }: { readOnly?: boolean }) {
+// lesson at a glance.
+function LessonToc() {
   const toc = useMissionLessonToc()
   if (!toc) {
     return (
@@ -402,50 +399,36 @@ function LessonToc({ readOnly = false }: { readOnly?: boolean }) {
           const isCurrent = i === toc.index
           const isDone = isDoneAt(i)
           const Icon = isDone ? CircleCheck : isCurrent ? CircleDot : Circle
-          const icon = (
-            <Icon
-              className={cn(
-                'mt-px size-3.5 shrink-0',
-                isDone
-                  ? 'text-emerald-600 dark:text-emerald-400'
-                  : isCurrent
-                    ? 'text-blue-600 dark:text-blue-400'
-                    : 'text-muted-foreground/40',
-              )}
-            />
-          )
-          const label = (
-            <span
-              className={cn(
-                'font-mono text-xs leading-tight transition-colors',
-                isCurrent
-                  ? 'font-semibold text-foreground'
-                  : isDone
-                    ? 'text-muted-foreground'
-                    : 'text-muted-foreground/60',
-                !readOnly && !isCurrent && 'group-hover:text-foreground',
-              )}
-            >
-              {seg.title}
-            </span>
-          )
           return (
             <li key={seg.id}>
-              {readOnly ? (
-                <div className="flex w-full items-start gap-2 py-0.5">
-                  {icon}
-                  {label}
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => toc.onJump(i)}
-                  className="group flex w-full cursor-pointer items-start gap-2 rounded-md py-0.5 text-left"
+              <button
+                type="button"
+                onClick={() => toc.onJump(i)}
+                className="group flex w-full items-start gap-2 rounded-md py-0.5 text-left"
+              >
+                <Icon
+                  className={cn(
+                    'mt-px size-3.5 shrink-0',
+                    isDone
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : isCurrent
+                        ? 'text-blue-600 dark:text-blue-400'
+                        : 'text-muted-foreground/40',
+                  )}
+                />
+                <span
+                  className={cn(
+                    'font-mono text-xs leading-tight transition-colors',
+                    isCurrent
+                      ? 'font-semibold text-foreground'
+                      : isDone
+                        ? 'text-muted-foreground group-hover:text-foreground'
+                        : 'text-muted-foreground/60 group-hover:text-foreground',
+                  )}
                 >
-                  {icon}
-                  {label}
-                </button>
-              )}
+                  {seg.title}
+                </span>
+              </button>
             </li>
           )
         })}
