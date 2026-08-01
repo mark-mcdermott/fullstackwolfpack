@@ -83,20 +83,24 @@
     --sidebar-ring: oklch(0.708 0 0);
 }
 
+/* Dark theme — a deep navy near-black rather than shadcn's neutral gray, so the
+   surfaces read as the FW-01 mocks: panels are defined by their hairline border
+   and sit barely above the page, not as gray slabs on black. Every dark step is
+   the same hue (~267) so nothing looks muddy next to the blue page glow. */
 .dark {
-    --background: oklch(0.145 0 0);
+    --background: oklch(0.14 0.014 268);
     --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
+    --card: oklch(0.159 0.016 267);
     --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
+    --popover: oklch(0.2 0.019 266);
     --popover-foreground: oklch(0.985 0 0);
     --primary: oklch(0.62 0.223 27.3);
     --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.269 0 0);
+    --secondary: oklch(0.249 0.03 267);
     --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
+    --muted: oklch(0.249 0.03 267);
+    --muted-foreground: oklch(0.714 0.028 264);
+    --accent: oklch(0.249 0.03 267);
     --accent-foreground: oklch(0.985 0 0);
     --destructive: oklch(0.704 0.191 22.216);
     --border: oklch(1 0 0 / 10%);
@@ -107,11 +111,11 @@
     --chart-3: oklch(0.439 0 0);
     --chart-4: oklch(0.371 0 0);
     --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
+    --sidebar: oklch(0.159 0.016 267);
     --sidebar-foreground: oklch(0.985 0 0);
     --sidebar-primary: oklch(0.62 0.223 27.3);
     --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent: oklch(0.249 0.03 267);
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.556 0 0);
@@ -125,7 +129,7 @@
     @apply bg-background text-foreground;
     }
   html {
-    @apply font-sans;
+    @apply font-sans motion-safe:scroll-smooth;
     }
   h1 {
     @apply font-heading;
@@ -138,6 +142,35 @@
   [role="button"]:not([aria-disabled="true"]) {
     @apply cursor-pointer;
     }
+}
+
+/* Page atmosphere (dark only): a deep-blue glow rising off the bottom of the
+   viewport, plus a fine film grain over it. Both are fixed full-viewport layers
+   behind the content — body's own background propagates to the canvas, so a
+   negative z-index paints above it and below everything else.
+   The grain isn't decoration: an 8-bit gradient this dark and this tall bands
+   badly, and the noise dithers it away. */
+.dark body::before,
+.dark body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.dark body::before {
+  background: linear-gradient(
+    to top,
+    oklch(0.38 0.09 264 / 0.34) 0%,
+    oklch(0.32 0.08 264 / 0.16) 28%,
+    transparent 62%
+  );
+}
+
+.dark body::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.045;
 }
 
 /* FW-01 tactical HUD detail language — ported from apps/site for the marketing

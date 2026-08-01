@@ -1,30 +1,35 @@
-import { ArrowRight } from 'lucide-react'
+import { ArrowDown } from 'lucide-react'
 import { Panel } from '@fw/ui'
 
 // The guest-home hero: the "your next level starts here" splash over the
-// skyline + a first-mission CTA, plus Akela's card (creed + daily challenge).
+// skyline, plus Akela's card (creed + daily challenge).
 // Theme-aware (bg-card / border / foreground tokens flip light↔dark); the
 // skyline photo stays dark in both themes with a `from-card` gradient fading it
 // into the card so the copy reads.
-export function HomeHero({ onStart }: { onStart?: () => void }) {
-  const ctaClass =
-    'inline-flex h-11 w-fit items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-xs font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90'
+//
+// The CTA is deliberately an outlined *scroll link*, not a second primary: the
+// launcher below owns the one solid button on the page. It used to quick-start
+// with DEFAULT_SESSION, which is the launcher's own initial state — the same
+// action twice, at the same visual weight. It earns its place on mobile, where
+// the launcher's button sits well below the fold.
+export function HomeHero() {
   return (
     <section className="grid gap-6 lg:grid-cols-[1fr_21rem]">
       {/* Splash card */}
       <Panel
         brackets={false}
-        className="relative min-h-[16rem] overflow-hidden rounded-2xl p-0 md:min-h-[19rem]"
+        className="relative min-h-[19rem] overflow-hidden rounded-2xl p-0 md:min-h-[22rem] lg:min-h-[24.5rem]"
       >
         <img
           src="/images/footer-1.png"
           alt=""
           aria-hidden="true"
-          className="absolute inset-y-0 right-0 h-full w-full object-cover object-left [mask-image:linear-gradient(to_right,transparent,black_20%)] md:w-[62%]"
+          className="absolute inset-y-0 right-0 h-full w-full object-cover object-left brightness-105 contrast-[1.12] saturate-[1.25] [mask-image:linear-gradient(to_right,transparent,black_20%)] md:w-[62%]"
         />
-        {/* Theme-colored wash: fades the photo into the card, stronger on the
-            left (behind the copy) and lighter on mobile-vs-desktop. */}
-        <div className="absolute inset-0 bg-gradient-to-r from-card from-25% via-card/85 to-card/40 md:via-card/70 md:to-transparent" />
+        {/* Theme-colored wash: fades the photo into the card behind the copy,
+            then clears well before the skyline so the neon stays punchy — a
+            veil carried across the whole photo is what made it read hazy. */}
+        <div className="absolute inset-0 bg-gradient-to-r from-card from-25% via-card/85 to-card/40 md:via-card/60 md:via-45% md:to-transparent md:to-64%" />
 
         <div className="relative flex h-full flex-col justify-center gap-6 p-6 sm:p-8">
           <div>
@@ -42,17 +47,13 @@ export function HomeHero({ onStart }: { onStart?: () => void }) {
             </div>
           </div>
 
-          {onStart ? (
-            <button type="button" onClick={() => onStart()} className={ctaClass}>
-              Start your first mission
-              <ArrowRight className="size-4" />
-            </button>
-          ) : (
-            <a href="#start-session" className={ctaClass}>
-              Start your first mission
-              <ArrowRight className="size-4" />
-            </a>
-          )}
+          <a
+            href="#start-session"
+            className="group inline-flex h-11 w-fit items-center justify-center gap-2 rounded-lg border border-primary/50 px-6 font-mono text-xs font-semibold tracking-widest text-primary uppercase transition-colors hover:border-primary hover:bg-primary/10"
+          >
+            Build your session
+            <ArrowDown className="size-4 transition-transform group-hover:translate-y-0.5" />
+          </a>
         </div>
       </Panel>
 

@@ -162,7 +162,7 @@ export function GuestHome() {
               onDiscard={discardMission}
             />
           )}
-          <HomeHero onStart={startMission} />
+          <HomeHero />
           <SessionLauncher onStart={startMission} />
         </div>
       )}

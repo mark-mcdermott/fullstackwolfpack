@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { WolfMark } from '@fw/ui'
+import { siteUrl } from '@/consts'
 // Parked while we zoom in on the core loop — restore alongside the fuller
 // footer below:
 // import { Globe } from 'lucide-react'
@@ -12,18 +13,16 @@ import { WolfMark } from '@fw/ui'
 // } from '@/components/auth/brand-icons'
 
 // FW-01 marketing footer — redesigned around the core loop: Akela's creed and
-// the terminal readout over the skyline, then a slim brand + nav row. The
-// fuller footer (link columns, social row, copyright) is commented out at the
-// bottom — we're focused on the main flow and will resurface it later.
-// Parked with the nav row below — bottom-right links are hidden for now, just a
-// copyright. Restore both together.
-// const NAV: [string, string][] = [
-//   ['How It Works', '/how-it-works'],
-//   ['Features', '/features'],
-//   ['Pricing', '/pricing'],
-//   ['Blog', '/blog'],
-//   ['About Us', '/about'],
-// ]
+// the terminal readout over the skyline, then a slim brand + nav + status row.
+// The fuller footer (link columns, social row, copyright) is commented out at
+// the bottom — we're focused on the main flow and will resurface it later.
+const NAV: [string, string][] = [
+  ['How It Works', '/how-it-works'],
+  ['Features', '/features'],
+  ['Pricing', '/pricing'],
+  ['Blog', '/blog'],
+  ['About Us', '/about'],
+]
 
 // Parked — the full three-column link set + socials (the new nav row above is a
 // curated subset). Restore when we widen the footer scope again.
@@ -66,14 +65,14 @@ import { WolfMark } from '@fw/ui'
 
 export function FwFooter() {
   return (
-    <footer className="bg-background text-muted-foreground">
+    <footer className="text-muted-foreground">
       {/* The skyline creed + terminal band moved into the guest homepage as
           `<CreedBand />` (a bordered card under the session launcher); the
           footer is now just the slim status bar. */}
 
       {/* Slim brand + nav row */}
       <div className="border-t border-border">
-        <div className="mx-auto flex max-w-7xl flex-col items-center gap-5 px-5 py-6 md:flex-row md:justify-between md:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-5 px-5 py-6 md:flex-row md:justify-between md:gap-8 md:px-8">
           <Link
             to="/"
             aria-label="Fullstack Wolfpack home"
@@ -84,30 +83,28 @@ export function FwFooter() {
               ウルフパック
             </span>
           </Link>
-          {/* Nav links parked while we focus the flow — a status readout for now.
           <nav className="flex flex-wrap items-center justify-center gap-x-7 gap-y-2">
             {NAV.map(([label, to]) => (
               <a
                 key={label}
                 href={siteUrl(to)}
-                className="font-mono text-xs tracking-wide text-muted-foreground uppercase transition-colors hover:text-foreground"
+                className="font-mono text-xs tracking-wide text-foreground/80 transition-colors hover:text-foreground"
               >
                 {label}
               </a>
             ))}
           </nav>
-          */}
           {/* Status readout — all one muted color; each item reads as a phrase,
               not a key/value pair. */}
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 font-mono text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
               API
               <span className="size-1.5 rounded-full bg-green-500" />
-              Healthy
+              <span className="text-blue-600 dark:text-blue-400">Healthy</span>
             </span>
             <span>Build v0.1.0</span>
             <span>Deployed 2h ago</span>
-            <span>Env Production</span>
+            <span>Env: Production</span>
             <span>&copy; {new Date().getFullYear()}</span>
           </div>
         </div>
