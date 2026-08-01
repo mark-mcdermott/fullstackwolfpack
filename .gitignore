@@ -31,5 +31,9 @@ dist-ssr
 # Astro
 .astro/
 
+# Astro adapter build output (Vercel)
+.vercel/
+.vercel/output/
+
 # git worktrees live here (not tracked)
 worktrees/
