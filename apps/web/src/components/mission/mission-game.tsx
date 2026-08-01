@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
-import { bindsToRetroarchConfig } from '@/core/controls'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { TouchControls } from '@/components/controls/touch-controls'
+import { bindsToRetroarchConfig, type RetroButton } from '@/core/controls'
 import { coreForSystem } from '@/core/roms'
 import { launchRom, type EmulatorSession } from '@/lib/emulator'
 import {
@@ -8,16 +9,27 @@ import {
   RomNotFoundError,
 } from '@/lib/rom-catalog'
 import { loadGamepadBinds, loadKeyboardBinds } from '@/lib/controls-store'
+import { useCoarsePointer } from '@/hooks/use-coarse-pointer'
 
 type Status = 'loading' | 'playing' | 'missing' | 'error'
 
-// Mounts just the emulator canvas for a ROM — the lean core of RomPlayer without
-// its full-page chrome — so the mission stage can host a live, keyboard-playable
-// game. Keyboard binds come from the user's saved controls (arrows + Z/X etc.).
+// Mounts the emulator canvas for a ROM — the lean core of RomPlayer without its
+// full-page chrome — centered at the game's aspect. Keyboard-playable on desktop;
+// on touch devices an on-screen gamepad (TouchControls) drives the same session.
 export function MissionGame({ rom }: { rom: PlayableRom }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const sessionRef = useRef<EmulatorSession | null>(null)
   const [status, setStatus] = useState<Status>('loading')
+  const coarse = useCoarsePointer()
+
+  const pressDown = useCallback(
+    (b: RetroButton) => sessionRef.current?.pressDown(b),
+    [],
+  )
+  const pressUp = useCallback(
+    (b: RetroButton) => sessionRef.current?.pressUp(b),
+    [],
+  )
 
   useEffect(() => {
     let cancelled = false
@@ -67,18 +79,23 @@ export function MissionGame({ rom }: { rom: PlayableRom }) {
   }, [rom])
 
   return (
-    <div className="relative h-full w-full bg-black">
-      <div ref={containerRef} className="absolute inset-0" />
-      {status !== 'playing' && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="font-mono text-[11px] tracking-wide text-white/50">
-            {status === 'loading'
-              ? `Loading ${rom.title}…`
-              : status === 'missing'
-                ? `${rom.title} not found`
-                : 'Failed to start the game'}
-          </span>
-        </div>
+    <div className="flex w-full flex-col items-center gap-4">
+      <div className="relative aspect-[10/9] w-full max-w-[42rem] overflow-hidden rounded-md border border-white/10 bg-black">
+        <div ref={containerRef} className="absolute inset-0" />
+        {status !== 'playing' && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="font-mono text-[11px] tracking-wide text-white/50">
+              {status === 'loading'
+                ? `Loading ${rom.title}…`
+                : status === 'missing'
+                  ? `${rom.title} not found`
+                  : 'Failed to start the game'}
+            </span>
+          </div>
+        )}
+      </div>
+      {coarse && status === 'playing' && (
+        <TouchControls system={rom.system} onDown={pressDown} onUp={pressUp} />
       )}
     </div>
   )

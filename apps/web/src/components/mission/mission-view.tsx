@@ -178,14 +178,10 @@ function GameStage({ session }: { session: MissionSession }) {
         </span>
       </div>
 
-      {/* The live game, centered at the Game Boy aspect ratio (160x144 = 10:9);
-          fills the stage width up to a generous cap, so it scales down cleanly on
-          narrow screens. */}
+      {/* The live game + its touch controls (on touch devices). */}
       <div className="flex flex-1 items-center justify-center py-4">
         {rom ? (
-          <div className="aspect-[10/9] w-full max-w-[42rem] overflow-hidden rounded-md border border-white/10">
-            <MissionGame rom={rom} />
-          </div>
+          <MissionGame rom={rom} />
         ) : (
           <span className="rounded-md border border-white/10 px-3 py-1.5 font-mono text-[11px] tracking-wide text-white/40">
             Game unavailable
@@ -319,8 +315,9 @@ function SessionProgress({ session }: { session: MissionSession }) {
         <Label>Session progress</Label>
         <ChevronDown className="size-3.5 text-muted-foreground" />
       </div>
-      <div className="mt-4 flex items-center">
-        {steps.map((s, i) => (
+      <div className="mt-4 overflow-x-auto">
+        <div className="flex min-w-[34rem] items-center">
+          {steps.map((s, i) => (
           <Fragment key={i}>
             <div className="flex shrink-0 flex-col items-center gap-1.5 text-center">
               <span
@@ -359,6 +356,7 @@ function SessionProgress({ session }: { session: MissionSession }) {
             )}
           </Fragment>
         ))}
+        </div>
       </div>
     </Panel>
   )
