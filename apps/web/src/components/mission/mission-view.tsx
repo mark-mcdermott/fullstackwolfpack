@@ -353,13 +353,17 @@ function MissionControl({
 
         <div>
           <Label>Up next</Label>
-          <div className="mt-1.5 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onSkip}
+            className="group mt-1.5 flex w-full items-center gap-2 text-left"
+          >
             {learn ? (
-              <Gamepad2 className="size-4 shrink-0 text-primary" />
+              <Gamepad2 className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
             ) : (
-              <Code className="size-4 shrink-0 text-primary" />
+              <Code className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
             )}
-            <span className="flex-1 font-mono text-sm text-foreground">
+            <span className="flex-1 font-mono text-sm text-foreground transition-colors group-hover:text-primary">
               {learn ? 'Back to the game' : `${session.skillName} Functions`}
             </span>
             <span className="shrink-0 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
@@ -367,7 +371,7 @@ function MissionControl({
                 ? `${session.playMinutes} min`
                 : `${session.learnMinutes} min lesson`}
             </span>
-          </div>
+          </button>
         </div>
 
         <div>
