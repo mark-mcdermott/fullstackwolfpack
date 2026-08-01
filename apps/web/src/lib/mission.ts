@@ -22,8 +22,8 @@ export function missionName(session: MissionSession): string {
   return `${session.gameTitle} / ${level} ${session.skillName}`
 }
 
-// The hero "Start your first mission" quick-start uses these (mirrors the guest
-// launcher's defaults) when no explicit selection is handed over.
+// Fallback session (mirrors the guest launcher's defaults) for when a mission
+// starts without an explicit selection handed over.
 export const DEFAULT_SESSION: MissionSession = {
   gameId: 'tobu-tobu-girl',
   gameTitle: 'Tobu Tobu Girl',
