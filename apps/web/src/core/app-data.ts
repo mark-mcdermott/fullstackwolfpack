@@ -54,6 +54,7 @@ export const courseLessonSchema = z.object({
   estMinutes: z.number().int(),
   status: z.string(),
 })
+export type CourseLesson = z.infer<typeof courseLessonSchema>
 export const courseOutlineSchema = z.object({
   courseId: z.string(),
   topicSlug: z.string(),
