@@ -9,10 +9,12 @@ import {
   Trophy,
   type LucideIcon,
 } from 'lucide-react'
-import { Fragment, useEffect, useState, type ReactNode } from 'react'
+import { Fragment, type ReactNode } from 'react'
 import { Panel } from '@fw/ui'
+import { FocusLessonOverlay } from '@/components/focus/focus-lesson-overlay'
 import { MissionGame } from '@/components/mission/mission-game'
 import type { Difficulty } from '@/core/generation'
+import { useTimer } from '@/hooks/timer-context'
 import { ROM_CATALOG } from '@/lib/rom-catalog'
 import { cn } from '@/lib/utils'
 
@@ -21,6 +23,7 @@ export type MissionSession = {
   gameId: string
   gameTitle: string
   skillName: string
+  topicSlug: string
   difficulty: Difficulty
   playMinutes: number
   learnMinutes: number
@@ -34,6 +37,7 @@ export const DEFAULT_SESSION: MissionSession = {
   gameId: 'tobu-tobu-girl',
   gameTitle: 'Tobu Tobu Girl',
   skillName: 'JavaScript',
+  topicSlug: 'javascript',
   difficulty: 'intermediate',
   playMinutes: 25,
   learnMinutes: 5,
@@ -60,14 +64,27 @@ export function MissionView({
   session: MissionSession
   onPause?: () => void
 }) {
+  const timer = useTimer()
+  const learnPhase = timer.active && timer.step?.phase === 'learn'
+
   return (
     <div className="flex flex-col gap-4">
-      <MissionBar session={session} onPause={onPause} />
+      <MissionBar
+        session={session}
+        secondsLeft={timer.active ? timer.secondsLeft : session.playMinutes * 60}
+        round={timer.active ? timer.currentRound : 1}
+        rounds={timer.active ? timer.rounds : 3}
+        onPause={onPause}
+      />
       <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
-        <GameStage session={session} />
-        <MissionControl session={session} />
+        <GameStage session={session} paused={learnPhase} />
+        <MissionControl session={session} onOpenLesson={timer.skip} />
       </div>
       <SessionProgress session={session} />
+
+      {/* At 0:00 (or via the skill chevron) the timer flips to the learn phase:
+          the game pauses and the real lesson takes over full-screen. */}
+      {learnPhase && <FocusLessonOverlay onResume={timer.skip} />}
     </div>
   )
 }
@@ -93,19 +110,20 @@ function Label({
 
 function MissionBar({
   session,
+  secondsLeft,
+  round,
+  rounds,
   onPause,
 }: {
   session: MissionSession
+  secondsLeft: number
+  round: number
+  rounds: number
   onPause?: () => void
 }) {
   const total = session.playMinutes * 60
-  const [left, setLeft] = useState(total)
-  useEffect(() => {
-    setLeft(total)
-    const id = setInterval(() => setLeft((s) => (s > 0 ? s - 1 : 0)), 1000)
-    return () => clearInterval(id)
-  }, [total])
-  const elapsed = total > 0 ? (1 - left / total) * 100 : 0
+  const elapsed =
+    total > 0 ? Math.max(0, Math.min(100, (1 - secondsLeft / total) * 100)) : 0
 
   return (
     <Panel brackets={false} className="rounded-2xl p-0">
@@ -132,7 +150,7 @@ function MissionBar({
           <div className="min-w-[9rem]">
             <Label>Play time left</Label>
             <div className="font-mono text-xl font-bold tabular-nums text-foreground">
-              {mmss(left)}
+              {mmss(secondsLeft)}
             </div>
             <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-muted">
               <div
@@ -144,7 +162,7 @@ function MissionBar({
           <div>
             <Label>Round</Label>
             <div className="font-mono text-xl font-bold tabular-nums text-foreground">
-              1 <span className="text-muted-foreground">/ 3</span>
+              {round} <span className="text-muted-foreground">/ {rounds}</span>
             </div>
           </div>
         </div>
@@ -162,7 +180,13 @@ function MissionBar({
   )
 }
 
-function GameStage({ session }: { session: MissionSession }) {
+function GameStage({
+  session,
+  paused,
+}: {
+  session: MissionSession
+  paused: boolean
+}) {
   const rom = ROM_CATALOG.find((g) => g.id === session.gameId)
   return (
     <Panel
@@ -181,7 +205,7 @@ function GameStage({ session }: { session: MissionSession }) {
       {/* The live game + its touch controls (on touch devices). */}
       <div className="flex flex-1 items-center justify-center py-4">
         {rom ? (
-          <MissionGame rom={rom} />
+          <MissionGame rom={rom} paused={paused} />
         ) : (
           <span className="rounded-md border border-white/10 px-3 py-1.5 font-mono text-[11px] tracking-wide text-white/40">
             Game unavailable
@@ -192,7 +216,13 @@ function GameStage({ session }: { session: MissionSession }) {
   )
 }
 
-function MissionControl({ session }: { session: MissionSession }) {
+function MissionControl({
+  session,
+  onOpenLesson,
+}: {
+  session: MissionSession
+  onOpenLesson: () => void
+}) {
   const stars = DIFF_STARS[session.difficulty]
   return (
     <Panel brackets={false} className="rounded-2xl p-5">
@@ -205,6 +235,7 @@ function MissionControl({ session }: { session: MissionSession }) {
           <Label>Current skill</Label>
           <button
             type="button"
+            onClick={onOpenLesson}
             className="mt-1.5 flex w-full items-center gap-3 rounded-lg border border-border bg-muted/40 p-2.5 text-left transition-colors hover:border-primary/60"
           >
             <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-yellow-400 font-heading text-xs font-bold text-black">
