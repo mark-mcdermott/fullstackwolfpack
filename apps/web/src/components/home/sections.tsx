@@ -32,21 +32,17 @@ export function CreedBand() {
       <div className="absolute inset-0 bg-gradient-to-l from-neutral-950/90 via-neutral-950/20 to-transparent" />
 
       <div className="relative flex min-h-[9rem] flex-col justify-center gap-6 p-6 md:flex-row md:items-center md:justify-between md:gap-8 md:px-8">
-        <blockquote className="max-w-md">
-          <span
-            aria-hidden="true"
-            className="block font-heading text-5xl leading-none text-primary"
-          >
-            &ldquo;
+        <div className="max-w-md">
+          <span className="block font-mono text-[10px] font-medium tracking-widest text-primary uppercase">
+            The Wolfpack Creed
           </span>
-          <p className="-mt-3 font-mono text-sm leading-relaxed text-neutral-100">
-            Discipline is choosing between what you want now and what you want
-            most.
+          <p className="mt-3 font-heading text-2xl leading-[1.05] font-bold tracking-wide text-neutral-50 uppercase sm:text-[1.75rem]">
+            Discipline over motivation.
           </p>
-          <cite className="mt-2 block font-mono text-xs tracking-widest text-primary uppercase not-italic">
-            — Akela
-          </cite>
-        </blockquote>
+          <p className="mt-2.5 max-w-sm font-mono text-xs leading-relaxed text-neutral-300">
+            Short sessions, stacked every day — that's how the pack levels up.
+          </p>
+        </div>
 
         <div className="shrink-0 border-white/15 md:border-l md:pl-8">
           <div className="flex flex-col gap-2 font-mono text-sm tracking-wide">

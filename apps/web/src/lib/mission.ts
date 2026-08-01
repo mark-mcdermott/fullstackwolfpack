@@ -14,6 +14,14 @@ export type MissionSession = {
   estimatedXp: number
 }
 
+// How a mission/session is named everywhere it's referred to:
+// "<game> / <skill level> <skill name>" — e.g. "Tobu Tobu Girl / Intermediate JavaScript".
+export function missionName(session: MissionSession): string {
+  const level =
+    session.difficulty.charAt(0).toUpperCase() + session.difficulty.slice(1)
+  return `${session.gameTitle} / ${level} ${session.skillName}`
+}
+
 // The hero "Start your first mission" quick-start uses these (mirrors the guest
 // launcher's defaults) when no explicit selection is handed over.
 export const DEFAULT_SESSION: MissionSession = {

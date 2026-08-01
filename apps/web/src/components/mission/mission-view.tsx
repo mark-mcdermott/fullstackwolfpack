@@ -20,7 +20,7 @@ import { SessionProgress } from '@/components/mission/session-progress'
 import type { FocusPhase } from '@/core/focus-session'
 import { useTimer } from '@/hooks/timer-context'
 import { useMissionLessonToc } from '@/lib/mission-lesson-store'
-import { type MissionSession } from '@/lib/mission'
+import { missionName, type MissionSession } from '@/lib/mission'
 import { ROM_CATALOG } from '@/lib/rom-catalog'
 import { cn } from '@/lib/utils'
 
@@ -172,7 +172,7 @@ function MissionBar({
 
   return (
     <Panel brackets={false} className="rounded-2xl p-0">
-      <div className="flex flex-wrap items-center gap-x-8 gap-y-4 p-4 md:px-6 md:py-5">
+      <div className="flex flex-wrap items-center gap-x-8 gap-y-4 px-4 pt-2 pb-4 md:px-6 md:pt-2.5 md:pb-5">
         <div className="flex items-center gap-4">
           <div className="text-center">
             <Label>Mission</Label>
@@ -183,10 +183,10 @@ function MissionBar({
           <div className="h-9 w-px bg-border" />
           <div>
             <div className="font-heading text-lg font-bold tracking-wide text-foreground uppercase">
-              {session.gameTitle}
+              {missionName(session)}
             </div>
             <div className="font-mono text-xs text-muted-foreground">
-              {learn ? `Learning · ${session.skillName}` : 'Arcade · Platformer'}
+              {learn ? 'Learning' : 'Arcade · Platformer'}
             </div>
           </div>
         </div>

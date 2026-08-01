@@ -1,7 +1,5 @@
 import { ArrowRight, Pause } from 'lucide-react'
-import type { MissionSession } from '@/lib/mission'
-
-const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+import { missionName, type MissionSession } from '@/lib/mission'
 
 // Shown on the homepage when a mission is paused ("take a break" / a fresh tab
 // that reloaded a paused session): pick it up exactly where you left off, or end
@@ -22,15 +20,14 @@ export function ResumeMissionCard({
           <Pause className="size-5" />
         </span>
         <div className="min-w-0 flex-1">
-          <span className="font-mono text-[10px] font-medium tracking-widest text-primary uppercase">
+          <span className="mt-1 mb-2 block font-mono text-[10px] leading-none font-medium tracking-widest text-primary uppercase">
             Mission paused
           </span>
           <div className="font-heading text-lg font-bold tracking-wide text-foreground uppercase">
-            {session.gameTitle}
+            {missionName(session)}
           </div>
           <div className="font-mono text-xs text-muted-foreground">
-            {session.skillName} · {cap(session.difficulty)} · pick up where you
-            left off
+            Pick up where you left off
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -45,7 +42,7 @@ export function ResumeMissionCard({
           <button
             type="button"
             onClick={onDiscard}
-            className="font-mono text-[11px] tracking-widest text-muted-foreground uppercase transition-colors hover:text-foreground"
+            className="inline-flex h-11 items-center rounded-lg border border-border px-4 font-mono text-xs font-semibold tracking-widest text-muted-foreground uppercase transition-colors hover:border-foreground hover:text-foreground"
           >
             End
           </button>
