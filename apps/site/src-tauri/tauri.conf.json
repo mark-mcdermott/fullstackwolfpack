@@ -4,10 +4,10 @@
   "version": "0.1.0",
   "identifier": "com.fullstackwolfpack.app",
   "build": {
-    "frontendDist": "../dist/client",
+    "frontendDist": "../native-shell",
     "devUrl": "http://localhost:4321",
     "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build"
+    "beforeBuildCommand": ""
   },
   "app": {
     "windows": [
