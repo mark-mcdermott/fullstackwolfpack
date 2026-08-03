@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fullstack Wolfpack</title>
+    <style>
+      html {
+        color-scheme: dark light;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        font: 500 15px/1.5 system-ui, sans-serif;
+        text-align: center;
+        padding: 2rem;
+      }
+      p {
+        max-width: 30rem;
+        opacity: 0.7;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Placeholder bundle for the native shells. It is only ever shown if the
+      webview fails to reach the deployed origin.
+
+      The mobile and desktop shells do NOT bundle the app. Passkeys are bound to
+      the WebAuthn RP origin, so a webview serving from capacitor://localhost or
+      tauri://localhost could never authenticate. Both therefore point the whole
+      webview at the deployed origin instead -- Capacitor via `server.url`
+      (CAP_SERVER_URL), Tauri via the window `url` in tauri.prod.conf.json.
+
+      Since the Astro merge there is also nothing useful to bundle: the applet
+      route is `prerender=false`, so /app is absent from the static output.
+      Pointing the shells here instead of at dist/client keeps ~49MB of arcade
+      games, ROMs and imagery out of the native binaries.
+    -->
+    <p>Fullstack Wolfpack could not reach the network. Check your connection and reopen the app.</p>
+  </body>
+</html>

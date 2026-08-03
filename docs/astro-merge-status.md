@@ -42,17 +42,17 @@ single codebase).
 
 ## Remaining
 
-1. **Prod schema** — `db:push` has never run against the production database
-   (the tooling was broken until the config moved). Take a Neon branch as a
-   restore point, then `DATABASE_URL="<prod>" npm run db:push`.
+1. ~~**Prod schema**~~ — done; `DATABASE_URL="<prod>" npm run db:push` applied.
+   Note `push` reports "Changes applied" on *every* run against *any* database:
+   the composite primary key in `db/schema/blog.ts` re-creates itself each time
+   (`primaryKey({ columns: [...] })` with no explicit `name`). Harmless, but it
+   means the message is not evidence that anything changed. Use `--verbose` to
+   see the actual statements.
 2. **Prod passkey E2E** — register + log in on the apex, and confirm `/app`
    loads data rather than erroring.
-3. **Native re-verify** — `webDir`/`frontendDist` now point at `dist/client` and
-   the origin defaults are the apex, but **no native build has been run since the
-   merge**. Capacitor should be fine (the webview loads `CAP_SERVER_URL`), but
-   Tauri bundles `frontendDist` and the applet is `prerender=false`, so it is
-   **not** in the static output — desktop likely needs to load the remote origin
-   too. Re-sync, rebuild, and verify a passkey ceremony **in-webview**.
+3. **Native passkey E2E in-webview** — the wiring is done and desktop builds
+   (see "Native shells" below), but no ceremony has been run inside a real
+   webview on a real device.
 4. **Stripe** — the webhook destination is pinned to API version `2017-06-05`,
    which predates Checkout Sessions; recreate it on a current version and run a
    test-mode checkout end to end.
