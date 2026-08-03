@@ -34,7 +34,7 @@ describe('embed games origin (sandbox hardening)', () => {
 // a game to the manifest without its LICENSE file on disk fails this test.
 const GAMES_DIR = resolve(
   dirname(fileURLToPath(import.meta.url)),
-  '../../public/games',
+  '../../../public/games',
 )
 
 describe('embed catalog', () => {

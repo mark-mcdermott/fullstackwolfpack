@@ -1,13 +1,16 @@
+import type { APIRoute } from 'astro'
+export const prerender = false
+
 import {
   generateAuthenticationOptions,
   type AuthenticatorTransportFuture,
 } from '@simplewebauthn/server'
 import { eq } from 'drizzle-orm'
-import { loginOptionsRequest } from '../../../src/core/schemas'
-import { db } from '../../../src/db'
-import { credentials, users, webauthnChallenges } from '../../../src/db/schema'
-import { rpID } from '../../../src/lib/auth'
-import { checkRateLimit } from '../../../src/server/rate-limit'
+import { loginOptionsRequest } from '@/core/schemas'
+import { db } from '@/db'
+import { credentials, users, webauthnChallenges } from '@/db/schema'
+import { rpID } from '@/lib/auth'
+import { checkRateLimit } from '@/server/rate-limit'
 import { json, tooManyRequests } from '../../_lib/http'
 import { parseBody } from '../../_lib/validate'
 
@@ -15,7 +18,7 @@ const CHALLENGE_TTL_MS = 5 * 60_000
 const LOGIN_LIMIT = { limit: 10, windowMs: 15 * 60_000 }
 
 // Step 1 of login: hand the browser a challenge + the user's known credentials.
-export async function POST(req: Request): Promise<Response> {
+export const POST: APIRoute = async ({ request: req }) => {
   const parsed = await parseBody(loginOptionsRequest, req)
   if (!parsed.ok) return parsed.response
   const { email } = parsed.data

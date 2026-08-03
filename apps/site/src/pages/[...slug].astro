@@ -1,0 +1,31 @@
+---
+// The React applet. On-demand (prerender=false) so any deep link under the SPA
+// (/app/learn/:id, /play, …) serves the shell and lets React Router take over.
+// More specific static .astro pages (index, about, pricing, …) win over this
+// catch-all, so the marketing/auth surface is carved out of it as it's built.
+export const prerender = false
+import AppRoot from '@/AppRoot'
+import '@/index.css'
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://use.typekit.net/ctl2pql.css" />
+    <title>Fullstack Wolfpack</title>
+    <script is:inline>
+      // Apply the saved theme before first paint to avoid a flash.
+      try {
+        if (localStorage.getItem('theme') === 'dark') {
+          document.documentElement.classList.add('dark')
+        }
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <AppRoot client:only="react" />
+  </body>
+</html>

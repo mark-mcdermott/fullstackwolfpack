@@ -1,16 +1,19 @@
+import type { APIRoute } from 'astro'
+export const prerender = false
+
 import { generateRegistrationOptions } from '@simplewebauthn/server'
 import { eq } from 'drizzle-orm'
-import { registerOptionsRequest } from '../../../src/core/schemas'
-import { db } from '../../../src/db'
-import { credentials, users, webauthnChallenges } from '../../../src/db/schema'
-import { rpID, rpName } from '../../../src/lib/auth'
+import { registerOptionsRequest } from '@/core/schemas'
+import { db } from '@/db'
+import { credentials, users, webauthnChallenges } from '@/db/schema'
+import { rpID, rpName } from '@/lib/auth'
 import { json } from '../../_lib/http'
 import { parseBody } from '../../_lib/validate'
 
 const CHALLENGE_TTL_MS = 5 * 60_000
 
 // Step 1 of registration: create/find the user, hand the browser a challenge.
-export async function POST(req: Request): Promise<Response> {
+export const POST: APIRoute = async ({ request: req }) => {
   const parsed = await parseBody(registerOptionsRequest, req)
   if (!parsed.ok) return parsed.response
   const { email, displayName } = parsed.data

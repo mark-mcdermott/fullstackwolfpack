@@ -8,14 +8,17 @@ Full cross-platform stack: Vite + React 19 + TS, Tailwind v4 + shadcn-ui, Drizzl
 
 ## Monorepo (npm workspaces)
 
-This is now a workspace monorepo. **The "## Layout" paths below are relative to `apps/web/`** (the app was moved wholesale; paths are otherwise unchanged).
+**One Astro deployment now** (post `docs/astro-merge-plan.md` migration — the old two-app subdomain split is gone). `apps/site` is *the* app: static marketing/content/auth pages, the React app mounted as a `client:only` **applet**, and `/api/*` as Astro endpoints — all one origin, one Vercel project.
 
-- `apps/web/` — the React SPA + `api/` serverless functions (everything the Layout section describes). Package `@fw/web`; runs from its own dir (`.env` lives here).
-- `apps/site/` — the **Astro** static public site (landing + content-collections blog). Package `@fw/site`; SSG, zero serverless functions; reuses the FW-01 look via `@fw/ui/theme.css` + the mock art in its `public/images/`.
-- `packages/ui/` — `@fw/ui`, the FW-01 design system (ui-kit / charts / wolf-sun / theme-toggle + `theme.css` tokens), registry-ready (`registry.json`) for copy-in. Consumed by `apps/web` via the `@fw/ui` alias (vite/vitest/tsconfig → `packages/ui/src`). See `docs/astro-migration-plan.md` + `CLEANROOM-V2-ROADMAP.md`.
-- Root scripts delegate to `@fw/web` (`npm run dev|build|test|db:*` all `-w @fw/web`); `npm run build -w @fw/site` builds the site.
-- **Deploy:** LIVE (subdomain split, not the old root-served `/app` plan). The app deploys from Vercel Root Directory `apps/web` (the `app.` subdomain); the Astro site deploys separately from `apps/site` at the root domain (`www.fullstackwolfpack.com`; the apex `fullstackwolfpack.com` 301s to `www`). Separate origins — the app links to the site via `SITE_URL` (`src/consts.ts`, default `https://fullstackwolfpack.com`), so the signed-out `/` redirect + sign-out land on the marketing site.
-- **Not yet done:** `packages/core` extraction (logic still in `apps/web/src/core`); the app still ships its own copy of the theme tokens (`apps/web/src/index.css`) pending de-dup onto `@fw/ui/theme.css`.
+- `apps/site/` — package `@fw/site`, the whole product. **Astro 5 + `@astrojs/react` + `@astrojs/vercel`.** Structure:
+  - `src/app/` — the **React SPA**, moved wholesale from the old `apps/web/src`. Its `@/…` imports resolve here via the `@`→`src/app` alias (astro.config + vitest.config + `src/app/tsconfig.json`). Mounted by `src/app/AppRoot.tsx` (the old `main.tsx` provider stack) as a `client:only="react"` island in `src/pages/[...slug].astro` (on-demand catch-all; static `.astro` pages win over it). Colocated unit tests run from here (`npm test -w @fw/site` → 483 tests).
+  - `src/pages/api/**` — the API, ported from the old Vercel functions to Astro `APIRoute`s (`export const GET: APIRoute = async ({ request: req }) => …`, `prerender=false`). `_lib/` helpers stay relative + Astro-unrouted (underscore prefix). The `@astrojs/vercel` adapter bundles **every** route (API + applet) into **one** function (`_render.func`) — collapsing the old 12/12 Vercel Hobby function cap to ~1.
+  - `src/pages/*.astro`, `src/layouts/Base.astro`, `src/components/*.astro` — the static marketing/content/blog surface + shared chrome (FW-01 look). `.env` + `.env.example` live here; astro.config loads `.env` into `process.env` for the endpoints under `astro dev`.
+- `apps/web/` — **decommissioned** by the migration (its `src/` and `api/` moved into `apps/site`). Only the native shells remain live here (`ios/`, `android/`, `src-tauri/`, `capacitor.config.ts`) pending re-point at the Astro build output + final deletion during the deploy/native step. Its web-SPA configs (`vite.config.ts`, `dev-api.ts`, `index.html`, `vercel.json`) are dead.
+- `packages/ui/` — `@fw/ui`, the FW-01 design system (ui-kit / charts / wolf-sun / theme-toggle + `theme.css` tokens), registry-ready (`registry.json`). Consumed via the `@fw/ui` alias.
+- Root scripts delegate to `@fw/site` (`npm run dev|build|test`); `db:*`/`tauri`/`cap` root scripts still point at `@fw/web` and need re-pointing during cleanup.
+- **The "## Layout" paths below now live under `apps/site/src/app/`** (e.g. Layout's `src/core` = `apps/site/src/app/core`), and the `api/` it describes is `apps/site/src/pages/api/` (handlers now Astro `APIRoute`s, otherwise the same logic). `packages/core` extraction was superseded by folding into the single app; the `@/` alias makes it unnecessary.
+- **Deploy (target end state):** single Vercel project, Root Directory `apps/site`, the one canonical origin `fullstackwolfpack.com` (`RP_ID`/`RP_ORIGIN` = apex). Not yet configured on Vercel — see the migration hand-off.
 
 ## Layout
 

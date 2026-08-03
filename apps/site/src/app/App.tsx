@@ -36,10 +36,13 @@ function App() {
         <Route path="/signup" element={<SignUpPage />} />
       </Route>
 
-      {/* Public (guest) — the app IS the front door. `/` lands guests on the
-          launcher (signed-in → /app); no marketing bounce. No RequireAuth. */}
+      {/* Public (guest) — the interactive core-loop launcher + try-before-signup
+          surfaces. `/` is now the static Astro marketing landing (Decision 2), so
+          the launcher lives at `/start`; `/` stays as a same-app fallback. No
+          RequireAuth. */}
       <Route element={<GuestLayout />}>
         <Route path="/" element={<GuestHome />} />
+        <Route path="/start" element={<GuestHome />} />
         <Route path="/play" element={<ArcadePage />} />
         <Route path="/learn" element={<LearnBrowse />} />
         <Route path="/learn/:lessonId" element={<GuestLearn />} />
