@@ -29,25 +29,39 @@ single codebase).
   header (`fetch /api/auth/me` once via `nanostores`). Header currently shows only
   the "Start Learning" CTA; auth state is handled inside the applet.
 
-## Remaining — Phase 5 (needs interactive access; NOT done autonomously)
+## Phase 5 — done
 
-1. **Vercel project** — single project, Root Directory `apps/site`, domain
-   `fullstackwolfpack.com` (apex). Retire the old two-project subdomain split.
-2. **Env vars** on that project: `DATABASE_URL`, `AUTH_SECRET`, `ENCRYPTION_KEY`,
-   `RP_ID=fullstackwolfpack.com`, `RP_ORIGIN=https://fullstackwolfpack.com`,
-   plus optional `STRIPE_*`, AI keys, `ABLY_API_KEY`. See `apps/site/.env.example`.
-3. **Local passkey E2E** — set `apps/site/.env` `RP_ORIGIN=http://localhost:4321`,
-   `npm run dev`, register + log in a passkey against the one dev origin.
-4. **Native shells** (still in `apps/web/{ios,android,src-tauri}`) — re-point at the
-   Astro build + apex origin (`CAP_SERVER_URL`/`VITE_API_BASE`/`capacitor.config`
-   `webDir`, Tauri `frontendDist`), re-sync/re-sign, and verify a passkey ceremony
-   **in-webview**. Consider relocating the native projects under `apps/site`.
-5. **Delete `apps/web`** once native builds target `apps/site` (its `src/`+`api/`
-   already moved, as are `drizzle.config.ts`/`scripts/` and the `db:*` root
-   scripts; only native shells + dead web-SPA configs remain). Still to re-point:
-   the `tauri`/`cap` root scripts, and `lint` (points at `@fw/web`'s now-empty
-   oxlint run). If enabling dev-mode in prod, port `middleware.ts` to
-   `apps/site/src/middleware.ts` (Astro middleware IP allowlist).
+1. ✅ **Vercel project** — `fullstackwolfpack-astro`, Root Directory `apps/site`,
+   apex `fullstackwolfpack.com` as production with `www` 308-redirecting to it.
+2. ✅ **Env vars** — `DATABASE_URL` (Production only, so previews can't write prod),
+   `AUTH_SECRET`, `ENCRYPTION_KEY` (both rotated — the originals were Sensitive and
+   unreadable), `RP_ID`/`RP_ORIGIN` = apex, `STRIPE_*`, AI keys, `ABLY_API_KEY`.
+3. ✅ **Local passkey E2E** — register + login verified against `localhost:4321`.
+4. ✅ **`apps/web` deleted** — native shells relocated to `apps/site`, all root
+   scripts (`db:*`, `lint`, `tauri`, `cap`) delegate to `@fw/site`.
+
+## Remaining
+
+1. **Prod schema** — `db:push` has never run against the production database
+   (the tooling was broken until the config moved). Take a Neon branch as a
+   restore point, then `DATABASE_URL="<prod>" npm run db:push`.
+2. **Prod passkey E2E** — register + log in on the apex, and confirm `/app`
+   loads data rather than erroring.
+3. **Native re-verify** — `webDir`/`frontendDist` now point at `dist/client` and
+   the origin defaults are the apex, but **no native build has been run since the
+   merge**. Capacitor should be fine (the webview loads `CAP_SERVER_URL`), but
+   Tauri bundles `frontendDist` and the applet is `prerender=false`, so it is
+   **not** in the static output — desktop likely needs to load the remote origin
+   too. Re-sync, rebuild, and verify a passkey ceremony **in-webview**.
+4. **Stripe** — the webhook destination is pinned to API version `2017-06-05`,
+   which predates Checkout Sessions; recreate it on a current version and run a
+   test-mode checkout end to end.
+5. **Retire the old Vercel project** — `fullstackwolfpack` (the `app.` subdomain)
+   is Git-disconnected but still serving, and is the rollback path plus the
+   current target of any installed native build. Delete after step 3.
+6. If enabling dev-mode in prod, add an Astro IP-allowlist middleware at
+   `apps/site/src/middleware.ts` (the old Vercel-edge version is in git history
+   at `apps/web/middleware.ts`).
 
 ## Dev quickstart
 

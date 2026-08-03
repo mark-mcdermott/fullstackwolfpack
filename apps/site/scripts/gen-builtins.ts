@@ -123,14 +123,14 @@ async function main() {
   let model: string
   if (provider === 'anthropic') {
     if (!anthropicKey) {
-      console.error('ANTHROPIC_API_KEY is not set (add it to apps/web/.env).')
+      console.error('ANTHROPIC_API_KEY is not set (add it to apps/site/.env).')
       process.exit(1)
     }
     model = process.env.ANTHROPIC_GEN_MODEL ?? 'claude-opus-4-8'
     generator = anthropicGenerator(anthropicKey, { model })
   } else {
     if (!openaiKey) {
-      console.error('OPENAI_API_KEY is not set (add it to apps/web/.env).')
+      console.error('OPENAI_API_KEY is not set (add it to apps/site/.env).')
       process.exit(1)
     }
     model = process.env.OPENAI_MODEL ?? 'gpt-4o'
