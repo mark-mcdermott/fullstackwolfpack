@@ -6,7 +6,7 @@ Third-party assets and how to credit them.
 
 All bundled titles clear the 🟢 Green bucket in
 [`docs/rom-licensing.md`](docs/rom-licensing.md) (redistributable in a closed
-commercial app). Binaries live in `apps/web/public/roms/`.
+commercial app). Binaries live in `apps/site/public/roms/`.
 
 - **Paddle Duel** (from openNES-Pong), **Brick Buster** (from openNES-Breakout),
   **Snake** (from openNES-Snake) — © sebastiandine, **zlib** license —
@@ -21,7 +21,7 @@ commercial app). Binaries live in `apps/web/public/roms/`.
 
 ## Active favicon — wolf mark
 
-- **Where:** `apps/web/public/favicon.svg` and `apps/site/public/favicon.svg`.
+- **Where:** `apps/site/public/favicon.svg`.
 - **What it is:** a single-path geometric wolf (Illustrator boilerplate stripped —
   ids, `<g>` wrapper, xml prolog removed). **Theme-adaptive:** fills `#0a0a0a`
   (matches `--foreground`) and swaps to `#fafafa` on dark browser chrome via an

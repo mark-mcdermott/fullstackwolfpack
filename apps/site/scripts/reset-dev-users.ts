@@ -30,7 +30,7 @@ import {
 //
 // Safe by construction: it only ever touches the dev-*@example.com emails, which
 // don't exist in production (the `become` endpoint is dev-gated). Run with:
-//   npm run db:reset-dev            (dev DB, from apps/web/.env)
+//   npm run db:reset-dev            (dev DB, from apps/site/.env)
 //   tsx --env-file=.env.prod scripts/reset-dev-users.ts   (targets prod — no-op
 //                                                           since dev users don't
 //                                                           exist there)

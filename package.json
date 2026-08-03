@@ -13,7 +13,7 @@
     "preview": "npm run preview -w @fw/site",
     "test": "npm run test -w @fw/site",
     "test:watch": "npm run test:watch -w @fw/site",
-    "lint": "npm run lint -w @fw/web",
+    "lint": "npm run lint -w @fw/site",
     "db:seed": "npm run db:seed -w @fw/site",
     "db:reset-dev": "npm run db:reset-dev -w @fw/site",
     "gen:builtins": "npm run gen:builtins -w @fw/site --",
@@ -21,11 +21,11 @@
     "db:migrate": "npm run db:migrate -w @fw/site",
     "db:push": "npm run db:push -w @fw/site",
     "db:studio": "npm run db:studio -w @fw/site",
-    "tauri": "npm run tauri -w @fw/web",
-    "tauri:build:prod": "npm run tauri:build:prod -w @fw/web",
-    "cap": "npm run cap -w @fw/web",
-    "cap:sync": "npm run cap:sync -w @fw/web",
-    "cap:sync:prod": "npm run cap:sync:prod -w @fw/web"
+    "tauri": "npm run tauri -w @fw/site",
+    "tauri:build:prod": "npm run tauri:build:prod -w @fw/site",
+    "cap": "npm run cap -w @fw/site",
+    "cap:sync": "npm run cap:sync -w @fw/site",
+    "cap:sync:prod": "npm run cap:sync:prod -w @fw/site"
   },
   "devDependencies": {
     "concurrently": "^10.0.3"
