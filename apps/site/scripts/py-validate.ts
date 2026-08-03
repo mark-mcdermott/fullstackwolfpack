@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { loadPyodide } from 'pyodide'
-import { summarizeOutcomes } from '../src/core/exercise'
-import { runPythonTests, type PyodideLike } from '../src/core/python-runner'
+import { summarizeOutcomes } from '../src/app/core/exercise'
+import { runPythonTests, type PyodideLike } from '../src/app/core/python-runner'
 
 // Validate ONE Python solution against its tests, in an isolated process so the
 // parent (server/python-gate.ts) can enforce a hard timeout by killing it — an

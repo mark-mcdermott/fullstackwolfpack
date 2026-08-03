@@ -43,9 +43,10 @@ single codebase).
    `webDir`, Tauri `frontendDist`), re-sync/re-sign, and verify a passkey ceremony
    **in-webview**. Consider relocating the native projects under `apps/site`.
 5. **Delete `apps/web`** once native builds target `apps/site` (its `src/`+`api/`
-   already moved; only native shells + dead web-SPA configs remain). Re-point the
-   `db:*`/`tauri`/`cap` root scripts + move `drizzle.config.ts`/`scripts/` to
-   `apps/site`. If enabling dev-mode in prod, port `middleware.ts` to
+   already moved, as are `drizzle.config.ts`/`scripts/` and the `db:*` root
+   scripts; only native shells + dead web-SPA configs remain). Still to re-point:
+   the `tauri`/`cap` root scripts, and `lint` (points at `@fw/web`'s now-empty
+   oxlint run). If enabling dev-mode in prod, port `middleware.ts` to
    `apps/site/src/middleware.ts` (Astro middleware IP allowlist).
 
 ## Dev quickstart
