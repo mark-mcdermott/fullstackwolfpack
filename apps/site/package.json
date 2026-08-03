@@ -8,7 +8,14 @@
     "build": "astro build",
     "preview": "astro preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "tsx --env-file=.env scripts/seed.ts",
+    "db:reset-dev": "tsx --env-file=.env scripts/reset-dev-users.ts",
+    "gen:builtins": "tsx --env-file=.env scripts/gen-builtins.ts"
   },
   "dependencies": {
     "@astrojs/react": "^4.4.2",
@@ -54,8 +61,10 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.0.2",
+    "drizzle-kit": "^0.31.10",
     "pyodide": "^314.0.2",
     "tailwindcss": "^4.3.2",
+    "tsx": "^4.22.4",
     "vite": "^8.1.0",
     "vitest": "^4.1.9"
   }

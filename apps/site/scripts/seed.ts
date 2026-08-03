@@ -1,6 +1,6 @@
 import process from 'node:process'
 import { eq } from 'drizzle-orm'
-import { db } from '../src/db'
+import { db } from '../src/app/db'
 import {
   achievements,
   courses,
@@ -10,13 +10,13 @@ import {
   levels,
   quizQuestions,
   topics,
-} from '../src/db/schema'
-import { BUILTIN_COURSES } from '../src/db/seed-content'
+} from '../src/app/db/schema'
+import { BUILTIN_COURSES } from '../src/app/db/seed-content'
 import {
   SEED_ACHIEVEMENTS,
   SEED_LEVELS,
   SEED_TOPICS,
-} from '../src/db/seed-data'
+} from '../src/app/db/seed-data'
 
 // Idempotent catalog seed. Run after `npm run db:push`, with DATABASE_URL set.
 // `npm run db:seed` loads .env automatically.

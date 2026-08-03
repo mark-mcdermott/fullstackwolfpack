@@ -1,6 +1,6 @@
 import { eq, inArray, or } from 'drizzle-orm'
-import { DEV_USERS } from '../api/_lib/dev-users'
-import { db } from '../src/db'
+import { DEV_USERS } from '../src/pages/api/_lib/dev-users'
+import { db } from '../src/app/db'
 import {
   courses,
   dailyActivity,
@@ -20,7 +20,7 @@ import {
   userTopics,
   users,
   xpEvents,
-} from '../src/db/schema'
+} from '../src/app/db/schema'
 
 // Dev-only: wipe all accumulated data for the three Dev Mode test users
 // (dev-unpaid/paid/admin@example.com) WITHOUT deleting the accounts — scores,
