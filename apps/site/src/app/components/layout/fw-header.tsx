@@ -35,7 +35,13 @@ const NAV: {
 // The active underline is a fixed width — roughly the width of "ARCADE" — so it
 // reads as a consistent marker rather than shrink-wrapping each label. Every
 // item reserves it (transparent when inactive) to keep the row from reflowing.
-const UNDERLINE_WIDTH = 'w-16'
+// Also the nav item's width, so the underline can't be the full 72px on phones
+// without the row overflowing — three fixed 72px cells plus the brand blow past
+// a 375px viewport.
+const UNDERLINE_WIDTH = 'w-11 sm:w-[72px]'
+
+// Item width is the underline's, so centre-to-centre spacing is 72 + gap.
+const NAV_GAP = 'sm:gap-[62px]'
 
 export function FwHeader() {
   // While a mission is on screen, clicking the brand leaves it (same as the
@@ -49,8 +55,13 @@ export function FwHeader() {
       {/* Brand + nav + toggle all refuse to shrink, so below `sm` every gap and
           type step tightens instead — the row overflowed the viewport on 320–370px
           phones otherwise. */}
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-6">
-        {/* Brand */}
+      {/* Padding is deliberately asymmetric: the brand column's ink sits high
+          inside its line boxes, so even vertical padding leaves the whole row
+          reading a few pixels above centre. */}
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-9 sm:pt-[23px] sm:pb-[18px]">
+        {/* Brand. `flex-1` on the two outer cells (basis 0, equal grow) is what
+            centres the nav in the bar; `justify-between` alone would let the
+            wider brand push it off-centre. */}
         <NavLink
           to="/"
           onClick={(e) => {
@@ -59,54 +70,67 @@ export function FwHeader() {
               missionExit()
             }
           }}
-          className="flex shrink-0 items-center gap-2 sm:gap-4"
+          className="flex flex-1 shrink-0 items-center gap-2 sm:gap-[14px]"
         >
-          <WolfMark className="h-12 text-foreground sm:h-16" />
-          <span className="flex flex-col font-heading leading-[0.8]">
-            <span className="text-xl font-bold tracking-wide text-foreground sm:text-3xl">
+          {/* `mb-1` rides the mark 2px up against the centre line, where it
+              optically balances the two-line wordmark beside it. */}
+          <WolfMark className="h-12 text-foreground sm:mb-1 sm:h-[58px]" />
+          {/* The line-height has to ride on the same utility as the font size:
+              a named `text-*` step ships its own line-height and would override
+              a `leading-*` inherited from this wrapper. */}
+          <span className="flex flex-col font-heading">
+            <span className="text-xl/[0.8] font-bold tracking-[0.08em] text-foreground sm:text-[26px]/[24px]">
               FULLSTACK
             </span>
-            <span className="text-xl font-bold tracking-wide text-foreground sm:text-3xl">
+            <span className="text-xl/[0.8] font-bold tracking-[0.08em] text-foreground sm:text-[26px]/[24px]">
               WOLFPACK
             </span>
             {/* Katakana, not Teko — the display face has no kana, so this line
                 falls through to the sans stack. `font-variation-settings: normal`
                 opts it out of the heading font's pinned 400 axis (theme.css),
                 which would otherwise swallow the weight bump. */}
-            <span className="mt-1 text-[9px] font-medium tracking-widest text-primary [font-variation-settings:normal] sm:text-xs">
+            <span className="mt-[4px] text-[9px] font-medium tracking-widest text-primary [font-variation-settings:normal] sm:text-xs/[12px]">
               ウルフパック
             </span>
           </span>
         </NavLink>
 
         {/* Primary nav */}
-        <nav className="flex items-center gap-4 sm:gap-9">
+        {/* Nudged a hair below true centre: Teko's uppercase ink sits high in
+            its line box, so a centred nav optically rides above the wordmark. */}
+        <nav className={cn('mt-1 flex items-center gap-4', NAV_GAP)}>
           {NAV.map(({ to, label, end, minWidth }) => (
             <NavLink
               key={to}
               to={to}
               end={end}
               className={cn(
-                'group flex flex-col items-center gap-1.5',
+                // Fixed width so centre-to-centre spacing is even regardless of
+                // label length, and `relative` to hang the underline off.
+                'group relative flex flex-col items-center',
+                UNDERLINE_WIDTH,
                 minWidth ?? 'flex',
               )}
             >
               {({ isActive }) => (
                 <>
+                  {/* The active label is plain foreground, not primary — only
+                      the underline carries the accent. */}
                   <span
                     className={cn(
-                      'font-heading text-lg tracking-widest uppercase transition-colors sm:text-xl',
+                      'font-heading text-lg tracking-wide uppercase transition-colors sm:text-2xl',
                       isActive
-                        ? 'text-primary'
+                        ? 'text-foreground'
                         : 'text-muted-foreground group-hover:text-foreground',
                     )}
                   >
                     {label}
                   </span>
+                  {/* Out of flow, so only the label participates in the bar's
+                      vertical centring — in flow it dragged the label upward. */}
                   <span
                     className={cn(
-                      'h-0.5 transition-colors',
-                      UNDERLINE_WIDTH,
+                      'absolute top-full left-0 mt-1 h-[5px] w-full transition-colors',
                       isActive ? 'bg-primary' : 'bg-transparent',
                     )}
                   />
@@ -117,16 +141,18 @@ export function FwHeader() {
         </nav>
 
         {/* Latency readout + API health + light/dark toggle */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex flex-1 items-center justify-end gap-2 sm:gap-[23px]">
           <LatencyReadout />
-          <span className="hidden items-center gap-2 font-mono text-sm text-foreground sm:flex">
-            <span className="size-2 rounded-full bg-green-500" />
+          <span className="hidden items-center gap-3.5 font-mono text-[13px] text-foreground sm:flex">
+            <span className="size-2.5 rounded-full bg-green-500" />
             Healthy
           </span>
-          <span className="hidden h-6 w-px bg-border sm:block" />
-          {/* The toggle owns its own padding; the arbitrary variant sizes the
-              icon it renders, which is otherwise fixed at `size-4`. */}
-          <ThemeToggle className="[&_svg]:size-6" />
+          <span className="hidden h-[38px] w-px bg-border sm:block" />
+          {/* The arbitrary variant sizes the icon, which ThemeToggle otherwise
+              fixes at `size-4`. `-mx-2` cancels the button's own padding for
+              layout — so it lines up as if it were just the glyph — while the
+              button keeps its full 44px tap target. */}
+          <ThemeToggle className="-mx-2 [&_svg]:size-7" />
           {/* Parked with the rest of the guest CTA work.
           {!user && (
             <Link
