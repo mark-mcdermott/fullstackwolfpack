@@ -1,25 +1,51 @@
-import { BookOpen, Gamepad2, Home, Signal, type LucideProps } from 'lucide-react'
+import {
+  BookOpen,
+  Gamepad2,
+  Home,
+  LayoutGrid,
+  Signal,
+  Users,
+  type LucideProps,
+} from 'lucide-react'
 import type { ComponentType } from 'react'
-import { NavLink } from 'react-router'
+import { NavLink, Link } from 'react-router'
 import { ThemeToggle, WolfMark } from '@fw/ui'
+import { useAuth } from '@/hooks/auth-context'
 import { useMissionExit } from '@/lib/mission-exit-store'
 import { cn } from '@/lib/utils'
 
 // FW-01 header — a full-width bar with the wolf brand, the primary nav (icon +
-// label, active in red with an underline), a latency readout, and the light/
-// dark toggle. Used on the guest surfaces (`/`, `/learn`, `/play`) and the auth
-// pages.
+// label, active in red with an underline), a latency readout, the light/dark
+// toggle, and a Log in CTA for guests. Used on the guest surfaces (`/`,
+// `/learn`, `/play`) and the auth pages.
+//
+// `minWidth` hides the tail of the nav on narrow viewports rather than letting
+// five items overflow — the brand and toggle refuse to shrink, so something has
+// to give below `md`.
 const NAV: {
   to: string
   label: string
   icon: ComponentType<LucideProps>
   end?: boolean
+  minWidth?: string
 }[] = [
   { to: '/', label: 'Play', icon: Home, end: true },
   { to: '/learn', label: 'Learn', icon: BookOpen },
   { to: '/play', label: 'Arcade', icon: Gamepad2 },
-  // Hidden for now (kept for when we resurface it in the nav):
-  // { to: '/leaderboard', label: 'Ranks', icon: Medal },
+  // No guest community surface yet — this is the real page, behind RequireAuth,
+  // so a logged-out click funnels to /login rather than 404ing on /community.
+  {
+    to: '/app/friends',
+    label: 'Community',
+    icon: Users,
+    minWidth: 'hidden md:flex',
+  },
+  {
+    to: '/leaderboard',
+    label: 'Leaderboard',
+    icon: LayoutGrid,
+    minWidth: 'hidden lg:flex',
+  },
 ]
 
 export function FwHeader() {
@@ -27,6 +53,7 @@ export function FwHeader() {
   // bar's ✕ / "take a break") instead of re-navigating to the already-current
   // route, which would do nothing and strand you in the session.
   const missionExit = useMissionExit()
+  const { user } = useAuth()
   return (
     // Transparent so the page grain/glow (index.css `body::before`) runs behind
     // it unbroken; the layout wrapper supplies the base color.
@@ -62,12 +89,15 @@ export function FwHeader() {
 
         {/* Primary nav */}
         <nav className="flex items-center gap-4 sm:gap-9">
-          {NAV.map(({ to, label, icon: Icon, end }) => (
+          {NAV.map(({ to, label, icon: Icon, end, minWidth }) => (
             <NavLink
               key={to}
               to={to}
               end={end}
-              className="group flex flex-col items-center gap-1.5"
+              className={cn(
+                'group flex flex-col items-center gap-1.5',
+                minWidth ?? 'flex',
+              )}
             >
               {({ isActive }) => (
                 <>
@@ -101,10 +131,18 @@ export function FwHeader() {
           ))}
         </nav>
 
-        {/* Latency readout + light/dark toggle */}
+        {/* Latency readout + light/dark toggle + the guest Log in CTA */}
         <div className="flex items-center gap-2 sm:gap-3">
           <LatencyReadout />
           <ThemeToggle />
+          {!user && (
+            <Link
+              to="/login"
+              className="hidden h-9 items-center justify-center rounded-lg border border-primary/60 px-4 font-mono text-xs font-semibold tracking-widest text-primary uppercase transition-colors hover:border-primary hover:bg-primary/10 sm:inline-flex"
+            >
+              Log in
+            </Link>
+          )}
         </div>
       </div>
     </header>

@@ -169,11 +169,11 @@ function LauncherForm({
   // The order swap reorders the two time fields (learn-first opens a lesson
   // before the game; play-first drops straight into the game).
   const first = learnFirst
-    ? { label: 'Learn time', name: 'Learn', value: learnMinutes, set: setLearnMinutes }
-    : { label: 'Play time', name: 'Play', value: playMinutes, set: setPlayMinutes }
+    ? { label: 'Focus time', name: 'Learn', value: learnMinutes, set: setLearnMinutes }
+    : { label: 'Mission length', name: 'Play', value: playMinutes, set: setPlayMinutes }
   const second = learnFirst
-    ? { label: 'Play time', name: 'Play', value: playMinutes, set: setPlayMinutes }
-    : { label: 'Learn time', name: 'Learn', value: learnMinutes, set: setLearnMinutes }
+    ? { label: 'Mission length', name: 'Play', value: playMinutes, set: setPlayMinutes }
+    : { label: 'Focus time', name: 'Learn', value: learnMinutes, set: setLearnMinutes }
 
   function onTopicChange(slug: string) {
     setTopicSlug(slug)
@@ -246,9 +246,9 @@ function LauncherForm({
       className="flex scroll-mt-24 flex-col gap-5 rounded-2xl p-5 sm:p-6"
     >
       <div className="flex items-center justify-between gap-4">
-        <SectionLabel>Start a session</SectionLabel>
+        <SectionLabel>Configure your mission</SectionLabel>
         <span className="hidden font-mono text-[10px] tracking-widest text-muted-foreground uppercase sm:inline">
-          Play a game · learn between rounds
+          Each mission. Every day. Real progress.
         </span>
       </div>
 
@@ -262,7 +262,7 @@ function LauncherForm({
             the md single line (title wraps as they narrow); fixed w-52 at
             >=1024. */}
         <Control
-          label="Choose a game"
+          label="Game mode"
           className="w-full md:max-[1023px]:w-auto md:max-[1023px]:min-w-0 md:max-[1023px]:flex-1 lg:w-52"
         >
           <SelectCard
@@ -283,14 +283,14 @@ function LauncherForm({
               )
             }
             title={currentGame ? cleanTitle(currentGame.title) : 'Select a game'}
-            subtitle={currentGame ? 'Ready to play' : 'Pick a game to begin'}
+            subtitle={currentGame ? 'Arcade mode' : 'Pick a game to begin'}
             selected={!!currentGame}
             onClick={cycleGame}
           />
         </Control>
 
         <Control
-          label="Choose a skill"
+          label="Target skill"
           className="w-full md:max-[1023px]:w-auto md:max-[1023px]:min-w-0 md:max-[1023px]:flex-1 lg:w-52"
         >
           <SelectCard
@@ -311,7 +311,7 @@ function LauncherForm({
         </Control>
 
         {/* Shown only at >=1150. */}
-        <Control label="Skill difficulty" className="max-[1149px]:hidden">
+        <Control label="Difficulty" className="max-[1149px]:hidden">
           <RatingStars rating={currentTopic ? LEVEL_RATING[level] : null} />
         </Control>
 
@@ -356,7 +356,7 @@ function LauncherForm({
             at the end of the row. */}
         <div className="flex flex-col items-center gap-3 max-[1023px]:w-full lg:max-[1149px]:flex-1 lg:max-[1149px]:flex-row lg:max-[1149px]:items-end lg:max-[1149px]:justify-center lg:max-[1149px]:gap-4 min-[1150px]:items-stretch min-[1150px]:w-52">
           <div className="flex flex-col gap-1.5 max-[1149px]:hidden">
-            <FieldLabel>Estimated XP</FieldLabel>
+            <FieldLabel>Reward</FieldLabel>
             <div className="flex h-16 items-center">
               {ready ? (
                 <div className="flex w-full items-center justify-between gap-2">

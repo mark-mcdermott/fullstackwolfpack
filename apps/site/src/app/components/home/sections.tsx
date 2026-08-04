@@ -14,43 +14,48 @@ import { WolfMark } from '@fw/ui'
 import { cn } from '@/lib/utils'
 
 // Akela's creed + the terminal readout, as a bordered card that sits under the
-// session launcher. The skyline photo stays dark in both themes; the copy over
-// it is light.
+// session launcher. Theme-aware: in dark the skyline burns through against a
+// near-black scrim; in light the same photo is knocked back to a pale wash so
+// the dark copy reads over it (the band used to be hard-dark in both themes,
+// which left a black slab sitting in the middle of the light page).
 export function CreedBand() {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border">
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-card">
       <img
         src="/images/creed-bg.png"
         alt=""
         aria-hidden="true"
-        className="absolute inset-0 h-full w-full object-cover object-center md:[mask-image:linear-gradient(to_right,transparent,black_30%,black_85%,transparent)]"
+        className="absolute inset-0 h-full w-full object-cover object-center opacity-45 dark:opacity-100 md:[mask-image:linear-gradient(to_right,transparent,black_30%,black_85%,transparent)]"
       />
-      <div className="absolute inset-0 bg-neutral-950/55" />
-      <div className="absolute inset-0 bg-gradient-to-r from-neutral-950 via-neutral-950/40 to-transparent" />
-      {/* Darken the right so the terminal readout isn't cluttered by the
+      {/* Scrims are drawn in the card colour, so they follow the theme. */}
+      <div className="absolute inset-0 bg-card/35 dark:bg-neutral-950/55" />
+      <div className="absolute inset-0 bg-gradient-to-r from-card via-card/50 to-transparent dark:from-neutral-950 dark:via-neutral-950/40" />
+      {/* Knock back the right so the terminal readout isn't cluttered by the
           image's baked-in neon text. */}
-      <div className="absolute inset-0 bg-gradient-to-l from-neutral-950/90 via-neutral-950/20 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-l from-card/90 via-card/30 to-transparent dark:from-neutral-950/90 dark:via-neutral-950/20" />
 
       <div className="relative flex min-h-[9rem] flex-col justify-center gap-6 p-6 md:flex-row md:items-center md:justify-between md:gap-8 md:px-8">
         <div className="max-w-md">
           <span className="block font-mono text-[10px] font-medium tracking-widest text-primary uppercase">
             The Wolfpack Creed
           </span>
-          <p className="mt-3 font-heading text-2xl leading-[1.05] font-bold tracking-wide text-neutral-50 uppercase sm:text-[1.75rem]">
+          <p className="mt-3 font-heading text-2xl leading-[1.05] font-bold tracking-wide text-foreground uppercase sm:text-[1.75rem] dark:text-neutral-50">
             Discipline over motivation.
           </p>
-          <p className="mt-2.5 max-w-sm font-mono text-xs leading-relaxed text-neutral-300">
+          <p className="mt-2.5 max-w-sm font-mono text-xs leading-relaxed text-muted-foreground dark:text-neutral-300">
             Short sessions, stacked every day — that's how the pack levels up.
           </p>
         </div>
 
-        <div className="shrink-0 border-white/15 md:border-l md:pl-8">
+        <div className="shrink-0 border-border md:border-l md:pl-8 dark:border-white/15">
           <div className="flex flex-col gap-2 font-mono text-sm tracking-wide">
             <span className="text-primary">&gt; LOCK IN</span>
-            <span className="text-blue-400">&gt; KEEP LEARNING</span>
+            <span className="text-blue-600 dark:text-blue-400">
+              &gt; KEEP LEARNING
+            </span>
             <span className="text-primary">&gt; LEVEL UP</span>
           </div>
-          <div className="fw-barcode mt-4 h-3 w-44 text-neutral-500" />
+          <div className="fw-barcode mt-4 h-3 w-44 text-muted-foreground dark:text-neutral-500" />
         </div>
       </div>
     </div>
