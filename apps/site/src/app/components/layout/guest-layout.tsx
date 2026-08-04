@@ -16,7 +16,7 @@ export function GuestLayout() {
     <div className="flex min-h-svh flex-col text-foreground">
       <FwHeader />
       {/* {!user && <GuestBanner />} */}
-      <main className="mx-auto w-full max-w-7xl flex-1 px-5 py-6">
+      <main className="fw-dot-field relative isolate mx-auto w-full max-w-7xl flex-1 px-5 py-6">
         <Outlet />
       </main>
       <FwFooter />

@@ -246,3 +246,27 @@
     transparent 1px 10px
   );
 }
+
+/* FW-01 halftone — a fine dot field pinned to the host's top-left corner,
+   fading out to the right and down. Light only: it's a flat printed texture,
+   and dark already carries its own atmosphere (`.dark body::before`).
+   The host needs `relative isolate` so the -1 layer sits behind that host's
+   content rather than dropping behind the page itself. */
+:root:not(.dark) .fw-dot-field::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 24rem;
+  height: 20rem;
+  pointer-events: none;
+  background-image: radial-gradient(oklch(0 0 0 / 0.1) 1.4px, transparent 1.5px);
+  background-size: 9.5px 9.5px;
+  -webkit-mask-image: radial-gradient(
+    ellipse at top left,
+    #000 0%,
+    transparent 58%
+  );
+  mask-image: radial-gradient(ellipse at top left, #000 0%, transparent 58%);
+}
