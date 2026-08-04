@@ -8,6 +8,11 @@
 
 @theme inline {
     --font-heading: 'Teko Variable', var(--font-sans);
+    /* Teko is pinned to its 400 weight everywhere, titles included. The axis is
+       set here rather than by editing ~70 call sites, and because it is a
+       variation axis it also wins over the `font-bold`/`font-semibold`
+       utilities those headings still carry — they are inert on heading text. */
+    --font-heading--font-variation-settings: "wght" 400;
     --font-sans: 'Geist Variable', sans-serif;
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
