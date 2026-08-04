@@ -5,6 +5,9 @@
 @import "@fontsource-variable/teko";
 
 @custom-variant dark (&:is(.dark *));
+/* The mirror of `dark`, for the handful of treatments that only apply to the
+   light theme — `dark:` resets on every one of them read as noise. */
+@custom-variant light (&:not(.dark *));
 
 @theme inline {
     --font-heading: 'Teko Variable', var(--font-sans);

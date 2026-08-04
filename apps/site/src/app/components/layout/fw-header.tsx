@@ -48,7 +48,10 @@ export function FwHeader() {
   return (
     // Transparent so the page grain/glow (index.css `body::before`) runs behind
     // it unbroken; the layout wrapper supplies the base color.
-    <header className="border-b border-border">
+    // Light mode floats the bar as a rounded card inset from the page edges;
+    // dark keeps the full-bleed bar with just a bottom rule. Both surfaces are
+    // white in light, so the border and shadow are what read as the card edge.
+    <header className="border-b border-border light:mx-3 light:mt-3 light:rounded-xl light:border light:shadow-sm sm:light:mx-7 sm:light:mt-4">
       {/* Brand + nav + toggle all refuse to shrink, so below `sm` every gap and
           type step tightens instead — the row overflowed the viewport on 320–370px
           phones otherwise. */}
