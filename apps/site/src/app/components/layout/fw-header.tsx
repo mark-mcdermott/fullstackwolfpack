@@ -1,59 +1,47 @@
-import {
-  BookOpen,
-  Gamepad2,
-  Home,
-  LayoutGrid,
-  Signal,
-  Users,
-  type LucideProps,
-} from 'lucide-react'
-import type { ComponentType } from 'react'
-import { NavLink, Link } from 'react-router'
+import { Signal } from 'lucide-react'
+import { NavLink } from 'react-router'
 import { ThemeToggle, WolfMark } from '@fw/ui'
-import { useAuth } from '@/hooks/auth-context'
 import { useMissionExit } from '@/lib/mission-exit-store'
 import { cn } from '@/lib/utils'
 
-// FW-01 header — a full-width bar with the wolf brand, the primary nav (icon +
-// label, active in red with an underline), a latency readout, the light/dark
-// toggle, and a Log in CTA for guests. Used on the guest surfaces (`/`,
+// FW-01 header — a full-width bar with the wolf brand, the primary nav (label
+// only, active in red over a fixed-width underline), a latency readout, an API
+// health pip, and the light/dark toggle. Used on the guest surfaces (`/`,
 // `/learn`, `/play`) and the auth pages.
 //
 // `minWidth` hides the tail of the nav on narrow viewports rather than letting
-// five items overflow — the brand and toggle refuse to shrink, so something has
+// the items overflow — the brand and toggle refuse to shrink, so something has
 // to give below `md`.
 const NAV: {
   to: string
   label: string
-  icon: ComponentType<LucideProps>
   end?: boolean
   minWidth?: string
 }[] = [
-  { to: '/', label: 'Play', icon: Home, end: true },
-  { to: '/learn', label: 'Learn', icon: BookOpen },
-  { to: '/play', label: 'Arcade', icon: Gamepad2 },
-  // No guest community surface yet — this is the real page, behind RequireAuth,
-  // so a logged-out click funnels to /login rather than 404ing on /community.
-  {
-    to: '/app/friends',
-    label: 'Community',
-    icon: Users,
-    minWidth: 'hidden md:flex',
-  },
+  { to: '/', label: 'Play', end: true },
+  { to: '/learn', label: 'Learn' },
+  { to: '/play', label: 'Arcade' },
+  // Parked. There is no guest community surface yet; this pointed at the real
+  // page behind RequireAuth so a logged-out click funnelled to /login rather
+  // than 404ing on /community.
+  // { to: '/app/friends', label: 'Community', minWidth: 'hidden md:flex' },
   {
     to: '/leaderboard',
     label: 'Leaderboard',
-    icon: LayoutGrid,
     minWidth: 'hidden lg:flex',
   },
 ]
+
+// The active underline is a fixed width — roughly the width of "ARCADE" — so it
+// reads as a consistent marker rather than shrink-wrapping each label. Every
+// item reserves it (transparent when inactive) to keep the row from reflowing.
+const UNDERLINE_WIDTH = 'w-16'
 
 export function FwHeader() {
   // While a mission is on screen, clicking the brand leaves it (same as the
   // bar's ✕ / "take a break") instead of re-navigating to the already-current
   // route, which would do nothing and strand you in the session.
   const missionExit = useMissionExit()
-  const { user } = useAuth()
   return (
     // Transparent so the page grain/glow (index.css `body::before`) runs behind
     // it unbroken; the layout wrapper supplies the base color.
@@ -73,15 +61,19 @@ export function FwHeader() {
           }}
           className="flex shrink-0 items-center gap-2 sm:gap-4"
         >
-          <WolfMark className="h-9 text-foreground sm:h-12" />
-          <span className="flex flex-col font-heading leading-[0.95]">
-            <span className="text-sm font-bold tracking-wide text-foreground sm:text-xl">
+          <WolfMark className="h-12 text-foreground sm:h-16" />
+          <span className="flex flex-col font-heading leading-[0.8]">
+            <span className="text-xl font-bold tracking-wide text-foreground sm:text-3xl">
               FULLSTACK
             </span>
-            <span className="text-sm font-bold tracking-wide text-foreground sm:text-xl">
+            <span className="text-xl font-bold tracking-wide text-foreground sm:text-3xl">
               WOLFPACK
             </span>
-            <span className="mt-0.5 text-[9px] font-normal tracking-widest text-primary sm:text-xs">
+            {/* Katakana, not Teko — the display face has no kana, so this line
+                falls through to the sans stack. `font-variation-settings: normal`
+                opts it out of the heading font's pinned 400 axis (theme.css),
+                which would otherwise swallow the weight bump. */}
+            <span className="mt-1 text-[9px] font-medium tracking-widest text-primary [font-variation-settings:normal] sm:text-xs">
               ウルフパック
             </span>
           </span>
@@ -89,7 +81,7 @@ export function FwHeader() {
 
         {/* Primary nav */}
         <nav className="flex items-center gap-4 sm:gap-9">
-          {NAV.map(({ to, label, icon: Icon, end, minWidth }) => (
+          {NAV.map(({ to, label, end, minWidth }) => (
             <NavLink
               key={to}
               to={to}
@@ -101,17 +93,9 @@ export function FwHeader() {
             >
               {({ isActive }) => (
                 <>
-                  <Icon
-                    className={cn(
-                      'size-5 transition-colors sm:size-6',
-                      isActive
-                        ? 'text-primary'
-                        : 'text-muted-foreground group-hover:text-foreground',
-                    )}
-                  />
                   <span
                     className={cn(
-                      'font-heading text-xs tracking-widest uppercase transition-colors',
+                      'font-heading text-lg tracking-widest uppercase transition-colors sm:text-xl',
                       isActive
                         ? 'text-primary'
                         : 'text-muted-foreground group-hover:text-foreground',
@@ -121,7 +105,8 @@ export function FwHeader() {
                   </span>
                   <span
                     className={cn(
-                      'h-0.5 w-full transition-colors',
+                      'h-0.5 transition-colors',
+                      UNDERLINE_WIDTH,
                       isActive ? 'bg-primary' : 'bg-transparent',
                     )}
                   />
@@ -131,10 +116,18 @@ export function FwHeader() {
           ))}
         </nav>
 
-        {/* Latency readout + light/dark toggle + the guest Log in CTA */}
+        {/* Latency readout + API health + light/dark toggle */}
         <div className="flex items-center gap-2 sm:gap-3">
           <LatencyReadout />
-          <ThemeToggle />
+          <span className="hidden items-center gap-2 font-mono text-sm text-foreground sm:flex">
+            <span className="size-2 rounded-full bg-green-500" />
+            Healthy
+          </span>
+          <span className="hidden h-6 w-px bg-border sm:block" />
+          {/* The toggle owns its own padding; the arbitrary variant sizes the
+              icon it renders, which is otherwise fixed at `size-4`. */}
+          <ThemeToggle className="[&_svg]:size-6" />
+          {/* Parked with the rest of the guest CTA work.
           {!user && (
             <Link
               to="/login"
@@ -142,7 +135,7 @@ export function FwHeader() {
             >
               Log in
             </Link>
-          )}
+          )} */}
         </div>
       </div>
     </header>
