@@ -260,6 +260,7 @@
   z-index: -1;
   width: 24rem;
   height: 20rem;
+  opacity: 0.6;
   pointer-events: none;
   background-image: radial-gradient(oklch(0 0 0 / 0.1) 2.1px, transparent 2.2px);
   background-size: 9.5px 9.5px;
