@@ -37,9 +37,10 @@ function App() {
       </Route>
 
       {/* Public (guest) — the interactive core-loop launcher + try-before-signup
-          surfaces. `/` is now the static Astro marketing landing (Decision 2), so
-          the launcher lives at `/start`; `/` stays as a same-app fallback. No
-          RequireAuth. */}
+          surfaces. The launcher is now the site root: there is no index.astro,
+          so `/` falls through to the applet catch-all and lands here. `/start`
+          is kept as an alias so existing links and CTAs still work. The old
+          marketing landing is parked at `/welcome`. No RequireAuth. */}
       <Route element={<GuestLayout />}>
         <Route path="/" element={<GuestHome />} />
         <Route path="/start" element={<GuestHome />} />
