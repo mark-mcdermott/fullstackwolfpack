@@ -2,11 +2,12 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
+@import "@fontsource-variable/teko";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --font-heading: 'placa', var(--font-sans);
+    --font-heading: 'Teko Variable', var(--font-sans);
     --font-sans: 'Geist Variable', sans-serif;
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);

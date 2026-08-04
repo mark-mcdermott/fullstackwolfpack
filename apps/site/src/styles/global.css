@@ -1,7 +1,7 @@
 @import '@fw/ui/theme.css';
 
 /* Marketing site tweaks: the "white" areas read as a light warm-gray, and the
-   big sci-fi display headings use Sui Generis (Adobe Fonts). Scoped to light
+   big display headings use Teko (self-hosted via Fontsource). Scoped to light
    mode only (`:not(.dark)`) so it can't override theme.css's `.dark` background
    — both selectors have equal specificity, so an unscoped `:root` would win by
    source order and leave dark mode with a light background. */
@@ -10,8 +10,8 @@
 }
 
 .font-display {
-  font-family: 'sui-generis', var(--font-sans);
-  font-weight: 500;
+  font-family: 'Teko Variable', var(--font-sans);
+  font-weight: 600;
   font-style: normal;
 }
 
