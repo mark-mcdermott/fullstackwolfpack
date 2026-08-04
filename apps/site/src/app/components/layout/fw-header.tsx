@@ -1,4 +1,4 @@
-import { Signal } from 'lucide-react'
+// import { Signal } from 'lucide-react' // parked with LatencyReadout
 import { NavLink } from 'react-router'
 import { ThemeToggle, WolfMark } from '@fw/ui'
 import { useMissionExit } from '@/lib/mission-exit-store'
@@ -25,11 +25,8 @@ const NAV: {
   // page behind RequireAuth so a logged-out click funnelled to /login rather
   // than 404ing on /community.
   // { to: '/app/friends', label: 'Community', minWidth: 'hidden md:flex' },
-  {
-    to: '/leaderboard',
-    label: 'Leaderboard',
-    minWidth: 'hidden lg:flex',
-  },
+  // Parked alongside Community — the bar is Play / Learn / Arcade for now.
+  // { to: '/leaderboard', label: 'Leaderboard', minWidth: 'hidden lg:flex' },
 ]
 
 // The active underline is a fixed width — roughly the width of "ARCADE" — so it
@@ -41,7 +38,7 @@ const NAV: {
 const UNDERLINE_WIDTH = 'w-11 sm:w-[72px]'
 
 // Item width is the underline's, so centre-to-centre spacing is 72 + gap.
-const NAV_GAP = 'sm:gap-[62px]'
+const NAV_GAP = 'sm:gap-[36px]'
 
 export function FwHeader() {
   // While a mission is on screen, clicking the brand leaves it (same as the
@@ -130,7 +127,7 @@ export function FwHeader() {
                       vertical centring — in flow it dragged the label upward. */}
                   <span
                     className={cn(
-                      'absolute top-full left-0 mt-1 h-[5px] w-full transition-colors',
+                      'absolute top-full left-0 mt-1 h-[3px] w-full transition-colors',
                       isActive ? 'bg-primary' : 'bg-transparent',
                     )}
                   />
@@ -142,7 +139,7 @@ export function FwHeader() {
 
         {/* Latency readout + API health + light/dark toggle */}
         <div className="flex flex-1 items-center justify-end gap-2 sm:gap-[23px]">
-          <LatencyReadout />
+          {/* <LatencyReadout /> */}
           <span className="hidden items-center gap-3.5 font-mono text-[13px] text-foreground sm:flex">
             <span className="size-2.5 rounded-full bg-green-500" />
             Healthy
@@ -168,7 +165,9 @@ export function FwHeader() {
   )
 }
 
-// Decorative latency readout (the number is cosmetic — no real ping yet).
+// Parked. Decorative latency readout (the number is cosmetic — no real ping
+// yet); the green "Healthy" pip in the bar covers the same ground.
+/*
 function LatencyReadout() {
   return (
     <div className="hidden min-w-[8.5rem] rounded-lg border border-border bg-muted/30 px-3 py-1.5 lg:block">
@@ -187,3 +186,4 @@ function LatencyReadout() {
     </div>
   )
 }
+*/
