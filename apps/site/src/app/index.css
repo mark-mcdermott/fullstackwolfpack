@@ -255,7 +255,10 @@
 :root:not(.dark) .fw-dot-field::before {
   content: '';
   position: absolute;
-  top: 0;
+  /* Tucked up under the header so the field starts flush with its bottom edge
+     rather than below the gap. The overlap is hidden by the header's own
+     light-mode surface — see the z-10 + light:bg-card on FwHeader. */
+  top: -10px;
   left: 0;
   z-index: -1;
   width: 24rem;
