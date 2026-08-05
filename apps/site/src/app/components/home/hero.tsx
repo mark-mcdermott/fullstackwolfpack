@@ -31,10 +31,15 @@ const XP_CHIPS: { className: string; tone: string }[] = [
 export function HomeHero() {
   return (
     <section className="grid gap-6 lg:grid-cols-[1fr_21rem]">
-      {/* Splash card */}
+      {/* Splash. It breaks out of <main>'s px-5/py-6 with matching negative
+          margins, so the plate runs flush under the header and off the left
+          edge as the mock has it. At lg the right margin is restored — the
+          plate stops where Akela's card begins rather than passing behind it.
+          Transparent, not `bg-card`: the panel sits over the page itself, so
+          the halftone field reads through the plate's faded left edge. */}
       <Panel
         brackets={false}
-        className="relative min-h-[19rem] overflow-hidden rounded-none border-0 p-0 md:min-h-[22rem] lg:min-h-[24.5rem]"
+        className="relative -mx-5 -mt-6 min-h-[19rem] overflow-hidden rounded-none border-0 bg-transparent p-0 md:min-h-[22rem] lg:mr-0 lg:min-h-[24.5rem]"
       >
         {/* Decorative, so the art rides on a background rather than an <img>:
             the theme picks the plate via `--hero-image` (index.css), which keeps
@@ -48,7 +53,7 @@ export function HomeHero() {
         {/* Theme-colored wash: fades the photo into the card behind the copy,
             then clears well before the skyline so the neon stays punchy — a
             veil carried across the whole photo is what made it read hazy. */}
-        <div className="absolute inset-0 bg-gradient-to-r from-card from-25% via-card/85 to-card/40 md:via-card/60 md:via-45% md:to-transparent md:to-64%" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background from-25% via-background/85 to-background/40 md:via-background/60 md:via-45% md:to-transparent md:to-64%" />
 
         {/* Parked with XP_CHIPS above.
         {XP_CHIPS.map(({ className, tone }, i) => (
