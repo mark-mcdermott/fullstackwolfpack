@@ -67,8 +67,8 @@ export function HomeHero() {
 
         <div className="relative flex h-full flex-col justify-center gap-6 p-6 sm:p-8">
           <div>
-            <h1 className="font-heading text-3xl leading-[0.95] font-bold uppercase sm:text-4xl md:text-5xl">
-              <span className="block text-foreground">Your next level</span>
+            <h1 className="font-heading text-3xl leading-[0.95] font-bold uppercase sm:text-4xl md:text-7xl">
+              <span className="block text-hero-title">Your next level</span>
               <span className="block text-primary">
                 Starts here
                 <span className="animate-pulse text-primary">_</span>
