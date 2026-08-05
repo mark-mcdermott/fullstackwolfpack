@@ -43,7 +43,7 @@ export function HomeHero() {
             and would blow out the high-key light one. */}
         <div
           aria-hidden="true"
-          className="absolute inset-y-0 right-0 h-full w-full bg-[image:var(--hero-image)] bg-cover bg-left [mask-image:linear-gradient(to_right,transparent,black_20%)] md:w-[62%] dark:brightness-105 dark:contrast-[1.12] dark:saturate-[1.25]"
+          className="absolute inset-y-0 right-0 h-full w-full bg-[image:var(--hero-image)] bg-cover bg-left [mask-image:linear-gradient(to_right,transparent,black_20%)] md:w-[90%] dark:brightness-105 dark:contrast-[1.12] dark:saturate-[1.25]"
         />
         {/* Theme-colored wash: fades the photo into the card behind the copy,
             then clears well before the skyline so the neon stays punchy — a
