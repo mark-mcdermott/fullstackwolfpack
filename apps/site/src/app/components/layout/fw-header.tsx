@@ -60,10 +60,7 @@ export function FwHeader() {
       {/* Brand + nav + toggle all refuse to shrink, so below `sm` every gap and
           type step tightens instead — the row overflowed the viewport on 320–370px
           phones otherwise. */}
-      {/* Padding is deliberately asymmetric: the brand column's ink sits high
-          inside its line boxes, so even vertical padding leaves the whole row
-          reading a few pixels above centre. */}
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-2 sm:gap-4 sm:px-9 sm:pt-[23px] sm:pb-[18px]">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-2 sm:gap-4 sm:px-9 sm:py-5">
         {/* Brand. `flex-1` on the two outer cells (basis 0, equal grow) is what
             centres the nav in the bar; `justify-between` alone would let the
             wider brand push it off-centre. */}
@@ -77,9 +74,7 @@ export function FwHeader() {
           }}
           className="flex flex-1 shrink-0 items-center gap-2 sm:gap-[14px]"
         >
-          {/* `mb-1` rides the mark 2px up against the centre line, where it
-              optically balances the two-line wordmark beside it. */}
-          <WolfMark className="h-12 text-foreground sm:mb-1 sm:h-[60px]" />
+          <WolfMark className="h-12 text-foreground sm:h-[60px]" />
           {/* Two gotchas on the wordmark. The line-height has to ride on the
               same utility as the font size — a named `text-*` step ships its own
               and would override a `leading-*` inherited from this wrapper. And
@@ -106,9 +101,7 @@ export function FwHeader() {
         </NavLink>
 
         {/* Primary nav */}
-        {/* Nudged a hair below true centre: Teko's uppercase ink sits high in
-            its line box, so a centred nav optically rides above the wordmark. */}
-        <nav className={cn('mt-1 flex items-center gap-4', NAV_GAP)}>
+        <nav className={cn('flex items-center gap-4', NAV_GAP)}>
           {NAV.map(({ to, label, end, minWidth }) => (
             <NavLink
               key={to}

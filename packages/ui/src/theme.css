@@ -2,7 +2,43 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
-@import "@fontsource-variable/teko";
+/* Teko, declared by hand rather than via @fontsource's stylesheet so its
+   vertical metrics can be overridden. Teko ships ascent 95.8% / descent 45.8%,
+   but its capitals only reach 62.5% — so all-caps text carries 8px of slack
+   above and 11px below at 24px, and sits ~1.5px above the centre of its own
+   line box. Every centred Teko label inherited that.
+
+   The overrides rebalance the box around cap height and baseline (same total
+   height, redistributed), so `items-center` and equal padding now land the
+   capitals on the true centre and per-component nudges are unnecessary.
+   Devanagari subset dropped: nothing here sets Devanagari, and the kana falls
+   through to the sans stack anyway. */
+@font-face {
+  font-family: 'Teko Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300 700;
+  src: url(../../../node_modules/@fontsource-variable/teko/files/teko-latin-ext-wght-normal.woff2)
+    format('woff2-variations');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+  ascent-override: 102.1%;
+  descent-override: 39.6%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Teko Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300 700;
+  src: url(../../../node_modules/@fontsource-variable/teko/files/teko-latin-wght-normal.woff2)
+    format('woff2-variations');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+  ascent-override: 102.1%;
+  descent-override: 39.6%;
+  line-gap-override: 0%;
+}
+
 
 @custom-variant dark (&:is(.dark *));
 /* The mirror of `dark`, for the handful of treatments that only apply to the
