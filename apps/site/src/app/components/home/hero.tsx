@@ -144,16 +144,22 @@ export function HomeHero() {
           </div>
 
           <div className="mt-auto flex flex-col gap-4 ">
-            {/* The quote sits over the portrait, so it carries its own soft
-                halo — a radial wash in the card's own surface colour, fading to
-                nothing rather than ending on an edge. Per theme, since the card
-                is eggshell in light and near-black in dark. */}
-            <blockquote className="max-w-[80%] rounded-[50%/40%] px-3 py-2 -mx-3 -my-2 light:bg-[radial-gradient(ellipse_at_center,#f7f4f3_48%,#f7f4f300_78%)] dark:bg-[radial-gradient(ellipse_at_center,#0a0a0a_48%,#0a0a0a00_78%)]">
-              <p className="font-mono text-[11px] leading-relaxed text-foreground drop-shadow-none dark:text-white dark:drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
+            {/* The quote sits over the portrait, so it carries its own halo.
+                A blurred shape rather than a radial-gradient background: a
+                gradient still ends on a geometric curve, which reads as a
+                visible oval no matter how long the ramp. Blurring a solid form
+                has no edge to find. It is a sibling, not a background, because
+                `filter` would blur the text with it. */}
+            <blockquote className="relative max-w-[80%]">
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute -inset-x-7 -inset-y-5 rounded-[50%] blur-2xl light:bg-[#f7f4f3] dark:bg-[#0a0a0a]"
+              />
+              <p className="relative font-mono text-[11px] leading-relaxed text-foreground drop-shadow-none dark:text-white dark:drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
                 &ldquo;Discipline is choosing between what you want now and what
                 you want most.&rdquo;
               </p>
-              <cite className="mt-1.5 block font-mono text-[11px] font-bold text-primary not-italic">
+              <cite className="relative mt-1.5 block font-mono text-[11px] font-bold text-primary not-italic">
                 — Akela
               </cite>
             </blockquote>
