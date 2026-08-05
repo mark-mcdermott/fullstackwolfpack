@@ -104,7 +104,7 @@ export function HomeHero() {
           is light beside a light hero rather than a black slab. */}
       <Panel
         brackets={false}
-        className="relative z-10 flex flex-col overflow-hidden rounded-2xl p-0 light:border-[#e2dfde] light:bg-[#f7f4f3] md:col-start-2 md:row-start-1 md:mb-6"
+        className="relative z-10 flex flex-col overflow-hidden rounded-2xl p-0 light:border-[#e2dfde] light:bg-[#f7f4f3] light:shadow-[var(--card-shadow)] md:col-start-2 md:row-start-1 md:mb-6"
       >
         {/* Base fill for where the portrait doesn't cover — i.e. the md compact
             layout, where Akela shrinks to the right. Follows the theme: the card

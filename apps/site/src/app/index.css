@@ -133,6 +133,10 @@
        JSX so the two themes stay one DOM tree, and so only the matching file is
        ever fetched — a pair of <img> tags toggled with `hidden` would pull both
        down, and the dark plate is 2.4MB. */
+    /* Light-mode card lift. Bigger and softer than shadow-sm, which reached
+       only ~8px: the mock's carries ~12px at a lower alpha, so it reads as
+       depth rather than a hairline under the edge. */
+    --card-shadow: 0 3px 14px rgb(0 0 0 / 0.055);
     --hero-image: url('/images/hero-light.jpg');
     /* The plate's own aspect. The art layer is sized to this so its box
        hugs the image exactly — that is what lets the edge mask land on the
