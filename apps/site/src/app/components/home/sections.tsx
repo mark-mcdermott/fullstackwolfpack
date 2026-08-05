@@ -200,18 +200,17 @@ export function WolfPath() {
 }
 
 // The banner strip under the path. Breaks out of <main>'s padding so it runs to
-// the page edges like the hero plate. One plate serves both themes: light knocks
-// it back to a pale wash rather than carrying a second asset — the same trick
-// the creed band uses, and what the mock shows.
+// the page edges like the hero plate, and takes its plate from `--path-banner`
+// so each theme gets art that belongs to it — washing the night scene down for
+// light gave a purple haze, not the daylight strip the mock shows. Light is
+// framed off-centre so it reads as a city band rather than a second copy of the
+// hero's composition.
 export function PathBanner() {
   return (
     <div
       aria-hidden="true"
-      className="relative -mx-5 h-[120px] overflow-hidden sm:-mx-7 sm:h-[150px] md:h-[185px]"
-    >
-      <div className="absolute inset-0 bg-[url('/images/footer-2.png')] bg-cover bg-center light:opacity-[0.62] light:saturate-[0.85]" />
-      <div className="absolute inset-0 light:bg-[#f6f4f2]/25" />
-    </div>
+      className="-mx-5 h-[120px] bg-[image:var(--path-banner)] bg-cover bg-[position:50%_82%] sm:-mx-7 sm:h-[150px] md:h-[178px] dark:bg-cover dark:bg-center"
+    />
   )
 }
 
