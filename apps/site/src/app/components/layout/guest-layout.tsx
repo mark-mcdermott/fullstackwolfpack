@@ -16,7 +16,9 @@ export function GuestLayout() {
     <div className="flex min-h-svh flex-col text-foreground">
       <FwHeader />
       {/* {!user && <GuestBanner />} */}
-      <main className="fw-dot-field relative isolate mx-auto w-full max-w-7xl flex-1 px-5 py-6">
+      {/* `sm:px-7` matches FwHeader's `sm:mx-7`, so every tile below lines up
+          with the bar's right edge instead of overhanging it by 8px. */}
+      <main className="fw-dot-field relative isolate mx-auto w-full max-w-7xl flex-1 px-5 py-6 sm:px-7">
         <Outlet />
       </main>
       <FwFooter />
