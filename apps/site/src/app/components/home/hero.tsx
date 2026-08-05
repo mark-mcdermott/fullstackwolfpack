@@ -49,12 +49,16 @@ export function HomeHero() {
             and would blow out the high-key light one. */}
         <div
           aria-hidden="true"
-          className="absolute inset-y-0 right-0 h-full w-full bg-[image:var(--hero-image)] bg-cover bg-left [mask-image:linear-gradient(to_right,transparent,black_20%)] md:w-[90%] dark:brightness-105 dark:contrast-[1.12] dark:saturate-[1.25]"
+          className="absolute inset-y-0 right-0 h-full w-full bg-[image:var(--hero-image)] bg-cover bg-left [mask-image:linear-gradient(to_right,transparent,black_18%,black_88%,transparent)] md:w-[90%] dark:brightness-105 dark:contrast-[1.12] dark:saturate-[1.25]"
         />
         {/* Theme-colored wash: fades the photo into the card behind the copy,
             then clears well before the skyline so the neon stays punchy — a
             veil carried across the whole photo is what made it read hazy. */}
-        <div className="absolute inset-0 bg-gradient-to-r from-background from-25% via-background/85 to-background/40 md:via-background/60 md:via-45% md:to-transparent md:to-64%" />
+        {/* Starts transparent, not at full `background`: the plate's left end is
+            where the halftone field sits, and an opaque wash there hid it. The
+            art is masked out that far left anyway, so the copy still reads
+            against the page rather than against the skyline. */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent from-6% via-background via-45% to-background/40 md:via-40% md:to-transparent md:to-66%" />
 
         {/* Parked with XP_CHIPS above.
         {XP_CHIPS.map(({ className, tone }, i) => (
@@ -73,7 +77,7 @@ export function HomeHero() {
 
         <div className="relative flex h-full flex-col justify-center gap-6 p-6 sm:p-8">
           <div>
-            <h1 className="font-heading text-3xl leading-[0.85] font-bold tracking-tight uppercase sm:text-4xl md:text-8xl">
+            <h1 className="font-heading text-3xl leading-[0.85] font-bold tracking-tight uppercase sm:text-4xl md:text-[88px]">
               <span className="block text-hero-title">Your next level</span>
               <span className="block text-primary">
                 Starts here
