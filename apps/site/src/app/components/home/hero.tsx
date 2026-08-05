@@ -72,11 +72,16 @@ export function HomeHero() {
 
         <div className="relative flex h-full flex-col justify-center gap-6 p-6 sm:p-8">
           <div>
-            <h1 className="font-heading text-3xl leading-[0.95] font-bold tracking-tight uppercase sm:text-4xl md:text-8xl">
+            <h1 className="font-heading text-3xl leading-[0.85] font-bold tracking-tight uppercase sm:text-4xl md:text-8xl">
               <span className="block text-hero-title">Your next level</span>
               <span className="block text-primary">
                 Starts here
-                <span className="animate-pulse text-primary">_</span>
+                {/* `inline-block` so the transform lands at all — and scale-x
+                    rather than a smaller font-size, so the cursor loses width
+                    without also losing its stroke weight. */}
+                <span className="inline-block translate-x-[10px] -translate-y-[15px] scale-x-[0.67] animate-pulse text-primary">
+                  _
+                </span>
               </span>
             </h1>
             <div className="mt-5 flex flex-col gap-0.5 font-mono text-sm tracking-wide text-muted-foreground sm:text-base">
