@@ -217,7 +217,10 @@ export function PathBanner() {
 
 export function ReadyToJoin() {
   return (
-    <section className="relative overflow-hidden rounded-2xl border border-border bg-card">
+    // Light reads as another eggshell tile with the shared inner rule; dark
+    // lights the whole frame up instead — a primary border plus an outer glow,
+    // which is what carries the row in the dark mock.
+    <section className="relative overflow-hidden rounded-2xl border border-border bg-card light:border-[#e2dfde] light:bg-[#f8f6f4] dark:border-primary/70 dark:shadow-[0_0_0_1px_var(--primary),0_0_28px_-4px_var(--primary)]">
       {/* Red glow bleeding in from the left. */}
       <div className="pointer-events-none absolute -top-12 -left-12 size-56 rounded-full bg-primary/20 blur-3xl" />
       {/* Moody wolf on the far right, faded into the card. */}
@@ -227,26 +230,26 @@ export function ReadyToJoin() {
         aria-hidden="true"
         className="absolute inset-y-0 right-0 hidden w-72 object-cover object-center opacity-70 md:block"
       />
-      <div className="absolute inset-y-0 right-0 hidden w-72 bg-gradient-to-l from-transparent via-card/70 to-card md:block" />
+      <div className="absolute inset-y-0 right-0 hidden w-72 bg-gradient-to-l from-transparent via-card/70 to-card md:block light:via-[#f8f6f4]/70 light:to-[#f8f6f4]" />
+      {/* Inner rule above the portrait and its scrim, both inset siblings. */}
+      <div className="pointer-events-none absolute inset-0 rounded-2xl light:shadow-[inset_0_0_0_2px_#fdfdfb]" />
 
-      <div className="relative flex flex-col items-start gap-5 p-6 md:flex-row md:items-center md:gap-6 md:p-7">
-        <WolfMark className="h-14 shrink-0 text-primary" />
+      <div className="relative flex flex-col items-start gap-5 p-6 md:flex-row md:items-center md:gap-7 md:p-7">
+        <WolfMark className="h-16 shrink-0 text-primary dark:drop-shadow-[0_0_10px_var(--primary)]" />
         <div className="flex-1">
-          <h3 className="font-heading text-xl font-bold tracking-wide text-foreground uppercase">
+          <h3 className="font-heading text-[30px] leading-none tracking-wide text-foreground uppercase">
             Ready to join the pack?
           </h3>
-          <p className="mt-1.5 max-w-md font-mono text-xs leading-relaxed text-muted-foreground">
-            Create your free account to save progress, unlock lessons, and join
-            the community.
+          <p className="mt-2 max-w-md font-mono text-xs leading-relaxed text-muted-foreground">
+            Build discipline. Level up your skills.
+            <br />
+            Become unstoppable.
           </p>
         </div>
-        <div className="flex flex-col items-start gap-2 md:items-center md:pr-56">
-          <Link
-            to="/signup"
-            className={raisedCtaClass}
-          >
+        <div className="flex flex-col items-start gap-2 md:items-center md:pr-32 lg:pr-56">
+          <Link to="/signup" className={raisedCtaClass}>
             Create free account
-            <ArrowRight className="size-4" />
+            <ArrowRight className="size-5" />
           </Link>
           <span className="font-mono text-[11px] text-muted-foreground">
             Already have an account?{' '}
