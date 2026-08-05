@@ -58,6 +58,11 @@
 }
 
 :root {
+    /* Hero skyline art, per theme. Carried as a token rather than swapped in
+       JSX so the two themes stay one DOM tree, and so only the matching file is
+       ever fetched — a pair of <img> tags toggled with `hidden` would pull both
+       down, and the dark plate is 2.4MB. */
+    --hero-image: url('/images/hero-light.jpg');
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
@@ -97,6 +102,7 @@
    and sit barely above the page, not as gray slabs on black. Every dark step is
    the same hue (~267) so nothing looks muddy next to the blue page glow. */
 .dark {
+    --hero-image: url('/images/footer-1.png');
     --background: oklch(0.14 0.014 268);
     --foreground: oklch(0.985 0 0);
     --card: oklch(0.159 0.016 267);

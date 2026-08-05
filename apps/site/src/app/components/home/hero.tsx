@@ -36,11 +36,14 @@ export function HomeHero() {
         brackets={false}
         className="relative min-h-[19rem] overflow-hidden rounded-2xl p-0 md:min-h-[22rem] lg:min-h-[24.5rem]"
       >
-        <img
-          src="/images/footer-1.png"
-          alt=""
+        {/* Decorative, so the art rides on a background rather than an <img>:
+            the theme picks the plate via `--hero-image` (index.css), which keeps
+            one DOM tree across themes and fetches only the matching file. The
+            punch-up filters are dark-only — they were tuned for the neon plate
+            and would blow out the high-key light one. */}
+        <div
           aria-hidden="true"
-          className="absolute inset-y-0 right-0 h-full w-full object-cover object-left brightness-105 contrast-[1.12] saturate-[1.25] [mask-image:linear-gradient(to_right,transparent,black_20%)] md:w-[62%]"
+          className="absolute inset-y-0 right-0 h-full w-full bg-[image:var(--hero-image)] bg-cover bg-left [mask-image:linear-gradient(to_right,transparent,black_20%)] md:w-[62%] dark:brightness-105 dark:contrast-[1.12] dark:saturate-[1.25]"
         />
         {/* Theme-colored wash: fades the photo into the card behind the copy,
             then clears well before the skyline so the neon stays punchy — a
