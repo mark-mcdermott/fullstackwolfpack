@@ -4,6 +4,12 @@
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/teko";
 
+/* @fw/ui resolves through node_modules (workspace symlink), which Tailwind's
+   auto-detection ignores — so any utility used *only* in the design system was
+   never generated. Kit classes that happen to also appear in app code worked by
+   coincidence, which is what made this look fine until now. */
+@source "../../../../packages/ui/src";
+
 @custom-variant dark (&:is(.dark *));
 /* The mirror of `dark`, for the handful of treatments that only apply to the
    light theme — `dark:` resets on every one of them read as noise. */
@@ -59,6 +65,16 @@
 }
 
 :root {
+    /* The raised CTA's face — a sheen from a lightened primary down to a
+       darkened one. Held as a token because Tailwind's class extractor drops an
+       arbitrary value containing nested color-mix() commas, so the gradient
+       cannot live inline in a utility. */
+    --cta-face: linear-gradient(
+        to bottom,
+        color-mix(in oklab, var(--primary), white 16%),
+        var(--primary) 48%,
+        color-mix(in oklab, var(--primary), black 14%)
+    );
     /* Hero skyline art, per theme. Carried as a token rather than swapped in
        JSX so the two themes stay one DOM tree, and so only the matching file is
        ever fetched — a pair of <img> tags toggled with `hidden` would pull both

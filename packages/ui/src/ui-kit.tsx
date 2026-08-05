@@ -5,6 +5,34 @@ import { cn } from './utils'
 // FW-01 design kit — the corner-bracket panels, section labels, stat tiles and
 // meters that give every screen the same "tactical HUD" look as the mocks.
 
+// The FW-01 raised CTA — a moulded slab rather than a flat fill: a sheen down
+// the face, a lit top edge and a shadowed bottom one, sitting on a soft cast
+// shadow, and pressing in on :active.
+//
+// Every colour is mixed from `--primary`, so the button follows the theme
+// instead of hard-coding a red. Exported as a class as well as a component:
+// CTAs are as often anchors or router <Link>s as they are <button>s, and a
+// shared class dresses any of them without a polymorphic wrapper.
+export const raisedCtaClass = cn(
+  'inline-flex h-12 w-fit items-center justify-center gap-2.5 rounded-lg px-7',
+  // Teko, and opted out of the heading font's pinned 400 axis so the weight lands.
+  'font-heading text-xl font-bold tracking-widest text-white uppercase [font-variation-settings:normal]',
+  // The gradient itself is `--cta-face` in theme.css. Inline, Tailwind's class
+  // extractor drops an arbitrary value containing nested color-mix() commas and
+  // emits no rule at all — which leaves white text on a transparent button.
+  'bg-[image:var(--cta-face)]',
+  'shadow-[inset_0_1px_0_rgb(255_255_255/0.45),inset_0_-2px_0_rgb(0_0_0/0.22),0_2px_5px_rgb(0_0_0/0.28)]',
+  'transition-[filter,box-shadow,translate] hover:brightness-[1.06]',
+  'active:translate-y-px active:shadow-[inset_0_2px_3px_rgb(0_0_0/0.3),0_1px_2px_rgb(0_0_0/0.25)]',
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
+)
+
+export function RaisedButton({ className, ...props }: ComponentProps<'button'>) {
+  return (
+    <button type="button" className={cn(raisedCtaClass, className)} {...props} />
+  )
+}
+
 function Brackets() {
   const base = 'pointer-events-none absolute size-2.5 border-foreground'
   return (

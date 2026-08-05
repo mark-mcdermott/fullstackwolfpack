@@ -1,6 +1,6 @@
 import { ArrowRight } from 'lucide-react'
-import { Panel } from '@fw/ui'
-// import { cn } from '@/lib/utils' // parked with XP_CHIPS
+import { Panel, raisedCtaClass } from '@fw/ui'
+import { cn } from '@/lib/utils'
 
 // Parked. Floating XP chips scattered over the skyline — the "you are earning"
 // motif from the mock. Positions are hand-placed against the photo so they sit
@@ -80,7 +80,7 @@ export function HomeHero() {
                 {/* `inline-block` so the transform lands at all — and scale-x
                     rather than a smaller font-size, so the cursor loses width
                     without also losing its stroke weight. */}
-                <span className="inline-block translate-x-[10px] -translate-y-[15px] scale-x-[0.67] animate-pulse text-primary">
+                <span className="inline-block translate-x-[1px] translate-y-[7px] scale-x-[0.67] animate-pulse text-primary">
                   _
                 </span>
               </span>
@@ -92,12 +92,9 @@ export function HomeHero() {
             </div>
           </div>
 
-          <a
-            href="#start-session"
-            className="group inline-flex h-12 w-fit items-center justify-center gap-2.5 rounded-lg bg-primary px-7 font-mono text-xs font-semibold tracking-widest text-primary-foreground uppercase shadow-[0_0_0_0_transparent] transition-all hover:bg-primary/90 dark:shadow-[0_0_24px_-4px] dark:shadow-primary/60"
-          >
+          <a href="#start-session" className={cn(raisedCtaClass, 'group')}>
             Build your session
-            <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+            <ArrowRight className="size-5 transition-transform group-hover:translate-x-0.5" />
           </a>
         </div>
       </Panel>

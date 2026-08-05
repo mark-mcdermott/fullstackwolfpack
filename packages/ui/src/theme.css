@@ -58,6 +58,16 @@
 }
 
 :root {
+    /* The raised CTA's face — a sheen from a lightened primary down to a
+       darkened one. Held as a token because Tailwind's class extractor drops an
+       arbitrary value containing nested color-mix() commas, so the gradient
+       cannot live inline in a utility. */
+    --cta-face: linear-gradient(
+        to bottom,
+        color-mix(in oklab, var(--primary), white 16%),
+        var(--primary) 48%,
+        color-mix(in oklab, var(--primary), black 14%)
+    );
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
