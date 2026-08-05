@@ -63,7 +63,7 @@ export function FwHeader() {
       {/* Padding is deliberately asymmetric: the brand column's ink sits high
           inside its line boxes, so even vertical padding leaves the whole row
           reading a few pixels above centre. */}
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-9 sm:pt-[23px] sm:pb-[18px]">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-2 sm:gap-4 sm:px-9 sm:pt-[23px] sm:pb-[18px]">
         {/* Brand. `flex-1` on the two outer cells (basis 0, equal grow) is what
             centres the nav in the bar; `justify-between` alone would let the
             wider brand push it off-centre. */}
