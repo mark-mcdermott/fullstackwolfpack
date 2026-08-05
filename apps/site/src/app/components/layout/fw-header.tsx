@@ -99,7 +99,7 @@ export function FwHeader() {
                 falls through to the sans stack. `font-variation-settings: normal`
                 opts it out of the heading font's pinned 400 axis (theme.css),
                 which would otherwise swallow the weight bump. */}
-            <span className="mt-[4px] text-[9px] font-medium tracking-widest text-primary [font-variation-settings:normal] sm:text-xs/[12px]">
+            <span className="mt-[4px] text-[11px] font-bold tracking-wider text-primary [font-variation-settings:normal] sm:text-[15px]/[15px]">
               ウルフパック
             </span>
           </span>
