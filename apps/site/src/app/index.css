@@ -258,7 +258,7 @@
   /* Tucked up under the header so the field starts flush with its bottom edge
      rather than below the gap. The overlap is hidden by the header's own
      light-mode surface — see the z-10 + light:bg-card on FwHeader. */
-  top: -10px;
+  top: -15px;
   left: 0;
   z-index: -1;
   width: 9rem;
@@ -268,13 +268,13 @@
   background-image: radial-gradient(oklch(0 0 0 / 0.1) 2.1px, transparent 2.2px);
   background-size: 9.5px 9.5px;
   -webkit-mask-image: radial-gradient(
-    ellipse at top left,
+    ellipse at center left,
     #000 0%,
     #000 30%,
     transparent 72%
   );
   mask-image: radial-gradient(
-    ellipse at top left,
+    ellipse at center left,
     #000 0%,
     #000 30%,
     transparent 72%
