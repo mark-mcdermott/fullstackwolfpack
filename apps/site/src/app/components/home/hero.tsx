@@ -49,7 +49,7 @@ export function HomeHero() {
             and would blow out the high-key light one. */}
         <div
           aria-hidden="true"
-          className="absolute inset-y-0 right-0 h-full w-full bg-[image:var(--hero-image)] bg-cover bg-center bg-no-repeat [mask-image:linear-gradient(to_right,transparent_0%,black_15%,black_85%,transparent_100%)] dark:brightness-105 dark:contrast-[1.12] dark:saturate-[1.25]"
+          className="absolute inset-y-0 left-1/2 h-full w-auto -translate-x-1/2 aspect-[var(--hero-aspect)] bg-[image:var(--hero-image)] bg-cover bg-center bg-no-repeat [mask-image:linear-gradient(to_right,transparent_0%,black_15%,black_85%,transparent_100%)] dark:brightness-105 dark:contrast-[1.12] dark:saturate-[1.25]"
         />
 
         {/* Parked with XP_CHIPS above.
