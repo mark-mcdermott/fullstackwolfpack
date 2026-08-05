@@ -49,7 +49,7 @@ export function HomeHero() {
             and would blow out the high-key light one. */}
         <div
           aria-hidden="true"
-          className="absolute inset-y-0 right-0 h-full w-full bg-[image:var(--hero-image)] bg-contain bg-center bg-no-repeat [mask-image:linear-gradient(to_right,transparent,black_18%,black_88%,transparent)] dark:brightness-105 dark:contrast-[1.12] dark:saturate-[1.25]"
+          className="absolute inset-y-0 right-0 h-full w-full bg-[image:var(--hero-image)] bg-contain bg-center bg-no-repeat dark:brightness-105 dark:contrast-[1.12] dark:saturate-[1.25]"
         />
         {/* Theme-colored wash: fades the photo into the card behind the copy,
             then clears well before the skyline so the neon stays punchy — a
@@ -92,7 +92,7 @@ export function HomeHero() {
                 </span>
               </span>
             </h1>
-            <div className="mt-5 flex flex-col gap-0.5 font-mono text-sm font-light tracking-tight text-hero-title sm:text-base">
+            <div className="mt-5 flex flex-col gap-0.5 font-mono text-sm font-extralight tracking-tight text-hero-title sm:text-base">
               <span>Sharpen your skills.</span>
               <span>Complete real missions.</span>
               <span>Level up every day.</span>
