@@ -209,8 +209,8 @@ export function PathBanner() {
       aria-hidden="true"
       className="relative -mx-5 h-[120px] overflow-hidden sm:-mx-7 sm:h-[150px] md:h-[185px]"
     >
-      <div className="absolute inset-0 bg-[url('/images/footer-2.png')] bg-cover bg-center light:opacity-[0.38] light:saturate-[0.8]" />
-      <div className="absolute inset-0 light:bg-[#f6f4f2]/40" />
+      <div className="absolute inset-0 bg-[url('/images/footer-2.png')] bg-cover bg-center light:opacity-[0.62] light:saturate-[0.85]" />
+      <div className="absolute inset-0 light:bg-[#f6f4f2]/25" />
     </div>
   )
 }

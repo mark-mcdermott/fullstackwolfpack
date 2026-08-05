@@ -32,7 +32,7 @@ export function HomeHero() {
   return (
     // `-mb-6` cancels the page stack's gap so the plate's bottom edge meets the
     // tile below it rather than floating clear of it.
-    <section className="-mb-6 grid gap-6 lg:grid-cols-[1fr_18rem]">
+    <section className="-mb-6 grid gap-6 md:grid-cols-[1fr_18rem]">
       {/* Splash. It breaks out of <main>'s px-5/py-6 with matching negative
           margins, so the plate runs edge to edge of the main column and flush
           under the header. At lg it spans both grid columns and Akela's card
@@ -40,7 +40,7 @@ export function HomeHero() {
           Transparent, not `bg-card`: the panel sits over the page itself. */}
       <Panel
         brackets={false}
-        className="relative -mx-5 -mt-6 min-h-[19rem] overflow-hidden rounded-none border-0 bg-transparent p-0 sm:-mx-7 md:min-h-[22rem] lg:col-span-2 lg:col-start-1 lg:row-start-1 lg:min-h-[24.5rem]"
+        className="relative -mx-5 -mt-6 min-h-[19rem] overflow-hidden rounded-none border-0 bg-transparent p-0 sm:-mx-7 md:min-h-[22rem] md:col-span-2 md:col-start-1 md:row-start-1 lg:min-h-[24.5rem]"
       >
         {/* Decorative, so the art rides on a background rather than an <img>:
             the theme picks the plate via `--hero-image` (index.css), which keeps
@@ -112,7 +112,7 @@ export function HomeHero() {
           is light beside a light hero rather than a black slab. */}
       <Panel
         brackets={false}
-        className="relative z-10 flex flex-col overflow-hidden rounded-2xl p-0 light:border-[#e2dfde] light:bg-[#f7f4f3] lg:col-start-2 lg:row-start-1 lg:mb-6"
+        className="relative z-10 flex flex-col overflow-hidden rounded-2xl p-0 light:border-[#e2dfde] light:bg-[#f7f4f3] md:col-start-2 md:row-start-1 md:mb-6"
       >
         {/* Base fill for where the portrait doesn't cover — i.e. the md compact
             layout, where Akela shrinks to the right. Follows the theme: the card
@@ -129,10 +129,10 @@ export function HomeHero() {
         <img
           src="/images/akela.png"
           alt="Akela, your AI mentor"
-          className="pointer-events-none absolute inset-y-0 right-0 h-full object-cover object-[center_30%] [mask-image:linear-gradient(to_left,black_55%,transparent),linear-gradient(to_top,transparent,black_35%)] [mask-composite:intersect] md:max-lg:top-5 md:max-lg:right-5 md:max-lg:bottom-auto md:max-lg:h-auto md:max-lg:w-[100px] md:max-lg:rounded-xl md:max-lg:[mask-image:none] lg:top-[5px] lg:bottom-auto lg:h-[75%]"
+          className="pointer-events-none absolute inset-y-0 right-0 h-full object-cover object-[center_30%] [mask-image:linear-gradient(to_left,black_55%,transparent),linear-gradient(to_top,transparent,black_35%)] [mask-composite:intersect] md:top-[5px] md:bottom-auto md:h-[75%]"
         />
         {/* Fade the portrait down to the challenge box (media layout only). */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-20% via-card/70 via-65% to-card/95 md:max-lg:hidden light:via-[#f7f4f3]/70 light:to-[#f7f4f3]/95 dark:via-neutral-950/55 dark:to-neutral-950/95" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-20% via-card/70 via-65% to-card/95 light:via-[#f7f4f3]/70 light:to-[#f7f4f3]/95 dark:via-neutral-950/55 dark:to-neutral-950/95" />
         {/* The bright inner rule. It rides above the portrait and its scrim —
             both are inset-0 siblings, so a ring on the panel itself would be
             painted straight over. */}
@@ -151,7 +151,7 @@ export function HomeHero() {
             </span>
           </div>
 
-          <div className="mt-auto flex flex-col gap-4 md:max-lg:mt-4">
+          <div className="mt-auto flex flex-col gap-4 ">
             {/* The quote sits over the portrait, so it carries its own soft
                 halo — a radial wash in the card's own surface colour, fading to
                 nothing rather than ending on an edge. Per theme, since the card
