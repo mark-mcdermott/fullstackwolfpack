@@ -80,12 +80,12 @@ export function HomeHero() {
                 {/* `inline-block` so the transform lands at all — and scale-x
                     rather than a smaller font-size, so the cursor loses width
                     without also losing its stroke weight. */}
-                <span className="inline-block translate-x-[1px] translate-y-[7px] scale-x-[0.67] animate-pulse text-primary">
+                <span className="inline-block -translate-y-[4px] scale-x-[0.67] animate-pulse text-primary">
                   _
                 </span>
               </span>
             </h1>
-            <div className="mt-5 flex flex-col gap-0.5 font-mono text-sm tracking-wide text-muted-foreground sm:text-base">
+            <div className="mt-5 flex flex-col gap-0.5 font-mono text-sm tracking-tight text-hero-title sm:text-base">
               <span>Sharpen your skills.</span>
               <span>Complete real missions.</span>
               <span>Level up every day.</span>
