@@ -36,26 +36,51 @@ export function CreedBand() {
           siblings, so a ring on the band itself would be painted over. */}
       <div className="pointer-events-none absolute inset-0 rounded-2xl light:shadow-[inset_0_0_0_2px_#fdfdfb]" />
 
-      <div className="relative flex min-h-[9rem] flex-col justify-center gap-6 p-6 md:flex-row md:items-center md:justify-between md:gap-8 md:px-8">
+      {/* Vertical kana down the middle of the band. Same treatment as the
+          header's: it falls through to the sans stack, so it needs the
+          variation-settings escape for the weight to land. */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 [writing-mode:vertical-rl] font-bold tracking-wider text-primary [font-variation-settings:normal] md:block md:text-[15px]"
+      >
+        ウルフパック
+      </span>
+
+      <div className="relative flex min-h-[9rem] flex-col justify-center gap-6 p-6 pb-8 md:flex-row md:items-center md:justify-between md:gap-8 md:px-8 md:pb-10">
         <div className="max-w-md">
-          <span className="block font-mono text-[10px] font-medium tracking-widest text-primary uppercase">
+          <span className="block font-mono text-xs font-medium tracking-widest text-primary uppercase">
             The Wolfpack Creed
           </span>
-          <p className="mt-3 font-heading text-2xl leading-[1.05] font-bold tracking-wide text-foreground uppercase sm:text-[1.75rem] dark:text-neutral-50">
+          <p className="mt-2 font-heading text-2xl leading-[1.05] font-bold tracking-wide text-foreground uppercase sm:text-[2rem] dark:text-neutral-50">
             Discipline over motivation.
           </p>
-          <p className="mt-2.5 max-w-sm font-mono text-xs leading-relaxed text-muted-foreground dark:text-neutral-300">
-            Short sessions, stacked every day — that's how the pack levels up.
+          <p className="mt-2.5 max-w-sm font-mono text-sm font-light leading-relaxed text-hero-title">
+            Short sessions, stacked every day —
+            <br />
+            that&rsquo;s how the pack levels up.
           </p>
         </div>
 
-        <div className="shrink-0 border-border md:border-l md:pl-8 dark:border-white/15">
-          <div className="flex flex-col gap-2 font-mono text-sm tracking-wide">
-            <span className="text-primary">&gt; LOCK IN</span>
-            <span className="text-blue-600 dark:text-blue-400">
-              &gt; KEEP LEARNING
-            </span>
-            <span className="text-primary">&gt; LEVEL UP</span>
+        {/* Terminal readout. Its own surface in light so it reads as a panel
+            against the art rather than sitting loose on it. */}
+        <div className="shrink-0 rounded-xl border-border light:border light:border-[#e2dfde] light:bg-white light:p-4 light:shadow-[var(--field-shadow)] md:border-l md:pl-8 md:light:pl-4 dark:border-white/15">
+          <div className="flex flex-col font-mono text-sm tracking-wide">
+            {[
+              { label: 'Lock in', tone: 'text-primary' },
+              { label: 'Keep learning', tone: 'text-blue-600 dark:text-blue-400' },
+              { label: 'Level up', tone: 'text-primary' },
+            ].map(({ label, tone }) => (
+              <span
+                key={label}
+                className={cn(
+                  'flex items-center gap-1 border-b border-border py-1.5 uppercase last:border-b-0 dark:border-white/10',
+                  tone,
+                )}
+              >
+                <ChevronRight className="size-3.5 shrink-0" />
+                {label}
+              </span>
+            ))}
           </div>
           <div className="fw-barcode mt-4 h-3 w-44 text-muted-foreground dark:text-neutral-500" />
         </div>
