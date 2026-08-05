@@ -30,16 +30,17 @@ const XP_CHIPS: { className: string; tone: string }[] = [
 // launcher's button sits well below the fold.
 export function HomeHero() {
   return (
-    <section className="grid gap-6 lg:grid-cols-[1fr_21rem]">
+    // `-mb-6` cancels the page stack's gap so the plate's bottom edge meets the
+    // tile below it rather than floating clear of it.
+    <section className="-mb-6 grid gap-6 lg:grid-cols-[1fr_22rem]">
       {/* Splash. It breaks out of <main>'s px-5/py-6 with matching negative
-          margins, so the plate runs flush under the header and off the left
-          edge as the mock has it. At lg the right margin is restored — the
-          plate stops where Akela's card begins rather than passing behind it.
-          Transparent, not `bg-card`: the panel sits over the page itself, so
-          the halftone field reads through the plate's faded left edge. */}
+          margins, so the plate runs edge to edge of the main column and flush
+          under the header. At lg it spans both grid columns and Akela's card
+          overlays its right end, rather than the plate stopping short of it.
+          Transparent, not `bg-card`: the panel sits over the page itself. */}
       <Panel
         brackets={false}
-        className="relative -mx-5 -mt-6 min-h-[19rem] overflow-hidden rounded-none border-0 bg-transparent p-0 md:min-h-[22rem] lg:mr-0 lg:min-h-[24.5rem]"
+        className="relative -mx-5 -mt-6 min-h-[19rem] overflow-hidden rounded-none border-0 bg-transparent p-0 md:min-h-[22rem] lg:col-span-2 lg:col-start-1 lg:row-start-1 lg:min-h-[24.5rem]"
       >
         {/* Decorative, so the art rides on a background rather than an <img>:
             the theme picks the plate via `--hero-image` (index.css), which keeps
@@ -107,7 +108,7 @@ export function HomeHero() {
           is light beside a light hero rather than a black slab. */}
       <Panel
         brackets={false}
-        className="relative flex flex-col overflow-hidden rounded-2xl p-0"
+        className="relative z-10 flex flex-col overflow-hidden rounded-2xl p-0 lg:col-start-2 lg:row-start-1"
       >
         {/* Base fill for where the portrait doesn't cover — i.e. the md compact
             layout, where Akela shrinks to the right. Follows the theme: the card
