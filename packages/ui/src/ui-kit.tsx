@@ -16,10 +16,13 @@ import { cn } from './utils'
 // CTAs are as often anchors or router <Link>s as they are <button>s, and a
 // shared class dresses any of them without a polymorphic wrapper.
 export const raisedCtaClass = cn(
-  'inline-flex h-12 w-fit items-center justify-center gap-2.5 rounded-lg px-7',
+  // `pt` rather than a tweak to items-center: Teko's caps sit high in their em
+  // box, so a mathematically centred line still reads high. The padding pushes
+  // the content down half its value, landing the caps on the optical centre.
+  'inline-flex h-12 w-fit items-center justify-center gap-2.5 rounded-lg px-5 pt-[2px]',
   // No weight utility: the heading font's pinned 400 axis is the intended
   // weight here — Teko's bold reads far too heavy at this size.
-  'font-heading text-xl tracking-widest text-white uppercase',
+  'font-heading text-[22px] tracking-wider text-white uppercase',
   'border border-[color:var(--cta-border)] bg-[image:var(--cta-face)]',
   'shadow-[var(--cta-edge)]',
   'transition-[filter,box-shadow,translate] hover:brightness-[1.06]',
