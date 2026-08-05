@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router'
 import { api } from '@/api-client'
 import { AsyncView } from '@/components/layout/async-view'
 import { SkillIcon } from '@/components/launch/skill-icon'
-import { Panel, SectionLabel } from '@fw/ui'
+import { Panel, SectionLabel, raisedCtaClass } from '@fw/ui'
 import type { MissionSession } from '@/components/mission/mission-view'
 import type { Difficulty } from '@/core/generation'
 import { EMBED_CATALOG } from '@/lib/embed-catalog'
@@ -243,7 +243,7 @@ function LauncherForm({
     <Panel
       id="start-session"
       brackets={false}
-      className="flex scroll-mt-24 flex-col gap-5 rounded-2xl p-5 sm:p-6"
+      className="flex scroll-mt-24 flex-col gap-5 rounded-2xl p-5 sm:p-6 light:bg-[#f8f5f2] light:shadow-[inset_0_0_0_2px_#fdfdfb]"
     >
       <div className="flex items-center justify-between gap-4">
         <SectionLabel>Configure your mission</SectionLabel>
@@ -392,7 +392,8 @@ function LauncherForm({
             onClick={start}
             disabled={!ready}
             className={cn(
-              'inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-all duration-300 hover:bg-primary/90 disabled:opacity-50 max-[767px]:w-auto max-[1149px]:px-8 md:max-[1023px]:w-1/2 md:max-[1023px]:max-w-[27rem] lg:max-[1149px]:mt-5 lg:max-[1149px]:w-auto',
+              raisedCtaClass,
+              'w-full disabled:opacity-50 max-[767px]:w-auto md:max-[1023px]:w-1/2 md:max-[1023px]:max-w-[27rem] lg:max-[1149px]:mt-5 lg:max-[1149px]:w-auto',
               // Glow + expand as the mission kicks off (the launcher then fades out).
               starting && 'scale-[1.04] shadow-[0_0_45px] shadow-primary/70',
             )}

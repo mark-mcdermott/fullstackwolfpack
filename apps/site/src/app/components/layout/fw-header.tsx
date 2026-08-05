@@ -56,116 +56,121 @@ export function FwHeader() {
     // field tucks up behind this bar. Stacking alone isn't enough though: the
     // bar stays transparent in dark (so the page glow reads through it), so
     // light also needs a real surface to occlude with.
-    <header className="relative z-10 border-b border-border light:mx-3 light:mt-3 light:rounded-xl light:border light:bg-[#f7f3f2] light:shadow-sm sm:light:mx-7 sm:light:mt-4">
-      {/* Brand + nav + toggle all refuse to shrink, so below `sm` every gap and
-          type step tightens instead — the row overflowed the viewport on 320–370px
-          phones otherwise. */}
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-2 sm:gap-4 sm:px-9 sm:py-5">
-        {/* Brand. `flex-1` on the two outer cells (basis 0, equal grow) is what
-            centres the nav in the bar; `justify-between` alone would let the
-            wider brand push it off-centre. */}
-        <NavLink
-          to="/"
-          onClick={(e) => {
-            if (missionExit) {
-              e.preventDefault()
-              missionExit()
-            }
-          }}
-          className="flex flex-1 shrink-0 items-center gap-2 sm:gap-[14px]"
-        >
-          <WolfMark className="h-12 text-foreground sm:h-[60px]" />
-          {/* Two gotchas on the wordmark. The line-height has to ride on the
-              same utility as the font size — a named `text-*` step ships its own
-              and would override a `leading-*` inherited from this wrapper. And
-              the weight needs `font-variation-settings: normal` to opt out of
-              the heading font's pinned 400 axis (theme.css); without it the
-              `font-medium` renders at 400 like everything else. Teko is a
-              variable face carrying 300–700 in one file, so 500 costs nothing
-              extra to load. */}
-          <span className="flex flex-col font-heading">
-            <span className="text-xl/[0.8] font-medium tracking-[0.08em] text-foreground [font-variation-settings:normal] sm:text-[26px]/[24px]">
-              FULLSTACK
+    <header className="relative z-10 border-b border-border light:border-b-0">
+      {/* Light only: the same max-width and horizontal padding as <main>, so the
+          card's edges land exactly on the tiles' edges below. Left bare in dark,
+          where the bar is full-bleed and there is no card edge to align. */}
+      <div className="mx-auto w-full max-w-7xl light:px-5 light:pt-3 sm:light:px-7 sm:light:pt-4">
+        {/* Brand + nav + toggle all refuse to shrink, so below `sm` every gap and
+            type step tightens instead — the row overflowed the viewport on 320–370px
+            phones otherwise. */}
+        <div className="flex items-center justify-between gap-2 px-3 py-2 sm:gap-4 sm:px-9 sm:py-5 light:rounded-xl light:border light:border-border light:bg-[#f7f3f2] light:shadow-sm">
+          {/* Brand. `flex-1` on the two outer cells (basis 0, equal grow) is what
+              centres the nav in the bar; `justify-between` alone would let the
+              wider brand push it off-centre. */}
+          <NavLink
+            to="/"
+            onClick={(e) => {
+              if (missionExit) {
+                e.preventDefault()
+                missionExit()
+              }
+            }}
+            className="flex flex-1 shrink-0 items-center gap-2 sm:gap-[14px]"
+          >
+            <WolfMark className="h-12 text-foreground sm:h-[60px]" />
+            {/* Two gotchas on the wordmark. The line-height has to ride on the
+                same utility as the font size — a named `text-*` step ships its own
+                and would override a `leading-*` inherited from this wrapper. And
+                the weight needs `font-variation-settings: normal` to opt out of
+                the heading font's pinned 400 axis (theme.css); without it the
+                `font-medium` renders at 400 like everything else. Teko is a
+                variable face carrying 300–700 in one file, so 500 costs nothing
+                extra to load. */}
+            <span className="flex flex-col font-heading">
+              <span className="text-xl/[0.8] font-medium tracking-[0.08em] text-foreground [font-variation-settings:normal] sm:text-[26px]/[24px]">
+                FULLSTACK
+              </span>
+              <span className="text-xl/[0.8] font-medium tracking-[0.08em] text-foreground [font-variation-settings:normal] sm:text-[26px]/[24px]">
+                WOLFPACK
+              </span>
+              {/* Katakana, not Teko — the display face has no kana, so this line
+                  falls through to the sans stack. `font-variation-settings: normal`
+                  opts it out of the heading font's pinned 400 axis (theme.css),
+                  which would otherwise swallow the weight bump. */}
+              <span className="mt-[4px] text-[11px] font-bold tracking-wider text-primary [font-variation-settings:normal] sm:text-[15px]/[15px]">
+                ウルフパック
+              </span>
             </span>
-            <span className="text-xl/[0.8] font-medium tracking-[0.08em] text-foreground [font-variation-settings:normal] sm:text-[26px]/[24px]">
-              WOLFPACK
-            </span>
-            {/* Katakana, not Teko — the display face has no kana, so this line
-                falls through to the sans stack. `font-variation-settings: normal`
-                opts it out of the heading font's pinned 400 axis (theme.css),
-                which would otherwise swallow the weight bump. */}
-            <span className="mt-[4px] text-[11px] font-bold tracking-wider text-primary [font-variation-settings:normal] sm:text-[15px]/[15px]">
-              ウルフパック
-            </span>
-          </span>
-        </NavLink>
+          </NavLink>
 
-        {/* Primary nav */}
-        <nav className={cn('flex items-center gap-4', NAV_GAP)}>
-          {NAV.map(({ to, label, end, minWidth }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              className={cn(
-                // Fixed width so centre-to-centre spacing is even regardless of
-                // label length, and `relative` to hang the underline off.
-                'group relative flex flex-col items-center',
-                UNDERLINE_WIDTH,
-                minWidth ?? 'flex',
-              )}
-            >
-              {({ isActive }) => (
-                <>
-                  {/* The active label is plain foreground, not primary — only
-                      the underline carries the accent. */}
-                  <span
-                    className={cn(
-                      'font-heading text-lg tracking-wide uppercase transition-colors sm:text-2xl',
-                      isActive
-                        ? 'text-foreground'
-                        : 'text-muted-foreground group-hover:text-foreground',
-                    )}
-                  >
-                    {label}
-                  </span>
-                  {/* Out of flow, so only the label participates in the bar's
-                      vertical centring — in flow it dragged the label upward. */}
-                  <span
-                    className={cn(
-                      'absolute top-full left-0 mt-1 h-[3px] w-full transition-colors',
-                      isActive ? 'bg-primary' : 'bg-transparent',
-                    )}
-                  />
-                </>
-              )}
-            </NavLink>
-          ))}
-        </nav>
+          {/* Primary nav */}
+          <nav className={cn('flex items-center gap-4', NAV_GAP)}>
+            {NAV.map(({ to, label, end, minWidth }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                className={cn(
+                  // Fixed width so centre-to-centre spacing is even regardless of
+                  // label length, and `relative` to hang the underline off.
+                  'group relative flex flex-col items-center',
+                  UNDERLINE_WIDTH,
+                  minWidth ?? 'flex',
+                )}
+              >
+                {({ isActive }) => (
+                  <>
+                    {/* The active label is plain foreground, not primary — only
+                        the underline carries the accent. */}
+                    <span
+                      className={cn(
+                        'font-heading text-lg tracking-wide uppercase transition-colors sm:text-2xl',
+                        isActive
+                          ? 'text-foreground'
+                          : 'text-muted-foreground group-hover:text-foreground',
+                      )}
+                    >
+                      {label}
+                    </span>
+                    {/* Out of flow, so only the label participates in the bar's
+                        vertical centring — in flow it dragged the label upward. */}
+                    <span
+                      className={cn(
+                        'absolute top-full left-0 mt-1 h-[3px] w-full transition-colors',
+                        isActive ? 'bg-primary' : 'bg-transparent',
+                      )}
+                    />
+                  </>
+                )}
+              </NavLink>
+            ))}
+          </nav>
 
-        {/* Latency readout + API health + light/dark toggle */}
-        <div className="flex flex-1 items-center justify-end gap-2 sm:gap-[23px]">
-          {/* <LatencyReadout /> */}
-          <span className="hidden items-center gap-3.5 font-mono text-[13px] text-foreground sm:flex">
-            <span className="size-2.5 rounded-full bg-green-500" />
-            Healthy
-          </span>
-          <span className="hidden h-[38px] w-px bg-border sm:block" />
-          {/* The arbitrary variant sizes the icon, which ThemeToggle otherwise
-              fixes at `size-4`. `-mx-2` cancels the button's own padding for
-              layout — so it lines up as if it were just the glyph — while the
-              button keeps its full 44px tap target. */}
-          <ThemeToggle className="-mx-2 [&_svg]:size-7" />
-          {/* Parked with the rest of the guest CTA work.
-          {!user && (
-            <Link
-              to="/login"
-              className="hidden h-9 items-center justify-center rounded-lg border border-primary/60 px-4 font-mono text-xs font-semibold tracking-widest text-primary uppercase transition-colors hover:border-primary hover:bg-primary/10 sm:inline-flex"
-            >
-              Log in
-            </Link>
-          )} */}
+          {/* Latency readout + API health + light/dark toggle */}
+          <div className="flex flex-1 items-center justify-end gap-2 sm:gap-[23px]">
+            {/* <LatencyReadout /> */}
+            <span className="hidden items-center gap-3.5 font-mono text-[13px] text-foreground sm:flex">
+              <span className="size-2.5 rounded-full bg-green-500" />
+              Healthy
+            </span>
+            <span className="hidden h-[38px] w-px bg-border sm:block" />
+            {/* The arbitrary variant sizes the icon, which ThemeToggle otherwise
+                fixes at `size-4`. `-mx-2` cancels the button's own padding for
+                layout — so it lines up as if it were just the glyph — while the
+                button keeps its full 44px tap target. */}
+            <ThemeToggle className="-mx-2 [&_svg]:size-7" />
+            {/* Parked with the rest of the guest CTA work.
+            {!user && (
+              <Link
+                to="/login"
+                className="hidden h-9 items-center justify-center rounded-lg border border-primary/60 px-4 font-mono text-xs font-semibold tracking-widest text-primary uppercase transition-colors hover:border-primary hover:bg-primary/10 sm:inline-flex"
+              >
+                Log in
+              </Link>
+            )} */}
         </div>
+      </div>
       </div>
     </header>
   )

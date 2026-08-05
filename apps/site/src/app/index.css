@@ -256,18 +256,12 @@
 }
 
 /* Page wash (light only): a barely-there vertical gradient, so the page isn't a
-   flat white sheet under the tinted header and cards. Fixed to the viewport for
-   the same reason dark's glow is — left to span the document it would stretch
-   across the entire scroll height and read as nothing at all. The base layer's
-   `bg-background` still paints underneath as the fallback colour. */
+   flat sheet under the tinted header and cards. Spans the document rather than
+   the viewport — the bottom stop is meant to land at the end of the content,
+   not at the fold, so `background-attachment` stays at its `scroll` default.
+   The base layer's `bg-background` still paints underneath as the fallback. */
 :root:not(.dark) body {
-  background-image: linear-gradient(
-    to bottom,
-    #ffffff 0%,
-    #fafafa 50%,
-    #f7f8fa 100%
-  );
-  background-attachment: fixed;
+  background-image: linear-gradient(to bottom, #f6f4f2, #f4f2f0);
 }
 
 /* FW-01 tactical HUD detail language — ported from apps/site for the marketing

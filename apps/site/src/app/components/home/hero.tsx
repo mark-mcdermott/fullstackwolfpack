@@ -32,7 +32,7 @@ export function HomeHero() {
   return (
     // `-mb-6` cancels the page stack's gap so the plate's bottom edge meets the
     // tile below it rather than floating clear of it.
-    <section className="-mb-6 grid gap-6 lg:grid-cols-[1fr_20rem]">
+    <section className="-mb-6 grid gap-6 lg:grid-cols-[1fr_18rem]">
       {/* Splash. It breaks out of <main>'s px-5/py-6 with matching negative
           margins, so the plate runs edge to edge of the main column and flush
           under the header. At lg it spans both grid columns and Akela's card
@@ -92,7 +92,7 @@ export function HomeHero() {
                 </span>
               </span>
             </h1>
-            <div className="mt-5 flex flex-col gap-0.5 font-mono text-sm tracking-tight text-hero-title sm:text-base">
+            <div className="mt-5 flex flex-col gap-0.5 font-mono text-sm font-light tracking-tight text-hero-title sm:text-base">
               <span>Sharpen your skills.</span>
               <span>Complete real missions.</span>
               <span>Level up every day.</span>
@@ -152,12 +152,16 @@ export function HomeHero() {
           </div>
 
           <div className="mt-auto flex flex-col gap-4 md:max-lg:mt-4">
-            <blockquote>
-              <p className="font-mono text-xs leading-relaxed text-foreground drop-shadow-none max-md:max-w-[70%] dark:text-white dark:drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
+            {/* The quote sits over the portrait, so it carries its own soft
+                halo — a radial wash in the card's own surface colour, fading to
+                nothing rather than ending on an edge. Per theme, since the card
+                is eggshell in light and near-black in dark. */}
+            <blockquote className="max-w-[65%] rounded-[50%/40%] px-3 py-2 -mx-3 -my-2 light:bg-[radial-gradient(ellipse_at_center,#f7f4f3_48%,#f7f4f300_78%)] dark:bg-[radial-gradient(ellipse_at_center,#0a0a0a_48%,#0a0a0a00_78%)]">
+              <p className="font-mono text-[11px] leading-relaxed text-foreground drop-shadow-none dark:text-white dark:drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
                 &ldquo;Discipline is choosing between what you want now and what
                 you want most.&rdquo;
               </p>
-              <cite className="mt-1.5 block font-mono text-xs text-primary not-italic">
+              <cite className="mt-1.5 block font-mono text-[11px] text-primary not-italic">
                 — Akela
               </cite>
             </blockquote>

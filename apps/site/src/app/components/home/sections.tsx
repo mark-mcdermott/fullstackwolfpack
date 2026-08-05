@@ -10,7 +10,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { Link } from 'react-router'
-import { WolfMark } from '@fw/ui'
+import { WolfMark, raisedCtaClass } from '@fw/ui'
 import { cn } from '@/lib/utils'
 
 // Akela's creed + the terminal readout, as a bordered card that sits under the
@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils'
 // which left a black slab sitting in the middle of the light page).
 export function CreedBand() {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-card">
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-card light:bg-[#f8f6f4]">
       <img
         src="/images/creed-bg.png"
         alt=""
@@ -33,6 +33,9 @@ export function CreedBand() {
       {/* Knock back the right so the terminal readout isn't cluttered by the
           image's baked-in neon text. */}
       <div className="absolute inset-0 bg-gradient-to-l from-card/90 via-card/30 to-transparent dark:from-neutral-950/90 dark:via-neutral-950/20" />
+      {/* Inner rule on top of the art and its scrims — they are inset-0
+          siblings, so a ring on the band itself would be painted over. */}
+      <div className="pointer-events-none absolute inset-0 rounded-2xl light:shadow-[inset_0_0_0_2px_#fdfdfb]" />
 
       <div className="relative flex min-h-[9rem] flex-col justify-center gap-6 p-6 md:flex-row md:items-center md:justify-between md:gap-8 md:px-8">
         <div className="max-w-md">
@@ -208,7 +211,7 @@ export function ReadyToJoin() {
         <div className="flex flex-col items-start gap-2 md:items-center md:pr-56">
           <Link
             to="/signup"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-xs font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90"
+            className={raisedCtaClass}
           >
             Create free account
             <ArrowRight className="size-4" />
