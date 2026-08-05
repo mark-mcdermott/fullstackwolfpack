@@ -133,12 +133,12 @@ export function HomeHero() {
         <div className="relative flex flex-1 flex-col p-5">
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-heading text-sm font-bold tracking-widest text-foreground dark:text-white">
+              <span className="font-heading text-xl font-bold tracking-widest text-foreground dark:text-white">
                 AKELA
               </span>
               <span className="size-1.5 rounded-full bg-primary shadow-[0_0_6px] shadow-primary/70" />
             </div>
-            <span className="mt-1 block font-mono text-[10px] font-bold tracking-widest text-primary uppercase">
+            <span className="mt-1 block font-mono text-[11px] font-bold tracking-tight text-primary uppercase [word-spacing:-0.08em]">
               Leader of the pack
             </span>
           </div>
