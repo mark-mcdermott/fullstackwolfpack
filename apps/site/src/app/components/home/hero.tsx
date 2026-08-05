@@ -34,7 +34,7 @@ export function HomeHero() {
       {/* Splash card */}
       <Panel
         brackets={false}
-        className="relative min-h-[19rem] overflow-hidden rounded-2xl p-0 md:min-h-[22rem] lg:min-h-[24.5rem]"
+        className="relative min-h-[19rem] overflow-hidden rounded-none border-0 p-0 md:min-h-[22rem] lg:min-h-[24.5rem]"
       >
         {/* Decorative, so the art rides on a background rather than an <img>:
             the theme picks the plate via `--hero-image` (index.css), which keeps
@@ -67,7 +67,7 @@ export function HomeHero() {
 
         <div className="relative flex h-full flex-col justify-center gap-6 p-6 sm:p-8">
           <div>
-            <h1 className="font-heading text-3xl leading-[0.95] font-bold uppercase sm:text-4xl md:text-7xl">
+            <h1 className="font-heading text-3xl leading-[0.95] font-bold tracking-tight uppercase sm:text-4xl md:text-8xl">
               <span className="block text-hero-title">Your next level</span>
               <span className="block text-primary">
                 Starts here
