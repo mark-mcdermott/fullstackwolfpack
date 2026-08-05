@@ -77,10 +77,10 @@ export function HomeHero() {
 
         <div className="relative flex h-full flex-col justify-center gap-6 p-6 sm:p-8">
           <div>
-            {/* 500 — a step above the heading font's pinned 400 axis, which
-                needs `font-variation-settings: normal` to escape. `font-bold`
-                sat here before and rendered at 400, swallowed by the pin. */}
-            <h1 className="font-heading text-3xl leading-[0.85] font-medium tracking-tight uppercase [font-variation-settings:normal] sm:text-4xl md:text-[80px]">
+            {/* No weight utility: 400 is the heading font's pinned axis, so the
+                headline just inherits it — no `font-variation-settings` escape
+                needed when the wanted weight is the pin itself. */}
+            <h1 className="font-heading text-3xl leading-[0.85] tracking-tight uppercase sm:text-4xl md:text-[80px]">
               <span className="block text-hero-title">Your next level</span>
               <span className="block text-primary">
                 Starts here
