@@ -149,7 +149,7 @@ function PathRail() {
   return (
     <span
       aria-hidden="true"
-      className="absolute top-[26px] right-[calc(-50%+33px)] left-[calc(50%+33px)] hidden items-center gap-1 sm:top-[28px] lg:flex"
+      className="absolute top-[26px] right-[calc(-50%+33px)] left-[calc(50%+33px)] hidden items-center gap-1 sm:top-[28px] md:flex"
     >
       <span className="h-0 flex-1 border-t light:border-dotted light:border-[#c9c4c2] dark:border-primary/70" />
       <ChevronRight className="size-3 shrink-0 light:text-[#9c9694] dark:text-primary" />
@@ -167,7 +167,7 @@ export function WolfPath() {
         A daily quest. Real progress.
       </p>
 
-      <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-9 sm:grid-cols-3 lg:grid-cols-6 lg:gap-x-0">
+      <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-9 sm:grid-cols-3 md:grid-cols-6 md:gap-x-0">
         {PATH_STEPS.map(({ icon: Icon, glyph, wolf, title, text }, i) => {
           const last = i === PATH_STEPS.length - 1
           return (
