@@ -358,27 +358,36 @@
      rather than below the gap. The overlap is hidden by the header's own
      light-mode surface — see the z-10 + light:bg-card on FwHeader. */
   top: -15px;
-  left: 0;
+  /* Runs past the content edge into the gutter rather than stopping dead on it.
+     The box starts 48px early and the width grows to match, so the field itself
+     does not shift — it only gains the overhang. */
+  left: -48px;
   z-index: -1;
-  width: 9rem;
+  width: calc(9rem + 48px);
   height: 10rem;
   pointer-events: none;
   /* Literal dot colour — the layer carries no opacity and the gradient no
-     alpha, so a dot inside the mask's plateau renders exactly this value.
-     (It previously stacked 10% black under a 0.6 layer opacity, which meant
-     neither number described what you actually saw.) */
+     alpha, so a dot inside the mask's plateau renders exactly this value. */
   background-image: radial-gradient(#ebebec 2px, transparent 3.5px);
   background-size: 10.5px 10.5px;
+  /* Two masks intersected. The radial is the bloom, re-anchored 48px in so it
+     stays put now the box starts earlier. The linear is the overhang's own
+     fade: opaque by 40px, gone by 4px, so the field runs into the gutter and
+     drops off quickly instead of ending on a ruled line. */
   -webkit-mask-image: radial-gradient(
-    ellipse at center left,
-    #000 0%,
-    #000 30%,
-    transparent 72%
-  );
+      ellipse at 48px center,
+      #000 0%,
+      #000 30%,
+      transparent 72%
+    ),
+    linear-gradient(to right, transparent 4px, #000 40px);
+  -webkit-mask-composite: source-in;
   mask-image: radial-gradient(
-    ellipse at center left,
-    #000 0%,
-    #000 30%,
-    transparent 72%
-  );
+      ellipse at 48px center,
+      #000 0%,
+      #000 30%,
+      transparent 72%
+    ),
+    linear-gradient(to right, transparent 4px, #000 40px);
+  mask-composite: intersect;
 }
