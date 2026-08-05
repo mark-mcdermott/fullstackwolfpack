@@ -6,22 +6,22 @@ import { cn } from './utils'
 // meters that give every screen the same "tactical HUD" look as the mocks.
 
 // The FW-01 raised CTA — a moulded slab rather than a flat fill: a sheen down
-// the face, a lit top edge and a shadowed bottom one, sitting on a soft cast
-// shadow, and pressing in on :active.
+// the face, a 1px darkened-primary border, and inside it a 1px rule that is
+// white across the top and left, a lightened primary down the right, and absent
+// along the bottom. Sits on a soft cast shadow and presses in on :active.
 //
 // Every colour is mixed from `--primary`, so the button follows the theme
-// instead of hard-coding a red. Exported as a class as well as a component:
+// instead of hard-coding a red; the face and edge live in theme.css as
+// `--cta-face` / `--cta-edge`. Exported as a class as well as a component:
 // CTAs are as often anchors or router <Link>s as they are <button>s, and a
 // shared class dresses any of them without a polymorphic wrapper.
 export const raisedCtaClass = cn(
   'inline-flex h-12 w-fit items-center justify-center gap-2.5 rounded-lg px-7',
-  // Teko, and opted out of the heading font's pinned 400 axis so the weight lands.
-  'font-heading text-xl font-bold tracking-widest text-white uppercase [font-variation-settings:normal]',
-  // The gradient itself is `--cta-face` in theme.css. Inline, Tailwind's class
-  // extractor drops an arbitrary value containing nested color-mix() commas and
-  // emits no rule at all — which leaves white text on a transparent button.
-  'bg-[image:var(--cta-face)]',
-  'shadow-[inset_0_1px_0_rgb(255_255_255/0.45),inset_0_-2px_0_rgb(0_0_0/0.22),0_2px_5px_rgb(0_0_0/0.28)]',
+  // No weight utility: the heading font's pinned 400 axis is the intended
+  // weight here — Teko's bold reads far too heavy at this size.
+  'font-heading text-xl tracking-widest text-white uppercase',
+  'border border-[color:var(--cta-border)] bg-[image:var(--cta-face)]',
+  'shadow-[var(--cta-edge)]',
   'transition-[filter,box-shadow,translate] hover:brightness-[1.06]',
   'active:translate-y-px active:shadow-[inset_0_2px_3px_rgb(0_0_0/0.3),0_1px_2px_rgb(0_0_0/0.25)]',
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',

@@ -65,10 +65,18 @@
 }
 
 :root {
+    /* The raised CTA's edge treatment: a 1px inner rule that is white across
+       the top and down the left, a lightened primary down the right, and absent
+       along the bottom — so the slab reads lit from above. Kept as tokens so the
+       CTA's surface is theme-level and reusable, not buried in one component. */
+    --cta-border: color-mix(in oklab, var(--primary), black 30%);
+    --cta-edge:
+        inset 0 1px 0 rgb(255 255 255 / 0.6),
+        inset 1px 0 0 rgb(255 255 255 / 0.45),
+        inset -1px 0 0 color-mix(in oklab, var(--primary), white 40%),
+        0 2px 5px rgb(0 0 0 / 0.28);
     /* The raised CTA's face — a sheen from a lightened primary down to a
-       darkened one. Held as a token because Tailwind's class extractor drops an
-       arbitrary value containing nested color-mix() commas, so the gradient
-       cannot live inline in a utility. */
+       darkened one. */
     --cta-face: linear-gradient(
         to bottom,
         color-mix(in oklab, var(--primary), white 16%),
