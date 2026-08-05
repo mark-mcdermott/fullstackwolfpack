@@ -62,20 +62,21 @@
        the top and down the left, a lightened primary down the right, and absent
        along the bottom — so the slab reads lit from above. Kept as tokens so the
        CTA's surface is theme-level and reusable, not buried in one component. */
-    --cta-border: color-mix(in oklab, var(--primary), black 30%);
+    /* Five 1px rings up the top and left edges, outer to inner. Built from
+       stacked inset shadows at increasing depth: an earlier shadow paints over
+       a later one, so listing them 1px..5px leaves exactly one visible row of
+       each. The right and bottom edges carry two rings each. */
     --cta-edge:
-        inset 0 1px 0 rgb(255 255 255 / 0.6),
-        inset 1px 0 0 rgb(255 255 255 / 0.45),
-        inset -1px 0 0 color-mix(in oklab, var(--primary), white 40%),
+        inset 0 1px 0 #fefcfc, inset 1px 0 0 #fefcfc,
+        inset 0 2px 0 #fabebd, inset 2px 0 0 #c72020,
+        inset 0 3px 0 #fbc1be, inset 3px 0 0 #fbc1be,
+        inset 0 4px 0 #e76568, inset 4px 0 0 #e76568,
+        inset 0 5px 0 #e0161a, inset 5px 0 0 #e0161a,
+        inset -1px 0 0 #a41314, inset -2px 0 0 #f94548,
+        inset 0 -1px 0 #a9070a, inset 0 -2px 0 #cb0a12,
         0 2px 5px rgb(0 0 0 / 0.28);
-    /* The raised CTA's face — a sheen from a lightened primary down to a
-       darkened one. */
-    --cta-face: linear-gradient(
-        to bottom,
-        color-mix(in oklab, var(--primary), white 16%),
-        var(--primary) 48%,
-        color-mix(in oklab, var(--primary), black 14%)
-    );
+    /* The raised CTA's face. */
+    --cta-face: linear-gradient(to bottom, #e62327, #ca0a0f);
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);

@@ -16,14 +16,19 @@ import { cn } from './utils'
 // CTAs are as often anchors or router <Link>s as they are <button>s, and a
 // shared class dresses any of them without a polymorphic wrapper.
 export const raisedCtaClass = cn(
-  // `pt` rather than a tweak to items-center: Teko's caps sit high in their em
-  // box, so a mathematically centred line still reads high. The padding pushes
-  // the content down half its value, landing the caps on the optical centre.
-  'inline-flex h-12 w-fit items-center justify-center gap-2.5 rounded-lg px-5 pt-[2px]',
-  // No weight utility: the heading font's pinned 400 axis is the intended
-  // weight here — Teko's bold reads far too heavy at this size.
-  'font-heading text-[22px] tracking-wider text-white uppercase',
-  'border border-[color:var(--cta-border)] bg-[image:var(--cta-face)]',
+  // Real vertical padding rather than a fixed height, so the button sizes to
+  // its label. The 2px top/bottom asymmetry is deliberate: Teko's caps sit high
+  // in their em box, so even padding leaves them reading high.
+  'inline-flex w-fit items-center justify-center gap-2.5 rounded-lg px-6 pt-4 pb-3.5',
+  // 300, a step below the heading font's pinned 400 axis — which needs
+  // `font-variation-settings: normal` to escape, or the pin swallows it. No new
+  // file: Teko is variable and already carries 300–700 in the one download.
+  // Line-height rides on the size utility: a bare `leading-none` did not take,
+  // leaving a 1.5 line box that made the button 63px tall.
+  'font-heading text-[24px]/[24px] font-light tracking-wide text-white uppercase [font-variation-settings:normal]',
+  // No `border`: the outermost ring is the first inset in `--cta-edge`, so a
+  // border would sit outside it and read as a sixth edge.
+  'bg-[image:var(--cta-face)]',
   'shadow-[var(--cta-edge)]',
   'transition-[filter,box-shadow,translate] hover:brightness-[1.06]',
   'active:translate-y-px active:shadow-[inset_0_2px_3px_rgb(0_0_0/0.3),0_1px_2px_rgb(0_0_0/0.25)]',
