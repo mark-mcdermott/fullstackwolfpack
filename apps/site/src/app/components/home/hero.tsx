@@ -49,16 +49,8 @@ export function HomeHero() {
             and would blow out the high-key light one. */}
         <div
           aria-hidden="true"
-          className="absolute inset-y-0 right-0 h-full w-full bg-[image:var(--hero-image)] bg-contain bg-center bg-no-repeat dark:brightness-105 dark:contrast-[1.12] dark:saturate-[1.25]"
+          className="absolute inset-y-0 right-0 h-full w-full bg-[image:var(--hero-image)] bg-contain bg-center bg-no-repeat [mask-image:linear-gradient(to_right,transparent_0%,black_15%,black_85%,transparent_100%)] dark:brightness-105 dark:contrast-[1.12] dark:saturate-[1.25]"
         />
-        {/* Theme-colored wash: fades the photo into the card behind the copy,
-            then clears well before the skyline so the neon stays punchy — a
-            veil carried across the whole photo is what made it read hazy. */}
-        {/* Starts transparent, not at full `background`: the plate's left end is
-            where the halftone field sits, and an opaque wash there hid it. The
-            art is masked out that far left anyway, so the copy still reads
-            against the page rather than against the skyline. */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent from-6% via-background via-45% to-background/40 md:via-40% md:to-transparent md:to-66%" />
 
         {/* Parked with XP_CHIPS above.
         {XP_CHIPS.map(({ className, tone }, i) => (
