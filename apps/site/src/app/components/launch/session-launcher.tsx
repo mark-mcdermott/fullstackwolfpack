@@ -284,7 +284,6 @@ function LauncherForm({
             }
             title={currentGame ? cleanTitle(currentGame.title) : 'Select a game'}
             subtitle={currentGame ? 'Arcade mode' : 'Pick a game to begin'}
-            selected={!!currentGame}
             onClick={cycleGame}
           />
         </Control>
@@ -305,7 +304,6 @@ function LauncherForm({
             subtitle={
               currentTopic ? 'Ready to learn' : 'Pick a skill to focus on'
             }
-            selected={!!currentTopic}
             onClick={cycleTopic}
           />
         </Control>
@@ -444,31 +442,25 @@ function FieldLabel({
 }
 
 // A "select a game / skill" card — icon + title + subtitle + a next chevron.
-// Renders a placeholder when nothing's chosen (or nothing's available); shows a
-// coral border once a selection is active. Clicking cycles to the next option.
+// Renders a placeholder when nothing's chosen (or nothing's available).
+// Clicking cycles to the next option. Styled to match the time steppers — same
+// border, radius and --field-shadow — so every control in the row reads alike.
 function SelectCard({
   icon,
   title,
   subtitle,
-  selected,
   onClick,
 }: {
   icon: ReactNode
   title: string
   subtitle: string
-  selected: boolean
   onClick: () => void
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={cn(
-        'flex h-16 w-full items-center gap-2.5 rounded-lg border bg-card px-2.5 text-left transition-colors light:shadow-[var(--field-shadow)]',
-        selected
-          ? 'border-primary/60 hover:border-primary'
-          : 'border-border hover:border-muted-foreground/50',
-      )}
+      className="flex h-16 w-full items-center gap-2.5 rounded-lg border border-border bg-card px-2.5 text-left transition-colors hover:border-primary focus-visible:border-primary focus-visible:outline-none light:shadow-[var(--field-shadow)]"
     >
       {icon}
       <div className="min-w-0 flex-1">
