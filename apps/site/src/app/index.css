@@ -351,43 +351,65 @@
    and dark already carries its own atmosphere (`.dark body::before`).
    The host needs `relative isolate` so the -1 layer sits behind that host's
    content rather than dropping behind the page itself. */
-:root:not(.dark) .fw-dot-field::before {
+/* Atmospheric halftone in the hero's upper-left. Two layers, not one: a mask
+   only dims dots, it cannot thin them, so a single field fades in place and
+   still reads as a rectangle of texture going quiet. `::before` carries a dense
+   core and `::after` a coarser ring that reaches further out, so density drops
+   with distance as well as opacity.
+
+   Geometry notes:
+   - The box is centred on a point ~55px inside the content edge and ~45px down,
+     which anchors the corner rather than the headline.
+   - Every mask uses `closest-side`, so 100% is the box's half-width. Both fades
+     finish inside that, which is what guarantees no box edge is ever visible —
+     with the default farthest-corner the gradient outruns the box horizontally
+     and clips into a hard vertical line.
+   - The top of the box sits behind the header, which is opaque in light. */
+:root:not(.dark) .fw-dot-field::before,
+:root:not(.dark) .fw-dot-field::after {
   content: '';
   position: absolute;
-  /* Tucked up under the header so the field starts flush with its bottom edge
-     rather than below the gap. The overlap is hidden by the header's own
-     light-mode surface — see the z-10 + light:bg-card on FwHeader. */
-  top: -15px;
-  /* Runs past the content edge into the gutter rather than stopping dead on it.
-     The box starts 48px early and the width grows to match, so the field itself
-     does not shift — it only gains the overhang. */
-  left: -48px;
+  top: -75px;
+  left: -65px;
   z-index: -1;
-  width: calc(9rem + 48px);
-  height: 10rem;
+  width: 15rem;
+  height: 15rem;
   pointer-events: none;
-  /* Literal dot colour — the layer carries no opacity and the gradient no
-     alpha, so a dot inside the mask's plateau renders exactly this value. */
+  opacity: 0.75;
   background-image: radial-gradient(#ebebec 2px, transparent 3.5px);
   background-size: 10.5px 10.5px;
-  /* Two masks intersected. The radial is the bloom, re-anchored 48px in so it
-     stays put now the box starts earlier. The linear is the overhang's own
-     fade: opaque by 40px, gone by 4px, so the field runs into the gutter and
-     drops off quickly instead of ending on a ruled line. */
+}
+
+/* Dense core. */
+:root:not(.dark) .fw-dot-field::before {
   -webkit-mask-image: radial-gradient(
-      ellipse at 48px center,
-      #000 0%,
-      #000 30%,
-      transparent 72%
-    ),
-    linear-gradient(to right, transparent 4px, #000 40px);
-  -webkit-mask-composite: source-in;
+    circle closest-side at 50% 50%,
+    #000 0%,
+    #000 22%,
+    transparent 70%
+  );
   mask-image: radial-gradient(
-      ellipse at 48px center,
-      #000 0%,
-      #000 30%,
-      transparent 72%
-    ),
-    linear-gradient(to right, transparent 4px, #000 40px);
-  mask-composite: intersect;
+    circle closest-side at 50% 50%,
+    #000 0%,
+    #000 22%,
+    transparent 70%
+  );
+}
+
+/* Sparse outer ring — half the grid density, reaching further, so the texture
+   thins out rather than stopping. */
+:root:not(.dark) .fw-dot-field::after {
+  background-size: 21px 21px;
+  -webkit-mask-image: radial-gradient(
+    circle closest-side at 50% 50%,
+    transparent 34%,
+    #000 56%,
+    transparent 96%
+  );
+  mask-image: radial-gradient(
+    circle closest-side at 50% 50%,
+    transparent 34%,
+    #000 56%,
+    transparent 96%
+  );
 }
