@@ -209,7 +209,7 @@ export function PathBanner() {
   return (
     <div
       aria-hidden="true"
-      className="-mx-5 h-[120px] bg-[image:var(--path-banner)] bg-cover bg-[position:50%_82%] sm:-mx-7 sm:h-[150px] md:h-[178px] dark:bg-cover dark:bg-center"
+      className="-mx-5 h-[120px] bg-[image:var(--path-banner)] bg-cover bg-[position:88%_74%] sm:-mx-7 sm:h-[150px] md:h-[178px] dark:bg-cover dark:bg-center"
     />
   )
 }
@@ -227,9 +227,9 @@ export function ReadyToJoin() {
         src="/images/akela-eyes.png"
         alt=""
         aria-hidden="true"
-        className="absolute inset-y-0 right-0 hidden w-72 object-cover object-center opacity-70 md:block"
+        className="absolute inset-y-0 right-0 hidden w-72 object-cover object-[70%_45%] opacity-90 [mask-image:linear-gradient(to_right,transparent,black_38%)] md:block"
       />
-      <div className="absolute inset-y-0 right-0 hidden w-72 bg-gradient-to-l from-transparent via-card/70 to-card md:block light:via-[#f8f6f4]/70 light:to-[#f8f6f4]" />
+      <div className="absolute inset-y-0 right-0 hidden w-72 bg-gradient-to-l from-transparent via-card/45 to-card md:block light:via-[#f8f6f4]/40 light:to-[#f8f6f4]" />
       {/* Inner rule above the portrait and its scrim, both inset siblings. */}
       <div className="pointer-events-none absolute inset-0 rounded-2xl light:shadow-[inset_0_0_0_2px_#fdfdfb]" />
 
