@@ -137,6 +137,11 @@
        only ~8px: the mock's carries ~12px at a lower alpha, so it reads as
        depth rather than a hairline under the edge. */
     --card-shadow: 0 3px 14px rgb(0 0 0 / 0.055);
+    /* Inner controls (selects, steppers, the swap key): the same white
+       inner rule the tiles carry, over a shallower lift. */
+    --field-shadow: inset 0 0 0 2px #fdfdfb, 0 1px 4px rgb(0 0 0 / 0.06);
+    /* The launcher tile sits a little flatter than Akela's card. */
+    --tile-shadow: 0 2px 10px rgb(0 0 0 / 0.04);
     --hero-image: url('/images/hero-light.jpg');
     /* The plate's own aspect. The art layer is sized to this so its box
        hugs the image exactly — that is what lets the edge mask land on the

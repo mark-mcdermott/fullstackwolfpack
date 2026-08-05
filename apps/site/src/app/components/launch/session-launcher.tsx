@@ -243,7 +243,7 @@ function LauncherForm({
     <Panel
       id="start-session"
       brackets={false}
-      className="flex scroll-mt-24 flex-col gap-5 rounded-2xl p-5 sm:p-6 light:bg-[#f8f5f2] light:shadow-[inset_0_0_0_2px_#fdfdfb]"
+      className="flex scroll-mt-24 flex-col gap-5 rounded-2xl p-5 sm:p-6 light:bg-[#f8f5f2] light:shadow-[inset_0_0_0_2px_#fdfdfb,var(--tile-shadow)]"
     >
       <div className="flex items-center justify-between gap-4">
         <SectionLabel>Configure your mission</SectionLabel>
@@ -335,9 +335,9 @@ function LauncherForm({
                 onClick={() => setLearnFirst((v) => !v)}
                 aria-label="Swap play/learn order"
                 title="Swap which comes first"
-                className="flex h-11 w-9 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                className="flex size-9 items-center justify-center rounded-lg border border-border bg-card text-hero-title transition-colors hover:border-primary hover:text-primary light:shadow-[var(--field-shadow)]"
               >
-                <ArrowLeftRight className="size-4" />
+                <ArrowLeftRight className="size-3.5" />
               </button>
             </div>
           </div>
@@ -434,7 +434,7 @@ function FieldLabel({
   return (
     <span
       className={cn(
-        'font-mono text-[10px] font-medium tracking-widest text-muted-foreground uppercase',
+        'font-mono text-[10px] font-medium tracking-widest text-hero-title uppercase',
         className,
       )}
     >
@@ -464,7 +464,7 @@ function SelectCard({
       type="button"
       onClick={onClick}
       className={cn(
-        'flex h-16 w-full items-center gap-3 rounded-lg border bg-card px-3 text-left transition-colors',
+        'flex h-16 w-full items-center gap-2.5 rounded-lg border bg-card px-2.5 text-left transition-colors light:shadow-[var(--field-shadow)]',
         selected
           ? 'border-primary/60 hover:border-primary'
           : 'border-border hover:border-muted-foreground/50',
@@ -474,7 +474,7 @@ function SelectCard({
       <div className="min-w-0 flex-1">
         {/* 2x title on the big stacked mobile cards; normal size but wrapping in
             the narrow md cards; single-line truncated at >=1024. */}
-        <div className="font-heading text-2xl leading-tight font-bold text-foreground md:text-sm md:leading-normal lg:truncate">
+        <div className="font-sans text-lg leading-tight font-semibold text-hero-title md:text-sm md:leading-normal lg:truncate">
           {title}
         </div>
         {/* "Ready to play / learn" — hidden below 1024. */}
@@ -482,7 +482,7 @@ function SelectCard({
           {subtitle}
         </div>
       </div>
-      <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+      <ChevronRight className="size-4 shrink-0 text-hero-title" />
     </button>
   )
 }
@@ -527,7 +527,7 @@ function TimeStepper({
 }) {
   const clamp = (v: number) => Math.min(120, Math.max(1, v))
   return (
-    <div className="flex h-11 items-stretch border border-border focus-within:border-primary">
+    <div className="flex h-11 items-stretch rounded-lg border border-border bg-card focus-within:border-primary light:shadow-[var(--field-shadow)]">
       <input
         type="number"
         min={1}
@@ -535,9 +535,9 @@ function TimeStepper({
         value={value}
         onChange={(e) => onChange(clamp(Number(e.target.value) || 1))}
         aria-label={`${name} minutes`}
-        className="w-11 bg-transparent pl-3 text-sm tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        className="w-11 bg-transparent pl-3 text-base font-semibold tabular-nums text-hero-title outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
-      <span className="flex items-center pr-2 font-mono text-[10px] tracking-wide text-muted-foreground uppercase">
+      <span className="flex items-center pr-2 font-mono text-[10px] tracking-wide text-hero-title uppercase">
         min
       </span>
       <div className="flex flex-col border-l border-border">
