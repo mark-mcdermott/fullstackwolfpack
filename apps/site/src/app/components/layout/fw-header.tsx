@@ -79,15 +79,20 @@ export function FwHeader() {
         >
           {/* `mb-1` rides the mark 2px up against the centre line, where it
               optically balances the two-line wordmark beside it. */}
-          <WolfMark className="h-12 text-foreground sm:mb-1 sm:h-[58px]" />
-          {/* The line-height has to ride on the same utility as the font size:
-              a named `text-*` step ships its own line-height and would override
-              a `leading-*` inherited from this wrapper. */}
+          <WolfMark className="h-12 text-foreground sm:mb-1 sm:h-[60px]" />
+          {/* Two gotchas on the wordmark. The line-height has to ride on the
+              same utility as the font size — a named `text-*` step ships its own
+              and would override a `leading-*` inherited from this wrapper. And
+              the weight needs `font-variation-settings: normal` to opt out of
+              the heading font's pinned 400 axis (theme.css); without it the
+              `font-medium` renders at 400 like everything else. Teko is a
+              variable face carrying 300–700 in one file, so 500 costs nothing
+              extra to load. */}
           <span className="flex flex-col font-heading">
-            <span className="text-xl/[0.8] font-bold tracking-[0.08em] text-foreground sm:text-[26px]/[24px]">
+            <span className="text-xl/[0.8] font-medium tracking-[0.08em] text-foreground [font-variation-settings:normal] sm:text-[26px]/[24px]">
               FULLSTACK
             </span>
-            <span className="text-xl/[0.8] font-bold tracking-[0.08em] text-foreground sm:text-[26px]/[24px]">
+            <span className="text-xl/[0.8] font-medium tracking-[0.08em] text-foreground [font-variation-settings:normal] sm:text-[26px]/[24px]">
               WOLFPACK
             </span>
             {/* Katakana, not Teko — the display face has no kana, so this line
