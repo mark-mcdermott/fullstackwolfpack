@@ -148,12 +148,12 @@ export function HomeHero() {
                 halo — a radial wash in the card's own surface colour, fading to
                 nothing rather than ending on an edge. Per theme, since the card
                 is eggshell in light and near-black in dark. */}
-            <blockquote className="max-w-[65%] rounded-[50%/40%] px-3 py-2 -mx-3 -my-2 light:bg-[radial-gradient(ellipse_at_center,#f7f4f3_48%,#f7f4f300_78%)] dark:bg-[radial-gradient(ellipse_at_center,#0a0a0a_48%,#0a0a0a00_78%)]">
+            <blockquote className="max-w-[68%] rounded-[50%/40%] px-3 py-2 -mx-3 -my-2 light:bg-[radial-gradient(ellipse_at_center,#f7f4f3_48%,#f7f4f300_78%)] dark:bg-[radial-gradient(ellipse_at_center,#0a0a0a_48%,#0a0a0a00_78%)]">
               <p className="font-mono text-[11px] leading-relaxed text-foreground drop-shadow-none dark:text-white dark:drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
                 &ldquo;Discipline is choosing between what you want now and what
                 you want most.&rdquo;
               </p>
-              <cite className="mt-1.5 block font-mono text-[11px] text-primary not-italic">
+              <cite className="mt-1.5 block font-mono text-[11px] font-bold text-primary not-italic">
                 — Akela
               </cite>
             </blockquote>
