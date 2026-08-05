@@ -72,7 +72,7 @@ export function FwFooter() {
 
       {/* Slim brand + nav row */}
       <div className="border-t border-border">
-        <div className="mx-auto flex max-w-7xl flex-col items-center gap-5 px-5 py-6 md:flex-row md:justify-between md:gap-8 md:px-8">
+        <div className="mx-auto flex max-w-page flex-col items-center gap-5 px-5 py-6 md:flex-row md:justify-between md:gap-8 md:px-8">
           <Link
             to="/"
             aria-label="Fullstack Wolfpack home"
@@ -112,7 +112,7 @@ export function FwFooter() {
 
       {/* Parked — the fuller footer (tagline, link columns, terminal cell,
           social row, copyright). Restore when we widen scope again.
-      <div className="mx-auto max-w-7xl px-5 pt-14 pb-8 md:px-8">
+      <div className="mx-auto max-w-page px-5 pt-14 pb-8 md:px-8">
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2.5">
             <WolfMark className="h-9 text-white" />

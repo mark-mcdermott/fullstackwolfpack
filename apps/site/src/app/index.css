@@ -96,6 +96,10 @@
     --color-foreground: var(--foreground);
     --color-hero-title: var(--hero-title);
     --color-background: var(--background);
+    /* The app's page column. Header, <main> and the footer all read from
+       this one value — they have to agree or the bar stops lining up with
+       the tiles. The marketing .astro pages keep their own max-w-7xl. */
+    --container-page: 72.5rem;
     --radius-sm: calc(var(--radius) * 0.6);
     --radius-md: calc(var(--radius) * 0.8);
     --radius-lg: var(--radius);

@@ -60,7 +60,7 @@ export function FwHeader() {
       {/* Light only: the same max-width and horizontal padding as <main>, so the
           card's edges land exactly on the tiles' edges below. Left bare in dark,
           where the bar is full-bleed and there is no card edge to align. */}
-      <div className="mx-auto w-full max-w-7xl light:px-5 light:pt-3 sm:light:px-7 sm:light:pt-4">
+      <div className="mx-auto w-full max-w-page light:px-5 light:pt-3 sm:light:px-7 sm:light:pt-4">
         {/* Brand + nav + toggle all refuse to shrink, so below `sm` every gap and
             type step tightens instead — the row overflowed the viewport on 320–370px
             phones otherwise. */}
