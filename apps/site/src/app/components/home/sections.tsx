@@ -1,14 +1,13 @@
 import {
   ArrowRight,
   BookOpen,
+  ChevronRight,
   Clock,
   Code,
-  Crosshair,
   Gamepad2,
-  Star,
-  Trophy,
   type LucideIcon,
 } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 import { WolfMark, raisedCtaClass } from '@fw/ui'
 import { cn } from '@/lib/utils'
@@ -65,65 +64,18 @@ export function CreedBand() {
   )
 }
 
-const FEATURES: {
-  icon: LucideIcon
-  color: string
+
+// The Wolf's Path — the six-step loop, laid out as a connected chain. Light
+// draws it as pale hexagons on a dotted rail; dark lights the outlines up and
+// runs a solid rail between them, with the final step shifting to violet as the
+// "level up" payoff. Same markup either way; only the strokes change.
+const PATH_STEPS: {
+  icon?: LucideIcon
+  glyph?: string
+  wolf?: boolean
   title: string
   text: string
 }[] = [
-  {
-    icon: Crosshair,
-    color: 'text-primary',
-    title: 'Practice with purpose',
-    text: 'Complete bite-sized missions that build real-world skills.',
-  },
-  {
-    icon: BookOpen,
-    color: 'text-fuchsia-500',
-    title: 'Learn by doing',
-    text: 'Learn in context. Apply it immediately. Level up fast.',
-  },
-  {
-    icon: Gamepad2,
-    color: 'text-blue-500',
-    title: 'Play. Focus. Win.',
-    text: 'Stay in flow with timer-based sessions and epic rewards.',
-  },
-  {
-    icon: Trophy,
-    color: 'text-amber-400',
-    title: 'Track & improve',
-    text: 'See your progress, earn XP, and climb the leaderboard.',
-  },
-]
-
-export function BuiltForDevs() {
-  return (
-    <section className="py-8 text-center sm:py-10">
-      <h2 className="font-heading text-2xl font-bold tracking-wide text-foreground uppercase sm:text-3xl">
-        Built for developers. Designed like a game.
-      </h2>
-      <p className="mt-2 font-mono text-sm text-muted-foreground">
-        Real skills. Real missions. Real progress.
-      </p>
-      <div className="mt-10 grid grid-cols-1 gap-y-10 sm:grid-cols-2 md:grid-cols-4 md:gap-y-0 md:divide-x md:divide-border">
-        {FEATURES.map(({ icon: Icon, color, title, text }) => (
-          <div key={title} className="flex flex-col items-center gap-3 px-6">
-            <Icon className={cn('size-10', color)} strokeWidth={2} />
-            <h3 className="font-mono text-sm font-bold tracking-wide text-foreground uppercase">
-              {title}
-            </h3>
-            <p className="max-w-[14rem] font-mono text-xs leading-relaxed text-muted-foreground">
-              {text}
-            </p>
-          </div>
-        ))}
-      </div>
-    </section>
-  )
-}
-
-const STEPS: { icon: LucideIcon; title: string; text: string }[] = [
   {
     icon: Gamepad2,
     title: 'Choose a game',
@@ -132,54 +84,134 @@ const STEPS: { icon: LucideIcon; title: string; text: string }[] = [
   {
     icon: Code,
     title: 'Select a skill',
-    text: 'Learn on the skill you want to level up.',
+    text: 'Choose what you want to learn or improve.',
+  },
+  { icon: Clock, title: 'Play', text: 'Focus for 25 minutes. No distractions.' },
+  {
+    icon: BookOpen,
+    title: 'Learn',
+    text: 'Sharpen your mind with a 5-minute lesson.',
   },
   {
-    icon: Clock,
-    title: 'Play & learn',
-    text: 'Complete missions while learning between rounds.',
+    glyph: 'XP',
+    title: 'Earn XP',
+    text: 'Complete missions, earn XP, and build streaks.',
   },
   {
-    icon: Star,
-    title: 'Earn & level up',
-    text: 'Earn XP, unlock content, and become unstoppable.',
+    wolf: true,
+    title: 'Level up',
+    text: 'Unlock new content, harder missions, better you.',
   },
 ]
 
-export function HowItWorks() {
+// A pointy-top hexagon drawn as SVG rather than clip-path, so it can carry a
+// stroke — clip-path gives no border to work with, and the outline is the whole
+// look here.
+function PathHex({ last, children }: { last: boolean; children: ReactNode }) {
   return (
-    <section className="py-8 text-center sm:py-10">
-      <h2 className="font-heading text-2xl font-bold tracking-wide text-foreground uppercase sm:text-3xl">
-        How it works
+    <span className="relative flex size-[54px] shrink-0 items-center justify-center sm:size-[58px]">
+      <svg
+        viewBox="0 0 100 115"
+        aria-hidden="true"
+        className={cn(
+          'absolute inset-0 size-full',
+          last
+            ? 'dark:drop-shadow-[0_0_7px_var(--color-violet-500)]'
+            : 'dark:drop-shadow-[0_0_7px_var(--primary)]',
+        )}
+      >
+        <polygon
+          points="50,3 96,29 96,86 50,112 4,86 4,29"
+          strokeWidth="3"
+          className={cn(
+            'light:fill-white light:stroke-[#e2dfde] dark:fill-[#12060c]',
+            last ? 'dark:stroke-violet-500' : 'dark:stroke-primary',
+          )}
+        />
+      </svg>
+      <span
+        className={cn(
+          'relative flex items-center justify-center',
+          last ? 'text-foreground dark:text-violet-300' : 'text-foreground',
+        )}
+      >
+        {children}
+      </span>
+    </span>
+  )
+}
+
+// The rail between two hexes. Absolutely positioned rather than a flex sibling:
+// the columns are equal-width and their copy is wider than the hexes, so the
+// rail has to run hex-edge to hex-edge across the gap, not between the columns.
+// 29px is the hex's half-width, +4 for breathing room.
+function PathRail() {
+  return (
+    <span
+      aria-hidden="true"
+      className="absolute top-[26px] right-[calc(-50%+33px)] left-[calc(50%+33px)] hidden items-center gap-1 sm:top-[28px] lg:flex"
+    >
+      <span className="h-0 flex-1 border-t light:border-dotted light:border-[#c9c4c2] dark:border-primary/70" />
+      <ChevronRight className="size-3 shrink-0 light:text-[#9c9694] dark:text-primary" />
+    </span>
+  )
+}
+
+export function WolfPath() {
+  return (
+    <section className="pt-6 pb-2 text-center sm:pt-8">
+      <h2 className="font-heading text-[34px] tracking-wide text-foreground uppercase sm:text-[40px]">
+        The Wolf&rsquo;s Path
       </h2>
-      <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {STEPS.map(({ icon: Icon, title, text }, i) => (
-          <div
-            key={title}
-            className="relative rounded-xl border border-border p-5 text-left"
-          >
-            <div className="flex items-center gap-3">
-              <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-primary font-mono text-xs font-bold text-primary">
-                {i + 1}
+      <p className="mt-0.5 font-mono text-[11px] tracking-[0.18em] text-muted-foreground uppercase">
+        A daily quest. Real progress.
+      </p>
+
+      <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-9 sm:grid-cols-3 lg:grid-cols-6 lg:gap-x-0">
+        {PATH_STEPS.map(({ icon: Icon, glyph, wolf, title, text }, i) => {
+          const last = i === PATH_STEPS.length - 1
+          return (
+            <div key={title} className="relative flex flex-col items-center">
+              {!last && <PathRail />}
+              <PathHex last={last}>
+                {Icon && <Icon className="size-5" strokeWidth={2} />}
+                {glyph && (
+                  <span className="font-heading text-[19px] text-primary">
+                    {glyph}
+                  </span>
+                )}
+                {wolf && <WolfMark className="h-5" />}
+              </PathHex>
+              <span className="mt-2.5 font-heading text-[22px] leading-none text-primary">
+                {String(i + 1).padStart(2, '0')}
               </span>
-              <Icon className="size-6 text-foreground" strokeWidth={2} />
+              <h3 className="mt-1.5 font-mono text-[11px] font-bold tracking-widest text-foreground uppercase">
+                {title}
+              </h3>
+              <p className="mt-1.5 max-w-[9.5rem] font-mono text-[11px] leading-[1.7] text-muted-foreground">
+                {text}
+              </p>
             </div>
-            <h3 className="mt-4 font-mono text-sm font-bold tracking-wide text-foreground uppercase">
-              {title}
-            </h3>
-            <p className="mt-1.5 font-mono text-xs leading-relaxed text-muted-foreground">
-              {text}
-            </p>
-            {i < STEPS.length - 1 && (
-              <span
-                aria-hidden="true"
-                className="absolute top-9 -right-4 hidden h-px w-4 border-t border-dashed border-muted-foreground/40 lg:block"
-              />
-            )}
-          </div>
-        ))}
+          )
+        })}
       </div>
     </section>
+  )
+}
+
+// The banner strip under the path. Breaks out of <main>'s padding so it runs to
+// the page edges like the hero plate. One plate serves both themes: light knocks
+// it back to a pale wash rather than carrying a second asset — the same trick
+// the creed band uses, and what the mock shows.
+export function PathBanner() {
+  return (
+    <div
+      aria-hidden="true"
+      className="relative -mx-5 h-[120px] overflow-hidden sm:-mx-7 sm:h-[150px] md:h-[185px]"
+    >
+      <div className="absolute inset-0 bg-[url('/images/footer-2.png')] bg-cover bg-center light:opacity-[0.38] light:saturate-[0.8]" />
+      <div className="absolute inset-0 light:bg-[#f6f4f2]/40" />
+    </div>
   )
 }
 

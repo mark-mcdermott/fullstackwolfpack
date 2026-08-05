@@ -9,9 +9,9 @@ import {
 } from '@/components/mission/mission-view'
 import { ResumeMissionCard } from '@/components/mission/resume-mission-card'
 import {
-  BuiltForDevs,
+  WolfPath,
   CreedBand,
-  HowItWorks,
+  PathBanner,
   ReadyToJoin,
 } from '@/components/home/sections'
 import { useAuth } from '@/hooks/auth-context'
@@ -169,8 +169,8 @@ export function GuestHome() {
       {phase === 'idle' && (
         <>
           <CreedBand />
-          <BuiltForDevs />
-          <HowItWorks />
+          <WolfPath />
+          <PathBanner />
           <ReadyToJoin />
         </>
       )}
