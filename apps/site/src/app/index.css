@@ -270,7 +270,13 @@
   -webkit-mask-image: radial-gradient(
     ellipse at top left,
     #000 0%,
-    transparent 58%
+    #000 30%,
+    transparent 72%
   );
-  mask-image: radial-gradient(ellipse at top left, #000 0%, transparent 58%);
+  mask-image: radial-gradient(
+    ellipse at top left,
+    #000 0%,
+    #000 30%,
+    transparent 72%
+  );
 }
