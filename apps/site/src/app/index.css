@@ -362,8 +362,8 @@
      alpha, so a dot inside the mask's plateau renders exactly this value.
      (It previously stacked 10% black under a 0.6 layer opacity, which meant
      neither number described what you actually saw.) */
-  background-image: radial-gradient(#ebebec 2.1px, transparent 2.2px);
-  background-size: 9.5px 9.5px;
+  background-image: radial-gradient(#ebebec 2px, transparent 3.5px);
+  background-size: 10.5px 10.5px;
   -webkit-mask-image: radial-gradient(
     ellipse at center left,
     #000 0%,
