@@ -1,11 +1,12 @@
 import { ArrowRight } from 'lucide-react'
 import { Panel } from '@fw/ui'
-import { cn } from '@/lib/utils'
+// import { cn } from '@/lib/utils' // parked with XP_CHIPS
 
-// Floating XP chips scattered over the skyline — the "you are earning" motif
-// from the mock. Positions are hand-placed against the photo so they sit in the
-// sky rather than on the figure; hidden below `md`, where the photo is masked
-// down to a narrow strip and they would collide with the copy.
+// Parked. Floating XP chips scattered over the skyline — the "you are earning"
+// motif from the mock. Positions are hand-placed against the photo so they sit
+// in the sky rather than on the figure; hidden below `md`, where the photo is
+// masked down to a narrow strip and they would collide with the copy.
+/*
 const XP_CHIPS: { className: string; tone: string }[] = [
   { className: 'top-[14%] left-[46%]', tone: 'text-blue-300 border-blue-400/40' },
   { className: 'top-[30%] left-[70%]', tone: 'text-blue-300 border-blue-400/40' },
@@ -13,6 +14,7 @@ const XP_CHIPS: { className: string; tone: string }[] = [
   { className: 'top-[64%] left-[78%]', tone: 'text-primary border-primary/40' },
   { className: 'top-[40%] left-[88%]', tone: 'text-primary border-primary/40' },
 ]
+*/
 
 // The guest-home hero: the "your next level starts here" splash over the
 // skyline, plus Akela's card (creed + daily challenge).
@@ -45,6 +47,7 @@ export function HomeHero() {
             veil carried across the whole photo is what made it read hazy. */}
         <div className="absolute inset-0 bg-gradient-to-r from-card from-25% via-card/85 to-card/40 md:via-card/60 md:via-45% md:to-transparent md:to-64%" />
 
+        {/* Parked with XP_CHIPS above.
         {XP_CHIPS.map(({ className, tone }, i) => (
           <span
             key={i}
@@ -57,7 +60,7 @@ export function HomeHero() {
           >
             XP
           </span>
-        ))}
+        ))} */}
 
         <div className="relative flex h-full flex-col justify-center gap-6 p-6 sm:p-8">
           <div>
