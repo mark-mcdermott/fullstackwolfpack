@@ -261,15 +261,18 @@ export function WolfPath() {
 // The banner strip under the path. Breaks out of <main>'s padding so it runs to
 // the page edges like the hero plate, and takes its plate from `--path-banner`
 // so each theme gets art that belongs to it — washing the night scene down for
-// light gave a purple haze, not the daylight strip the mock shows. Centred in
-// both now: light's plate is a purpose-cut slice at the strip's own aspect, so
-// it no longer needs the off-centre framing that pulled a band out of the
-// hero's composition.
+// light gave a purple haze, not the daylight strip the mock shows.
+//
+// Anchored to the top, not centred. The strip is wider than the plate's aspect,
+// so `cover` scales to the width and trims the height — 14px at the desktop
+// size. The rider's ears sit 7px from the plate's top edge, so splitting that
+// trim across both edges clipped them; sending all of it to the bottom costs
+// only rooftop.
 export function PathBanner() {
   return (
     <div
       aria-hidden="true"
-      className="-mx-5 h-[120px] bg-[image:var(--path-banner)] bg-cover bg-center sm:-mx-7 sm:h-[150px] md:h-[178px]"
+      className="-mx-5 h-[120px] rounded-2xl bg-[image:var(--path-banner)] bg-cover bg-top sm:-mx-7 sm:h-[150px] md:h-[178px]"
     />
   )
 }
@@ -279,38 +282,59 @@ export function ReadyToJoin() {
     // Light reads as another eggshell tile with the shared inner rule; dark
     // lights the whole frame up instead — a primary border plus an outer glow,
     // which is what carries the row in the dark mock.
-    <section className="relative overflow-hidden rounded-2xl border border-border bg-card light:border-[#e2dfde] light:bg-[#f8f6f4] dark:border-primary/70 dark:shadow-[0_0_0_1px_var(--primary),0_0_28px_-4px_var(--primary)]">
-      {/* Red glow bleeding in from the left. */}
-      <div className="pointer-events-none absolute -top-12 -left-12 size-56 rounded-full bg-primary/20 blur-3xl" />
-      {/* Moody wolf on the far right, faded into the card. */}
+    // The negative margins trim the page stack's gap-6 above and `main`'s pb-6
+    // below, down to 5px each — this row sits tight to the banner and the
+    // footer rather than floating between them.
+    <section className="relative -mt-[19px] -mb-[19px] overflow-hidden rounded-2xl border border-border bg-card light:border-[#e2dfde] light:bg-[#f8f6f4] light:shadow-[var(--tile-shadow)] dark:border-primary/70 dark:shadow-[0_0_0_1px_var(--primary),0_0_28px_-4px_var(--primary)]">
+      {/* Red glow parked.
+      <div className="pointer-events-none absolute -top-12 -left-12 size-56 rounded-full bg-primary/20 blur-3xl" /> */}
+      {/* Moody wolf on the far right. Full strength from the right edge back to
+          the near eye's outer corner, then out over 25px — stops in px, not %,
+          because the ramp is anchored to a feature in the art: the eye's amber
+          starts at x=139 of the 576px plate, which is 70px into this 288px box.
+          The card-coloured scrim that used to sit over this is parked; it faded
+          the same edge again and nothing could reach full strength. */}
       <img
-        src="/images/akela-eyes.png"
+        src="/images/akela-eyes.webp"
         alt=""
         aria-hidden="true"
-        className="absolute inset-y-0 right-0 hidden w-72 object-cover object-[70%_45%] opacity-90 [mask-image:linear-gradient(to_right,transparent,black_38%)] md:block"
+        className="absolute inset-y-0 right-0 hidden w-72 object-cover object-[70%_45%] opacity-90 [mask-image:linear-gradient(to_right,transparent_45px,black_70px)] md:block"
       />
-      <div className="absolute inset-y-0 right-0 hidden w-72 bg-gradient-to-l from-transparent via-card/45 to-card md:block light:via-[#f8f6f4]/40 light:to-[#f8f6f4]" />
+      {/* <div className="absolute inset-y-0 right-0 hidden w-72 bg-gradient-to-l from-transparent via-card/45 to-card md:block light:via-[#f8f6f4]/40 light:to-[#f8f6f4]" /> */}
       {/* Inner rule above the portrait and its scrim, both inset siblings. */}
       <div className="pointer-events-none absolute inset-0 rounded-2xl light:shadow-[inset_0_0_0_2px_#fdfdfb]" />
 
-      <div className="relative flex flex-col items-start gap-5 p-6 md:flex-row md:items-center md:gap-7 md:p-7">
-        <WolfMark className="h-16 shrink-0 text-primary dark:drop-shadow-[0_0_10px_var(--primary)]" />
+      <div className="relative flex flex-col items-start gap-5 px-6 py-1.5 md:flex-row md:items-center md:gap-7 md:px-7 md:py-[7px]">
+        {/* `text-foreground`, matching the header's mark rather than running red.
+            The breathing room is margin, not padding: `h-20` is a border-box
+            height, so padding would eat into the glyph rather than sit around
+            it — `py-3` here would render the mark smaller than it was at h-16. */}
+        <WolfMark className="my-3 h-20 shrink-0 text-foreground dark:drop-shadow-[0_0_10px_var(--primary)]" />
         <div className="flex-1">
-          <h3 className="font-heading text-[30px] leading-none tracking-wide text-foreground uppercase">
+          <h3 className="font-heading text-[40px] leading-none tracking-widest text-foreground uppercase">
             Ready to join the pack?
           </h3>
-          <p className="mt-2 max-w-md font-mono text-xs leading-relaxed text-muted-foreground">
+          <p className="mt-2 max-w-md font-mono text-xs leading-loose text-hero-title light:text-[#04040d]">
             Build discipline. Level up your skills.
             <br />
             Become unstoppable.
           </p>
         </div>
         <div className="flex flex-col items-start gap-2 md:items-center md:pr-32 lg:pr-56">
-          <Link to="/signup" className={raisedCtaClass}>
+          {/* Tighter than the shared CTA, and tighter still vertically. The 2px
+              padding split is load-bearing — it centres the caps on the bevel's
+              face, which sits 1px low whatever the padding. */}
+          <Link
+            to="/signup"
+            className={cn(
+              raisedCtaClass,
+              'px-4 pt-[11px] pb-[9px] text-[20px]/[20px]',
+            )}
+          >
             Create free account
             <ArrowRight className="size-5" />
           </Link>
-          <span className="font-mono text-[11px] text-muted-foreground">
+          <span className="font-mono text-[11px] font-light text-hero-title light:text-[#04040d]">
             Already have an account?{' '}
             <Link
               to="/login"

@@ -70,8 +70,9 @@ export function FwFooter() {
           `<CreedBand />` (a bordered card under the session launcher); the
           footer is now just the slim status bar. */}
 
-      {/* Slim brand + nav row */}
-      <div className="border-t border-border">
+      {/* Slim brand + nav row. No top rule — the tiles above it already close
+          the page with their own edges. Kept in sync with Base.astro. */}
+      <div>
         <div className="mx-auto flex max-w-page flex-col items-center gap-5 px-5 py-6 md:flex-row md:justify-between md:gap-8 md:px-8">
           <Link
             to="/"
