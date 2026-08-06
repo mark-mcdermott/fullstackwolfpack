@@ -64,7 +64,10 @@ export function CreedBand() {
         ウルフパック信条
       </span>
 
-      <div className="relative flex min-h-[9rem] flex-col justify-center gap-6 md:flex-row md:items-center md:justify-between md:gap-8">
+      {/* `min-h` is the band's size knob. It has to clear the copy column's own
+          content height (~156px) to bind at all — below that the copy sets the
+          height and changing this does nothing. */}
+      <div className="relative flex min-h-[12rem] flex-col justify-center gap-6 md:flex-row md:items-center md:justify-between md:gap-8">
         <div className="max-w-md py-5 pl-8">
           <span className="block font-mono text-sm font-medium tracking-widest text-primary uppercase">
             The Wolfpack Creed
@@ -81,7 +84,7 @@ export function CreedBand() {
 
         {/* Terminal readout. Its own surface in light so it reads as a panel
             against the art rather than sitting loose on it. */}
-        <div className="shrink-0 rounded-r-xl border-border light:border-l light:border-[#e2dfde] light:bg-white light:p-4 light:shadow-[var(--field-shadow)] md:border-l md:pl-8 md:light:pl-4 dark:border-white/15">
+        <div className="flex shrink-0 flex-col justify-center rounded-r-xl border-border md:self-stretch light:border-l light:border-[#e2dfde] light:bg-white light:p-4 light:shadow-[var(--field-shadow)] md:border-l md:pl-8 md:light:pl-4 dark:border-white/15">
           <div className="flex flex-col font-mono text-sm tracking-wide">
             {[
               { label: 'Lock in', tone: 'text-primary' },
@@ -152,7 +155,7 @@ const PATH_STEPS: {
 // look here.
 function PathHex({ last, children }: { last: boolean; children: ReactNode }) {
   return (
-    <span className="relative flex size-[58px] shrink-0 items-center justify-center sm:size-[64px]">
+    <span className="relative flex size-[62px] shrink-0 items-center justify-center sm:size-[70px]">
       <svg
         viewBox="0 0 100 115"
         aria-hidden="true"
@@ -195,14 +198,14 @@ function PathHex({ last, children }: { last: boolean; children: ReactNode }) {
 // The rail between two hexes. Absolutely positioned rather than a flex sibling:
 // the columns are equal-width and their copy is wider than the hexes, so the
 // rail has to run hex-edge to hex-edge across the gap, not between the columns.
-// 32px is the hex's half-width, +4 for breathing room; `top` is that same half
+// 35px is the hex's half-width, +4 for breathing room; `top` is that same half
 // less 1, to sit the rule on the hex's centre line. Both track the hex size —
 // resize PathHex and these move with it.
 function PathRail() {
   return (
     <span
       aria-hidden="true"
-      className="absolute top-[28px] right-[calc(-50%+36px)] left-[calc(50%+36px)] hidden items-center gap-1 sm:top-[31px] md:flex"
+      className="absolute top-[30px] right-[calc(-50%+39px)] left-[calc(50%+39px)] hidden items-center gap-1 sm:top-[34px] md:flex"
     >
       <span className="h-0 flex-1 border-t light:border-dotted light:border-[#c9c4c2] dark:border-primary/70" />
       <ChevronRight className="size-3 shrink-0 light:text-[#9c9694] dark:text-primary" />
@@ -227,13 +230,13 @@ export function WolfPath() {
             <div key={title} className="relative flex flex-col items-center">
               {!last && <PathRail />}
               <PathHex last={last}>
-                {Icon && <Icon className="size-7" strokeWidth={2} />}
+                {Icon && <Icon className="size-[35px]" strokeWidth={2} />}
                 {glyph && (
-                  <span className="font-heading text-[26px] text-primary">
+                  <span className="font-heading text-[33px] text-primary">
                     {glyph}
                   </span>
                 )}
-                {wolf && <WolfMark className="h-7" />}
+                {wolf && <WolfMark className="h-[35px]" />}
               </PathHex>
               <span className="mt-2.5 font-heading text-[22px] leading-none text-primary">
                 {String(i + 1).padStart(2, '0')}
