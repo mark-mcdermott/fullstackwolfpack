@@ -19,10 +19,10 @@ import { cn } from '@/lib/utils'
 // which left a black slab sitting in the middle of the light page).
 export function CreedBand() {
   return (
-    // `-mt-3` pulls back half the page stack's gap-6, so the band sits closer
-    // to the launcher above it than to the sections below. Same trick as
-    // HomeHero's `-mb-6`, which cancels that gap outright.
-    <div className="relative -mt-3 overflow-hidden rounded-2xl border border-border bg-card light:bg-[#f8f6f4] light:shadow-[var(--tile-shadow)]">
+    // Pulls 10px back off the page stack's 24px gap-6, leaving 14px above the
+    // band so it sits closer to the launcher than to the sections below. Same
+    // trick as HomeHero's `-mb-6`, which cancels that gap outright.
+    <div className="relative -mt-2.5 overflow-hidden rounded-2xl border border-border bg-card light:bg-[#f8f6f4] light:shadow-[var(--tile-shadow)]">
       {/* Decorative, so the art rides on a background rather than an <img>: the
           theme picks the plate via `--creed-image` (index.css), which keeps one
           DOM tree across themes and fetches only the matching file — light's
