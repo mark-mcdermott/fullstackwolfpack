@@ -18,12 +18,12 @@ import { cn } from './utils'
 export const raisedCtaClass = cn(
   // Teko's metrics are rebalanced at the @font-face (theme.css), so its
   // capitals centre in the *box* on their own. The padding is uneven anyway,
-  // because the box is not what the eye reads: `--cta-edge` stacks 5px of lit
-  // edge on top against a 2px lip below, so the visible face runs 5→54 of the
-  // 56px button and its centre sits 1.5px low. Box-centred text therefore
-  // reads high. 18/14 re-centres the caps on the face instead of the box,
-  // keeping the same 56px total.
-  'inline-flex w-fit items-center justify-center gap-2.5 rounded-lg px-6 pt-[18px] pb-[14px]',
+  // because the box is not what the eye reads: `--cta-edge` stacks 4px of lit
+  // edge on top against a 2px lip below, so the visible face runs 4→54 of the
+  // 56px button and its centre sits 1px low. Box-centred text therefore reads
+  // high. 17/15 re-centres the caps on the face instead of the box, keeping the
+  // same 56px total — retune it if the ring count in `--cta-edge` changes.
+  'inline-flex w-fit items-center justify-center gap-2.5 rounded-lg px-6 pt-[17px] pb-[15px]',
   // 300, a step below the heading font's pinned 400 axis — which needs
   // `font-variation-settings: normal` to escape, or the pin swallows it. No new
   // file: Teko is variable and already carries 300–700 in the one download.

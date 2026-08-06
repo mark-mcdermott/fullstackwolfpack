@@ -110,20 +110,21 @@
 }
 
 :root {
-    /* The raised CTA's edge treatment: a 1px inner rule that is white across
-       the top and down the left, a lightened primary down the right, and absent
-       along the bottom — so the slab reads lit from above. Kept as tokens so the
-       CTA's surface is theme-level and reusable, not buried in one component. */
-    /* Five 1px rings up the top and left edges, outer to inner. Built from
+    /* The raised CTA's edge treatment: a lit inner rule up the top and down the
+       left, a lightened primary down the right, and a dark lip along the bottom
+       — so the slab reads lit from above. Kept as tokens so the CTA's surface is
+       theme-level and reusable, not buried in one component. */
+    /* Four 1px rings up the top and left edges, outer to inner. Built from
        stacked inset shadows at increasing depth: an earlier shadow paints over
-       a later one, so listing them 1px..5px leaves exactly one visible row of
-       each. The right and bottom edges carry two rings each. */
+       a later one, so listing them 1px..4px leaves exactly one visible row of
+       each. The right and bottom edges carry two rings each.
+       The outermost ring used to be a near-white #fefcfc; dropping it means
+       renumbering the rest, or the ring behind it inherits a 2px band. */
     --cta-edge:
-        inset 0 1px 0 #fefcfc, inset 1px 0 0 #fefcfc,
-        inset 0 2px 0 #fabebd, inset 2px 0 0 #c72020,
-        inset 0 3px 0 #fbc1be, inset 3px 0 0 #fbc1be,
-        inset 0 4px 0 #e76568, inset 4px 0 0 #e76568,
-        inset 0 5px 0 #e0161a, inset 5px 0 0 #e0161a,
+        inset 0 1px 0 #fabebd, inset 1px 0 0 #c72020,
+        inset 0 2px 0 #fbc1be, inset 2px 0 0 #fbc1be,
+        inset 0 3px 0 #e76568, inset 3px 0 0 #e76568,
+        inset 0 4px 0 #e0161a, inset 4px 0 0 #e0161a,
         inset -1px 0 0 #a41314, inset -2px 0 0 #f94548,
         inset 0 -1px 0 #a9070a, inset 0 -2px 0 #cb0a12,
         0 2px 5px rgb(0 0 0 / 0.28);
