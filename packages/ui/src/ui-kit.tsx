@@ -16,9 +16,14 @@ import { cn } from './utils'
 // CTAs are as often anchors or router <Link>s as they are <button>s, and a
 // shared class dresses any of them without a polymorphic wrapper.
 export const raisedCtaClass = cn(
-  // Even padding: Teko's metrics are rebalanced at the @font-face (theme.css),
-  // so its capitals centre on their own without a per-component nudge.
-  'inline-flex w-fit items-center justify-center gap-2.5 rounded-lg px-6 py-4',
+  // Teko's metrics are rebalanced at the @font-face (theme.css), so its
+  // capitals centre in the *box* on their own. The padding is uneven anyway,
+  // because the box is not what the eye reads: `--cta-edge` stacks 5px of lit
+  // edge on top against a 2px lip below, so the visible face runs 5→54 of the
+  // 56px button and its centre sits 1.5px low. Box-centred text therefore
+  // reads high. 18/14 re-centres the caps on the face instead of the box,
+  // keeping the same 56px total.
+  'inline-flex w-fit items-center justify-center gap-2.5 rounded-lg px-6 pt-[18px] pb-[14px]',
   // 300, a step below the heading font's pinned 400 axis — which needs
   // `font-variation-settings: normal` to escape, or the pin swallows it. No new
   // file: Teko is variable and already carries 300–700 in the one download.
