@@ -248,8 +248,10 @@ const path = Astro.url.pathname
           class="mx-auto flex max-w-7xl flex-col items-center gap-5 px-5 py-6 md:flex-row md:justify-between md:px-8"
         >
           <a href="/" aria-label="Fullstack Wolfpack home" class="flex items-center gap-2.5">
-            <WolfMark class="h-8 text-primary" />
-            <span class="font-mono text-lg font-bold text-primary">ウルフパック</span>
+            {/* Mark takes `text-foreground` like the header's; only the kana
+                beside it stays primary. Kept in sync with fw-footer.tsx. */}
+            <WolfMark class="h-6 text-foreground" />
+            <span class="font-mono text-base font-bold text-primary">ウルフパック</span>
           </a>
           {/* Nav links parked while we focus the flow — a status readout for now.
           <nav class="flex flex-wrap items-center justify-center gap-x-7 gap-y-2">
@@ -267,7 +269,7 @@ const path = Astro.url.pathname
           */}
           {/* Status readout — all one muted color; each item reads as a phrase,
               not a key/value pair. */}
-          <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 font-mono text-xs text-muted-foreground">
+          <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 font-mono text-[11px] text-muted-foreground">
             <span class="flex items-center gap-1.5">
               API
               <span class="size-1.5 rounded-full bg-green-500"></span>

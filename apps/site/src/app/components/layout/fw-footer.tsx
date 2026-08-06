@@ -79,8 +79,10 @@ export function FwFooter() {
             aria-label="Fullstack Wolfpack home"
             className="flex items-center gap-2.5"
           >
-            <WolfMark className="h-8 text-primary" />
-            <span className="font-mono text-lg font-bold text-primary">
+            {/* Mark takes `text-foreground` like the header's and the join
+                row's; only the kana beside it stays primary. */}
+            <WolfMark className="h-6 text-foreground" />
+            <span className="font-mono text-base font-bold text-primary">
               ウルフパック
             </span>
           </Link>
@@ -89,7 +91,7 @@ export function FwFooter() {
               <a
                 key={label}
                 href={siteUrl(to)}
-                className="font-mono text-xs tracking-wide text-foreground/80 transition-colors hover:text-foreground"
+                className="font-mono text-[11px] tracking-wide text-foreground/80 transition-colors hover:text-foreground"
               >
                 {label}
               </a>
@@ -97,7 +99,7 @@ export function FwFooter() {
           </nav>
           {/* Status readout — all one muted color; each item reads as a phrase,
               not a key/value pair. */}
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 font-mono text-xs text-muted-foreground">
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 font-mono text-[11px] text-muted-foreground">
             <span className="flex items-center gap-1.5">
               API
               <span className="size-1.5 rounded-full bg-green-500" />
