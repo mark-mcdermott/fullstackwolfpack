@@ -19,7 +19,10 @@ import { cn } from '@/lib/utils'
 // which left a black slab sitting in the middle of the light page).
 export function CreedBand() {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-card light:bg-[#f8f6f4] light:shadow-[var(--tile-shadow)]">
+    // `-mt-3` pulls back half the page stack's gap-6, so the band sits closer
+    // to the launcher above it than to the sections below. Same trick as
+    // HomeHero's `-mb-6`, which cancels that gap outright.
+    <div className="relative -mt-3 overflow-hidden rounded-2xl border border-border bg-card light:bg-[#f8f6f4] light:shadow-[var(--tile-shadow)]">
       {/* Decorative, so the art rides on a background rather than an <img>: the
           theme picks the plate via `--creed-image` (index.css), which keeps one
           DOM tree across themes and fetches only the matching file — light's
@@ -51,7 +54,12 @@ export function CreedBand() {
           that single column against its right edge, under the readout. */}
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute top-1/2 left-[38%] hidden w-fit -translate-y-1/2 whitespace-nowrap [writing-mode:vertical-rl] font-bold tracking-wider text-primary [font-variation-settings:normal] md:block md:text-[15px]"
+        // Between md and 1023 the band is narrow enough that 38% lands on the
+        // headline, so there it is anchored beside the readout instead. From the
+        // right, not as a percentage: the readout is `shrink-0` at a constant
+        // ~210px, so a right offset holds station while its left edge as a
+        // percentage drifts from 72% to 78% across that range.
+        className="pointer-events-none absolute top-1/2 left-[38%] hidden w-fit -translate-y-1/2 whitespace-nowrap [writing-mode:vertical-rl] font-bold tracking-wider text-primary [font-variation-settings:normal] md:block md:text-[15px] md:max-[1023px]:right-[222px] md:max-[1023px]:left-auto"
       >
         ウルフパック信条
       </span>
