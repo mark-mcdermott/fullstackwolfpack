@@ -119,9 +119,11 @@
        a later one, so listing them 1px..4px leaves exactly one visible row of
        each. The right and bottom edges carry two rings each.
        The outermost ring used to be a near-white #fefcfc; dropping it means
-       renumbering the rest, or the ring behind it inherits a 2px band. */
+       renumbering the rest, or the ring behind it inherits a 2px band. That
+       ring is now #c72020 on both edges, so the dark outline turns the corner
+       instead of stopping where the left edge meets the top. */
     --cta-edge:
-        inset 0 1px 0 #fabebd, inset 1px 0 0 #c72020,
+        inset 0 1px 0 #c72020, inset 1px 0 0 #c72020,
         inset 0 2px 0 #fbc1be, inset 2px 0 0 #fbc1be,
         inset 0 3px 0 #e76568, inset 3px 0 0 #e76568,
         inset 0 4px 0 #e0161a, inset 4px 0 0 #e0161a,
