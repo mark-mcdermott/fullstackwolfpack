@@ -133,7 +133,7 @@ export function HomeHero() {
         <div className="relative flex flex-1 flex-col p-5">
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-heading text-3xl font-bold tracking-tight text-foreground dark:text-white">
+              <span className="font-heading text-3xl font-bold tracking-normal text-foreground dark:text-white">
                 AKELA
               </span>
               <span className="size-1.5 rounded-full bg-primary shadow-[0_0_6px] shadow-primary/70" />
