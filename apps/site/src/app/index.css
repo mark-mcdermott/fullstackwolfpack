@@ -156,7 +156,7 @@
        art's real edges instead of on empty letterbox. */
     --hero-aspect: 1280 / 650;
     /* Wide plate under the Wolf's Path, per theme. */
-    --path-banner: url('/images/hero-light.jpg');
+    --path-banner: url('/images/motorcycle-wolf.webp');
     /* The hero headline's first line. A near-black navy rather than the plain
        foreground, so it sits against the high-key skyline instead of on it. */
     --hero-title: #0d1a26;

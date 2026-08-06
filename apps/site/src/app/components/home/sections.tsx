@@ -19,10 +19,10 @@ import { cn } from '@/lib/utils'
 // which left a black slab sitting in the middle of the light page).
 export function CreedBand() {
   return (
-    // Pulls 10px back off the page stack's 24px gap-6, leaving 14px above the
+    // Pulls 8px back off the page stack's 24px gap-6, leaving 16px above the
     // band so it sits closer to the launcher than to the sections below. Same
     // trick as HomeHero's `-mb-6`, which cancels that gap outright.
-    <div className="relative -mt-2.5 overflow-hidden rounded-2xl border border-border bg-card light:bg-[#f8f6f4] light:shadow-[var(--tile-shadow)]">
+    <div className="relative -mt-2 overflow-hidden rounded-2xl border border-border bg-card light:bg-[#f8f6f4] light:shadow-[var(--tile-shadow)]">
       {/* Decorative, so the art rides on a background rather than an <img>: the
           theme picks the plate via `--creed-image` (index.css), which keeps one
           DOM tree across themes and fetches only the matching file — light's
@@ -230,21 +230,24 @@ export function WolfPath() {
             <div key={title} className="relative flex flex-col items-center">
               {!last && <PathRail />}
               <PathHex last={last}>
-                {Icon && <Icon className="size-[35px]" strokeWidth={2} />}
+                {Icon && <Icon className="size-8" strokeWidth={2} />}
                 {glyph && (
-                  <span className="font-heading text-[33px] text-primary">
+                  <span className="font-heading text-[30px] text-primary">
                     {glyph}
                   </span>
                 )}
-                {wolf && <WolfMark className="h-[35px]" />}
+                {wolf && <WolfMark className="h-8" />}
               </PathHex>
-              <span className="mt-2.5 font-heading text-[22px] leading-none text-primary">
+              {/* Mono rather than the heading face, matching the launcher's
+                  section label; the step titles below take the challenge
+                  card's label styling. */}
+              <span className="mt-2.5 font-mono text-[22px] leading-none text-primary">
                 {String(i + 1).padStart(2, '0')}
               </span>
-              <h3 className="mt-1.5 font-mono text-[11px] font-bold tracking-widest text-foreground uppercase">
+              <h3 className="mt-1.5 font-mono text-xs leading-none font-semibold tracking-tight text-hero-title uppercase light:text-[#04040d]">
                 {title}
               </h3>
-              <p className="mt-1.5 max-w-[9.5rem] font-mono text-[11px] leading-[1.7] text-muted-foreground">
+              <p className="mt-1.5 max-w-[6rem] font-mono text-[10px] leading-[1.7] text-hero-title light:text-[#04040d]">
                 {text}
               </p>
             </div>
@@ -258,14 +261,15 @@ export function WolfPath() {
 // The banner strip under the path. Breaks out of <main>'s padding so it runs to
 // the page edges like the hero plate, and takes its plate from `--path-banner`
 // so each theme gets art that belongs to it — washing the night scene down for
-// light gave a purple haze, not the daylight strip the mock shows. Light is
-// framed off-centre so it reads as a city band rather than a second copy of the
+// light gave a purple haze, not the daylight strip the mock shows. Centred in
+// both now: light's plate is a purpose-cut slice at the strip's own aspect, so
+// it no longer needs the off-centre framing that pulled a band out of the
 // hero's composition.
 export function PathBanner() {
   return (
     <div
       aria-hidden="true"
-      className="-mx-5 h-[120px] bg-[image:var(--path-banner)] bg-cover bg-[position:88%_74%] sm:-mx-7 sm:h-[150px] md:h-[178px] dark:bg-cover dark:bg-center"
+      className="-mx-5 h-[120px] bg-[image:var(--path-banner)] bg-cover bg-center sm:-mx-7 sm:h-[150px] md:h-[178px]"
     />
   )
 }
