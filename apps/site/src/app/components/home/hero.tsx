@@ -150,7 +150,7 @@ export function HomeHero() {
                 visible oval no matter how long the ramp. Blurring a solid form
                 has no edge to find. It is a sibling, not a background, because
                 `filter` would blur the text with it. */}
-            <blockquote className="relative max-w-[80%]">
+            <blockquote className="relative max-w-[75%]">
               <span
                 aria-hidden="true"
                 className="pointer-events-none absolute -inset-x-7 -inset-y-5 rounded-[50%] blur-2xl light:bg-[#f7f4f3] dark:bg-[#0a0a0a]"
