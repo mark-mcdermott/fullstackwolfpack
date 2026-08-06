@@ -164,12 +164,16 @@ export function HomeHero() {
               </cite>
             </blockquote>
 
-            <div className="rounded-lg border border-border bg-muted/40 p-3 dark:border-white/15 dark:bg-[#161616]">
-              <span className="block font-mono text-[10px] leading-none font-bold tracking-widest text-muted-foreground uppercase dark:text-white/60">
+            {/* Inner rule is uneven by design — 3px along the top and right, 1px on
+                the left and bottom — so it reads as a lit edge rather than a
+                uniform ring. Four directional insets, since a single spread
+                shadow can only be one width on all sides. */}
+            <div className="rounded-lg border border-border bg-muted/40 p-3 light:border-[#dddfe3] light:shadow-[inset_0_3px_0_#fcfcfb,inset_-3px_0_0_#fcfcfb,inset_1px_0_0_#fcfcfb,inset_0_-1px_0_#fcfcfb] dark:border-white/15 dark:bg-[#161616]">
+              <span className="block font-mono text-xs leading-none font-bold tracking-tight text-hero-title uppercase">
                 Today&rsquo;s challenge
               </span>
               <div className="mt-2 flex items-end justify-between gap-3">
-                <p className="font-mono text-xs leading-relaxed text-muted-foreground dark:text-white/80">
+                <p className="font-mono text-[11px] leading-relaxed tracking-tight text-hero-title">
                   Finish one JavaScript lesson without looking anything up.
                 </p>
                 <span className="shrink-0 font-mono text-xs font-bold text-primary">
