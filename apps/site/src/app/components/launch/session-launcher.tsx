@@ -257,7 +257,10 @@ function LauncherForm({
           centered in the leftover gap. md (768–1023): drop XP + difficulty and
           stack into three centered rows — [game·skill] / [play·learn] / [start].
           <768: cards stack, difficulty returns, XP stays hidden, START centered. */}
-      <div className="flex flex-wrap items-start gap-x-4 gap-y-6 md:max-[1149px]:justify-center min-[1150px]:flex-nowrap min-[1150px]:justify-between">
+      {/* The row gap only ever shows once this wraps. Between md and 1023 the
+          button is the wrapped line and 24px reads as a hole above it — the same
+          range that already takes it to half width, so the two go together. */}
+      <div className="flex flex-wrap items-start gap-x-4 gap-y-6 md:max-[1023px]:gap-y-2 md:max-[1149px]:justify-center min-[1150px]:flex-nowrap min-[1150px]:justify-between">
         {/* game + skill — full-width stacked cards below md; fluid width sharing
             the md single line (title wraps as they narrow); fixed w-52 at
             >=1024. */}
