@@ -138,7 +138,7 @@ export function HomeHero() {
               </span>
               <span className="size-1.5 rounded-full bg-primary shadow-[0_0_6px] shadow-primary/70" />
             </div>
-            <span className="mt-1 block font-mono text-xs font-bold tracking-tighter text-primary uppercase [word-spacing:-0.08em]">
+            <span className="mt-1 block font-mono text-[11px] font-semibold tracking-tighter text-primary uppercase [word-spacing:-0.08em]">
               Leader of the pack
             </span>
           </div>
