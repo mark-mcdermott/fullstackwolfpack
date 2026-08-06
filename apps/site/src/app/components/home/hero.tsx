@@ -32,7 +32,7 @@ export function HomeHero() {
   return (
     // `-mb-6` cancels the page stack's gap so the plate's bottom edge meets the
     // tile below it rather than floating clear of it.
-    <section className="-mb-6 grid gap-6 md:grid-cols-[1fr_18rem]">
+    <section className="-mb-6 grid gap-6 md:grid-cols-[1fr_20rem]">
       {/* Splash. It breaks out of <main>'s px-5/py-6 with matching negative
           margins, so the plate runs edge to edge of the main column and flush
           under the header. At lg it spans both grid columns and Akela's card
@@ -104,22 +104,21 @@ export function HomeHero() {
           is light beside a light hero rather than a black slab. */}
       <Panel
         brackets={false}
-        className="relative z-10 flex flex-col overflow-hidden rounded-2xl p-0 light:border-[#e2dfde] light:bg-[#f7f4f3] light:shadow-[var(--card-shadow)] md:col-start-2 md:row-start-1 md:mb-6"
+        className="relative z-10 flex flex-col overflow-hidden rounded-2xl p-0 light:border-[#dbd7d7] light:bg-[#f7f4f3] light:shadow-[var(--card-shadow)] md:col-start-2 md:row-start-1 md:mb-6"
       >
-        {/* Base fill for where the portrait doesn't cover — i.e. the md compact
-            layout, where Akela shrinks to the right. Follows the theme: the card
-            used to be hard-dark in both, which left a black slab beside a light
-            hero. */}
+        {/* Base fill behind the portrait — it is a cutout on transparency, and
+            in the md compact layout Akela shrinks to the right besides. Follows
+            the theme: the card used to be hard-dark in both, which left a black
+            slab beside a light hero. */}
         <div className="pointer-events-none absolute inset-0 bg-card light:bg-[#f7f4f3] dark:bg-neutral-950" />
         {/* Portrait pinned to the right (natural width via left:auto — the img
             is a replaced element, so no w-full); a small thumbnail in the md
-            compact layout. The mask feathers the photo's own dark backdrop into
-            the card on the left and bottom — without it the image reads as a
-            grey rectangle pasted onto the light card (invisible in dark, where
-            the backdrop matches). The compact thumbnail keeps its hard rounded
-            edge, so the mask is lifted there. */}
+            compact layout. The artwork carries no backdrop of its own, so the
+            card colour reads behind it in either theme and the mask is left
+            with one job: softening where the card crops the jacket, out to the
+            left and down into the scrim below. */}
         <img
-          src="/images/akela.png"
+          src="/images/akela.webp"
           alt="Akela, your AI mentor"
           className="pointer-events-none absolute inset-y-0 right-0 h-full object-cover object-[center_30%] [mask-image:linear-gradient(to_left,black_55%,transparent),linear-gradient(to_top,transparent,black_35%)] [mask-composite:intersect] md:top-[5px] md:bottom-auto md:h-[75%]"
         />
@@ -155,7 +154,7 @@ export function HomeHero() {
                 aria-hidden="true"
                 className="pointer-events-none absolute -inset-x-7 -inset-y-5 rounded-[50%] blur-2xl light:bg-[#f7f4f3] dark:bg-[#0a0a0a]"
               />
-              <p className="relative font-mono text-[11px] leading-relaxed text-foreground drop-shadow-none dark:text-white dark:drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
+              <p className="relative font-mono text-[11px] leading-relaxed tracking-tight drop-shadow-none light:text-[#313241] dark:text-white dark:drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
                 &ldquo;Discipline is choosing between what you want now and what
                 you want most.&rdquo;
               </p>
@@ -164,15 +163,22 @@ export function HomeHero() {
               </cite>
             </blockquote>
 
-            {/* Inner rule is uneven by design — 3px along the top and right, 1px on
-                the left and bottom — so it reads as a lit edge rather than a
-                uniform ring. Four directional insets, since a single spread
-                shadow can only be one width on all sides. */}
-            <div className="rounded-lg border border-border bg-muted/40 p-3 light:border-[#dddfe3] light:shadow-[inset_0_3px_0_#fcfcfb,inset_-3px_0_0_#fcfcfb,inset_1px_0_0_#fcfcfb,inset_0_-1px_0_#fcfcfb] dark:border-white/15 dark:bg-[#161616]">
-              <span className="block font-mono text-xs leading-none font-bold tracking-tight text-hero-title uppercase">
+            {/* Inner rule is uneven by design — 10px along the top and right, 1px
+                on the left and bottom — so it reads as a lit edge rather than a
+                uniform ring. Built as an eggshell fill plus an inset interior
+                plate rather than four inset shadows: the bevel is wider than the
+                10px corner radius, and an inner corner can never be rounder than
+                the outer one it is cut from, so a shadow (or a border) leaves a
+                square notch at the top right. The plate carries its own radius. */}
+            <div className="relative rounded-lg border border-border pt-5 pr-5 pb-4 pl-3 light:border-[#dddfe3] light:bg-[#fcfcfb] dark:border-white/15 dark:bg-[#161616]">
+              {/* Opaque, not `bg-muted/40`: the plate now sits on the eggshell
+                  rather than on the card, and 40% over the lighter fill washed
+                  the bevel out to half its contrast. This is that blend, fixed. */}
+              <div className="pointer-events-none absolute top-[10px] right-[10px] bottom-px left-px rounded-md light:bg-[#f7f4f4]" />
+              <span className="relative block font-mono text-xs leading-none font-semibold tracking-tight text-hero-title uppercase light:text-[#04040d]">
                 Today&rsquo;s challenge
               </span>
-              <div className="mt-2 flex items-end justify-between gap-3">
+              <div className="relative mt-3 flex items-end justify-between gap-3">
                 <p className="font-mono text-[11px] leading-relaxed tracking-tight text-hero-title">
                   Finish one JavaScript lesson without looking anything up.
                 </p>

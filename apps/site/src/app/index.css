@@ -133,16 +133,21 @@
        JSX so the two themes stay one DOM tree, and so only the matching file is
        ever fetched — a pair of <img> tags toggled with `hidden` would pull both
        down, and the dark plate is 2.4MB. */
-    /* Light-mode card lift. Bigger and softer than shadow-sm, which reached
-       only ~8px: the mock's carries ~12px at a lower alpha, so it reads as
-       depth rather than a hairline under the edge. */
-    --card-shadow: 0 3px 14px rgb(0 0 0 / 0.055);
+    /* Light-mode card lift, carried by the header and Akela's tile — the two
+       elements that sit proudly off the page rather than flush in it. Deeper
+       and wider than a hairline-plus-haze so it reads as real elevation. */
+    --card-shadow: 0 6px 24px rgb(0 0 0 / 0.1);
     /* Inner controls (selects, steppers, the swap key): the same white
        inner rule the tiles carry, over a shallower lift. */
     --field-shadow: inset 0 0 0 2px #fdfdfb, 0 1px 4px rgb(0 0 0 / 0.06);
-    /* The launcher tile sits a little flatter than Akela's card. */
-    --tile-shadow: 0 2px 10px rgb(0 0 0 / 0.04);
+    /* The wide tiles — the launcher and the creed band. Still a step flatter
+       than --card-shadow, so the header and Akela stay the page's top layer. */
+    --tile-shadow: 0 4px 18px rgb(0 0 0 / 0.07);
     --hero-image: url('/images/hero-light.jpg');
+    /* Creed band art, per theme. Light gets its own high-key slice cut to the
+       band's 6.9:1 — the dark neon plate it used to share reads as grey haze
+       once knocked back far enough for the copy to sit over it. */
+    --creed-image: url('/images/creed-light.jpg');
     /* The plate's own aspect. The art layer is sized to this so its box
        hugs the image exactly — that is what lets the edge mask land on the
        art's real edges instead of on empty letterbox. */
@@ -193,6 +198,7 @@
 .dark {
     --hero-image: url('/images/footer-1.png');
     --hero-aspect: 1774 / 887;
+    --creed-image: url('/images/creed-bg.png');
     --path-banner: url('/images/footer-2.png');
     /* Dark keeps the plain foreground it already used. */
     --hero-title: oklch(0.985 0 0);

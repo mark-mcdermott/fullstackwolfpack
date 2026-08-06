@@ -19,42 +19,52 @@ import { cn } from '@/lib/utils'
 // which left a black slab sitting in the middle of the light page).
 export function CreedBand() {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-card light:bg-[#f8f6f4]">
-      <img
-        src="/images/creed-bg.png"
-        alt=""
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-card light:bg-[#f8f6f4] light:shadow-[var(--tile-shadow)]">
+      {/* Decorative, so the art rides on a background rather than an <img>: the
+          theme picks the plate via `--creed-image` (index.css), which keeps one
+          DOM tree across themes and fetches only the matching file — light's
+          slice is 18KB against dark's 2.4MB. Same seam as `--hero-image`. */}
+      <div
         aria-hidden="true"
-        className="absolute inset-0 h-full w-full object-cover object-center opacity-45 dark:opacity-100 md:[mask-image:linear-gradient(to_right,transparent,black_30%,black_85%,transparent)]"
+        className="absolute inset-0 bg-[image:var(--creed-image)] bg-cover bg-center bg-no-repeat md:[mask-image:linear-gradient(to_right,transparent,black_30%,black_85%,transparent)]"
       />
-      {/* Scrims are drawn in the card colour, so they follow the theme. */}
-      <div className="absolute inset-0 bg-card/35 dark:bg-neutral-950/55" />
+      {/* Scrims parked. All three existed to tame the dark neon plate; light's
+          purpose-cut slice is high-key and carries its own edge mask, so they
+          only erased it. Restore (and re-tune) when dark gets its pass — dark
+          still needs them for the copy to read over the neon.
+      <div className="absolute inset-0 dark:bg-neutral-950/55" />
       <div className="absolute inset-0 bg-gradient-to-r from-card via-card/50 to-transparent dark:from-neutral-950 dark:via-neutral-950/40" />
-      {/* Knock back the right so the terminal readout isn't cluttered by the
-          image's baked-in neon text. */}
-      <div className="absolute inset-0 bg-gradient-to-l from-card/90 via-card/30 to-transparent dark:from-neutral-950/90 dark:via-neutral-950/20" />
+      <div className="absolute inset-0 dark:bg-gradient-to-l dark:from-neutral-950/90 dark:via-neutral-950/20" /> */}
       {/* Inner rule on top of the art and its scrims — they are inset-0
           siblings, so a ring on the band itself would be painted over. */}
       <div className="pointer-events-none absolute inset-0 rounded-2xl light:shadow-[inset_0_0_0_2px_#fdfdfb]" />
 
-      {/* Vertical kana down the middle of the band. Same treatment as the
-          header's: it falls through to the sans stack, so it needs the
-          variation-settings escape for the weight to land. */}
+      {/* Vertical kana, set just clear of the copy rather than mid-band. Same
+          treatment as the header's: it falls through to the sans stack, so it
+          needs the variation-settings escape for the weight to land.
+          In vertical-rl the inline axis runs vertically, so the element's
+          *height* is the line length and its *width* is the column count.
+          `whitespace-nowrap` is what keeps it one column — without it the run
+          is capped by the space below `top-1/2` and breaks into a second; with
+          it the box is content-sized, so translating by half its own height
+          centres it. `w-fit` pins the block axis, since a wide box would stack
+          that single column against its right edge, under the readout. */}
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 [writing-mode:vertical-rl] font-bold tracking-wider text-primary [font-variation-settings:normal] md:block md:text-[15px]"
+        className="pointer-events-none absolute top-1/2 left-[38%] hidden w-fit -translate-y-1/2 whitespace-nowrap [writing-mode:vertical-rl] font-bold tracking-wider text-primary [font-variation-settings:normal] md:block md:text-[15px]"
       >
-        ウルフパック
+        ウルフパック信条
       </span>
 
-      <div className="relative flex min-h-[9rem] flex-col justify-center gap-6 p-6 pb-8 md:flex-row md:items-center md:justify-between md:gap-8 md:px-8 md:pb-10">
-        <div className="max-w-md">
-          <span className="block font-mono text-xs font-medium tracking-widest text-primary uppercase">
+      <div className="relative flex min-h-[9rem] flex-col justify-center gap-6 md:flex-row md:items-center md:justify-between md:gap-8">
+        <div className="max-w-md py-5 pl-8">
+          <span className="block font-mono text-sm font-medium tracking-widest text-primary uppercase">
             The Wolfpack Creed
           </span>
-          <p className="mt-2 font-heading text-2xl leading-[1.05] font-bold tracking-wide text-foreground uppercase sm:text-[2rem] dark:text-neutral-50">
+          <p className="mt-2 font-heading text-2xl leading-[1.05] font-bold tracking-wide text-foreground uppercase sm:text-[2.125rem] dark:text-neutral-50">
             Discipline over motivation.
           </p>
-          <p className="mt-2.5 max-w-sm font-mono text-sm font-light leading-relaxed text-hero-title">
+          <p className="mt-2.5 max-w-sm font-mono text-[13px] font-light leading-relaxed text-hero-title">
             Short sessions, stacked every day —
             <br />
             that&rsquo;s how the pack levels up.
@@ -63,7 +73,7 @@ export function CreedBand() {
 
         {/* Terminal readout. Its own surface in light so it reads as a panel
             against the art rather than sitting loose on it. */}
-        <div className="shrink-0 rounded-xl border-border light:border light:border-[#e2dfde] light:bg-white light:p-4 light:shadow-[var(--field-shadow)] md:border-l md:pl-8 md:light:pl-4 dark:border-white/15">
+        <div className="shrink-0 rounded-r-xl border-border light:border-l light:border-[#e2dfde] light:bg-white light:p-4 light:shadow-[var(--field-shadow)] md:border-l md:pl-8 md:light:pl-4 dark:border-white/15">
           <div className="flex flex-col font-mono text-sm tracking-wide">
             {[
               { label: 'Lock in', tone: 'text-primary' },
@@ -73,7 +83,7 @@ export function CreedBand() {
               <span
                 key={label}
                 className={cn(
-                  'flex items-center gap-1 border-b border-border py-1.5 uppercase last:border-b-0 dark:border-white/10',
+                  'flex items-center gap-1 border-b border-border py-1.5 uppercase dark:border-white/10',
                   tone,
                 )}
               >
@@ -134,22 +144,30 @@ const PATH_STEPS: {
 // look here.
 function PathHex({ last, children }: { last: boolean; children: ReactNode }) {
   return (
-    <span className="relative flex size-[54px] shrink-0 items-center justify-center sm:size-[58px]">
+    <span className="relative flex size-[58px] shrink-0 items-center justify-center sm:size-[64px]">
       <svg
         viewBox="0 0 100 115"
         aria-hidden="true"
         className={cn(
           'absolute inset-0 size-full',
+          // Light lifts the tile off the rail; dark keeps the neon bloom it had.
+          // `drop-shadow` rather than `box-shadow`: the shadow has to follow the
+          // hexagon, and a box-shadow would trace the <svg>'s square box.
+          'light:drop-shadow-[0_1px_2px_rgb(0_0_0/0.10)]',
           last
             ? 'dark:drop-shadow-[0_0_7px_var(--color-violet-500)]'
             : 'dark:drop-shadow-[0_0_7px_var(--primary)]',
         )}
       >
-        <polygon
-          points="50,3 96,29 96,86 50,112 4,86 4,29"
+        {/* Same pointy-top hexagon as the plain polygon it replaced, with each
+            vertex cut back 9 units and bridged by a quadratic — the corner
+            radius has to live in the geometry, since stroke-linejoin would only
+            round by half the 3-unit stroke (~0.8px at this render size). */}
+        <path
+          d="M42.16,7.43 Q50,3 57.84,7.43 L88.16,24.57 Q96,29 96,38 L96,77 Q96,86 88.16,90.43 L57.84,107.57 Q50,112 42.16,107.57 L11.84,90.43 Q4,86 4,77 L4,38 Q4,29 11.84,24.57 Z"
           strokeWidth="3"
           className={cn(
-            'light:fill-white light:stroke-[#e2dfde] dark:fill-[#12060c]',
+            'light:fill-white light:stroke-[#dad7d6] dark:fill-[#12060c]',
             last ? 'dark:stroke-violet-500' : 'dark:stroke-primary',
           )}
         />
@@ -169,12 +187,14 @@ function PathHex({ last, children }: { last: boolean; children: ReactNode }) {
 // The rail between two hexes. Absolutely positioned rather than a flex sibling:
 // the columns are equal-width and their copy is wider than the hexes, so the
 // rail has to run hex-edge to hex-edge across the gap, not between the columns.
-// 29px is the hex's half-width, +4 for breathing room.
+// 32px is the hex's half-width, +4 for breathing room; `top` is that same half
+// less 1, to sit the rule on the hex's centre line. Both track the hex size —
+// resize PathHex and these move with it.
 function PathRail() {
   return (
     <span
       aria-hidden="true"
-      className="absolute top-[26px] right-[calc(-50%+33px)] left-[calc(50%+33px)] hidden items-center gap-1 sm:top-[28px] md:flex"
+      className="absolute top-[28px] right-[calc(-50%+36px)] left-[calc(50%+36px)] hidden items-center gap-1 sm:top-[31px] md:flex"
     >
       <span className="h-0 flex-1 border-t light:border-dotted light:border-[#c9c4c2] dark:border-primary/70" />
       <ChevronRight className="size-3 shrink-0 light:text-[#9c9694] dark:text-primary" />
@@ -188,7 +208,7 @@ export function WolfPath() {
       <h2 className="font-heading text-[34px] tracking-wide text-foreground uppercase sm:text-[40px]">
         The Wolf&rsquo;s Path
       </h2>
-      <p className="mt-0.5 font-mono text-[11px] tracking-[0.18em] text-muted-foreground uppercase">
+      <p className="mt-0.5 font-mono text-[11px] tracking-wider text-hero-title uppercase">
         A daily quest. Real progress.
       </p>
 
@@ -199,13 +219,13 @@ export function WolfPath() {
             <div key={title} className="relative flex flex-col items-center">
               {!last && <PathRail />}
               <PathHex last={last}>
-                {Icon && <Icon className="size-5" strokeWidth={2} />}
+                {Icon && <Icon className="size-7" strokeWidth={2} />}
                 {glyph && (
-                  <span className="font-heading text-[19px] text-primary">
+                  <span className="font-heading text-[26px] text-primary">
                     {glyph}
                   </span>
                 )}
-                {wolf && <WolfMark className="h-5" />}
+                {wolf && <WolfMark className="h-7" />}
               </PathHex>
               <span className="mt-2.5 font-heading text-[22px] leading-none text-primary">
                 {String(i + 1).padStart(2, '0')}

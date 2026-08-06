@@ -64,7 +64,7 @@ export function FwHeader() {
         {/* Brand + nav + toggle all refuse to shrink, so below `sm` every gap and
             type step tightens instead — the row overflowed the viewport on 320–370px
             phones otherwise. */}
-        <div className="flex items-center justify-between gap-2 px-3 py-2 sm:gap-4 sm:px-9 sm:py-5 light:rounded-xl light:border light:border-border light:bg-[#f7f3f2] light:shadow-[var(--card-shadow)]">
+        <div className="flex items-center justify-between gap-2 px-3 py-2 sm:gap-4 sm:px-9 sm:py-4 light:rounded-xl light:border light:border-border light:bg-[#f7f3f2] light:shadow-[var(--card-shadow)]">
           {/* Brand. `flex-1` on the two outer cells (basis 0, equal grow) is what
               centres the nav in the bar; `justify-between` alone would let the
               wider brand push it off-centre. */}
