@@ -283,9 +283,13 @@ export function ReadyToJoin() {
     // lights the whole frame up instead — a primary border plus an outer glow,
     // which is what carries the row in the dark mock.
     // The negative margins trim the page stack's gap-6 above and `main`'s pb-6
-    // below, down to 5px each — this row sits tight to the banner and the
-    // footer rather than floating between them.
-    <section className="relative -mt-[19px] -mb-[19px] overflow-hidden rounded-2xl border border-border bg-card light:border-[#e2dfde] light:bg-[#f8f6f4] light:shadow-[var(--tile-shadow)] dark:border-primary/70 dark:shadow-[0_0_0_1px_var(--primary),0_0_28px_-4px_var(--primary)]">
+    // below, so this row sits tight to the banner and the footer rather than
+    // floating between them. `-mb` overshoots main's 24px on purpose: the gap
+    // the eye reads is that plus the footer's own 24px top padding, so pulling
+    // 10px into the footer's box lands 14px between the card and its first
+    // line. Safe because the footer paints no background — and done here rather
+    // than on the footer's padding, which every other page shares.
+    <section className="relative -mt-[19px] -mb-[34px] overflow-hidden rounded-2xl border border-border bg-card light:border-[#e2dfde] light:bg-[#f8f6f4] light:shadow-[var(--tile-shadow)] dark:border-primary/70 dark:shadow-[0_0_0_1px_var(--primary),0_0_28px_-4px_var(--primary)]">
       {/* Red glow parked.
       <div className="pointer-events-none absolute -top-12 -left-12 size-56 rounded-full bg-primary/20 blur-3xl" /> */}
       {/* Moody wolf on the far right. Full strength from the right edge back to
