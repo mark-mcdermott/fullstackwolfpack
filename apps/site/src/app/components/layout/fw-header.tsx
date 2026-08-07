@@ -134,11 +134,21 @@ export function FwHeader() {
                       {label}
                     </span>
                     {/* Out of flow, so only the label participates in the bar's
-                        vertical centring — in flow it dragged the label upward. */}
+                        vertical centring — in flow it dragged the label upward.
+                        Light keeps the flat accent bar. Dark lights it up: the
+                        rule itself ramps from near-black at both ends to a hot
+                        core, and `::after` lays a blurred ellipse over the
+                        middle for the bloom. Both are centre-weighted because
+                        that is what the mock does — a uniform glow along the
+                        whole bar reads as a highlighter, not neon. */}
                     <span
                       className={cn(
                         'absolute top-full left-0 mt-1 h-[3px] w-full transition-colors',
                         isActive ? 'bg-primary' : 'bg-transparent',
+                        isActive &&
+                          'dark:bg-[linear-gradient(to_right,#3d0101_0%,#8c0200_22%,#f50104_50%,#8c0200_78%,#3d0101_100%)]',
+                        isActive &&
+                          'dark:after:pointer-events-none dark:after:absolute dark:after:inset-x-0 dark:after:-inset-y-[5px] dark:after:bg-[radial-gradient(ellipse_at_center,rgba(245,1,4,0.55)_0%,rgba(245,1,4,0.18)_45%,transparent_72%)] dark:after:blur-[3px] dark:after:content-[""]',
                       )}
                     />
                   </>
