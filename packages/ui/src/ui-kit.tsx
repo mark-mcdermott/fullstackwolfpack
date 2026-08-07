@@ -23,7 +23,10 @@ export const raisedCtaClass = cn(
   // 56px button and its centre sits 1px low. Box-centred text therefore reads
   // high. 17/15 re-centres the caps on the face instead of the box, keeping the
   // same 56px total — retune it if the ring count in `--cta-edge` changes.
-  'inline-flex w-fit items-center justify-center gap-2.5 rounded-lg px-6 pt-[17px] pb-[15px]',
+  // `relative` positions dark's two pseudo-elements — the smoke and the graded
+  // rim, both in theme.css. It draws nothing by itself, and light renders
+  // neither pseudo, so the two themes stay one DOM tree.
+  'relative inline-flex w-fit items-center justify-center gap-2.5 rounded-lg px-6 pt-[17px] pb-[15px]',
   // 300, a step below the heading font's pinned 400 axis — which needs
   // `font-variation-settings: normal` to escape, or the pin swallows it. No new
   // file: Teko is variable and already carries 300–700 in the one download.
