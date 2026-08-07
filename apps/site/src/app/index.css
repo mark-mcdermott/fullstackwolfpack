@@ -199,8 +199,8 @@
    and sit barely above the page, not as gray slabs on black. Every dark step is
    the same hue (~267) so nothing looks muddy next to the blue page glow. */
 .dark {
-    --hero-image: url('/images/footer-1.png');
-    --hero-aspect: 1774 / 887;
+    --hero-image: url('/images/hero-dark.webp');
+    --hero-aspect: 3 / 2;
     --creed-image: url('/images/creed-bg.png');
     --path-banner: url('/images/footer-2.png');
     /* Dark keeps the plain foreground it already used. */
