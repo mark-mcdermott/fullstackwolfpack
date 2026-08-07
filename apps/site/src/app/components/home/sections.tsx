@@ -332,7 +332,7 @@ export function ReadyToJoin() {
             to="/signup"
             className={cn(
               raisedCtaClass,
-              'px-4 pt-[11px] pb-[9px] text-[20px]/[20px]',
+              'cta-blaze px-4 pt-[11px] pb-[9px] text-[20px]/[20px]',
             )}
           >
             Create free account

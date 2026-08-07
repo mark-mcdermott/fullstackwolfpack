@@ -394,6 +394,7 @@ function LauncherForm({
             disabled={!ready}
             className={cn(
               raisedCtaClass,
+              'cta-flare',
               // Tighter than the hero's CTA by design: `px-3` halves the side
               // padding, and at ≥1150 it drops `w-full` so the width follows the
               // text rather than the column — right-aligned, so the histogram
