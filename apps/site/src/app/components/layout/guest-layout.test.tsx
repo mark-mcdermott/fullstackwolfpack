@@ -27,7 +27,11 @@ function renderLayout(user: PublicUser | null) {
   )
 }
 
-describe('GuestLayout', () => {
+// Skipped with the guest banner itself, which is commented out in
+// guest-layout.tsx. Both cases here are banner assertions — the signed-in one
+// would still pass, but only vacuously — so they un-skip together when the
+// banner comes back.
+describe.skip('GuestLayout', () => {
   it('shows the sign-up banner to guests', () => {
     renderLayout(null)
     expect(screen.getByText(/playing as a guest/i)).toBeInTheDocument()

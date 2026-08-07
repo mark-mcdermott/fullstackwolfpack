@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router'
 import { api } from '@/api-client'
 import { AsyncView } from '@/components/layout/async-view'
 import { SkillIcon } from '@/components/launch/skill-icon'
-import { Panel, SectionLabel } from '@fw/ui'
+import { Panel, SectionLabel, raisedCtaClass } from '@fw/ui'
 import type { MissionSession } from '@/components/mission/mission-view'
 import type { Difficulty } from '@/core/generation'
 import { EMBED_CATALOG } from '@/lib/embed-catalog'
@@ -243,11 +243,11 @@ function LauncherForm({
     <Panel
       id="start-session"
       brackets={false}
-      className="flex scroll-mt-24 flex-col gap-5 rounded-2xl p-5 sm:p-6"
+      className="flex scroll-mt-24 flex-col gap-5 rounded-2xl px-5 pt-5 pb-3 sm:px-5 sm:pt-6 light:bg-[#f8f5f2] light:shadow-[inset_0_0_0_2px_#fdfdfb,var(--tile-shadow)]"
     >
       <div className="flex items-center justify-between gap-4">
-        <SectionLabel>Configure your mission</SectionLabel>
-        <span className="hidden font-mono text-[10px] tracking-widest text-muted-foreground uppercase sm:inline">
+        <SectionLabel className="text-sm">Configure your mission</SectionLabel>
+        <span className="hidden font-mono text-[10px] font-normal tracking-wider text-hero-title uppercase sm:inline">
           Each mission. Every day. Real progress.
         </span>
       </div>
@@ -257,7 +257,10 @@ function LauncherForm({
           centered in the leftover gap. md (768–1023): drop XP + difficulty and
           stack into three centered rows — [game·skill] / [play·learn] / [start].
           <768: cards stack, difficulty returns, XP stays hidden, START centered. */}
-      <div className="flex flex-wrap items-start gap-x-4 gap-y-6 md:max-[1149px]:justify-center min-[1150px]:flex-nowrap min-[1150px]:justify-between">
+      {/* The row gap only ever shows once this wraps. Between md and 1023 the
+          button is the wrapped line and 24px reads as a hole above it — the same
+          range that already takes it to half width, so the two go together. */}
+      <div className="flex flex-wrap items-start gap-x-4 gap-y-6 md:max-[1023px]:gap-y-2 md:max-[1149px]:justify-center min-[1150px]:flex-nowrap min-[1150px]:justify-between">
         {/* game + skill — full-width stacked cards below md; fluid width sharing
             the md single line (title wraps as they narrow); fixed w-52 at
             >=1024. */}
@@ -284,7 +287,6 @@ function LauncherForm({
             }
             title={currentGame ? cleanTitle(currentGame.title) : 'Select a game'}
             subtitle={currentGame ? 'Arcade mode' : 'Pick a game to begin'}
-            selected={!!currentGame}
             onClick={cycleGame}
           />
         </Control>
@@ -305,7 +307,6 @@ function LauncherForm({
             subtitle={
               currentTopic ? 'Ready to learn' : 'Pick a skill to focus on'
             }
-            selected={!!currentTopic}
             onClick={cycleTopic}
           />
         </Control>
@@ -335,9 +336,9 @@ function LauncherForm({
                 onClick={() => setLearnFirst((v) => !v)}
                 aria-label="Swap play/learn order"
                 title="Swap which comes first"
-                className="flex h-11 w-9 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                className="flex size-9 items-center justify-center rounded-lg border border-border bg-card text-hero-title transition-colors hover:border-primary hover:text-primary light:shadow-[var(--field-shadow)]"
               >
-                <ArrowLeftRight className="size-4" />
+                <ArrowLeftRight className="size-3.5" />
               </button>
             </div>
           </div>
@@ -354,10 +355,10 @@ function LauncherForm({
             column (histogram right edge lines up with the button); the XP
             readout is the first to drop (768–1149), and START then goes inline
             at the end of the row. */}
-        <div className="flex flex-col items-center gap-3 max-[1023px]:w-full lg:max-[1149px]:flex-1 lg:max-[1149px]:flex-row lg:max-[1149px]:items-end lg:max-[1149px]:justify-center lg:max-[1149px]:gap-4 min-[1150px]:items-stretch min-[1150px]:w-52">
+        <div className="flex flex-col items-center gap-1 max-[1023px]:w-full lg:max-[1149px]:flex-1 lg:max-[1149px]:flex-row lg:max-[1149px]:items-end lg:max-[1149px]:justify-center lg:max-[1149px]:gap-4 min-[1150px]:items-stretch min-[1150px]:w-52">
           <div className="flex flex-col gap-1.5 max-[1149px]:hidden">
             <FieldLabel>Reward</FieldLabel>
-            <div className="flex h-16 items-center">
+            <div className="flex h-12 items-center">
               {ready ? (
                 <div className="flex w-full items-center justify-between gap-2">
                   <span className="flex items-baseline gap-1">
@@ -392,7 +393,12 @@ function LauncherForm({
             onClick={start}
             disabled={!ready}
             className={cn(
-              'inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-sm font-semibold tracking-widest text-primary-foreground uppercase transition-all duration-300 hover:bg-primary/90 disabled:opacity-50 max-[767px]:w-auto max-[1149px]:px-8 md:max-[1023px]:w-1/2 md:max-[1023px]:max-w-[27rem] lg:max-[1149px]:mt-5 lg:max-[1149px]:w-auto',
+              raisedCtaClass,
+              // Tighter than the hero's CTA by design: `px-3` halves the side
+              // padding, and at ≥1150 it drops `w-full` so the width follows the
+              // text rather than the column — right-aligned, so the histogram
+              // above still lands on its trailing edge.
+              'w-full px-3 disabled:opacity-50 max-[767px]:w-auto md:max-[1023px]:w-1/2 md:max-[1023px]:max-w-[27rem] lg:max-[1149px]:mt-5 lg:max-[1149px]:w-auto min-[1150px]:w-fit min-[1150px]:self-end',
               // Glow + expand as the mission kicks off (the launcher then fades out).
               starting && 'scale-[1.04] shadow-[0_0_45px] shadow-primary/70',
             )}
@@ -433,7 +439,7 @@ function FieldLabel({
   return (
     <span
       className={cn(
-        'font-mono text-[10px] font-medium tracking-widest text-muted-foreground uppercase',
+        'font-mono text-[10px] font-normal tracking-wider text-hero-title uppercase',
         className,
       )}
     >
@@ -443,37 +449,31 @@ function FieldLabel({
 }
 
 // A "select a game / skill" card — icon + title + subtitle + a next chevron.
-// Renders a placeholder when nothing's chosen (or nothing's available); shows a
-// coral border once a selection is active. Clicking cycles to the next option.
+// Renders a placeholder when nothing's chosen (or nothing's available).
+// Clicking cycles to the next option. Styled to match the time steppers — same
+// border, radius and --field-shadow — so every control in the row reads alike.
 function SelectCard({
   icon,
   title,
   subtitle,
-  selected,
   onClick,
 }: {
   icon: ReactNode
   title: string
   subtitle: string
-  selected: boolean
   onClick: () => void
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={cn(
-        'flex h-16 w-full items-center gap-3 rounded-lg border bg-card px-3 text-left transition-colors',
-        selected
-          ? 'border-primary/60 hover:border-primary'
-          : 'border-border hover:border-muted-foreground/50',
-      )}
+      className="flex h-16 w-full items-center gap-2.5 rounded-lg border border-border bg-card px-2.5 text-left transition-colors hover:border-primary focus-visible:border-primary focus-visible:outline-none light:shadow-[var(--field-shadow)]"
     >
       {icon}
       <div className="min-w-0 flex-1">
         {/* 2x title on the big stacked mobile cards; normal size but wrapping in
             the narrow md cards; single-line truncated at >=1024. */}
-        <div className="font-heading text-2xl leading-tight font-bold text-foreground md:text-sm md:leading-normal lg:truncate">
+        <div className="font-sans text-lg leading-tight font-semibold text-hero-title md:text-sm md:leading-normal lg:truncate">
           {title}
         </div>
         {/* "Ready to play / learn" — hidden below 1024. */}
@@ -481,7 +481,7 @@ function SelectCard({
           {subtitle}
         </div>
       </div>
-      <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+      <ChevronRight className="size-4 shrink-0 text-hero-title" />
     </button>
   )
 }
@@ -526,7 +526,7 @@ function TimeStepper({
 }) {
   const clamp = (v: number) => Math.min(120, Math.max(1, v))
   return (
-    <div className="flex h-11 items-stretch border border-border focus-within:border-primary">
+    <div className="flex h-11 items-stretch rounded-lg border border-border bg-card focus-within:border-primary light:shadow-[var(--field-shadow)]">
       <input
         type="number"
         min={1}
@@ -534,9 +534,9 @@ function TimeStepper({
         value={value}
         onChange={(e) => onChange(clamp(Number(e.target.value) || 1))}
         aria-label={`${name} minutes`}
-        className="w-11 bg-transparent pl-3 text-sm tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        className="w-11 bg-transparent pl-3 text-base font-semibold tabular-nums text-hero-title outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
-      <span className="flex items-center pr-2 font-mono text-[10px] tracking-wide text-muted-foreground uppercase">
+      <span className="flex items-center pr-2 font-mono text-[10px] tracking-wide text-hero-title uppercase">
         min
       </span>
       <div className="flex flex-col border-l border-border">

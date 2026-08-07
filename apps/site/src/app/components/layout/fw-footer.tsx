@@ -70,16 +70,19 @@ export function FwFooter() {
           `<CreedBand />` (a bordered card under the session launcher); the
           footer is now just the slim status bar. */}
 
-      {/* Slim brand + nav row */}
-      <div className="border-t border-border">
-        <div className="mx-auto flex max-w-7xl flex-col items-center gap-5 px-5 py-6 md:flex-row md:justify-between md:gap-8 md:px-8">
+      {/* Slim brand + nav row. No top rule — the tiles above it already close
+          the page with their own edges. Kept in sync with Base.astro. */}
+      <div>
+        <div className="mx-auto flex max-w-page flex-col items-center gap-5 px-5 py-6 md:flex-row md:justify-between md:gap-8 md:px-8">
           <Link
             to="/"
             aria-label="Fullstack Wolfpack home"
             className="flex items-center gap-2.5"
           >
-            <WolfMark className="h-8 text-primary" />
-            <span className="font-mono text-lg font-bold text-primary">
+            {/* Mark takes `text-foreground` like the header's and the join
+                row's; only the kana beside it stays primary. */}
+            <WolfMark className="h-6 text-foreground" />
+            <span className="font-mono text-base font-bold text-primary">
               ウルフパック
             </span>
           </Link>
@@ -88,7 +91,7 @@ export function FwFooter() {
               <a
                 key={label}
                 href={siteUrl(to)}
-                className="font-mono text-xs tracking-wide text-foreground/80 transition-colors hover:text-foreground"
+                className="font-mono text-[11px] tracking-wide text-foreground/80 transition-colors hover:text-foreground"
               >
                 {label}
               </a>
@@ -96,7 +99,7 @@ export function FwFooter() {
           </nav>
           {/* Status readout — all one muted color; each item reads as a phrase,
               not a key/value pair. */}
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 font-mono text-xs text-muted-foreground">
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 font-mono text-[11px] text-muted-foreground">
             <span className="flex items-center gap-1.5">
               API
               <span className="size-1.5 rounded-full bg-green-500" />
@@ -112,7 +115,7 @@ export function FwFooter() {
 
       {/* Parked — the fuller footer (tagline, link columns, terminal cell,
           social row, copyright). Restore when we widen scope again.
-      <div className="mx-auto max-w-7xl px-5 pt-14 pb-8 md:px-8">
+      <div className="mx-auto max-w-page px-5 pt-14 pb-8 md:px-8">
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2.5">
             <WolfMark className="h-9 text-white" />

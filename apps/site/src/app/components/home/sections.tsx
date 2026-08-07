@@ -1,16 +1,15 @@
 import {
   ArrowRight,
   BookOpen,
+  ChevronRight,
   Clock,
   Code,
-  Crosshair,
   Gamepad2,
-  Star,
-  Trophy,
   type LucideIcon,
 } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { Link } from 'react-router'
-import { WolfMark } from '@fw/ui'
+import { WolfMark, raisedCtaClass } from '@fw/ui'
 import { cn } from '@/lib/utils'
 
 // Akela's creed + the terminal readout, as a bordered card that sits under the
@@ -20,40 +19,89 @@ import { cn } from '@/lib/utils'
 // which left a black slab sitting in the middle of the light page).
 export function CreedBand() {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-card">
-      <img
-        src="/images/creed-bg.png"
-        alt=""
+    // Pulls 8px back off the page stack's 24px gap-6, leaving 16px above the
+    // band so it sits closer to the launcher than to the sections below. Same
+    // trick as HomeHero's `-mb-6`, which cancels that gap outright.
+    <div className="relative -mt-2 overflow-hidden rounded-2xl border border-border bg-card light:bg-[#f8f6f4] light:shadow-[var(--tile-shadow)]">
+      {/* Decorative, so the art rides on a background rather than an <img>: the
+          theme picks the plate via `--creed-image` (index.css), which keeps one
+          DOM tree across themes and fetches only the matching file — light's
+          slice is 18KB against dark's 2.4MB. Same seam as `--hero-image`. */}
+      <div
         aria-hidden="true"
-        className="absolute inset-0 h-full w-full object-cover object-center opacity-45 dark:opacity-100 md:[mask-image:linear-gradient(to_right,transparent,black_30%,black_85%,transparent)]"
+        className="absolute inset-0 bg-[image:var(--creed-image)] bg-cover bg-center bg-no-repeat md:[mask-image:linear-gradient(to_right,transparent,black_30%,black_85%,transparent)]"
       />
-      {/* Scrims are drawn in the card colour, so they follow the theme. */}
-      <div className="absolute inset-0 bg-card/35 dark:bg-neutral-950/55" />
+      {/* Scrims parked. All three existed to tame the dark neon plate; light's
+          purpose-cut slice is high-key and carries its own edge mask, so they
+          only erased it. Restore (and re-tune) when dark gets its pass — dark
+          still needs them for the copy to read over the neon.
+      <div className="absolute inset-0 dark:bg-neutral-950/55" />
       <div className="absolute inset-0 bg-gradient-to-r from-card via-card/50 to-transparent dark:from-neutral-950 dark:via-neutral-950/40" />
-      {/* Knock back the right so the terminal readout isn't cluttered by the
-          image's baked-in neon text. */}
-      <div className="absolute inset-0 bg-gradient-to-l from-card/90 via-card/30 to-transparent dark:from-neutral-950/90 dark:via-neutral-950/20" />
+      <div className="absolute inset-0 dark:bg-gradient-to-l dark:from-neutral-950/90 dark:via-neutral-950/20" /> */}
+      {/* Inner rule on top of the art and its scrims — they are inset-0
+          siblings, so a ring on the band itself would be painted over. */}
+      <div className="pointer-events-none absolute inset-0 rounded-2xl light:shadow-[inset_0_0_0_2px_#fdfdfb]" />
 
-      <div className="relative flex min-h-[9rem] flex-col justify-center gap-6 p-6 md:flex-row md:items-center md:justify-between md:gap-8 md:px-8">
-        <div className="max-w-md">
-          <span className="block font-mono text-[10px] font-medium tracking-widest text-primary uppercase">
+      {/* Vertical kana, set just clear of the copy rather than mid-band. Same
+          treatment as the header's: it falls through to the sans stack, so it
+          needs the variation-settings escape for the weight to land.
+          In vertical-rl the inline axis runs vertically, so the element's
+          *height* is the line length and its *width* is the column count.
+          `whitespace-nowrap` is what keeps it one column — without it the run
+          is capped by the space below `top-1/2` and breaks into a second; with
+          it the box is content-sized, so translating by half its own height
+          centres it. `w-fit` pins the block axis, since a wide box would stack
+          that single column against its right edge, under the readout. */}
+      <span
+        aria-hidden="true"
+        // Between md and 1023 the band is narrow enough that 38% lands on the
+        // headline, so there it is anchored beside the readout instead. From the
+        // right, not as a percentage: the readout is `shrink-0` at a constant
+        // ~210px, so a right offset holds station while its left edge as a
+        // percentage drifts from 72% to 78% across that range.
+        className="pointer-events-none absolute top-1/2 left-[38%] hidden w-fit -translate-y-1/2 whitespace-nowrap [writing-mode:vertical-rl] font-bold tracking-wider text-primary [font-variation-settings:normal] md:block md:text-[15px] md:max-[1023px]:right-[222px] md:max-[1023px]:left-auto"
+      >
+        ウルフパック信条
+      </span>
+
+      {/* `min-h` is the band's size knob. It has to clear the copy column's own
+          content height (~156px) to bind at all — below that the copy sets the
+          height and changing this does nothing. */}
+      <div className="relative flex min-h-[12rem] flex-col justify-center gap-6 md:flex-row md:items-center md:justify-between md:gap-8">
+        <div className="max-w-md py-5 pl-8">
+          <span className="block font-mono text-sm font-medium tracking-widest text-primary uppercase">
             The Wolfpack Creed
           </span>
-          <p className="mt-3 font-heading text-2xl leading-[1.05] font-bold tracking-wide text-foreground uppercase sm:text-[1.75rem] dark:text-neutral-50">
+          <p className="mt-2 font-heading text-2xl leading-[1.05] font-bold tracking-wide text-foreground uppercase sm:text-[2.125rem] dark:text-neutral-50">
             Discipline over motivation.
           </p>
-          <p className="mt-2.5 max-w-sm font-mono text-xs leading-relaxed text-muted-foreground dark:text-neutral-300">
-            Short sessions, stacked every day — that's how the pack levels up.
+          <p className="mt-2.5 max-w-sm font-mono text-[13px] font-light leading-relaxed text-hero-title">
+            Short sessions, stacked every day —
+            <br />
+            that&rsquo;s how the pack levels up.
           </p>
         </div>
 
-        <div className="shrink-0 border-border md:border-l md:pl-8 dark:border-white/15">
-          <div className="flex flex-col gap-2 font-mono text-sm tracking-wide">
-            <span className="text-primary">&gt; LOCK IN</span>
-            <span className="text-blue-600 dark:text-blue-400">
-              &gt; KEEP LEARNING
-            </span>
-            <span className="text-primary">&gt; LEVEL UP</span>
+        {/* Terminal readout. Its own surface in light so it reads as a panel
+            against the art rather than sitting loose on it. */}
+        <div className="flex shrink-0 flex-col justify-center rounded-r-xl border-border md:self-stretch light:border-l light:border-[#e2dfde] light:bg-white light:p-4 light:shadow-[var(--field-shadow)] md:border-l md:pl-8 md:light:pl-4 dark:border-white/15">
+          <div className="flex flex-col font-mono text-sm tracking-wide">
+            {[
+              { label: 'Lock in', tone: 'text-primary' },
+              { label: 'Keep learning', tone: 'text-blue-600 dark:text-blue-400' },
+              { label: 'Level up', tone: 'text-primary' },
+            ].map(({ label, tone }) => (
+              <span
+                key={label}
+                className={cn(
+                  'flex items-center gap-1 border-b border-border py-1.5 uppercase dark:border-white/10',
+                  tone,
+                )}
+              >
+                <ChevronRight className="size-3.5 shrink-0" />
+                {label}
+              </span>
+            ))}
           </div>
           <div className="fw-barcode mt-4 h-3 w-44 text-muted-foreground dark:text-neutral-500" />
         </div>
@@ -62,65 +110,18 @@ export function CreedBand() {
   )
 }
 
-const FEATURES: {
-  icon: LucideIcon
-  color: string
+
+// The Wolf's Path — the six-step loop, laid out as a connected chain. Light
+// draws it as pale hexagons on a dotted rail; dark lights the outlines up and
+// runs a solid rail between them, with the final step shifting to violet as the
+// "level up" payoff. Same markup either way; only the strokes change.
+const PATH_STEPS: {
+  icon?: LucideIcon
+  glyph?: string
+  wolf?: boolean
   title: string
   text: string
 }[] = [
-  {
-    icon: Crosshair,
-    color: 'text-primary',
-    title: 'Practice with purpose',
-    text: 'Complete bite-sized missions that build real-world skills.',
-  },
-  {
-    icon: BookOpen,
-    color: 'text-fuchsia-500',
-    title: 'Learn by doing',
-    text: 'Learn in context. Apply it immediately. Level up fast.',
-  },
-  {
-    icon: Gamepad2,
-    color: 'text-blue-500',
-    title: 'Play. Focus. Win.',
-    text: 'Stay in flow with timer-based sessions and epic rewards.',
-  },
-  {
-    icon: Trophy,
-    color: 'text-amber-400',
-    title: 'Track & improve',
-    text: 'See your progress, earn XP, and climb the leaderboard.',
-  },
-]
-
-export function BuiltForDevs() {
-  return (
-    <section className="py-8 text-center sm:py-10">
-      <h2 className="font-heading text-2xl font-bold tracking-wide text-foreground uppercase sm:text-3xl">
-        Built for developers. Designed like a game.
-      </h2>
-      <p className="mt-2 font-mono text-sm text-muted-foreground">
-        Real skills. Real missions. Real progress.
-      </p>
-      <div className="mt-10 grid grid-cols-1 gap-y-10 sm:grid-cols-2 md:grid-cols-4 md:gap-y-0 md:divide-x md:divide-border">
-        {FEATURES.map(({ icon: Icon, color, title, text }) => (
-          <div key={title} className="flex flex-col items-center gap-3 px-6">
-            <Icon className={cn('size-10', color)} strokeWidth={2} />
-            <h3 className="font-mono text-sm font-bold tracking-wide text-foreground uppercase">
-              {title}
-            </h3>
-            <p className="max-w-[14rem] font-mono text-xs leading-relaxed text-muted-foreground">
-              {text}
-            </p>
-          </div>
-        ))}
-      </div>
-    </section>
-  )
-}
-
-const STEPS: { icon: LucideIcon; title: string; text: string }[] = [
   {
     icon: Gamepad2,
     title: 'Choose a game',
@@ -129,91 +130,215 @@ const STEPS: { icon: LucideIcon; title: string; text: string }[] = [
   {
     icon: Code,
     title: 'Select a skill',
-    text: 'Learn on the skill you want to level up.',
+    text: 'Choose what you want to learn or improve.',
+  },
+  { icon: Clock, title: 'Play', text: 'Focus for 25 minutes. No distractions.' },
+  {
+    icon: BookOpen,
+    title: 'Learn',
+    text: 'Sharpen your mind with a 5-minute lesson.',
   },
   {
-    icon: Clock,
-    title: 'Play & learn',
-    text: 'Complete missions while learning between rounds.',
+    glyph: 'XP',
+    title: 'Earn XP',
+    text: 'Complete missions, earn XP, and build streaks.',
   },
   {
-    icon: Star,
-    title: 'Earn & level up',
-    text: 'Earn XP, unlock content, and become unstoppable.',
+    wolf: true,
+    title: 'Level up',
+    text: 'Unlock new content, harder missions, better you.',
   },
 ]
 
-export function HowItWorks() {
+// A pointy-top hexagon drawn as SVG rather than clip-path, so it can carry a
+// stroke — clip-path gives no border to work with, and the outline is the whole
+// look here.
+function PathHex({ last, children }: { last: boolean; children: ReactNode }) {
   return (
-    <section className="py-8 text-center sm:py-10">
-      <h2 className="font-heading text-2xl font-bold tracking-wide text-foreground uppercase sm:text-3xl">
-        How it works
+    <span className="relative flex size-[62px] shrink-0 items-center justify-center sm:size-[70px]">
+      <svg
+        viewBox="0 0 100 115"
+        aria-hidden="true"
+        className={cn(
+          'absolute inset-0 size-full',
+          // Light lifts the tile off the rail; dark keeps the neon bloom it had.
+          // `drop-shadow` rather than `box-shadow`: the shadow has to follow the
+          // hexagon, and a box-shadow would trace the <svg>'s square box.
+          'light:drop-shadow-[0_1px_2px_rgb(0_0_0/0.10)]',
+          last
+            ? 'dark:drop-shadow-[0_0_7px_var(--color-violet-500)]'
+            : 'dark:drop-shadow-[0_0_7px_var(--primary)]',
+        )}
+      >
+        {/* Same pointy-top hexagon as the plain polygon it replaced, with each
+            vertex cut back 9 units and bridged by a quadratic — the corner
+            radius has to live in the geometry, since stroke-linejoin would only
+            round by half the 3-unit stroke (~0.8px at this render size). */}
+        <path
+          d="M42.16,7.43 Q50,3 57.84,7.43 L88.16,24.57 Q96,29 96,38 L96,77 Q96,86 88.16,90.43 L57.84,107.57 Q50,112 42.16,107.57 L11.84,90.43 Q4,86 4,77 L4,38 Q4,29 11.84,24.57 Z"
+          strokeWidth="3"
+          className={cn(
+            'light:fill-white light:stroke-[#dad7d6] dark:fill-[#12060c]',
+            last ? 'dark:stroke-violet-500' : 'dark:stroke-primary',
+          )}
+        />
+      </svg>
+      <span
+        className={cn(
+          'relative flex items-center justify-center',
+          last ? 'text-foreground dark:text-violet-300' : 'text-foreground',
+        )}
+      >
+        {children}
+      </span>
+    </span>
+  )
+}
+
+// The rail between two hexes. Absolutely positioned rather than a flex sibling:
+// the columns are equal-width and their copy is wider than the hexes, so the
+// rail has to run hex-edge to hex-edge across the gap, not between the columns.
+// 35px is the hex's half-width, +4 for breathing room; `top` is that same half
+// less 1, to sit the rule on the hex's centre line. Both track the hex size —
+// resize PathHex and these move with it.
+function PathRail() {
+  return (
+    <span
+      aria-hidden="true"
+      className="absolute top-[30px] right-[calc(-50%+39px)] left-[calc(50%+39px)] hidden items-center gap-1 sm:top-[34px] md:flex"
+    >
+      <span className="h-0 flex-1 border-t light:border-dotted light:border-[#c9c4c2] dark:border-primary/70" />
+      <ChevronRight className="size-3 shrink-0 light:text-[#9c9694] dark:text-primary" />
+    </span>
+  )
+}
+
+export function WolfPath() {
+  return (
+    <section className="pt-6 pb-2 text-center sm:pt-8">
+      <h2 className="font-heading text-[34px] tracking-wide text-foreground uppercase sm:text-[40px]">
+        The Wolf&rsquo;s Path
       </h2>
-      <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {STEPS.map(({ icon: Icon, title, text }, i) => (
-          <div
-            key={title}
-            className="relative rounded-xl border border-border p-5 text-left"
-          >
-            <div className="flex items-center gap-3">
-              <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-primary font-mono text-xs font-bold text-primary">
-                {i + 1}
+      <p className="mt-0.5 font-mono text-[11px] tracking-wider text-hero-title uppercase">
+        A daily quest. Real progress.
+      </p>
+
+      <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-9 sm:grid-cols-3 md:grid-cols-6 md:gap-x-0">
+        {PATH_STEPS.map(({ icon: Icon, glyph, wolf, title, text }, i) => {
+          const last = i === PATH_STEPS.length - 1
+          return (
+            <div key={title} className="relative flex flex-col items-center">
+              {!last && <PathRail />}
+              <PathHex last={last}>
+                {Icon && <Icon className="size-8" strokeWidth={2} />}
+                {glyph && (
+                  <span className="font-heading text-[30px] text-primary">
+                    {glyph}
+                  </span>
+                )}
+                {wolf && <WolfMark className="h-8" />}
+              </PathHex>
+              {/* Mono rather than the heading face, matching the launcher's
+                  section label; the step titles below take the challenge
+                  card's label styling. */}
+              <span className="mt-2.5 font-mono text-[22px] leading-none text-primary">
+                {String(i + 1).padStart(2, '0')}
               </span>
-              <Icon className="size-6 text-foreground" strokeWidth={2} />
+              <h3 className="mt-1.5 font-mono text-xs leading-none font-semibold tracking-tight text-hero-title uppercase light:text-[#04040d]">
+                {title}
+              </h3>
+              <p className="mt-1.5 max-w-[6rem] font-mono text-[10px] leading-[1.7] text-hero-title light:text-[#04040d]">
+                {text}
+              </p>
             </div>
-            <h3 className="mt-4 font-mono text-sm font-bold tracking-wide text-foreground uppercase">
-              {title}
-            </h3>
-            <p className="mt-1.5 font-mono text-xs leading-relaxed text-muted-foreground">
-              {text}
-            </p>
-            {i < STEPS.length - 1 && (
-              <span
-                aria-hidden="true"
-                className="absolute top-9 -right-4 hidden h-px w-4 border-t border-dashed border-muted-foreground/40 lg:block"
-              />
-            )}
-          </div>
-        ))}
+          )
+        })}
       </div>
     </section>
   )
 }
 
+// The banner strip under the path. Breaks out of <main>'s padding so it runs to
+// the page edges like the hero plate, and takes its plate from `--path-banner`
+// so each theme gets art that belongs to it — washing the night scene down for
+// light gave a purple haze, not the daylight strip the mock shows.
+//
+// Anchored to the top, not centred. The strip is wider than the plate's aspect,
+// so `cover` scales to the width and trims the height — 14px at the desktop
+// size. The rider's ears sit 7px from the plate's top edge, so splitting that
+// trim across both edges clipped them; sending all of it to the bottom costs
+// only rooftop.
+export function PathBanner() {
+  return (
+    <div
+      aria-hidden="true"
+      className="-mx-5 h-[120px] rounded-2xl bg-[image:var(--path-banner)] bg-cover bg-top sm:-mx-7 sm:h-[150px] md:h-[178px]"
+    />
+  )
+}
+
 export function ReadyToJoin() {
   return (
-    <section className="relative overflow-hidden rounded-2xl border border-border bg-card">
-      {/* Red glow bleeding in from the left. */}
-      <div className="pointer-events-none absolute -top-12 -left-12 size-56 rounded-full bg-primary/20 blur-3xl" />
-      {/* Moody wolf on the far right, faded into the card. */}
+    // Light reads as another eggshell tile with the shared inner rule; dark
+    // lights the whole frame up instead — a primary border plus an outer glow,
+    // which is what carries the row in the dark mock.
+    // The negative margins trim the page stack's gap-6 above and `main`'s pb-6
+    // below, so this row sits tight to the banner and the footer rather than
+    // floating between them. `-mb` overshoots main's 24px on purpose: the gap
+    // the eye reads is that plus the footer's own 24px top padding, so pulling
+    // 10px into the footer's box lands 14px between the card and its first
+    // line. Safe because the footer paints no background — and done here rather
+    // than on the footer's padding, which every other page shares.
+    <section className="relative -mt-[19px] -mb-[34px] overflow-hidden rounded-2xl border border-border bg-card light:border-[#e2dfde] light:bg-[#f8f6f4] light:shadow-[var(--tile-shadow)] dark:border-primary/70 dark:shadow-[0_0_0_1px_var(--primary),0_0_28px_-4px_var(--primary)]">
+      {/* Red glow parked.
+      <div className="pointer-events-none absolute -top-12 -left-12 size-56 rounded-full bg-primary/20 blur-3xl" /> */}
+      {/* Moody wolf on the far right. Full strength from the right edge back to
+          the near eye's outer corner, then out over 25px — stops in px, not %,
+          because the ramp is anchored to a feature in the art: the eye's amber
+          starts at x=139 of the 576px plate, which is 70px into this 288px box.
+          The card-coloured scrim that used to sit over this is parked; it faded
+          the same edge again and nothing could reach full strength. */}
       <img
-        src="/images/akela-eyes.png"
+        src="/images/akela-eyes.webp"
         alt=""
         aria-hidden="true"
-        className="absolute inset-y-0 right-0 hidden w-72 object-cover object-center opacity-70 md:block"
+        className="absolute inset-y-0 right-0 hidden w-72 object-cover object-[70%_45%] opacity-90 [mask-image:linear-gradient(to_right,transparent_45px,black_70px)] md:block"
       />
-      <div className="absolute inset-y-0 right-0 hidden w-72 bg-gradient-to-l from-transparent via-card/70 to-card md:block" />
+      {/* <div className="absolute inset-y-0 right-0 hidden w-72 bg-gradient-to-l from-transparent via-card/45 to-card md:block light:via-[#f8f6f4]/40 light:to-[#f8f6f4]" /> */}
+      {/* Inner rule above the portrait and its scrim, both inset siblings. */}
+      <div className="pointer-events-none absolute inset-0 rounded-2xl light:shadow-[inset_0_0_0_2px_#fdfdfb]" />
 
-      <div className="relative flex flex-col items-start gap-5 p-6 md:flex-row md:items-center md:gap-6 md:p-7">
-        <WolfMark className="h-14 shrink-0 text-primary" />
+      <div className="relative flex flex-col items-start gap-5 px-6 py-1.5 md:flex-row md:items-center md:gap-7 md:px-7 md:py-[7px]">
+        {/* `text-foreground`, matching the header's mark rather than running red.
+            The breathing room is margin, not padding: `h-20` is a border-box
+            height, so padding would eat into the glyph rather than sit around
+            it — `py-3` here would render the mark smaller than it was at h-16. */}
+        <WolfMark className="my-3 h-20 shrink-0 text-foreground dark:drop-shadow-[0_0_10px_var(--primary)]" />
         <div className="flex-1">
-          <h3 className="font-heading text-xl font-bold tracking-wide text-foreground uppercase">
+          <h3 className="font-heading text-[40px] leading-none tracking-widest text-foreground uppercase">
             Ready to join the pack?
           </h3>
-          <p className="mt-1.5 max-w-md font-mono text-xs leading-relaxed text-muted-foreground">
-            Create your free account to save progress, unlock lessons, and join
-            the community.
+          <p className="mt-2 max-w-md font-mono text-xs leading-loose text-hero-title light:text-[#04040d]">
+            Build discipline. Level up your skills.
+            <br />
+            Become unstoppable.
           </p>
         </div>
-        <div className="flex flex-col items-start gap-2 md:items-center md:pr-56">
+        <div className="flex flex-col items-start gap-2 md:items-center md:pr-32 lg:pr-56">
+          {/* Tighter than the shared CTA, and tighter still vertically. The 2px
+              padding split is load-bearing — it centres the caps on the bevel's
+              face, which sits 1px low whatever the padding. */}
           <Link
             to="/signup"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-6 font-mono text-xs font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90"
+            className={cn(
+              raisedCtaClass,
+              'px-4 pt-[11px] pb-[9px] text-[20px]/[20px]',
+            )}
           >
             Create free account
-            <ArrowRight className="size-4" />
+            <ArrowRight className="size-5" />
           </Link>
-          <span className="font-mono text-[11px] text-muted-foreground">
+          <span className="font-mono text-[11px] font-light text-hero-title light:text-[#04040d]">
             Already have an account?{' '}
             <Link
               to="/login"

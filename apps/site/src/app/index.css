@@ -2,12 +2,68 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
+/* Teko, declared by hand rather than via @fontsource's stylesheet so its
+   vertical metrics can be overridden. Teko ships ascent 95.8% / descent 45.8%,
+   but its capitals only reach 62.5% — so all-caps text carries 8px of slack
+   above and 11px below at 24px, and sits ~1.5px above the centre of its own
+   line box. Every centred Teko label inherited that.
+
+   The overrides rebalance the box around cap height and baseline (same total
+   height, redistributed), so `items-center` and equal padding now land the
+   capitals on the true centre and per-component nudges are unnecessary.
+   Devanagari subset dropped: nothing here sets Devanagari, and the kana falls
+   through to the sans stack anyway. */
+@font-face {
+  font-family: 'Teko Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300 700;
+  src: url(../../../../node_modules/@fontsource-variable/teko/files/teko-latin-ext-wght-normal.woff2)
+    format('woff2-variations');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+  ascent-override: 102.1%;
+  descent-override: 39.6%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Teko Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300 700;
+  src: url(../../../../node_modules/@fontsource-variable/teko/files/teko-latin-wght-normal.woff2)
+    format('woff2-variations');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+  ascent-override: 102.1%;
+  descent-override: 39.6%;
+  line-gap-override: 0%;
+}
+
+
+/* @fw/ui resolves through node_modules (workspace symlink), which Tailwind's
+   auto-detection ignores — so any utility used *only* in the design system was
+   never generated. Kit classes that happen to also appear in app code worked by
+   coincidence, which is what made this look fine until now. */
+@source "../../../../packages/ui/src";
 
 @custom-variant dark (&:is(.dark *));
+/* The mirror of `dark`, for the handful of treatments that only apply to the
+   light theme — `dark:` resets on every one of them read as noise. */
+@custom-variant light (&:not(.dark *));
 
 @theme inline {
-    --font-heading: 'placa', var(--font-sans);
+    --font-heading: 'Teko Variable', var(--font-sans);
+    /* Teko is pinned to its 400 weight everywhere, titles included. The axis is
+       set here rather than by editing ~70 call sites, and because it is a
+       variation axis it also wins over the `font-bold`/`font-semibold`
+       utilities those headings still carry — they are inert on heading text. */
+    --font-heading--font-variation-settings: "wght" 400;
     --font-sans: 'Geist Variable', sans-serif;
+    /* A real variable mono (100–900) rather than the system stack: the
+       stack tops out at 300 on macOS, so any lighter weight silently
+       snapped back to Light — and it rendered a different face per OS. */
+    --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -38,7 +94,12 @@
     --color-card-foreground: var(--card-foreground);
     --color-card: var(--card);
     --color-foreground: var(--foreground);
+    --color-hero-title: var(--hero-title);
     --color-background: var(--background);
+    /* The app's page column. Header, <main> and the footer all read from
+       this one value — they have to agree or the bar stops lining up with
+       the tiles. The marketing .astro pages keep their own max-w-7xl. */
+    --container-page: 72.5rem;
     --radius-sm: calc(var(--radius) * 0.6);
     --radius-md: calc(var(--radius) * 0.8);
     --radius-lg: var(--radius);
@@ -49,6 +110,56 @@
 }
 
 :root {
+    /* The raised CTA's edge treatment: a lit inner rule up the top and down the
+       left, a lightened primary down the right, and a dark lip along the bottom
+       — so the slab reads lit from above. Kept as tokens so the CTA's surface is
+       theme-level and reusable, not buried in one component. */
+    /* Four 1px rings up the top and left edges, outer to inner. Built from
+       stacked inset shadows at increasing depth: an earlier shadow paints over
+       a later one, so listing them 1px..4px leaves exactly one visible row of
+       each. The right and bottom edges carry two rings each.
+       The outermost ring used to be a near-white #fefcfc; dropping it means
+       renumbering the rest, or the ring behind it inherits a 2px band. That
+       ring is now #c72020 on both edges, so the dark outline turns the corner
+       instead of stopping where the left edge meets the top. */
+    --cta-edge:
+        inset 0 1px 0 #c72020, inset 1px 0 0 #c72020,
+        inset 0 2px 0 #fbc1be, inset 2px 0 0 #fbc1be,
+        inset 0 3px 0 #e76568, inset 3px 0 0 #e76568,
+        inset 0 4px 0 #e0161a, inset 4px 0 0 #e0161a,
+        inset -1px 0 0 #a41314, inset -2px 0 0 #f94548,
+        inset 0 -1px 0 #a9070a, inset 0 -2px 0 #cb0a12,
+        0 2px 5px rgb(0 0 0 / 0.28);
+    /* The raised CTA's face. */
+    --cta-face: linear-gradient(to bottom, #e62327, #ca0a0f);
+    /* Hero skyline art, per theme. Carried as a token rather than swapped in
+       JSX so the two themes stay one DOM tree, and so only the matching file is
+       ever fetched — a pair of <img> tags toggled with `hidden` would pull both
+       down, and the dark plate is 2.4MB. */
+    /* Light-mode card lift, carried by the header and Akela's tile — the two
+       elements that sit proudly off the page rather than flush in it. Deeper
+       and wider than a hairline-plus-haze so it reads as real elevation. */
+    --card-shadow: 0 6px 24px rgb(0 0 0 / 0.1);
+    /* Inner controls (selects, steppers, the swap key): the same white
+       inner rule the tiles carry, over a shallower lift. */
+    --field-shadow: inset 0 0 0 2px #fdfdfb, 0 1px 4px rgb(0 0 0 / 0.06);
+    /* The wide tiles — the launcher and the creed band. Still a step flatter
+       than --card-shadow, so the header and Akela stay the page's top layer. */
+    --tile-shadow: 0 4px 18px rgb(0 0 0 / 0.07);
+    --hero-image: url('/images/hero-light.jpg');
+    /* Creed band art, per theme. Light gets its own high-key slice cut to the
+       band's 6.9:1 — the dark neon plate it used to share reads as grey haze
+       once knocked back far enough for the copy to sit over it. */
+    --creed-image: url('/images/creed-light.jpg');
+    /* The plate's own aspect. The art layer is sized to this so its box
+       hugs the image exactly — that is what lets the edge mask land on the
+       art's real edges instead of on empty letterbox. */
+    --hero-aspect: 1280 / 650;
+    /* Wide plate under the Wolf's Path, per theme. */
+    --path-banner: url('/images/motorcycle-wolf.webp');
+    /* The hero headline's first line. A near-black navy rather than the plain
+       foreground, so it sits against the high-key skyline instead of on it. */
+    --hero-title: #0d1a26;
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
@@ -88,6 +199,12 @@
    and sit barely above the page, not as gray slabs on black. Every dark step is
    the same hue (~267) so nothing looks muddy next to the blue page glow. */
 .dark {
+    --hero-image: url('/images/footer-1.png');
+    --hero-aspect: 1774 / 887;
+    --creed-image: url('/images/creed-bg.png');
+    --path-banner: url('/images/footer-2.png');
+    /* Dark keeps the plain foreground it already used. */
+    --hero-title: oklch(0.985 0 0);
     --background: oklch(0.14 0.014 268);
     --foreground: oklch(0.985 0 0);
     --card: oklch(0.159 0.016 267);
@@ -173,6 +290,15 @@
   opacity: 0.045;
 }
 
+/* Page wash (light only): a barely-there vertical gradient, so the page isn't a
+   flat sheet under the tinted header and cards. Spans the document rather than
+   the viewport — the bottom stop is meant to land at the end of the content,
+   not at the fold, so `background-attachment` stays at its `scroll` default.
+   The base layer's `bg-background` still paints underneath as the fallback. */
+:root:not(.dark) body {
+  background-image: linear-gradient(to bottom, #f6f4f2, #f4f2f0);
+}
+
 /* FW-01 tactical HUD detail language — ported from apps/site for the marketing
    chrome reused on the logged-out auth pages. Keep in sync with
    apps/site/src/styles/global.css. */
@@ -235,5 +361,73 @@
     -45deg,
     currentColor 0 1px,
     transparent 1px 10px
+  );
+}
+
+/* FW-01 halftone — a fine dot field pinned to the host's top-left corner,
+   fading out to the right and down. Light only: it's a flat printed texture,
+   and dark already carries its own atmosphere (`.dark body::before`).
+   The host needs `relative isolate` so the -1 layer sits behind that host's
+   content rather than dropping behind the page itself. */
+/* Atmospheric halftone in the hero's upper-left. Two layers, not one: a mask
+   only dims dots, it cannot thin them, so a single field fades in place and
+   still reads as a rectangle of texture going quiet. `::before` carries a dense
+   core and `::after` a coarser ring that reaches further out, so density drops
+   with distance as well as opacity.
+
+   Geometry notes:
+   - The box is centred on a point ~55px inside the content edge and ~45px down,
+     which anchors the corner rather than the headline.
+   - Every mask uses `closest-side`, so 100% is the box's half-width. Both fades
+     finish inside that, which is what guarantees no box edge is ever visible —
+     with the default farthest-corner the gradient outruns the box horizontally
+     and clips into a hard vertical line.
+   - The top of the box sits behind the header, which is opaque in light. */
+:root:not(.dark) .fw-dot-field::before,
+:root:not(.dark) .fw-dot-field::after {
+  content: '';
+  position: absolute;
+  top: -75px;
+  left: -65px;
+  z-index: -1;
+  width: 15rem;
+  height: 15rem;
+  pointer-events: none;
+  opacity: 0.75;
+  background-image: radial-gradient(#ebebec 2px, transparent 3.5px);
+  background-size: 10.5px 10.5px;
+}
+
+/* Dense core. */
+:root:not(.dark) .fw-dot-field::before {
+  -webkit-mask-image: radial-gradient(
+    circle closest-side at 50% 50%,
+    #000 0%,
+    #000 22%,
+    transparent 70%
+  );
+  mask-image: radial-gradient(
+    circle closest-side at 50% 50%,
+    #000 0%,
+    #000 22%,
+    transparent 70%
+  );
+}
+
+/* Sparse outer ring — half the grid density, reaching further, so the texture
+   thins out rather than stopping. */
+:root:not(.dark) .fw-dot-field::after {
+  background-size: 21px 21px;
+  -webkit-mask-image: radial-gradient(
+    circle closest-side at 50% 50%,
+    transparent 34%,
+    #000 56%,
+    transparent 96%
+  );
+  mask-image: radial-gradient(
+    circle closest-side at 50% 50%,
+    transparent 34%,
+    #000 56%,
+    transparent 96%
   );
 }

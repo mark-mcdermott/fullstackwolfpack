@@ -21,6 +21,19 @@ Full cross-platform stack: Vite + React 19 + TS, Tailwind v4 + shadcn-ui, Drizzl
 - **The "## Layout" paths below now live under `apps/site/src/app/`** (e.g. Layout's `src/core` = `apps/site/src/app/core`), and the `api/` it describes is `apps/site/src/pages/api/` (handlers now Astro `APIRoute`s, otherwise the same logic). `packages/core` extraction was superseded by folding into the single app; the `@/` alias makes it unnecessary.
 - **Deploy:** live on a single Vercel project (`fullstackwolfpack-astro`), Root Directory `apps/site`. Canonical origin is the apex `fullstackwolfpack.com`; `www` 308-redirects to it and `RP_ID`/`RP_ORIGIN` are the apex. The old `fullstackwolfpack` project (`app.` subdomain) is Git-disconnected and kept only as a rollback until native builds are re-pointed.
 
+## Theming
+
+Light and dark are deliberately **diverging looks**, not one palette with the colors swapped: light is **skeuomorphic-flat** (solid surfaces, crisp edges, cast shadows), dark is **glassy-skeuomorphic** (translucency, blur, sheen, inset light).
+
+**Every light/dark difference must be CSS-only.** No `useTheme()` branches, no per-theme conditional markup — one DOM tree, styled two ways. The levers:
+
+- `light:` / `dark:` variants, declared in the synced pair (`apps/site/src/app/index.css` + `packages/ui/src/theme.css`): `dark` is `&:is(.dark *)`, `light` is `&:not(.dark *)`.
+- Theme tokens (`--background`, `--card`, `--border`, …) for anything that is only a color.
+- `backdrop-filter`, gradients, `box-shadow` (including `inset`), and `::before`/`::after` for glass. Pseudo-elements are what give dark its extra layers without adding real elements that light then has to hide.
+- SVG art uses `fill="currentColor"` (see `WolfMark` in `packages/ui/src/ui-kit.tsx`) rather than per-theme assets.
+
+The one exception is `ThemeToggle`, which renders Sun vs Moon and swaps its `aria-label` in React. It predates the rule — don't add more.
+
 ## Layout
 
 - `api/` — serverless functions (Vercel-style; Web `Request`/`Response` handlers).

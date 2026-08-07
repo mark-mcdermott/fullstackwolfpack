@@ -5,6 +5,46 @@ import { cn } from './utils'
 // FW-01 design kit — the corner-bracket panels, section labels, stat tiles and
 // meters that give every screen the same "tactical HUD" look as the mocks.
 
+// The FW-01 raised CTA — a moulded slab rather than a flat fill: a sheen down
+// the face, a 1px darkened-primary border, and inside it a 1px rule that is
+// white across the top and left, a lightened primary down the right, and absent
+// along the bottom. Sits on a soft cast shadow and presses in on :active.
+//
+// Every colour is mixed from `--primary`, so the button follows the theme
+// instead of hard-coding a red; the face and edge live in theme.css as
+// `--cta-face` / `--cta-edge`. Exported as a class as well as a component:
+// CTAs are as often anchors or router <Link>s as they are <button>s, and a
+// shared class dresses any of them without a polymorphic wrapper.
+export const raisedCtaClass = cn(
+  // Teko's metrics are rebalanced at the @font-face (theme.css), so its
+  // capitals centre in the *box* on their own. The padding is uneven anyway,
+  // because the box is not what the eye reads: `--cta-edge` stacks 4px of lit
+  // edge on top against a 2px lip below, so the visible face runs 4→54 of the
+  // 56px button and its centre sits 1px low. Box-centred text therefore reads
+  // high. 17/15 re-centres the caps on the face instead of the box, keeping the
+  // same 56px total — retune it if the ring count in `--cta-edge` changes.
+  'inline-flex w-fit items-center justify-center gap-2.5 rounded-lg px-6 pt-[17px] pb-[15px]',
+  // 300, a step below the heading font's pinned 400 axis — which needs
+  // `font-variation-settings: normal` to escape, or the pin swallows it. No new
+  // file: Teko is variable and already carries 300–700 in the one download.
+  // Line-height rides on the size utility: a bare `leading-none` did not take,
+  // leaving a 1.5 line box that made the button 63px tall.
+  'font-heading text-[24px]/[24px] font-light tracking-wide text-white uppercase [font-variation-settings:normal]',
+  // No `border`: the outermost ring is the first inset in `--cta-edge`, so a
+  // border would sit outside it and read as a sixth edge.
+  'bg-[image:var(--cta-face)]',
+  'shadow-[var(--cta-edge)]',
+  'transition-[filter,box-shadow,translate] hover:brightness-[1.06]',
+  'active:translate-y-px active:shadow-[inset_0_2px_3px_rgb(0_0_0/0.3),0_1px_2px_rgb(0_0_0/0.25)]',
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
+)
+
+export function RaisedButton({ className, ...props }: ComponentProps<'button'>) {
+  return (
+    <button type="button" className={cn(raisedCtaClass, className)} {...props} />
+  )
+}
+
 function Brackets() {
   const base = 'pointer-events-none absolute size-2.5 border-foreground'
   return (
