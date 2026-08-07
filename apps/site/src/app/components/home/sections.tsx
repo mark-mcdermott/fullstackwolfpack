@@ -268,11 +268,49 @@ export function WolfPath() {
 // size. The rider's ears sit 7px from the plate's top edge, so splitting that
 // trim across both edges clipped them; sending all of it to the bottom costs
 // only rooftop.
+// Dark runs the strip full bleed and square-cornered, the way the mock has it —
+// the one band on the page that breaks the card rhythm. Three notes on that:
+//
+//   · `mx-[calc(50%-50vw)]` is the full-bleed escape. The element is a block
+//     with auto width, so the two negative margins add the viewport back:
+//     container − 2(½container − ½vw) = vw. It outranks the unprefixed `-mx-5`
+//     and `sm:-mx-7` on specificity, so it holds at every breakpoint.
+//   · the height comes from the *art's own aspect* rather than a fixed
+//     120/150/178, so the band never crops while it is growing — a fixed height
+//     against a viewport-wide element turns 4:1 art into a 19:1 letterbox on an
+//     ultrawide and `cover` answers by throwing away most of the picture.
+//   · but it stops growing at 17.5rem. Every other block on the page is capped
+//     to the 1160px content column; letting the band keep pace with the
+//     *window* instead made it tower over its neighbours on a wide screen.
+//
+// Which is also why the art is the 6:1 crop rather than the mock's 4:1 one.
+// The mock's proportion assumes the band is as wide as the page — once it is as
+// wide as the *window* and the page is not, a 4:1 frame either towers or gets
+// cropped to a sliver, and at 1920 that sliver puts the rider's head on the top
+// edge. 6:1 is the shape a strip actually wants, which is what light's asset has
+// been all along. What the crop spends is the rooftop; what it keeps is the
+// rider and the sign.
+//
+// Dark takes the trim at 31% rather than inheriting `bg-top`'s 0%. Nothing
+// moves below ~1690px — there the band matches the art and no overflow exists —
+// but by 3440 the trim is 289px, and taking it all off the bottom pins the
+// rider's head to the top edge. 31% buys the head clearance while stopping
+// short of 50%, which starts cutting the ears off the wolf sign. It is a
+// percentage so the shift grows with the crop: 12px at 1920, 90px at 3440.
+// Dark-only because light's card overflows by just 14px, and the note above
+// about the rider's ears is exactly why that 14px all goes to the bottom.
+//
+// The `min-h` trio is the other end of the same ratio. A 6:1 frame is generous
+// on a wide screen and a sliver on a phone — 65px at 390 — so the floors hold
+// the heights the band already had below the crossover at ~1075px, and the
+// aspect takes over above it. Net effect is one ramp: 120 → 178 → 238 → 280.
+//   · light is untouched — it keeps the inset card, which is what its own mock
+//     shows, and both themes still read the same `--path-banner`.
 export function PathBanner() {
   return (
     <div
       aria-hidden="true"
-      className="-mx-5 h-[120px] rounded-2xl bg-[image:var(--path-banner)] bg-cover bg-top sm:-mx-7 sm:h-[150px] md:h-[178px]"
+      className="-mx-5 h-[120px] rounded-2xl bg-[image:var(--path-banner)] bg-cover bg-top sm:-mx-7 sm:h-[150px] md:h-[178px] dark:mx-[calc(50%-50vw)] dark:aspect-[var(--banner-aspect)] dark:h-auto dark:max-h-[17.5rem] dark:min-h-[120px] dark:rounded-none dark:bg-[position:50%_31%] sm:dark:min-h-[150px] md:dark:min-h-[178px]"
     />
   )
 }
@@ -289,33 +327,65 @@ export function ReadyToJoin() {
     // 10px into the footer's box lands 14px between the card and its first
     // line. Safe because the footer paints no background — and done here rather
     // than on the footer's padding, which every other page shares.
-    <section className="relative -mt-[19px] -mb-[34px] overflow-hidden rounded-2xl border border-border bg-card light:border-[#e2dfde] light:bg-[#f8f6f4] light:shadow-[var(--tile-shadow)] dark:border-primary/70 dark:shadow-[0_0_0_1px_var(--primary),0_0_28px_-4px_var(--primary)]">
+    //
+    // Dark reverses both. Its banner runs full bleed to the window edges and
+    // carries a lot more weight than light's inset card, so butting this row up
+    // against it reads as one continuous slab; the space is what lets the lit
+    // frame register as its own object, and the same goes for the footer under
+    // it — a glowing frame needs air on both sides or the glow bleeds into its
+    // neighbours. Both outrank the base negatives on specificity, so they
+    // replace them rather than adding to them. It is not symmetric: 80px above,
+    // where the full-bleed banner needs the separation, and 40px below, where
+    // the footer is loose text that would drift away from the page if it were
+    // given the same. Note the bottom is still negative — main's pb-6 and the
+    // footer's own pt-6 already stack to 48px on their own.
+    <section className="join-frame relative -mt-[19px] -mb-[34px] overflow-hidden rounded-2xl dark:mt-14 dark:-mb-2 border border-border bg-card light:border-[#e2dfde] light:bg-[#f8f6f4] light:shadow-[var(--tile-shadow)] dark:border-[#7a0406] dark:shadow-[0_0_28px_-6px_rgb(180_12_12/0.55)]">
       {/* Red glow parked.
       <div className="pointer-events-none absolute -top-12 -left-12 size-56 rounded-full bg-primary/20 blur-3xl" /> */}
-      {/* Moody wolf on the far right. Full strength from the right edge back to
-          the near eye's outer corner, then out over 25px — stops in px, not %,
-          because the ramp is anchored to a feature in the art: the eye's amber
-          starts at x=139 of the 576px plate, which is 70px into this 288px box.
-          The card-coloured scrim that used to sit over this is parked; it faded
-          the same edge again and nothing could reach full strength. */}
-      <img
-        src="/images/akela-eyes.webp"
-        alt=""
+      {/* Moody wolf on the far right, on a background rather than an <img> so
+          the theme picks the plate via `--eyes-image` — one DOM tree across
+          themes, and only the matching file is fetched. Light keeps the grey
+          pencil head; dark takes the near-black one its mock has.
+
+          Full strength from the right edge back to the near eye's outer corner,
+          then out over 25px. The stops are in px, not %, because the ramp is
+          anchored to a feature in the art — and the two plates put that feature
+          in different places, so the ramp moves with them: the amber starts at
+          x=138 of light's 576px plate (69px into this 288px box) against x=122
+          of dark's (61px). Reusing light's stops left dark's near eye sitting
+          inside the fade at about two-thirds opacity.
+
+          Both plates are exactly 2x the box, so `contain` fits them edge to
+          edge and there is no object-position left to tune — it is `contain`
+          rather than `cover` so that a plate whose ratio drifts letterboxes
+          into the card instead of silently losing an eye to a crop. The
+          card-coloured
+          scrim that used to sit over this is parked; it faded the same edge
+          again and nothing could reach full strength. */}
+      <div
         aria-hidden="true"
-        className="absolute inset-y-0 right-0 hidden w-72 object-cover object-[70%_45%] opacity-90 [mask-image:linear-gradient(to_right,transparent_45px,black_70px)] md:block"
+        className="absolute inset-y-0 right-0 hidden w-72 bg-[image:var(--eyes-image)] bg-contain bg-center bg-no-repeat opacity-90 [mask-image:linear-gradient(to_right,transparent_45px,black_70px)] md:block dark:[mask-image:linear-gradient(to_right,transparent_36px,black_61px)]"
       />
       {/* <div className="absolute inset-y-0 right-0 hidden w-72 bg-gradient-to-l from-transparent via-card/45 to-card md:block light:via-[#f8f6f4]/40 light:to-[#f8f6f4]" /> */}
       {/* Inner rule above the portrait and its scrim, both inset siblings. */}
       <div className="pointer-events-none absolute inset-0 rounded-2xl light:shadow-[inset_0_0_0_2px_#fdfdfb]" />
 
-      <div className="relative flex flex-col items-start gap-5 px-6 py-1.5 md:flex-row md:items-center md:gap-7 md:px-7 md:py-[7px]">
-        {/* `text-foreground`, matching the header's mark rather than running red.
-            The breathing room is margin, not padding: `h-20` is a border-box
-            height, so padding would eat into the glyph rather than sit around
-            it — `py-3` here would render the mark smaller than it was at h-16. */}
-        <WolfMark className="my-3 h-20 shrink-0 text-foreground dark:drop-shadow-[0_0_10px_var(--primary)]" />
+      <div className="relative flex flex-col items-start gap-5 px-6 py-5 md:flex-row md:items-center md:gap-7 md:px-7 md:py-[26px]">
+        {/* Light keeps `text-foreground`, matching the header's mark; dark runs
+            it red, which is what its mock has and what the glow underneath was
+            already implying. The breathing room is margin, not padding: `h-20`
+            is a border-box height, so padding would eat into the glyph rather
+            than sit around it — `py-3` here would render the mark smaller than
+            it was at h-16. */}
+        <WolfMark className="my-3 h-20 shrink-0 text-foreground dark:text-primary dark:drop-shadow-[0_0_10px_var(--primary)]" />
         <div className="flex-1">
-          <h3 className="font-heading text-[40px] leading-none tracking-widest text-foreground uppercase">
+          {/* 300 rather than the heading font's pinned 400, which needs the
+              variation-settings escape or the pin swallows it — the same dance
+              `raisedCtaClass` does. Tracking steps back one stop from `widest`
+              rather than two: 0.1em read as a strapline, but `wide` overshot
+              and closed the line up tighter than the mock's, which is airier
+              than either. */}
+          <h3 className="font-heading text-[40px] leading-none font-light tracking-wider text-foreground uppercase [font-variation-settings:normal]">
             Ready to join the pack?
           </h3>
           <p className="mt-2 max-w-md font-mono text-xs leading-loose text-hero-title light:text-[#04040d]">
@@ -327,18 +397,23 @@ export function ReadyToJoin() {
         <div className="flex flex-col items-start gap-2 md:items-center md:pr-32 lg:pr-56">
           {/* Tighter than the shared CTA, and tighter still vertically. The 2px
               padding split is load-bearing — it centres the caps on the bevel's
-              face, which sits 1px low whatever the padding. */}
+              face, which sits 1px low whatever the padding. Dark has to be
+              restated, not inherited: the shared class carries its own
+              `dark:pt-4 dark:pb-4`, which outranks the unprefixed pair here
+              and would grow this button to 52px. Same 20px total, halved for
+              a rim that is even top and bottom. The font size stays light's;
+              dark's is on the shared class, one size for all three. */}
           <Link
             to="/signup"
             className={cn(
               raisedCtaClass,
-              'px-4 pt-[11px] pb-[9px] text-[20px]/[20px]',
+              'cta-blaze px-4 pt-[11px] pb-[9px] text-[20px]/[20px] dark:pt-[10.5px] dark:pb-[9.5px]',
             )}
           >
             Create free account
             <ArrowRight className="size-5" />
           </Link>
-          <span className="font-mono text-[11px] font-light text-hero-title light:text-[#04040d]">
+          <span className="font-mono text-[11px] font-light text-hero-title light:text-[#04040d] dark:text-[#878b83]">
             Already have an account?{' '}
             <Link
               to="/login"

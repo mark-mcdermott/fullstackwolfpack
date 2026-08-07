@@ -73,8 +73,13 @@ export function HomeHero() {
                 headline just inherits it — no `font-variation-settings` escape
                 needed when the wanted weight is the pin itself. */}
             <h1 className="font-heading text-3xl leading-[0.85] tracking-tight uppercase sm:text-4xl md:text-[80px]">
-              <span className="block text-hero-title">Your next level</span>
-              <span className="block text-primary">
+              {/* Dark grades each line top-to-bottom, sampled off the mock.
+                  `bg-clip-text` over a transparent fill, so the flat token
+                  colour still carries light. */}
+              <span className="block text-hero-title dark:bg-[linear-gradient(180deg,#ffffff_0%,#e6e4e1_28%,#c8c6c2_55%,#b4b2af_80%,#6a6a68_100%)] dark:bg-clip-text dark:text-transparent">
+                Your next level
+              </span>
+              <span className="block text-primary dark:bg-[linear-gradient(180deg,#f00004_0%,#d40103_30%,#b00102_60%,#8c0103_85%,#6e0206_100%)] dark:bg-clip-text dark:text-transparent">
                 Starts here
                 {/* `inline-block` so the transform lands at all — and scale-x
                     rather than a smaller font-size, so the cursor loses width
@@ -91,9 +96,11 @@ export function HomeHero() {
             </div>
           </div>
 
-          <a href="#start-session" className={cn(raisedCtaClass, 'group')}>
+          <a href="#start-session" className={cn(raisedCtaClass, 'cta-ember group')}>
             Build your session
-            <ArrowRight className="size-5 transition-transform group-hover:translate-x-0.5" />
+            {/* Red in dark, matching the mock — this is the only one of the
+                three CTAs whose arrow is not white. */}
+            <ArrowRight className="size-5 transition-transform group-hover:translate-x-0.5 dark:text-[#ea2a22]" />
           </a>
         </div>
       </Panel>

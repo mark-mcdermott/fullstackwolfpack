@@ -147,6 +147,10 @@
        than --card-shadow, so the header and Akela stay the page's top layer. */
     --tile-shadow: 0 4px 18px rgb(0 0 0 / 0.07);
     --hero-image: url('/images/hero-light.jpg');
+    /* The join card's wolf-eyes plate. Same per-theme seam as the three above
+       — see `PathBanner`'s sibling in sections.tsx for why the mask that
+       carries it has to move when the plate does. */
+    --eyes-image: url('/images/akela-eyes.webp');
     /* Creed band art, per theme. Light gets its own high-key slice cut to the
        band's 6.9:1 — the dark neon plate it used to share reads as grey haze
        once knocked back far enough for the copy to sit over it. */
@@ -199,10 +203,16 @@
    and sit barely above the page, not as gray slabs on black. Every dark step is
    the same hue (~267) so nothing looks muddy next to the blue page glow. */
 .dark {
-    --hero-image: url('/images/footer-1.png');
-    --hero-aspect: 1774 / 887;
-    --creed-image: url('/images/creed-bg.png');
-    --path-banner: url('/images/footer-2.png');
+    --hero-image: url('/images/hero-dark.webp');
+    --hero-aspect: 3 / 2;
+    --creed-image: url('/images/creed-dark.webp');
+    --path-banner: url('/images/motorcycle-dark.webp');
+    /* Drives the full-bleed strip's height (see `PathBanner`). It is the art's
+       own dimensions on purpose — the band only stays crop-free while the two
+       agree, so writing the asset's numbers here makes any future re-crop that
+       forgets this line show up as a visible trim rather than silently. */
+    --banner-aspect: 2320 / 384;
+    --eyes-image: url('/images/eyes-dark.webp');
     /* Dark keeps the plain foreground it already used. */
     --hero-title: oklch(0.985 0 0);
     --background: oklch(0.14 0.014 268);
@@ -431,3 +441,249 @@
     transparent 96%
   );
 }
+
+/* ── Dark-mode CTA treatments ──────────────────────────────────────────────
+   Three smoky-glass reds, sampled off the dark mock. Scanning the mock's
+   pixels shows all three are the same object under different exposure, so
+   they share one structure and differ only in numbers:
+
+     · the face is lit from the LEFT edge and falls off to the right — the
+       hero runs #bb → #1c across its width, the launcher #d2 → #6c, the join
+       row only #d8 → #a6. That ramp, not the smoke, is what the eye reads
+       first, and it is why the earlier top-left-corner bloom looked wrong.
+     · a 1.5px rim runs the whole way round, but it is *graded*: hot salmon
+       (#ff4a48) along the top-left, dropping to a dull #7a by the top-right,
+       and hot again all along the bottom with a near-white bloom (#fff3d9)
+       at the bottom-right corner.
+     · the glow outside is not a halo — it pools under the bottom edge and
+       off that same bottom-right corner.
+
+   Two pseudo-elements carry what background layers cannot. Light gets
+   neither: every selector here is under `.dark`, and `::before`/`::after`
+   are exactly the "extra layers without extra DOM" the theming rule asks
+   for, so the two themes stay one tree. */
+
+.dark {
+    /* The smoke, as one tile shared by all three. Stacked gradients alone
+       read as airbrush because they are mathematically smooth; the mock's
+       haze is irregular. feTurbulence generates that irregularity inline —
+       no request, no asset. A second, coarser turbulence then displaces the
+       first, which is domain warping: the same feedback a smoke shader gets
+       by feeding fbm into itself, and the whole difference between tendrils
+       and soft blobs.
+
+       The colour matrix flattens it to opaque grey rather than tinting it
+       red, because this tile is composited with `overlay` (below) rather than
+       painted on top: mid-grey is the identity for that blend, so the noise
+       *modulates* the light already in the face instead of laying a wash over
+       it. That is why the smoke shows in the lit left of the mock and dies
+       away in the dead right — the same reason it works in the shader,
+       without a canvas or a render loop.
+
+       Two details the artefacts taught. The filter region is oversized,
+       because feDisplacementMap sampling outside it returns transparent
+       black, which the alpha row of the matrix then promotes to *opaque*
+       black — that was the smear under the top edge. And the transfer
+       *stretches* contrast rather than compressing it: four octaves of
+       fractalNoise cluster tightly around 0.5, which is the identity for
+       overlay, so straight out of the filter the tile is invisible. Slope 2
+       about a mid-grey pivot is what makes it read as smoke rather than as
+       nothing; the strength token then dials it back per button.
+
+       The frequency ratio is the other half of the look: x roughly three
+       times y makes the cells narrow and tall, so the wisps stand up rather
+       than lie down — which is the way the mock's haze runs. */
+    --cta-smoke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='76'%3E%3Cfilter id='s' x='-30%25' y='-30%25' width='160%25' height='160%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.050 0.016' numOctaves='4' seed='11' result='haze' /%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.020 0.006' numOctaves='2' seed='5' result='warp' /%3E%3CfeDisplacementMap in='haze' in2='warp' scale='22' xChannelSelector='R' yChannelSelector='G' result='curl' /%3E%3CfeColorMatrix in='curl' type='matrix' values='0.34 0.34 0.34 0 0 0.34 0.34 0.34 0 0 0.34 0.34 0.34 0 0 0 0 0 0 1' /%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='2' intercept='-0.5' /%3E%3CfeFuncG type='linear' slope='2' intercept='-0.5' /%3E%3CfeFuncB type='linear' slope='2' intercept='-0.5' /%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='260' height='76' filter='url(%23s)' /%3E%3C/svg%3E");
+}
+
+.dark .cta-ember,
+.dark .cta-flare,
+.dark .cta-blaze {
+    /* So the smoke's `mix-blend-mode` sees the button's own face as its
+       backdrop and not the page behind it. */
+    isolation: isolate;
+}
+
+.dark .cta-ember::before,
+.dark .cta-flare::before,
+.dark .cta-blaze::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--cta-smoke);
+    mix-blend-mode: overlay;
+    opacity: var(--cta-smoke-strength);
+    pointer-events: none;
+}
+
+.dark .cta-ember::after,
+.dark .cta-flare::after,
+.dark .cta-blaze::after {
+    /* The rim. An inset box-shadow can only be one flat colour per ring, and
+       the mock's rim changes colour as it travels — so it is painted as a
+       gradient over the whole box and then masked down to a 1.5px frame:
+       the two masks cover the border-box and the content-box, and `exclude`
+       leaves the difference, which is the padding ring. Because only the
+       frame survives, `--cta-rim` can be as many layers as the lighting
+       needs; everything else is cut away. */
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: var(--cta-rim);
+    mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+/* Hero — "Build your session". Darkest of the three, and the only one that
+   truly reads as an ember: the face is all but out by 70% of the width
+   (#1c0003), so the rim and the underside glow are doing the work. */
+.dark .cta-ember {
+    --cta-face:
+        /* The bottom and top rims bleeding back into the face — in the mock
+           the two rows inside each rule are visibly lifted. */
+        linear-gradient(to top, rgb(228 42 30 / 0.24) 0%, transparent 30%),
+        linear-gradient(to bottom, rgb(200 20 16 / 0.14) 0%, transparent 18%),
+        /* The bottom-right corner reads 99 → 159 across the last twentieth of
+           the mock's lower band: the corner bloom on the rim spilling inward. */
+        radial-gradient(15% 56% at 100% 100%, rgb(255 92 70 / 0.42) 0%, transparent 76%),
+        /* The light itself, and the layer the whole button turns on. Sampled
+           across the mock it runs 180 at the left edge, holds near 140 to a
+           tenth of the width, is still 128 at a fifth and only reaches its
+           floor of ~38 halfway across. It is also lit high: at x=4% the column
+           reads 170 near the top against 83 near the bottom, so the ellipse is
+           anchored a quarter of the way down rather than centred. */
+        radial-gradient(78% 136% at -3% 24%, rgb(212 16 10 / 0.95) 0%, rgb(172 9 10 / 0.68) 24%, rgb(124 5 9 / 0.44) 46%, rgb(72 3 7 / 0.16) 70%, transparent 96%),
+        linear-gradient(96deg, #340107 0%, #290005 38%, #220004 68%, #1c0003 100%);
+    --cta-rim:
+        /* Hot at both ends of the bottom edge and cooling as it climbs the
+           right — the mock's rule runs #fff3d9 at the bottom-right corner,
+           #e10102 along the bottom, #ff4a48 at the top-left and only #75 by
+           the top-right. */
+        radial-gradient(30% 66% at 100% 100%, #fff0dc 0%, #ff6a58 24%, transparent 62%),
+        radial-gradient(46% 58% at 0% 0%, #ff6f64 0%, #e0332c 46%, transparent 100%),
+        linear-gradient(to top, rgb(232 6 10 / 1) 0%, rgb(208 4 8 / 0.9) 14%, transparent 48%),
+        /* Stops read straight off the mock's brightest rim row, normalised to
+           the width: 255 by a fifteenth, 205 at a third, 137 at half, 112 by
+           the far end. It stays a legible line the whole way rather than
+           dying into the top-right corner. */
+        linear-gradient(to right, #ff5a52 0%, #ec4340 12%, #cd4e4b 28%, #a70b05 42%, #8c0100 60%, #780100 82%, #6e0000 100%);
+    --cta-smoke-strength: 0.38;
+    /* The glow is short: below the mock's bottom edge it is gone inside ten
+       pixels, so this is a tight lip and a shallow bed, not a halo. The last
+       shadow is offset down-and-right — the pool off the hot corner. */
+    --cta-edge:
+        0 1px 4px -1px rgb(255 70 55 / 0.6),
+        0 4px 12px -3px rgb(226 22 20 / 0.5),
+        0 9px 26px -9px rgb(200 12 12 / 0.38),
+        8px 8px 22px -12px rgb(255 96 74 / 0.5);
+}
+
+/* Launcher — "Start mission". Mid exposure: #d2 down to #6c, so the falloff
+   still reads but the slab stays plainly red. */
+.dark .cta-flare {
+    --cta-face:
+        linear-gradient(to top, rgb(230 30 22 / 0.22) 0%, transparent 34%),
+        linear-gradient(to bottom, rgb(255 80 70 / 0.14) 0%, transparent 22%),
+        radial-gradient(78% 150% at 0% 42%, rgb(224 16 14 / 0.9) 0%, rgb(168 6 10 / 0.36) 36%, transparent 76%),
+        linear-gradient(96deg, #a8020c 0%, #920109 40%, #7d0108 70%, #690107 100%);
+    --cta-rim:
+        radial-gradient(34% 70% at 100% 100%, #ffd9c6 0%, #ff5a48 28%, transparent 66%),
+        linear-gradient(to top, rgb(214 6 12 / 1) 0%, transparent 44%),
+        linear-gradient(to right, #f5312c 0%, #d8140f 26%, #a5040c 62%, #93030b 100%);
+    --cta-smoke-strength: 0.28;
+    --cta-edge:
+        0 2px 6px -1px rgb(255 60 48 / 0.4),
+        0 6px 20px -5px rgb(225 22 22 / 0.45),
+        0 12px 36px -12px rgb(210 14 14 / 0.38);
+}
+
+/* Join row — "Create free account". Brightest and flattest: #d8 to #a6 only,
+   and lit from the top rather than raked across, so it reads as a solid
+   slab with the haze barely on it. */
+.dark .cta-blaze {
+    --cta-face:
+        linear-gradient(to bottom, rgb(255 70 58 / 0.16) 0%, transparent 26%),
+        linear-gradient(to top, rgb(80 0 4 / 0.20) 0%, transparent 40%),
+        radial-gradient(64% 140% at 0% 40%, rgb(236 22 16 / 0.62) 0%, transparent 72%),
+        linear-gradient(98deg, #bc010c 0%, #ae010b 42%, #a5010a 74%, #ad010b 100%);
+    --cta-rim:
+        radial-gradient(34% 70% at 100% 100%, #ffcdb8 0%, #ff5040 30%, transparent 68%),
+        linear-gradient(to top, rgb(216 5 10 / 1) 0%, transparent 42%),
+        linear-gradient(to right, #f22e26 0%, #db1c16 24%, #b4060e 60%, #a6040c 100%);
+    --cta-smoke-strength: 0.2;
+    --cta-edge:
+        0 2px 8px -1px rgb(255 70 58 / 0.45),
+        0 6px 22px -5px rgb(232 24 24 / 0.48),
+        0 14px 40px -12px rgb(215 15 15 / 0.4);
+}
+
+/* ── The join row's lit frame ──────────────────────────────────────────────
+   Dark only, and app-only: `ReadyToJoin` lives here rather than in @fw/ui, so
+   unlike the CTA block below there is no copy of this in packages/ui.
+
+   The mock's frame is not one flat rule. It is a dim #7a0406 line (the border
+   utility) that goes white-hot where it turns a corner, with smoke bleeding
+   inward off those same corners. Two pseudo-elements, because the section's
+   children are all spoken for and neither of these should be in the DOM:
+
+   ::before is the smoke: the corners bleeding inward, with a turbulence tile
+   as its alpha mask so the falloff breaks up instead of reading as four clean
+   vignettes. The irregularity is what sells it — a smooth gradient here looks
+   like a lighting bug, not like haze.
+
+   ::after is the shine. Tight px radials at the four corners over a ring masked
+   out of the box — px and not %, because the shine is a fixed ~30px feature and
+   a percentage would grow it with the card. The ring sits *inside* the border:
+   the section is `overflow-hidden` for the eyes plate, so nothing escapes
+   outward and the outward half of the glow stays the box-shadow's job.
+
+   The order matters and is the reason they are this way round: ::before paints
+   under the section's children and ::after over them. The haze is wide enough
+   to veil the mark and the log-in line if it sat on top; the ring is 2px at the
+   very edge and overlaps nothing. */
+
+.dark .join-frame::before,
+.dark .join-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+/* The smoke, under the section's children. */
+.dark .join-frame::before {
+    border-radius: inherit;
+    background:
+        radial-gradient(52px 42px at 0 0, rgb(255 150 110 / 0.42), transparent 72%),
+        radial-gradient(52px 42px at 100% 0, rgb(255 140 100 / 0.34), transparent 72%),
+        radial-gradient(52px 42px at 0 100%, rgb(255 145 105 / 0.38), transparent 72%),
+        radial-gradient(64px 50px at 100% 100%, rgb(255 155 115 / 0.46), transparent 72%);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200'%3E%3Cfilter id='n' x='-30%25' y='-30%25' width='160%25' height='160%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.07 0.20' numOctaves='3' seed='5' result='t' /%3E%3CfeColorMatrix in='t' type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0' /%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='2.4' intercept='-0.55' /%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='400' height='200' filter='url(%23n)' /%3E%3C/svg%3E");
+}
+
+/* The ring, over them — 2px at the very edge, so it overlaps nothing. */
+.dark .join-frame::after {
+    border-radius: inherit;
+    padding: 2px;
+    background:
+        radial-gradient(34px 26px at 0 0, rgb(255 248 244 / 1), rgb(255 132 84 / 0.6) 45%, transparent 78%),
+        radial-gradient(30px 24px at 100% 0, rgb(255 238 230 / 0.9), rgb(255 120 72 / 0.52) 45%, transparent 78%),
+        radial-gradient(30px 24px at 0 100%, rgb(255 242 236 / 0.95), rgb(255 124 76 / 0.55) 45%, transparent 78%),
+        radial-gradient(38px 28px at 100% 100%, rgb(255 250 248 / 1), rgb(255 138 90 / 0.62) 45%, transparent 78%),
+        /* Two soft brightenings away from the corners, off-centre and of
+           different length, so the rule is not obviously symmetrical. */
+        radial-gradient(120px 30px at 28% 100%, rgb(255 96 52 / 0.28), transparent 72%),
+        radial-gradient(100px 26px at 72% 0, rgb(255 96 52 / 0.22), transparent 72%);
+    mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    mask-composite: exclude;
+}
+
+
