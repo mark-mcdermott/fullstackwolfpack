@@ -201,7 +201,7 @@
 .dark {
     --hero-image: url('/images/hero-dark.webp');
     --hero-aspect: 3 / 2;
-    --creed-image: url('/images/creed-bg.png');
+    --creed-image: url('/images/creed-dark.webp');
     --path-banner: url('/images/footer-2.png');
     /* Dark keeps the plain foreground it already used. */
     --hero-title: oklch(0.985 0 0);
