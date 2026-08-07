@@ -147,6 +147,10 @@
        than --card-shadow, so the header and Akela stay the page's top layer. */
     --tile-shadow: 0 4px 18px rgb(0 0 0 / 0.07);
     --hero-image: url('/images/hero-light.jpg');
+    /* The join card's wolf-eyes plate. Same per-theme seam as the three above
+       — see `PathBanner`'s sibling in sections.tsx for why the mask that
+       carries it has to move when the plate does. */
+    --eyes-image: url('/images/akela-eyes.webp');
     /* Creed band art, per theme. Light gets its own high-key slice cut to the
        band's 6.9:1 — the dark neon plate it used to share reads as grey haze
        once knocked back far enough for the copy to sit over it. */
@@ -208,6 +212,7 @@
        agree, so writing the asset's numbers here makes any future re-crop that
        forgets this line show up as a visible trim rather than silently. */
     --banner-aspect: 2320 / 384;
+    --eyes-image: url('/images/eyes-dark.webp');
     /* Dark keeps the plain foreground it already used. */
     --hero-title: oklch(0.985 0 0);
     --background: oklch(0.14 0.014 268);
@@ -617,3 +622,68 @@
         0 6px 22px -5px rgb(232 24 24 / 0.48),
         0 14px 40px -12px rgb(215 15 15 / 0.4);
 }
+
+/* ── The join row's lit frame ──────────────────────────────────────────────
+   Dark only, and app-only: `ReadyToJoin` lives here rather than in @fw/ui, so
+   unlike the CTA block below there is no copy of this in packages/ui.
+
+   The mock's frame is not one flat rule. It is a dim #7a0406 line (the border
+   utility) that goes white-hot where it turns a corner, with smoke bleeding
+   inward off those same corners. Two pseudo-elements, because the section's
+   children are all spoken for and neither of these should be in the DOM:
+
+   ::before is the smoke: the corners bleeding inward, with a turbulence tile
+   as its alpha mask so the falloff breaks up instead of reading as four clean
+   vignettes. The irregularity is what sells it — a smooth gradient here looks
+   like a lighting bug, not like haze.
+
+   ::after is the shine. Tight px radials at the four corners over a ring masked
+   out of the box — px and not %, because the shine is a fixed ~30px feature and
+   a percentage would grow it with the card. The ring sits *inside* the border:
+   the section is `overflow-hidden` for the eyes plate, so nothing escapes
+   outward and the outward half of the glow stays the box-shadow's job.
+
+   The order matters and is the reason they are this way round: ::before paints
+   under the section's children and ::after over them. The haze is wide enough
+   to veil the mark and the log-in line if it sat on top; the ring is 2px at the
+   very edge and overlaps nothing. */
+
+.dark .join-frame::before,
+.dark .join-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+/* The smoke, under the section's children. */
+.dark .join-frame::before {
+    border-radius: inherit;
+    background:
+        radial-gradient(52px 42px at 0 0, rgb(255 150 110 / 0.42), transparent 72%),
+        radial-gradient(52px 42px at 100% 0, rgb(255 140 100 / 0.34), transparent 72%),
+        radial-gradient(52px 42px at 0 100%, rgb(255 145 105 / 0.38), transparent 72%),
+        radial-gradient(64px 50px at 100% 100%, rgb(255 155 115 / 0.46), transparent 72%);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200'%3E%3Cfilter id='n' x='-30%25' y='-30%25' width='160%25' height='160%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.07 0.20' numOctaves='3' seed='5' result='t' /%3E%3CfeColorMatrix in='t' type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0' /%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='2.4' intercept='-0.55' /%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='400' height='200' filter='url(%23n)' /%3E%3C/svg%3E");
+}
+
+/* The ring, over them — 2px at the very edge, so it overlaps nothing. */
+.dark .join-frame::after {
+    border-radius: inherit;
+    padding: 2px;
+    background:
+        radial-gradient(34px 26px at 0 0, rgb(255 248 244 / 1), rgb(255 132 84 / 0.6) 45%, transparent 78%),
+        radial-gradient(30px 24px at 100% 0, rgb(255 238 230 / 0.9), rgb(255 120 72 / 0.52) 45%, transparent 78%),
+        radial-gradient(30px 24px at 0 100%, rgb(255 242 236 / 0.95), rgb(255 124 76 / 0.55) 45%, transparent 78%),
+        radial-gradient(38px 28px at 100% 100%, rgb(255 250 248 / 1), rgb(255 138 90 / 0.62) 45%, transparent 78%),
+        /* Two soft brightenings away from the corners, off-centre and of
+           different length, so the rule is not obviously symmetrical. */
+        radial-gradient(120px 30px at 28% 100%, rgb(255 96 52 / 0.28), transparent 72%),
+        radial-gradient(100px 26px at 72% 0, rgb(255 96 52 / 0.22), transparent 72%);
+    mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    mask-composite: exclude;
+}
+
+
