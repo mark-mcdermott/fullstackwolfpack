@@ -327,12 +327,17 @@ export function ReadyToJoin() {
         <div className="flex flex-col items-start gap-2 md:items-center md:pr-32 lg:pr-56">
           {/* Tighter than the shared CTA, and tighter still vertically. The 2px
               padding split is load-bearing — it centres the caps on the bevel's
-              face, which sits 1px low whatever the padding. */}
+              face, which sits 1px low whatever the padding. Dark has to be
+              restated, not inherited: the shared class carries its own
+              `dark:pt-4 dark:pb-4`, which outranks the unprefixed pair here
+              and would grow this button to 52px. Same 20px total, halved for
+              a rim that is even top and bottom. The font size stays light's;
+              dark's is on the shared class, one size for all three. */}
           <Link
             to="/signup"
             className={cn(
               raisedCtaClass,
-              'cta-blaze px-4 pt-[11px] pb-[9px] text-[20px]/[20px]',
+              'cta-blaze px-4 pt-[11px] pb-[9px] text-[20px]/[20px] dark:pt-[10.5px] dark:pb-[9.5px]',
             )}
           >
             Create free account

@@ -33,6 +33,22 @@ export const raisedCtaClass = cn(
   // Line-height rides on the size utility: a bare `leading-none` did not take,
   // leaving a 1.5 line box that made the button 63px tall.
   'font-heading text-[24px]/[24px] font-light tracking-wide text-white uppercase [font-variation-settings:normal]',
+  // Dark sets its CTAs in the mono the launcher's field labels use ("Game
+  // mode"), at 14px and kept at light's 300. Geist Mono's caps are 0.755em, so
+  // that lands a 10.6px cap — the mock's is 10px, and it is the size the art
+  // is actually drawn at rather than a round multiple of the label's. Size
+  // only: the line-height stays on the unprefixed utility above, so both
+  // button heights are unchanged and the join row keeps its own 20px box.
+  // Measuring the mock settles what looks like an oversight — all three of its
+  // buttons carry the same cap height, so the join row takes this size too
+  // rather than a proportionally smaller one.
+  'dark:font-mono dark:text-[14px] dark:tracking-wider',
+  // And the 17/15 lean above goes with the bevel it was compensating for.
+  // Dark's rim is an even 1.5px, so its face centre *is* the box centre and
+  // the lean reads as a droop; 16/16 keeps the same 56px total. Note for any
+  // CTA that retunes the padding: this outranks an unprefixed pair, so such a
+  // button has to restate its own `dark:` padding or it grows in dark only.
+  'dark:pt-4 dark:pb-4',
   // No `border`: the outermost ring is the first inset in `--cta-edge`, so a
   // border would sit outside it and read as a sixth edge.
   'bg-[image:var(--cta-face)]',
