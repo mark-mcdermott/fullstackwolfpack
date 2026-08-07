@@ -268,11 +268,49 @@ export function WolfPath() {
 // size. The rider's ears sit 7px from the plate's top edge, so splitting that
 // trim across both edges clipped them; sending all of it to the bottom costs
 // only rooftop.
+// Dark runs the strip full bleed and square-cornered, the way the mock has it —
+// the one band on the page that breaks the card rhythm. Three notes on that:
+//
+//   · `mx-[calc(50%-50vw)]` is the full-bleed escape. The element is a block
+//     with auto width, so the two negative margins add the viewport back:
+//     container − 2(½container − ½vw) = vw. It outranks the unprefixed `-mx-5`
+//     and `sm:-mx-7` on specificity, so it holds at every breakpoint.
+//   · the height comes from the *art's own aspect* rather than a fixed
+//     120/150/178, so the band never crops while it is growing — a fixed height
+//     against a viewport-wide element turns 4:1 art into a 19:1 letterbox on an
+//     ultrawide and `cover` answers by throwing away most of the picture.
+//   · but it stops growing at 17.5rem. Every other block on the page is capped
+//     to the 1160px content column; letting the band keep pace with the
+//     *window* instead made it tower over its neighbours on a wide screen.
+//
+// Which is also why the art is the 6:1 crop rather than the mock's 4:1 one.
+// The mock's proportion assumes the band is as wide as the page — once it is as
+// wide as the *window* and the page is not, a 4:1 frame either towers or gets
+// cropped to a sliver, and at 1920 that sliver puts the rider's head on the top
+// edge. 6:1 is the shape a strip actually wants, which is what light's asset has
+// been all along. What the crop spends is the rooftop; what it keeps is the
+// rider and the sign.
+//
+// Dark takes the trim at 31% rather than inheriting `bg-top`'s 0%. Nothing
+// moves below ~1690px — there the band matches the art and no overflow exists —
+// but by 3440 the trim is 289px, and taking it all off the bottom pins the
+// rider's head to the top edge. 31% buys the head clearance while stopping
+// short of 50%, which starts cutting the ears off the wolf sign. It is a
+// percentage so the shift grows with the crop: 12px at 1920, 90px at 3440.
+// Dark-only because light's card overflows by just 14px, and the note above
+// about the rider's ears is exactly why that 14px all goes to the bottom.
+//
+// The `min-h` trio is the other end of the same ratio. A 6:1 frame is generous
+// on a wide screen and a sliver on a phone — 65px at 390 — so the floors hold
+// the heights the band already had below the crossover at ~1075px, and the
+// aspect takes over above it. Net effect is one ramp: 120 → 178 → 238 → 280.
+//   · light is untouched — it keeps the inset card, which is what its own mock
+//     shows, and both themes still read the same `--path-banner`.
 export function PathBanner() {
   return (
     <div
       aria-hidden="true"
-      className="-mx-5 h-[120px] rounded-2xl bg-[image:var(--path-banner)] bg-cover bg-top sm:-mx-7 sm:h-[150px] md:h-[178px]"
+      className="-mx-5 h-[120px] rounded-2xl bg-[image:var(--path-banner)] bg-cover bg-top sm:-mx-7 sm:h-[150px] md:h-[178px] dark:mx-[calc(50%-50vw)] dark:aspect-[var(--banner-aspect)] dark:h-auto dark:max-h-[17.5rem] dark:min-h-[120px] dark:rounded-none dark:bg-[position:50%_31%] sm:dark:min-h-[150px] md:dark:min-h-[178px]"
     />
   )
 }

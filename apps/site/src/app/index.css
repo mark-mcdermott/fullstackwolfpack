@@ -202,7 +202,12 @@
     --hero-image: url('/images/hero-dark.webp');
     --hero-aspect: 3 / 2;
     --creed-image: url('/images/creed-dark.webp');
-    --path-banner: url('/images/footer-2.png');
+    --path-banner: url('/images/motorcycle-dark.webp');
+    /* Drives the full-bleed strip's height (see `PathBanner`). It is the art's
+       own dimensions on purpose — the band only stays crop-free while the two
+       agree, so writing the asset's numbers here makes any future re-crop that
+       forgets this line show up as a visible trim rather than silently. */
+    --banner-aspect: 2320 / 384;
     /* Dark keeps the plain foreground it already used. */
     --hero-title: oklch(0.985 0 0);
     --background: oklch(0.14 0.014 268);
