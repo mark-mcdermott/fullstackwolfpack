@@ -79,9 +79,11 @@ export function FwFooter() {
             aria-label="Fullstack Wolfpack home"
             className="flex items-center gap-2.5"
           >
-            {/* Mark takes `text-foreground` like the header's and the join
-                row's; only the kana beside it stays primary. */}
-            <WolfMark className="h-6 text-foreground" />
+            {/* Light takes `text-foreground` like the header's; dark runs it
+                red, so the mark and the kana beside it read as one lockup
+                rather than a grey glyph next to a primary word — the same move
+                the join row's mark makes. */}
+            <WolfMark className="h-6 text-foreground dark:text-primary" />
             <span className="font-mono text-base font-bold text-primary">
               ウルフパック
             </span>
