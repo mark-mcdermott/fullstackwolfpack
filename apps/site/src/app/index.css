@@ -210,7 +210,12 @@
        middle of its own art — so centring dropped the wolf onto the headline and
        the layout needed a per-theme nudge to escape. Matching plates means one
        geometry for both themes and no nudge. */
-    --hero-image: url('/images/hero-dark.jpg');
+    /* WebP q30 off the source PNG, not a JPEG: at ~32KB it costs the same as a
+       3%-quality JPEG export but holds the sky together, where that JPEG blocked
+       into visible 8x8 tiles and dropped the birds. Matters more here than it
+       would elsewhere — this plate is mostly smooth gradient, which is JPEG's
+       worst case, and dark's contrast/saturate filters amplify the artifacts. */
+    --hero-image: url('/images/hero-dark.webp');
     --creed-image: url('/images/creed-dark.webp');
     --path-banner: url('/images/motorcycle-dark.webp');
     /* Drives the full-bleed strip's height (see `PathBanner`). It is the art's
