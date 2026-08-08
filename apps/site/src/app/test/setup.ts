@@ -32,6 +32,27 @@ Object.defineProperty(globalThis, 'localStorage', {
   configurable: true,
 })
 
+// jsdom does not implement matchMedia at all. ThemeToggle asks it whether the
+// OS prefers dark, so anything rendering the header or sidebar needs it to
+// exist. Reports light and never fires, which is the quiet default a test wants.
+// On `globalThis` and not `window`, like the storage stub above: this file also
+// loads for the suites that opt into the node environment, where there is no
+// `window` to define anything on.
+Object.defineProperty(globalThis, 'matchMedia', {
+  configurable: true,
+  value: (query: string): MediaQueryList =>
+    ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false,
+    }) as MediaQueryList,
+})
+
 afterEach(() => {
   cleanup()
 })
