@@ -61,24 +61,13 @@ export function HomeHero() {
             punch-up filters are dark-only — they were tuned for the neon plate
             and would blow out the high-key light one.
 
-            Centred everywhere except dark at md, where it anchors right. The
-            two plates are different shapes — light is 1280/650, dark 3/2 — so at
-            a given height dark is the narrower box (564px against 740px at md)
-            and its subject sits closer to the middle of its own art. Centred,
-            that lands the wolf on top of "Starts here". Anchoring right shifts
-            it clear by half the slack (~100px at 768) without cropping, since
-            the box matches the image's aspect and the mask already softens both
-            ends.
-
-            md only, in both directions. Below it the plate is *wider* than the
-            viewport (456px inside 390), so right-anchoring would drag the art
-            left — the wrong way — and at lg Akela's card occupies that right
-            edge. `translate-x-0` is what actually releases the centring:
-            Tailwind v4 writes `-translate-x-1/2` to the `translate` property,
-            so clearing `transform` leaves it in place. */}
+            Centred in both themes, at every width. That only works because the
+            two plates now share a composition and an exact size (1280x650), so
+            one `--hero-aspect` covers both and neither needs a per-theme nudge
+            to keep its subject off the headline. */}
         <div
           aria-hidden="true"
-          className="absolute inset-y-0 left-1/2 h-full w-auto -translate-x-1/2 aspect-[var(--hero-aspect)] bg-[image:var(--hero-image)] bg-cover bg-center bg-no-repeat [mask-image:linear-gradient(to_right,transparent_0%,black_15%,black_85%,transparent_100%)] dark:brightness-105 dark:contrast-[1.12] dark:saturate-[1.25] dark:md:max-lg:right-0 dark:md:max-lg:left-auto dark:md:max-lg:translate-x-0"
+          className="absolute inset-y-0 left-1/2 h-full w-auto -translate-x-1/2 aspect-[var(--hero-aspect)] bg-[image:var(--hero-image)] bg-cover bg-center bg-no-repeat [mask-image:linear-gradient(to_right,transparent_0%,black_15%,black_85%,transparent_100%)] dark:brightness-105 dark:contrast-[1.12] dark:saturate-[1.25]"
         />
 
         {/* Parked with XP_CHIPS above.

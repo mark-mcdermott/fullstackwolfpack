@@ -203,8 +203,14 @@
    and sit barely above the page, not as gray slabs on black. Every dark step is
    the same hue (~267) so nothing looks muddy next to the blue page glow. */
 .dark {
+    /* Only the palette differs now: the dark plate was recut to the light one's
+       composition and its exact 1280x650, so it inherits `--hero-aspect` rather
+       than overriding it. It used to be 3/2, which at a given height made it the
+       narrower box (564px against 740px at md) with its subject nearer the
+       middle of its own art — so centring dropped the wolf onto the headline and
+       the layout needed a per-theme nudge to escape. Matching plates means one
+       geometry for both themes and no nudge. */
     --hero-image: url('/images/hero-dark.webp');
-    --hero-aspect: 3 / 2;
     --creed-image: url('/images/creed-dark.webp');
     --path-banner: url('/images/motorcycle-dark.webp');
     /* Drives the full-bleed strip's height (see `PathBanner`). It is the art's
