@@ -420,7 +420,12 @@ function LauncherForm({
               // padding, and at ≥1150 it drops `w-full` so the width follows the
               // text rather than the column — right-aligned, so the histogram
               // above still lands on its trailing edge.
-              'w-full px-3 disabled:opacity-50 max-[430px]:w-auto md:max-lg:w-auto lg:max-[1150px]:mt-5 lg:max-[1150px]:w-auto min-[1150px]:w-fit min-[1150px]:self-end',
+              // Between lg and 1149 it takes the base `w-full` instead, which
+              // fills the `flex-1` column it already sits in: that column starts
+              // one row-gap after the learn field and ends on the card's padding,
+              // so filling it is what squares the button with the tile edge. It
+              // used to be `w-auto` and floated centred in that leftover space.
+              'w-full px-3 disabled:opacity-50 max-[430px]:w-auto md:max-lg:w-auto lg:max-[1150px]:mt-5 min-[1150px]:w-fit min-[1150px]:self-end',
               // Glow + expand as the mission kicks off (the launcher then fades out).
               starting && 'scale-[1.04] shadow-[0_0_45px] shadow-primary/70',
             )}
