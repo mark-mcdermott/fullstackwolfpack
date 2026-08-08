@@ -35,10 +35,10 @@ const NAV: {
 // Also the nav item's width, so the underline can't be the full 72px on phones
 // without the row overflowing — three fixed 72px cells plus the brand blow past
 // a 375px viewport.
-const UNDERLINE_WIDTH = 'w-11 sm:w-[72px]'
+const UNDERLINE_WIDTH = 'w-11 md:w-[72px]'
 
 // Item width is the underline's, so centre-to-centre spacing is 72 + gap.
-const NAV_GAP = 'sm:gap-[36px]'
+const NAV_GAP = 'md:gap-[36px]'
 
 export function FwHeader() {
   // While a mission is on screen, clicking the brand leaves it (same as the
@@ -61,10 +61,18 @@ export function FwHeader() {
           card's edges land exactly on the tiles' edges below. Left bare in dark,
           where the bar is full-bleed and there is no card edge to align. */}
       <div className="mx-auto w-full max-w-page light:px-5 light:pt-3 sm:light:px-7 sm:light:pt-4">
-        {/* Brand + nav + toggle all refuse to shrink, so below `sm` every gap and
-            type step tightens instead — the row overflowed the viewport on 320–370px
-            phones otherwise. */}
-        <div className="flex items-center justify-between gap-2 px-3 py-2 sm:gap-4 sm:px-9 sm:py-4 light:rounded-xl light:border light:border-border light:bg-[#f7f3f2] light:shadow-[var(--card-shadow)]">
+        {/* Brand + nav + toggle all refuse to shrink, so below the roomy step
+            every gap and type size tightens instead — the row overflowed the
+            viewport on 320–370px phones otherwise.
+
+            That step is `md`, not `sm`. Roomy needs ~756px (the nav alone goes
+            164→288 when the underline hits 72px and the gap 36px, and the health
+            readout and its divider appear beside it), so firing it at 640 put
+            116px of bar past the edge and only came right at 768. The compact
+            form needs ~633px, so it covers the whole 640–767 band with room
+            over. Only the bar row moves; the light card's own `sm:` padding on
+            the wrapper above stays, since it is pinned to <main>'s. */}
+        <div className="flex items-center justify-between gap-2 px-3 py-2 md:gap-4 md:px-9 md:py-4 light:rounded-xl light:border light:border-border light:bg-[#f7f3f2] light:shadow-[var(--card-shadow)]">
           {/* Brand. `flex-1` on the two outer cells (basis 0, equal grow) is what
               centres the nav in the bar; `justify-between` alone would let the
               wider brand push it off-centre. */}
@@ -76,9 +84,9 @@ export function FwHeader() {
                 missionExit()
               }
             }}
-            className="flex flex-1 shrink-0 items-center gap-2 sm:gap-[14px]"
+            className="flex flex-1 shrink-0 items-center gap-2 md:gap-[14px]"
           >
-            <WolfMark className="h-12 text-foreground sm:h-[60px]" />
+            <WolfMark className="h-12 text-foreground md:h-[60px]" />
             {/* Two gotchas on the wordmark. The line-height has to ride on the
                 same utility as the font size — a named `text-*` step ships its own
                 and would override a `leading-*` inherited from this wrapper. And
@@ -87,25 +95,35 @@ export function FwHeader() {
                 `font-medium` renders at 400 like everything else. Teko is a
                 variable face carrying 300–700 in one file, so 500 costs nothing
                 extra to load. */}
-            <span className="flex flex-col font-heading">
-              <span className="text-xl/[0.8] font-medium tracking-[0.08em] text-foreground [font-variation-settings:normal] sm:text-[26px]/[24px]">
+            {/* Mark only on the narrowest phones. Brand + nav + toggle need
+                ~341px and light has 40px less than dark to give (the card's
+                own gutter), so light broke at 375 while dark still fit; hiding
+                the wordmark buys ~78px and clears both, with the nav gap below
+                taking the last few for 320. The threshold is 400 rather than a
+                named step because that is where the measurement turns — light
+                is clean at 390 — and `sm` would have dropped the wordmark off
+                tablets that have room for it twice over. */}
+            <span className="hidden flex-col font-heading min-[400px]:flex">
+              <span className="text-xl/[0.8] font-medium tracking-[0.08em] text-foreground [font-variation-settings:normal] md:text-[26px]/[24px]">
                 FULLSTACK
               </span>
-              <span className="text-xl/[0.8] font-medium tracking-[0.08em] text-foreground [font-variation-settings:normal] sm:text-[26px]/[24px]">
+              <span className="text-xl/[0.8] font-medium tracking-[0.08em] text-foreground [font-variation-settings:normal] md:text-[26px]/[24px]">
                 WOLFPACK
               </span>
               {/* Katakana, not Teko — the display face has no kana, so this line
                   falls through to the sans stack. `font-variation-settings: normal`
                   opts it out of the heading font's pinned 400 axis (theme.css),
                   which would otherwise swallow the weight bump. */}
-              <span className="mt-[4px] text-[11px] font-bold tracking-wider text-primary [font-variation-settings:normal] sm:text-[15px]/[15px]">
+              <span className="mt-[4px] text-[11px] font-bold tracking-wider text-primary [font-variation-settings:normal] md:text-[15px]/[15px]">
                 ウルフパック
               </span>
             </span>
           </NavLink>
 
           {/* Primary nav */}
-          <nav className={cn('flex items-center gap-4', NAV_GAP)}>
+          {/* The tighter gap rides the same 400px threshold as the wordmark: it
+              is the last 8px that gets a 320px viewport under the line. */}
+          <nav className={cn('flex items-center gap-3 min-[400px]:gap-4', NAV_GAP)}>
             {NAV.map(({ to, label, end, minWidth }) => (
               <NavLink
                 key={to}
@@ -125,7 +143,7 @@ export function FwHeader() {
                         the underline carries the accent. */}
                     <span
                       className={cn(
-                        'font-heading text-lg tracking-wide uppercase transition-colors sm:text-2xl',
+                        'font-heading text-lg tracking-wide uppercase transition-colors md:text-2xl',
                         isActive
                           ? 'text-foreground'
                           : 'text-muted-foreground group-hover:text-foreground',
@@ -158,13 +176,13 @@ export function FwHeader() {
           </nav>
 
           {/* Latency readout + API health + light/dark toggle */}
-          <div className="flex flex-1 items-center justify-end gap-2 sm:gap-[23px]">
+          <div className="flex flex-1 items-center justify-end gap-2 md:gap-[23px]">
             {/* <LatencyReadout /> */}
-            <span className="hidden items-center gap-3.5 font-mono text-[13px] text-foreground sm:flex">
+            <span className="hidden items-center gap-3.5 font-mono text-[13px] text-foreground md:flex">
               <span className="size-2.5 rounded-full bg-green-500" />
               Healthy
             </span>
-            <span className="hidden h-[38px] w-px bg-border sm:block" />
+            <span className="hidden h-[38px] w-px bg-border md:block" />
             {/* The arbitrary variant sizes the icon, which ThemeToggle otherwise
                 fixes at `size-4`. `-mx-2` cancels the button's own padding for
                 layout — so it lines up as if it were just the glyph — while the

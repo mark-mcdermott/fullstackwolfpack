@@ -61,13 +61,35 @@ export function HomeHero() {
             punch-up filters are dark-only — they were tuned for the neon plate
             and would blow out the high-key light one.
 
-            Centred in both themes, at every width. That only works because the
-            two plates now share a composition and an exact size (1280x650), so
-            one `--hero-aspect` covers both and neither needs a per-theme nudge
-            to keep its subject off the headline. */}
+            Placed the same way in both themes, at every width. That only works
+            because the two plates now share a composition and an exact size
+            (1280x650), so one `--hero-aspect` covers both and neither needs a
+            per-theme nudge to keep its subject off the headline.
+
+            The wolf sits at ~51.5% of the artwork, so centring the plate centres
+            *him* — which is right at lg and up, where Akela's card overlays the
+            plate's right end and leaves him at ~73% of the visible band, but
+            reads as dead-centre below lg, where nothing overlays and the whole
+            plate is the visible band. So below lg he is placed directly: `left`
+            is where he should land in the plate and the translate is where he
+            already sits in the art, which puts him at that same 73% at every
+            width without a per-breakpoint nudge.
+
+            He lands right of the headline rather than on it, so the art's left
+            edge pulls in past the plate at the wider end of this range. That is
+            the mask's left fade doing its job — the plate is transparent, so the
+            art ramps into the page behind the headline instead of butting
+            against it. Zooming the art to fill that edge instead was the
+            alternative, and it cost the rooftop and the moon.
+
+            sm and md take a deeper translate. `left` is subtracted from, so past
+            51.5% the art walks back left and takes the wolf with it — he settles
+            near 65% instead of 73%, and the left edge pulls in that much less.
+            This is the band where the plate is widest with nothing overlaying
+            it, so it is the one that carries the most bare edge. */}
         <div
           aria-hidden="true"
-          className="absolute inset-y-0 left-1/2 h-full w-auto -translate-x-1/2 aspect-[var(--hero-aspect)] bg-[image:var(--hero-image)] bg-cover bg-center bg-no-repeat [mask-image:linear-gradient(to_right,transparent_0%,black_15%,black_85%,transparent_100%)] dark:brightness-105 dark:contrast-[1.12] dark:saturate-[1.25]"
+          className="absolute inset-y-0 left-[73%] h-full w-auto -translate-x-[51.5%] aspect-[var(--hero-aspect)] bg-[image:var(--hero-image)] bg-cover bg-center bg-no-repeat [mask-image:linear-gradient(to_right,transparent_0%,black_15%,black_85%,transparent_100%)] sm:-translate-x-[60%] lg:left-1/2 lg:-translate-x-1/2 dark:brightness-105 dark:contrast-[1.12] dark:saturate-[1.25]"
         />
 
         {/* Parked with XP_CHIPS above.

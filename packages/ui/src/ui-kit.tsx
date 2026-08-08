@@ -141,15 +141,25 @@ export function Pill({
 // It stays `pointer-events-none` so it can never eat a click meant for the
 // trigger underneath, and `aria-hidden` because the trigger's own `aria-label`
 // already carries the text — announcing both just says it twice.
+// `align` is for triggers that sit hard against the right edge of their bar. A
+// centred bubble hangs half its width past the trigger, which off the last
+// control in a row is half a bubble past the viewport — real horizontal
+// overflow, and it counts even while the tooltip is invisible, because it is
+// hidden with opacity rather than `display`. `align="end"` pins its right edge
+// to the trigger's instead, the same thing ThemeToggle's menu does with
+// `right-0`. The pointer stays centred on the trigger either way — it points at
+// the control, not at the bubble.
 export function Tooltip({
   label,
   side = 'bottom',
+  align = 'center',
   disabled = false,
   children,
   className,
 }: {
   label: string
   side?: 'top' | 'bottom'
+  align?: 'center' | 'end'
   disabled?: boolean
   children: ReactNode
   className?: string
@@ -170,7 +180,8 @@ export function Tooltip({
           <span
             aria-hidden="true"
             className={cn(
-              'pointer-events-none absolute left-1/2 z-50 -translate-x-1/2 px-2.5 py-1.5 whitespace-nowrap',
+              'pointer-events-none absolute z-50 px-2.5 py-1.5 whitespace-nowrap',
+              align === 'end' ? 'right-0' : 'left-1/2 -translate-x-1/2',
               'font-mono text-[10px] leading-none tracking-[0.18em] uppercase',
               'text-background dark:text-foreground',
               fill,
