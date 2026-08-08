@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router'
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router'
 import { AppLayout } from '@/components/layout/app-layout'
 import { AuthChromeLayout } from '@/components/layout/auth-chrome-layout'
 import { GuestLayout } from '@/components/layout/guest-layout'
@@ -81,8 +81,25 @@ function App() {
         </Route>
       </Route>
 
+      {/* `/learn` was renamed `/skill`. A redirect rather than an alias, so the
+          rename leaves one canonical URL behind it — but old links, bookmarks
+          and any shared lesson URL still land. Outside GuestLayout on purpose:
+          nothing should paint on the way through. */}
+      <Route path="/learn" element={<LegacySkillRedirect />} />
+      <Route path="/learn/:lessonId" element={<LegacySkillRedirect />} />
+
       <Route path="*" element={<NotFound />} />
     </Routes>
+  )
+}
+
+// Carries the lesson id and the query across, since `/learn?topic=` was a real
+// link on the browse page and `/learn/:id` was every shared lesson URL.
+function LegacySkillRedirect() {
+  const { lessonId } = useParams()
+  const { search } = useLocation()
+  return (
+    <Navigate to={`/skill${lessonId ? `/${lessonId}` : ''}${search}`} replace />
   )
 }
 

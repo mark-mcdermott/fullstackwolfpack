@@ -259,12 +259,15 @@ const path = Astro.url.pathname
             <span class="flex items-center gap-1.5">
               API
               <span class="size-1.5 rounded-full bg-green-500"></span>
-              Healthy
+              <span class="text-blue-600 dark:text-blue-400">Healthy</span>
             </span>
             <span>Build v0.1.0</span>
             <span>Deployed 2h ago</span>
-            <span>Env Production</span>
-            <span>&copy; 2026</span>
+            <span>Env: Production</span>
+            {/* Build-time, not request-time: these pages are prerendered, so the
+                year is stamped at deploy. Still better than the literal that was
+                here, which could only ever be wrong. */}
+            <span>&copy; {new Date().getFullYear()}</span>
           </div>
         </div>
       </div>
