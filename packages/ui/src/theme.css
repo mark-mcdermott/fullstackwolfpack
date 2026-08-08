@@ -3,6 +3,17 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/geist-mono";
+
+/* This package's own components are a content source, not just a token file.
+   Tailwind auto-detects sources relative to the *entry* stylesheet, so the app
+   that imports this one (apps/site/src/styles/global.css → the Astro pages)
+   scans apps/site and never looks in here — and any utility used only by a
+   @fw/ui component silently failed to generate for that bundle. ThemeToggle is
+   the one @fw/ui component the .astro layout renders, so it was the one that
+   broke: `bg-popover` resolved to transparent and `min-w-36` to 0.
+   The React applet's index.css already declares this via its own @source; this
+   makes the package self-describing so every consumer gets it. */
+@source "./";
 /* Teko, declared by hand rather than via @fontsource's stylesheet so its
    vertical metrics can be overridden. Teko ships ascent 95.8% / descent 45.8%,
    but its capitals only reach 62.5% — so all-caps text carries 8px of slack

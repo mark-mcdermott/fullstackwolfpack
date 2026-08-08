@@ -90,7 +90,9 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <Barcode className="mt-2" />
         </Panel>
         <div className="flex gap-2">
-          <ThemeToggle />
+          {/* Opens upward: this row is the last thing in an `mt-auto` block, so
+              it sits on the sidebar's bottom edge and downward is off the end. */}
+          <ThemeToggle side="top" />
           <button
             type="button"
             onClick={() => void signOut()}

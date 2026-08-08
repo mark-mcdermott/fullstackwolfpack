@@ -168,8 +168,11 @@ export function FwHeader() {
             {/* The arbitrary variant sizes the icon, which ThemeToggle otherwise
                 fixes at `size-4`. `-mx-2` cancels the button's own padding for
                 layout — so it lines up as if it were just the glyph — while the
-                button keeps its full 44px tap target. */}
-            <ThemeToggle className="-mx-2 [&_svg]:size-7" />
+                button keeps its full 44px tap target.
+                Scoped to the trigger by its data attribute: a bare `[&_svg]`
+                is a descendant selector, so it also caught the icons in the
+                open menu — and at 0,1,1 it outranked their own `size-3.5`. */}
+            <ThemeToggle className="-mx-2 [&_[data-theme-trigger]_svg]:size-7" />
             {/* Parked with the rest of the guest CTA work.
             {!user && (
               <Link

@@ -1,15 +1,20 @@
-import { SunMoon } from 'lucide-react'
+import { Monitor, Moon, Sun, SunMoon, type LucideIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { Tooltip } from './ui-kit'
 import { cn } from './utils'
 
 // What the user picked, which is not the same as which theme is showing:
 // `system` resolves against the OS and can change under us while it is selected.
 export type ThemeChoice = 'light' | 'dark' | 'system'
 
-const OPTIONS: { value: ThemeChoice; emoji: string; label: string }[] = [
-  { value: 'light', emoji: '☀️', label: 'Light' },
-  { value: 'dark', emoji: '🌙', label: 'Dark' },
-  { value: 'system', emoji: '💻', label: 'System' },
+// Lucide rather than emoji: the emoji were the one place in the kit that
+// rendered as full-colour vendor art, so they ignored `currentColor` and could
+// not go red on selection, and their glyph widths disagreed enough that the
+// three labels never lined up. These inherit colour and all measure the same.
+const OPTIONS: { value: ThemeChoice; icon: LucideIcon; label: string }[] = [
+  { value: 'light', icon: Sun, label: 'Light' },
+  { value: 'dark', icon: Moon, label: 'Dark' },
+  { value: 'system', icon: Monitor, label: 'System' },
 ]
 
 const STORAGE_KEY = 'theme'
@@ -45,7 +50,16 @@ function applyChoice(choice: ThemeChoice) {
 // carries clsx and tailwind-merge and nothing else, and three static options do
 // not justify a dependency. What that costs is the keyboard and dismiss
 // behaviour a real menu gives for free, so it is all written out below.
-export function ThemeToggle({ className }: { className?: string }) {
+export function ThemeToggle({
+  className,
+  side = 'bottom',
+}: {
+  className?: string
+  // Which way the menu and the tooltip open. Both follow the one prop because
+  // both are anchored to the same button: in the sidebar the control is pinned
+  // to the bottom edge by `mt-auto`, so downward is off the end of the panel.
+  side?: 'top' | 'bottom'
+}) {
   const [choice, setChoice] = useState<ThemeChoice>('system')
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
@@ -110,27 +124,60 @@ export function ThemeToggle({ className }: { className?: string }) {
     itemsRef.current[next]?.focus()
   }
 
+  const current = OPTIONS.find((o) => o.value === choice) ?? OPTIONS[2]
+
   return (
     <div ref={rootRef} className={cn('relative', className)}>
-      <button
-        ref={buttonRef}
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        aria-label="Theme"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        className="inline-flex items-center justify-center p-2 text-muted-foreground transition-colors hover:text-primary"
-      >
-        <SunMoon className="size-4" />
-      </button>
+      {/* Suppressed while the menu is open: the menu is a descendant of this
+          root, so hovering an item still counts as hovering the trigger and the
+          tooltip would sit over the list it is describing. */}
+      <Tooltip label={`${current.label} mode`} side={side} disabled={open}>
+        <button
+          ref={buttonRef}
+          type="button"
+          data-theme-trigger=""
+          onClick={() => setOpen((o) => !o)}
+          // Carries the mode as well as the control's name, because the visual
+          // tooltip is `aria-hidden` — this is where that text reaches a screen
+          // reader. `aria-label` overrides the icon entirely, so nothing is lost
+          // by the glyph itself staying constant.
+          aria-label={`Theme: ${current.label.toLowerCase()} mode`}
+          aria-haspopup="menu"
+          aria-expanded={open}
+          className={cn(
+            'inline-flex items-center justify-center p-2 transition-colors',
+            open ? 'text-primary' : 'text-muted-foreground hover:text-primary',
+          )}
+        >
+          <SunMoon className="size-4" />
+        </button>
+      </Tooltip>
 
       {open && (
         <div
           role="menu"
           aria-label="Theme"
-          className="absolute right-0 z-50 mt-1 min-w-36 overflow-hidden rounded-md border border-border bg-popover py-1 text-popover-foreground shadow-lg"
+          className={cn(
+            'absolute right-0 z-50 w-44 p-1',
+            side === 'bottom' ? 'top-full mt-2' : 'bottom-full mb-2',
+            // Square, ruled and cast-shadowed: the kit's panels have hard edges,
+            // and the old `rounded-md` + soft `shadow-lg` was the generic popover
+            // look rather than this one.
+            'border border-border bg-card text-foreground',
+            'light:shadow-[4px_4px_0_rgb(0_0_0/0.07)]',
+            // Dark takes the glass treatment instead of the cast shadow: the
+            // card colour thinned out over a blur, a hairline of lit edge along
+            // the top (the `::before`, which light never renders), and depth
+            // from a wide soft drop rather than a hard offset one.
+            'dark:border-white/12 dark:bg-card/75 dark:shadow-[0_20px_50px_-20px_rgb(0_0_0/0.9)] dark:backdrop-blur-xl',
+            'dark:before:pointer-events-none dark:before:absolute dark:before:inset-x-0 dark:before:top-0 dark:before:h-px',
+            'dark:before:bg-gradient-to-r dark:before:from-transparent dark:before:via-white/25 dark:before:to-transparent',
+          )}
         >
-          {OPTIONS.map(({ value, emoji, label }, index) => (
+          <p className="px-2 pt-1.5 pb-2 font-mono text-[9px] tracking-[0.2em] text-primary uppercase">
+            // Theme
+          </p>
+          {OPTIONS.map(({ value, icon: Icon, label }, index) => (
             <button
               key={value}
               ref={(el) => {
@@ -146,17 +193,19 @@ export function ThemeToggle({ className }: { className?: string }) {
               }}
               onKeyDown={(event) => onItemKeyDown(event, index)}
               className={cn(
-                'flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:outline-none',
-                choice === value && 'font-medium text-foreground',
+                'flex w-full items-center gap-2.5 px-2 py-2 text-left transition-colors',
+                'font-mono text-[11px] tracking-[0.14em] uppercase',
+                'hover:bg-foreground/[0.05] hover:text-foreground dark:hover:bg-white/[0.07]',
+                'focus-visible:bg-foreground/[0.07] focus-visible:outline-none dark:focus-visible:bg-white/[0.09]',
+                choice === value ? 'text-primary' : 'text-muted-foreground',
               )}
             >
-              {/* Hidden from assistive tech: the label already says "Light",
-                  and the emoji name read aloud in front of it only adds noise.
-                  The gap is a flex gap rather than a literal space so it does
-                  not depend on the glyph's own advance, which differs per
-                  emoji — the laptop sits tighter than the sun. */}
-              <span aria-hidden="true">{emoji}</span>
+              <Icon className="size-3.5 shrink-0" aria-hidden="true" />
               <span>{label}</span>
+              {/* The selected marker. A filled square rather than a tick: it is
+                  the kit's own status glyph (the sidebar's "online" dot, the
+                  stat tiles), and it reads at 6px where a tick would not. */}
+              {choice === value && <span className="ml-auto size-1.5 bg-primary" />}
             </button>
           ))}
         </div>
