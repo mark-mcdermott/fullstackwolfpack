@@ -30,9 +30,17 @@ const XP_CHIPS: { className: string; tone: string }[] = [
 // launcher's button sits well below the fold.
 export function HomeHero() {
   return (
-    // `-mb-6` cancels the page stack's gap so the plate's bottom edge meets the
-    // tile below it rather than floating clear of it.
-    <section className="-mb-6 grid gap-6 lg:grid-cols-[1fr_20rem]">
+    // Two layouts, one tree. At lg this is the grid that lets Akela's card
+    // overlay the plate, and `-mb-6` cancels the page stack's gap so the plate's
+    // bottom edge meets the tile below it rather than floating clear of it.
+    //
+    // Below lg it is `display: contents` — the section stops generating a box,
+    // so the plate and Akela become children of the page stack itself (a
+    // `flex flex-col gap-6` in guest-home) and can be ordered against the
+    // launcher that follows them. That is the only way to get Akela *below* the
+    // launcher without hoisting it out of this component: `order` cannot reach
+    // across a wrapper element. The stack's own gap-6 replaces this grid's.
+    <section className="contents lg:-mb-6 lg:grid lg:gap-6 lg:grid-cols-[1fr_20rem]">
       {/* Splash. It breaks out of <main>'s px-5/py-6 with matching negative
           margins, so the plate runs edge to edge of the main column and flush
           under the header. At lg it spans both grid columns and Akela's card
@@ -40,10 +48,12 @@ export function HomeHero() {
           Below lg the two stack instead: the plate is a fixed box (740px at md,
           not viewport-tracking), so a 320px card sitting on it buried 42-45% of
           the art — and in light that is exactly where the seated figure is.
+          `max-lg:-mb-6` carries the flush bottom edge once the section is
+          `contents` and its own -mb-6 no longer applies.
           Transparent, not `bg-card`: the panel sits over the page itself. */}
       <Panel
         brackets={false}
-        className="relative -mx-5 -mt-6 min-h-[19rem] overflow-hidden rounded-none border-0 bg-transparent p-0 sm:-mx-7 md:min-h-[22rem] lg:col-span-2 lg:col-start-1 lg:row-start-1 lg:min-h-[28rem]"
+        className="relative -mx-5 -mt-6 min-h-[19rem] overflow-hidden rounded-none border-0 bg-transparent p-0 max-lg:-mb-6 sm:-mx-7 md:min-h-[22rem] lg:col-span-2 lg:col-start-1 lg:row-start-1 lg:min-h-[28rem]"
       >
         {/* Decorative, so the art rides on a background rather than an <img>:
             the theme picks the plate via `--hero-image` (index.css), which keeps
@@ -114,7 +124,7 @@ export function HomeHero() {
           is light beside a light hero rather than a black slab. */}
       <Panel
         brackets={false}
-        className="relative z-10 flex flex-col overflow-hidden rounded-2xl p-0 light:border-[#dbd7d7] light:bg-[#f7f4f3] light:shadow-[var(--card-shadow)] lg:col-start-2 lg:row-start-1 lg:mb-6"
+        className="relative z-10 flex flex-col overflow-hidden rounded-2xl p-0 light:border-[#dbd7d7] light:bg-[#f7f4f3] light:shadow-[var(--card-shadow)] max-lg:order-1 lg:col-start-2 lg:row-start-1 lg:mb-6"
       >
         {/* Base fill behind the portrait — it is a cutout on transparency, and
             in the lg column layout Akela shrinks to the right besides. Follows
