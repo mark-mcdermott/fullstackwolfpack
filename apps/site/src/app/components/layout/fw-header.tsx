@@ -95,7 +95,15 @@ export function FwHeader() {
                 `font-medium` renders at 400 like everything else. Teko is a
                 variable face carrying 300–700 in one file, so 500 costs nothing
                 extra to load. */}
-            <span className="flex flex-col font-heading">
+            {/* Mark only on the narrowest phones. Brand + nav + toggle need
+                ~341px and light has 40px less than dark to give (the card's
+                own gutter), so light broke at 375 while dark still fit; hiding
+                the wordmark buys ~78px and clears both, with the nav gap below
+                taking the last few for 320. The threshold is 400 rather than a
+                named step because that is where the measurement turns — light
+                is clean at 390 — and `sm` would have dropped the wordmark off
+                tablets that have room for it twice over. */}
+            <span className="hidden flex-col font-heading min-[400px]:flex">
               <span className="text-xl/[0.8] font-medium tracking-[0.08em] text-foreground [font-variation-settings:normal] md:text-[26px]/[24px]">
                 FULLSTACK
               </span>
@@ -113,7 +121,9 @@ export function FwHeader() {
           </NavLink>
 
           {/* Primary nav */}
-          <nav className={cn('flex items-center gap-4', NAV_GAP)}>
+          {/* The tighter gap rides the same 400px threshold as the wordmark: it
+              is the last 8px that gets a 320px viewport under the line. */}
+          <nav className={cn('flex items-center gap-3 min-[400px]:gap-4', NAV_GAP)}>
             {NAV.map(({ to, label, end, minWidth }) => (
               <NavLink
                 key={to}
