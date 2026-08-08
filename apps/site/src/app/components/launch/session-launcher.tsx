@@ -265,13 +265,13 @@ function LauncherForm({
       {/* The row gap only ever shows once this wraps. Between md and 1023 the
           button is the wrapped line and 24px reads as a hole above it — the same
           range that already takes it to half width, so the two go together. */}
-      <div className="flex flex-wrap items-start gap-x-4 gap-y-6 min-[430px]:max-md:grid min-[430px]:max-md:grid-cols-2 min-[430px]:max-md:items-start min-[430px]:max-md:gap-y-4 md:max-[1023px]:flex-nowrap md:max-[1023px]:gap-y-2 md:max-[1149px]:justify-center min-[1150px]:flex-nowrap min-[1150px]:justify-between">
+      <div className="flex flex-wrap items-start gap-x-4 gap-y-6 min-[430px]:max-md:grid min-[430px]:max-md:grid-cols-2 min-[430px]:max-md:items-start min-[430px]:max-md:gap-y-4 md:max-lg:flex-nowrap md:max-lg:gap-y-2 md:max-[1150px]:justify-center min-[1150px]:flex-nowrap min-[1150px]:justify-between">
         {/* game + skill — full-width stacked cards below md; fluid width sharing
             the md single line (title wraps as they narrow); fixed w-52 at
             >=1024. */}
         <Control
           label="Game"
-          className="w-full min-w-0 min-[430px]:max-md:w-auto md:max-[1023px]:w-auto md:max-[1023px]:min-w-0 md:max-[1023px]:flex-1 lg:w-52"
+          className="w-full min-w-0 min-[430px]:max-md:w-auto md:max-lg:w-auto md:max-lg:min-w-0 md:max-lg:flex-1 lg:w-52"
         >
           <SelectCard
             icon={
@@ -298,7 +298,7 @@ function LauncherForm({
 
         <Control
           label="Skill"
-          className="w-full min-w-0 min-[430px]:max-md:w-auto md:max-[1023px]:w-auto md:max-[1023px]:min-w-0 md:max-[1023px]:flex-1 lg:w-52"
+          className="w-full min-w-0 min-[430px]:max-md:w-auto md:max-lg:w-auto md:max-lg:min-w-0 md:max-lg:flex-1 lg:w-52"
         >
           <SelectCard
             icon={
@@ -317,13 +317,13 @@ function LauncherForm({
         </Control>
 
         {/* Shown only at >=1150. */}
-        <Control label="Difficulty" className="max-[1149px]:hidden">
+        <Control label="Difficulty" className="max-[1150px]:hidden">
           <RatingStars rating={currentTopic ? LEVEL_RATING[level] : null} />
         </Control>
 
         {/* play + learn — a centered row of their own below md; inline on the
             shared line at md and up. */}
-        <div className="flex items-start gap-2 max-[767px]:w-full max-[767px]:justify-center min-[430px]:max-md:contents">
+        <div className="flex items-start gap-2 max-md:w-full max-md:justify-center min-[430px]:max-md:contents">
           <Control label={first.label} className="min-w-0">
             <TimeStepper
               value={first.value}
@@ -332,7 +332,7 @@ function LauncherForm({
               className="min-[430px]:max-md:w-full"
             />
           </Control>
-          <div className="flex flex-col gap-1.5 min-[430px]:max-[1023px]:hidden">
+          <div className="flex flex-col gap-1.5 min-[430px]:max-lg:hidden">
             <FieldLabel aria-hidden="true" className="opacity-0">
               swap
             </FieldLabel>
@@ -362,8 +362,8 @@ function LauncherForm({
             column (histogram right edge lines up with the button); the XP
             readout is the first to drop (768–1149), and START then goes inline
             at the end of the row. */}
-        <div className="flex flex-col items-center gap-1 max-[1023px]:w-full min-[430px]:max-md:col-span-2 md:max-[1023px]:w-auto md:max-[1023px]:shrink-0 lg:max-[1149px]:flex-1 lg:max-[1149px]:flex-row lg:max-[1149px]:items-end lg:max-[1149px]:justify-center lg:max-[1149px]:gap-4 min-[1150px]:items-stretch min-[1150px]:w-52">
-          <div className="flex flex-col gap-1.5 max-[1149px]:hidden">
+        <div className="flex flex-col items-center gap-1 max-lg:w-full min-[430px]:max-md:col-span-2 md:max-lg:w-auto md:max-lg:shrink-0 lg:max-[1150px]:flex-1 lg:max-[1150px]:flex-row lg:max-[1150px]:items-end lg:max-[1150px]:justify-center lg:max-[1150px]:gap-4 min-[1150px]:items-stretch min-[1150px]:w-52">
+          <div className="flex flex-col gap-1.5 max-[1150px]:hidden">
             <FieldLabel>Reward</FieldLabel>
             <div className="flex h-12 items-center">
               {ready ? (
@@ -406,7 +406,7 @@ function LauncherForm({
               // padding, and at ≥1150 it drops `w-full` so the width follows the
               // text rather than the column — right-aligned, so the histogram
               // above still lands on its trailing edge.
-              'w-full px-3 disabled:opacity-50 max-[429px]:w-auto md:max-[1023px]:w-auto lg:max-[1149px]:mt-5 lg:max-[1149px]:w-auto min-[1150px]:w-fit min-[1150px]:self-end',
+              'w-full px-3 disabled:opacity-50 max-[430px]:w-auto md:max-lg:w-auto lg:max-[1150px]:mt-5 lg:max-[1150px]:w-auto min-[1150px]:w-fit min-[1150px]:self-end',
               // Glow + expand as the mission kicks off (the launcher then fades out).
               starting && 'scale-[1.04] shadow-[0_0_45px] shadow-primary/70',
             )}
@@ -477,7 +477,12 @@ function SelectCard({
       onClick={onClick}
       className="flex h-16 w-full items-center gap-2.5 rounded-lg border border-border bg-card px-2.5 text-left transition-colors hover:border-primary focus-visible:border-primary focus-visible:outline-none light:shadow-[var(--field-shadow)]"
     >
-      {icon}
+      {/* The card is at its narrowest on the md single line (131px at 768) —
+          narrower even than the two-column band. The leading square is what
+          gives way there: it is decorative next to a title that already names
+          the choice. `contents` so the wrapper is transparent at every other
+          width; `hidden` drops the subtree and its flex gap together. */}
+      <span className="contents md:max-lg:hidden">{icon}</span>
       <div className="min-w-0 flex-1">
         {/* 2x title on the big stacked mobile cards; normal size but wrapping
             once the cards are a narrow column (430 up — the two-column band and
@@ -489,16 +494,11 @@ function SelectCard({
           {title}
         </div>
         {/* "Ready to play / learn" — hidden below 1024. */}
-        <div className="truncate font-mono text-[11px] text-muted-foreground max-[1023px]:hidden">
+        <div className="truncate font-mono text-[11px] text-muted-foreground max-lg:hidden">
           {subtitle}
         </div>
       </div>
-      {/* Hidden across the two-column band: the cards are at their narrowest
-          there (166px at the 430 floor), and the caret is the one part that can
-          go without losing meaning — the whole card is the button, and it keeps
-          its hover/focus border either way. Everything else in it either names
-          the choice or is the choice. */}
-      <ChevronRight className="size-4 shrink-0 text-hero-title min-[430px]:max-md:hidden" />
+      <ChevronRight className="size-4 shrink-0 text-hero-title" />
     </button>
   )
 }
