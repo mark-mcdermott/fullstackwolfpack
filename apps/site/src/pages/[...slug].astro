@@ -6,6 +6,7 @@
 export const prerender = false
 import AppRoot from '@/AppRoot'
 import '@/index.css'
+import { THEME_BOOT } from '../lib/theme-boot'
 ---
 
 <!doctype html>
@@ -15,14 +16,7 @@ import '@/index.css'
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fullstack Wolfpack</title>
-    <script is:inline>
-      // Apply the saved theme before first paint to avoid a flash.
-      try {
-        if (localStorage.getItem('theme') === 'dark') {
-          document.documentElement.classList.add('dark')
-        }
-      } catch (e) {}
-    </script>
+    <script is:inline set:html={THEME_BOOT} />
   </head>
   <body>
     <AppRoot client:only="react" />
