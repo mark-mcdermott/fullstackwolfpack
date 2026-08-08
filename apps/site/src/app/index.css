@@ -311,55 +311,54 @@
   opacity: 0.045;
 }
 
-/* Hero glow (dark only): two blue radials pooled behind the headline and, more
-   faintly, behind the three-line subtitle, so the copy sits in its own light
-   rather than on flat page.
-   Painted as the plate's own background, which buys three things. It sits under
-   the hero art without any z-index juggling — a parent's background is below
-   every child by definition — so what reaches the eye is the glow showing
-   through where the art's mask has faded, i.e. the left end the copy sits on,
-   never a wash over the artwork. Its percentages are the plate's, so both pools
-   scale with the hero instead of with a text box. And the gradients reach
-   transparent inside the plate, which is the part that matters: an earlier pass
-   anchored these to the h1 and the ellipses were still coloured where their
-   boxes ended, so `overflow-hidden` cut them into visible rectangles — the same
-   trap the note on Akela's quote halo describes.
-   Not the body: its layers are `position: fixed`, so they would slide out from
-   under the hero on the first scroll.
-   Light gets none of it by design — its plate is high-key, and a glow under
-   that copy reads as haze rather than depth. */
+/* Hero glow (dark only): two black pools, one under the headline and a lighter
+   one under the three-line subtitle, so the copy reads against the plate art
+   instead of competing with it.
+   Painted as the plate's own background, which puts them under the art with no
+   z-index juggling — a parent's background is below every child by definition.
+   Black rather than a tint, so the pair darkens what is behind the words rather
+   than colouring it; it also makes the ramp clean, since CSS `transparent` is
+   already black at zero alpha and there is no grey midpoint to fade through.
+   Not the body, whose layers are `position: fixed` and would slide out from
+   under the hero on the first scroll. And not pseudo-elements on the h1: a first
+   pass did that and the ellipses were still coloured where their boxes ended, so
+   `overflow-hidden` cut them into visible rectangles — the edge the note on
+   Akela's quote halo warns about.
+   Light gets none of it: its plate is high-key and the copy already reads. */
 .dark .hero-glow {
+  /* Origins are the measured centre of the *glyphs*, as a fraction of the plate
+     — not of the h1, which is a full-width block the text sits left-aligned
+     inside, and which is what put an earlier pass's pools out in empty space to
+     the right of the copy. Both centres travel a long way across the range (the
+     subtitle's from 31% of the plate at 375 to 12% at xl) because the copy holds
+     the left edge while the plate grows, so they are re-pinned per bucket. */
+  --hero-glow-title: 22% 16%;
+  --hero-glow-sub: 28% 42%;
   background-image:
     radial-gradient(
-      ellipse 30% 34% at 22% 30%,
-      oklch(0.58 0.17 264 / 0.42) 0%,
-      oklch(0.52 0.15 264 / 0.19) 42%,
+      ellipse 60% 68% at var(--hero-glow-title),
+      oklch(0 0 0 / 0.5) 0%,
+      oklch(0 0 0 / 0.24) 42%,
       transparent 72%
     ),
     radial-gradient(
-      ellipse 24% 22% at 19% 58%,
-      oklch(0.58 0.16 264 / 0.2) 0%,
+      ellipse 48% 44% at var(--hero-glow-sub),
+      oklch(0 0 0 / 0.27) 0%,
       transparent 72%
     );
 }
 
-/* Below md the copy rides higher in a shorter plate (the headline centres at
-   ~16% of it against ~30% at lg, the subtitle at ~42% against ~58%), so both
-   pools move up to stay under it. */
-@media (width < 48rem) {
+@media (width >= 40rem) {
   .dark .hero-glow {
-    background-image:
-      radial-gradient(
-        ellipse 34% 30% at 24% 17%,
-        oklch(0.58 0.17 264 / 0.42) 0%,
-        oklch(0.52 0.15 264 / 0.19) 42%,
-        transparent 72%
-      ),
-      radial-gradient(
-        ellipse 28% 22% at 21% 43%,
-        oklch(0.58 0.16 264 / 0.2) 0%,
-        transparent 72%
-      );
+    --hero-glow-title: 23% 24%;
+    --hero-glow-sub: 20% 55%;
+  }
+}
+
+@media (width >= 64rem) {
+  .dark .hero-glow {
+    --hero-glow-title: 18% 30%;
+    --hero-glow-sub: 12% 58%;
   }
 }
 
