@@ -493,7 +493,12 @@ function SelectCard({
           {subtitle}
         </div>
       </div>
-      <ChevronRight className="size-4 shrink-0 text-hero-title" />
+      {/* Hidden across the two-column band: the cards are at their narrowest
+          there (166px at the 430 floor), and the caret is the one part that can
+          go without losing meaning — the whole card is the button, and it keeps
+          its hover/focus border either way. Everything else in it either names
+          the choice or is the choice. */}
+      <ChevronRight className="size-4 shrink-0 text-hero-title min-[430px]:max-md:hidden" />
     </button>
   )
 }
