@@ -362,7 +362,7 @@ function LauncherForm({
             column (histogram right edge lines up with the button); the XP
             readout is the first to drop (768–1149), and START then goes inline
             at the end of the row. */}
-        <div className="flex flex-col items-center gap-1 max-lg:w-full min-[430px]:max-md:col-span-2 md:max-lg:w-auto md:max-lg:shrink-0 lg:max-[1150px]:flex-1 lg:max-[1150px]:flex-row lg:max-[1150px]:items-end lg:max-[1150px]:justify-center lg:max-[1150px]:gap-4 min-[1150px]:items-stretch min-[1150px]:w-52">
+        <div className="flex flex-col items-center gap-1 max-lg:w-full min-[430px]:max-md:col-span-2 md:max-lg:w-auto md:max-lg:shrink-0 md:max-lg:gap-1.5 lg:max-[1150px]:flex-1 lg:max-[1150px]:flex-row lg:max-[1150px]:items-end lg:max-[1150px]:justify-center lg:max-[1150px]:gap-4 min-[1150px]:items-stretch min-[1150px]:w-52">
           <div className="flex flex-col gap-1.5 max-[1150px]:hidden">
             <FieldLabel>Reward</FieldLabel>
             <div className="flex h-12 items-center">
@@ -395,6 +395,20 @@ function LauncherForm({
             </div>
           </div>
 
+          {/* The button carries no label of its own, so on the md single line it
+              sat a label-height above the fields beside it. These two reserve
+              exactly what Control reserves — a transparent label row, then a
+              64px box that centres its child — which is the same trick the
+              play/learn swap already uses to sit on that line. Both collapse
+              away at every other width: the label to `hidden`, the box to
+              `contents`, so the button stays a direct child of the column. */}
+          <FieldLabel
+            aria-hidden="true"
+            className="hidden opacity-0 md:max-lg:block"
+          >
+            start
+          </FieldLabel>
+          <div className="contents md:max-lg:flex md:max-lg:h-16 md:max-lg:items-center">
           <button
             type="button"
             onClick={start}
@@ -414,6 +428,7 @@ function LauncherForm({
             {starting ? 'Starting…' : 'Start mission'}
             <ArrowRight className="size-4" />
           </button>
+          </div>
         </div>
       </div>
     </Panel>
