@@ -311,6 +311,58 @@
   opacity: 0.045;
 }
 
+/* Hero glow (dark only): two blue radials pooled behind the headline and, more
+   faintly, behind the three-line subtitle, so the copy sits in its own light
+   rather than on flat page.
+   Painted as the plate's own background, which buys three things. It sits under
+   the hero art without any z-index juggling — a parent's background is below
+   every child by definition — so what reaches the eye is the glow showing
+   through where the art's mask has faded, i.e. the left end the copy sits on,
+   never a wash over the artwork. Its percentages are the plate's, so both pools
+   scale with the hero instead of with a text box. And the gradients reach
+   transparent inside the plate, which is the part that matters: an earlier pass
+   anchored these to the h1 and the ellipses were still coloured where their
+   boxes ended, so `overflow-hidden` cut them into visible rectangles — the same
+   trap the note on Akela's quote halo describes.
+   Not the body: its layers are `position: fixed`, so they would slide out from
+   under the hero on the first scroll.
+   Light gets none of it by design — its plate is high-key, and a glow under
+   that copy reads as haze rather than depth. */
+.dark .hero-glow {
+  background-image:
+    radial-gradient(
+      ellipse 30% 34% at 22% 30%,
+      oklch(0.58 0.17 264 / 0.42) 0%,
+      oklch(0.52 0.15 264 / 0.19) 42%,
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 24% 22% at 19% 58%,
+      oklch(0.58 0.16 264 / 0.2) 0%,
+      transparent 72%
+    );
+}
+
+/* Below md the copy rides higher in a shorter plate (the headline centres at
+   ~16% of it against ~30% at lg, the subtitle at ~42% against ~58%), so both
+   pools move up to stay under it. */
+@media (width < 48rem) {
+  .dark .hero-glow {
+    background-image:
+      radial-gradient(
+        ellipse 34% 30% at 24% 17%,
+        oklch(0.58 0.17 264 / 0.42) 0%,
+        oklch(0.52 0.15 264 / 0.19) 42%,
+        transparent 72%
+      ),
+      radial-gradient(
+        ellipse 28% 22% at 21% 43%,
+        oklch(0.58 0.16 264 / 0.2) 0%,
+        transparent 72%
+      );
+  }
+}
+
 /* Page wash (light only): a barely-there vertical gradient, so the page isn't a
    flat sheet under the tinted header and cards. Spans the document rather than
    the viewport — the bottom stop is meant to land at the end of the content,
