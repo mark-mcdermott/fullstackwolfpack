@@ -12,7 +12,8 @@ import {
   WolfPath,
   CreedBand,
   PathBanner,
-  ReadyToJoin,
+  // Parked with <ReadyToJoin /> below.
+  // ReadyToJoin,
 } from '@/components/home/sections'
 import { useAuth } from '@/hooks/auth-context'
 import { useTimer } from '@/hooks/timer-context'
@@ -171,7 +172,9 @@ export function GuestHome() {
           <CreedBand />
           <WolfPath />
           <PathBanner />
-          <ReadyToJoin />
+          {/* Parked — the join card is out of both themes for now. The component
+              itself stays in sections.tsx, so this is a one-line restore. */}
+          {/* <ReadyToJoin /> */}
         </>
       )}
     </div>

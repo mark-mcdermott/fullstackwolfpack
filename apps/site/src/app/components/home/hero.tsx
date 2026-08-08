@@ -30,23 +30,41 @@ const XP_CHIPS: { className: string; tone: string }[] = [
 // launcher's button sits well below the fold.
 export function HomeHero() {
   return (
-    // `-mb-6` cancels the page stack's gap so the plate's bottom edge meets the
-    // tile below it rather than floating clear of it.
-    <section className="-mb-6 grid gap-6 md:grid-cols-[1fr_20rem]">
+    // Two layouts, one tree. At lg this is the grid that lets Akela's card
+    // overlay the plate, and `-mb-6` cancels the page stack's gap so the plate's
+    // bottom edge meets the tile below it rather than floating clear of it.
+    //
+    // Below lg it is `display: contents` — the section stops generating a box,
+    // so the plate and Akela become children of the page stack itself (a
+    // `flex flex-col gap-6` in guest-home) and can be ordered against the
+    // launcher that follows them. That is the only way to get Akela *below* the
+    // launcher without hoisting it out of this component: `order` cannot reach
+    // across a wrapper element. The stack's own gap-6 replaces this grid's.
+    <section className="contents lg:-mb-6 lg:grid lg:gap-6 lg:grid-cols-[1fr_20rem]">
       {/* Splash. It breaks out of <main>'s px-5/py-6 with matching negative
           margins, so the plate runs edge to edge of the main column and flush
           under the header. At lg it spans both grid columns and Akela's card
           overlays its right end, rather than the plate stopping short of it.
+          Below lg the two stack instead: the plate is a fixed box (740px at md,
+          not viewport-tracking), so a 320px card sitting on it buried 42-45% of
+          the art — and in light that is exactly where the seated figure is.
+          `max-lg:-mb-6` carries the flush bottom edge once the section is
+          `contents` and its own -mb-6 no longer applies.
           Transparent, not `bg-card`: the panel sits over the page itself. */}
       <Panel
         brackets={false}
-        className="relative -mx-5 -mt-6 min-h-[19rem] overflow-hidden rounded-none border-0 bg-transparent p-0 sm:-mx-7 md:min-h-[22rem] md:col-span-2 md:col-start-1 md:row-start-1 lg:min-h-[28rem]"
+        className="relative -mx-5 -mt-6 min-h-[19rem] overflow-hidden rounded-none border-0 bg-transparent p-0 max-lg:-mb-6 sm:-mx-7 md:min-h-[22rem] lg:col-span-2 lg:col-start-1 lg:row-start-1 lg:min-h-[28rem]"
       >
         {/* Decorative, so the art rides on a background rather than an <img>:
             the theme picks the plate via `--hero-image` (index.css), which keeps
             one DOM tree across themes and fetches only the matching file. The
             punch-up filters are dark-only — they were tuned for the neon plate
-            and would blow out the high-key light one. */}
+            and would blow out the high-key light one.
+
+            Centred in both themes, at every width. That only works because the
+            two plates now share a composition and an exact size (1280x650), so
+            one `--hero-aspect` covers both and neither needs a per-theme nudge
+            to keep its subject off the headline. */}
         <div
           aria-hidden="true"
           className="absolute inset-y-0 left-1/2 h-full w-auto -translate-x-1/2 aspect-[var(--hero-aspect)] bg-[image:var(--hero-image)] bg-cover bg-center bg-no-repeat [mask-image:linear-gradient(to_right,transparent_0%,black_15%,black_85%,transparent_100%)] dark:brightness-105 dark:contrast-[1.12] dark:saturate-[1.25]"
@@ -111,23 +129,23 @@ export function HomeHero() {
           is light beside a light hero rather than a black slab. */}
       <Panel
         brackets={false}
-        className="relative z-10 flex flex-col overflow-hidden rounded-2xl p-0 light:border-[#dbd7d7] light:bg-[#f7f4f3] light:shadow-[var(--card-shadow)] md:col-start-2 md:row-start-1 md:mb-6"
+        className="relative z-10 flex flex-col overflow-hidden rounded-2xl p-0 light:border-[#dbd7d7] light:bg-[#f7f4f3] light:shadow-[var(--card-shadow)] max-lg:order-1 lg:col-start-2 lg:row-start-1 lg:mb-6"
       >
         {/* Base fill behind the portrait — it is a cutout on transparency, and
-            in the md compact layout Akela shrinks to the right besides. Follows
+            in the lg column layout Akela shrinks to the right besides. Follows
             the theme: the card used to be hard-dark in both, which left a black
             slab beside a light hero. */}
         <div className="pointer-events-none absolute inset-0 bg-card light:bg-[#f7f4f3] dark:bg-neutral-950" />
         {/* Portrait pinned to the right (natural width via left:auto — the img
-            is a replaced element, so no w-full); a small thumbnail in the md
-            compact layout. The artwork carries no backdrop of its own, so the
+            is a replaced element, so no w-full); a small thumbnail once the card
+            is the narrow lg column. The artwork carries no backdrop of its own, so the
             card colour reads behind it in either theme and the mask is left
             with one job: softening where the card crops the jacket, out to the
             left and down into the scrim below. */}
         <img
           src="/images/akela.webp"
           alt="Akela, your AI mentor"
-          className="pointer-events-none absolute inset-y-0 right-0 h-full object-cover object-[center_30%] [mask-image:linear-gradient(to_left,black_55%,transparent),linear-gradient(to_top,transparent,black_35%)] [mask-composite:intersect] md:top-[5px] md:bottom-auto md:h-[75%]"
+          className="pointer-events-none absolute inset-y-0 right-0 h-full object-cover object-[center_30%] [mask-image:linear-gradient(to_left,black_55%,transparent),linear-gradient(to_top,transparent,black_35%)] [mask-composite:intersect] lg:top-[5px] lg:bottom-auto lg:h-[75%]"
         />
         {/* Fade the portrait down to the challenge box (media layout only). */}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-20% via-card/70 via-65% to-card/95 light:via-[#f7f4f3]/70 light:to-[#f7f4f3]/95 dark:via-neutral-950/55 dark:to-neutral-950/95" />
