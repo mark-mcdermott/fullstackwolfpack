@@ -77,9 +77,17 @@ export function FwFooter() {
           footer is now just the slim status bar. */}
 
       {/* Slim brand + nav row. No top rule — the tiles above it already close
-          the page with their own edges. Kept in sync with Base.astro. */}
+          the page with their own edges. Kept in sync with Base.astro.
+
+          Three shapes. Below sm it is a centred column; at md and up a single
+          justify-between row. At sm only it is a two-column grid that pairs the
+          six items into three rows — brand·API / build·deploy / env·copyright —
+          which is why the status readout below goes `contents` there: its five
+          spans have to be grid items of *this* grid to pair with the brand, and
+          a wrapper would keep them one cell. Row-major fill does the rest, so
+          the order is just DOM order. */}
       <div>
-        <div className="mx-auto flex max-w-page flex-col items-center gap-5 px-5 py-6 md:flex-row md:justify-between md:gap-8 md:px-8">
+        <div className="mx-auto flex max-w-page flex-col items-center gap-5 px-5 py-6 sm:max-md:grid sm:max-md:grid-cols-2 sm:max-md:justify-items-center sm:max-md:gap-x-6 sm:max-md:gap-y-3 md:flex-row md:justify-between md:gap-8 md:px-8">
           <Link
             to="/"
             aria-label="Fullstack Wolfpack home"
@@ -107,8 +115,10 @@ export function FwFooter() {
             ))}
           </nav> */}
           {/* Status readout — all one muted color; each item reads as a phrase,
-              not a key/value pair. */}
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 font-mono text-[11px] text-muted-foreground">
+              not a key/value pair. `contents` at sm dissolves this wrapper so
+              the five spans become cells of the grid above (see the note there);
+              it is a real flex row again either side of that. */}
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 font-mono text-[11px] text-muted-foreground sm:max-md:contents">
             <span className="flex items-center gap-1.5">
               API
               <span className="size-1.5 rounded-full bg-green-500" />

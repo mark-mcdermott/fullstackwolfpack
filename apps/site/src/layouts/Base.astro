@@ -220,10 +220,16 @@ const path = Astro.url.pathname
         </div>
       </div>
 
-      {/* Slim brand + nav row. No top rule — kept in sync with fw-footer.tsx. */}
+      {/* Slim brand + nav row. No top rule — kept in sync with fw-footer.tsx.
+
+          Three shapes. Below sm a centred column; at md and up a single
+          justify-between row. At sm only a two-column grid pairing the six
+          items into three rows — brand·API / build·deploy / env·copyright —
+          which is why the status readout below goes `contents` there: its five
+          spans have to be grid items of *this* grid to pair with the brand. */}
       <div>
         <div
-          class="mx-auto flex max-w-7xl flex-col items-center gap-5 px-5 py-6 md:flex-row md:justify-between md:px-8"
+          class="mx-auto flex max-w-7xl flex-col items-center gap-5 px-5 py-6 sm:max-md:grid sm:max-md:grid-cols-2 sm:max-md:justify-items-center sm:max-md:gap-x-6 sm:max-md:gap-y-3 md:flex-row md:justify-between md:px-8"
         >
           <a href="/" aria-label="Fullstack Wolfpack home" class="flex items-center gap-2.5">
             {/* Mark takes `text-foreground` like the header's; only the kana
@@ -246,8 +252,10 @@ const path = Astro.url.pathname
           </nav>
           */}
           {/* Status readout — all one muted color; each item reads as a phrase,
-              not a key/value pair. */}
-          <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 font-mono text-[11px] text-muted-foreground">
+              not a key/value pair. `contents` at sm dissolves this wrapper so
+              the five spans become cells of the grid above (see the note there);
+              a real flex row again either side of that. */}
+          <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 font-mono text-[11px] text-muted-foreground sm:max-md:contents">
             <span class="flex items-center gap-1.5">
               API
               <span class="size-1.5 rounded-full bg-green-500"></span>
