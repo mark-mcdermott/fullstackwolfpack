@@ -265,13 +265,13 @@ function LauncherForm({
       {/* The row gap only ever shows once this wraps. Between md and 1023 the
           button is the wrapped line and 24px reads as a hole above it — the same
           range that already takes it to half width, so the two go together. */}
-      <div className="flex flex-wrap items-start gap-x-4 gap-y-6 sm:max-md:grid sm:max-md:grid-cols-2 sm:max-md:items-start sm:max-md:gap-y-4 md:max-[1023px]:flex-nowrap md:max-[1023px]:gap-y-2 md:max-[1149px]:justify-center min-[1150px]:flex-nowrap min-[1150px]:justify-between">
+      <div className="flex flex-wrap items-start gap-x-4 gap-y-6 min-[430px]:max-md:grid min-[430px]:max-md:grid-cols-2 min-[430px]:max-md:items-start min-[430px]:max-md:gap-y-4 md:max-[1023px]:flex-nowrap md:max-[1023px]:gap-y-2 md:max-[1149px]:justify-center min-[1150px]:flex-nowrap min-[1150px]:justify-between">
         {/* game + skill — full-width stacked cards below md; fluid width sharing
             the md single line (title wraps as they narrow); fixed w-52 at
             >=1024. */}
         <Control
           label="Game"
-          className="w-full min-w-0 sm:max-md:w-auto md:max-[1023px]:w-auto md:max-[1023px]:min-w-0 md:max-[1023px]:flex-1 lg:w-52"
+          className="w-full min-w-0 min-[430px]:max-md:w-auto md:max-[1023px]:w-auto md:max-[1023px]:min-w-0 md:max-[1023px]:flex-1 lg:w-52"
         >
           <SelectCard
             icon={
@@ -298,7 +298,7 @@ function LauncherForm({
 
         <Control
           label="Skill"
-          className="w-full min-w-0 sm:max-md:w-auto md:max-[1023px]:w-auto md:max-[1023px]:min-w-0 md:max-[1023px]:flex-1 lg:w-52"
+          className="w-full min-w-0 min-[430px]:max-md:w-auto md:max-[1023px]:w-auto md:max-[1023px]:min-w-0 md:max-[1023px]:flex-1 lg:w-52"
         >
           <SelectCard
             icon={
@@ -323,15 +323,16 @@ function LauncherForm({
 
         {/* play + learn — a centered row of their own below md; inline on the
             shared line at md and up. */}
-        <div className="flex items-start gap-2 max-[767px]:w-full max-[767px]:justify-center sm:max-md:contents">
-          <Control label={first.label}>
+        <div className="flex items-start gap-2 max-[767px]:w-full max-[767px]:justify-center min-[430px]:max-md:contents">
+          <Control label={first.label} className="min-w-0">
             <TimeStepper
               value={first.value}
               onChange={first.set}
               name={first.name}
+              className="min-[430px]:max-md:w-full"
             />
           </Control>
-          <div className="flex flex-col gap-1.5 sm:max-[1023px]:hidden">
+          <div className="flex flex-col gap-1.5 min-[430px]:max-[1023px]:hidden">
             <FieldLabel aria-hidden="true" className="opacity-0">
               swap
             </FieldLabel>
@@ -347,11 +348,12 @@ function LauncherForm({
               </button>
             </div>
           </div>
-          <Control label={second.label}>
+          <Control label={second.label} className="min-w-0">
             <TimeStepper
               value={second.value}
               onChange={second.set}
               name={second.name}
+              className="min-[430px]:max-md:w-full"
             />
           </Control>
         </div>
@@ -360,7 +362,7 @@ function LauncherForm({
             column (histogram right edge lines up with the button); the XP
             readout is the first to drop (768–1149), and START then goes inline
             at the end of the row. */}
-        <div className="flex flex-col items-center gap-1 max-[1023px]:w-full sm:max-md:col-span-2 md:max-[1023px]:w-auto md:max-[1023px]:shrink-0 lg:max-[1149px]:flex-1 lg:max-[1149px]:flex-row lg:max-[1149px]:items-end lg:max-[1149px]:justify-center lg:max-[1149px]:gap-4 min-[1150px]:items-stretch min-[1150px]:w-52">
+        <div className="flex flex-col items-center gap-1 max-[1023px]:w-full min-[430px]:max-md:col-span-2 md:max-[1023px]:w-auto md:max-[1023px]:shrink-0 lg:max-[1149px]:flex-1 lg:max-[1149px]:flex-row lg:max-[1149px]:items-end lg:max-[1149px]:justify-center lg:max-[1149px]:gap-4 min-[1150px]:items-stretch min-[1150px]:w-52">
           <div className="flex flex-col gap-1.5 max-[1149px]:hidden">
             <FieldLabel>Reward</FieldLabel>
             <div className="flex h-12 items-center">
@@ -404,7 +406,7 @@ function LauncherForm({
               // padding, and at ≥1150 it drops `w-full` so the width follows the
               // text rather than the column — right-aligned, so the histogram
               // above still lands on its trailing edge.
-              'w-full px-3 disabled:opacity-50 max-sm:w-auto md:max-[1023px]:w-auto lg:max-[1149px]:mt-5 lg:max-[1149px]:w-auto min-[1150px]:w-fit min-[1150px]:self-end',
+              'w-full px-3 disabled:opacity-50 max-[429px]:w-auto md:max-[1023px]:w-auto lg:max-[1149px]:mt-5 lg:max-[1149px]:w-auto min-[1150px]:w-fit min-[1150px]:self-end',
               // Glow + expand as the mission kicks off (the launcher then fades out).
               starting && 'scale-[1.04] shadow-[0_0_45px] shadow-primary/70',
             )}
@@ -477,9 +479,13 @@ function SelectCard({
     >
       {icon}
       <div className="min-w-0 flex-1">
-        {/* 2x title on the big stacked mobile cards; normal size but wrapping in
-            the narrow md cards; single-line truncated at >=1024. */}
-        <div className="font-sans text-lg leading-tight font-semibold text-hero-title md:text-sm md:leading-normal lg:truncate">
+        {/* 2x title on the big stacked mobile cards; normal size but wrapping
+            once the cards are a narrow column (430 up — the two-column band and
+            the md line both qualify); single-line truncated at >=1024.
+            The step has to land with the columns, not at md: at text-lg a
+            one-word title like "JavaScript" is wider than a 110px text column
+            and, having nowhere to wrap, spilled over the chevron. */}
+        <div className="font-sans text-lg leading-tight font-semibold text-hero-title min-[430px]:text-sm min-[430px]:leading-normal lg:truncate">
           {title}
         </div>
         {/* "Ready to play / learn" — hidden below 1024. */}
@@ -525,14 +531,21 @@ function TimeStepper({
   value,
   onChange,
   name,
+  className,
 }: {
   value: number
   onChange: (v: number) => void
   name: string
+  className?: string
 }) {
   const clamp = (v: number) => Math.min(120, Math.max(1, v))
   return (
-    <div className="flex h-11 items-stretch rounded-lg border border-border bg-card focus-within:border-primary light:shadow-[var(--field-shadow)]">
+    <div
+      className={cn(
+        'flex h-11 items-stretch rounded-lg border border-border bg-card focus-within:border-primary light:shadow-[var(--field-shadow)]',
+        className,
+      )}
+    >
       <input
         type="number"
         min={1}
@@ -540,7 +553,7 @@ function TimeStepper({
         value={value}
         onChange={(e) => onChange(clamp(Number(e.target.value) || 1))}
         aria-label={`${name} minutes`}
-        className="w-11 bg-transparent pl-3 text-base font-semibold tabular-nums text-hero-title outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        className="w-11 flex-1 bg-transparent pl-3 text-base font-semibold tabular-nums text-hero-title outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
       <span className="flex items-center pr-2 font-mono text-[10px] tracking-wide text-hero-title uppercase">
         min
