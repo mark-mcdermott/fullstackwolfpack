@@ -19,7 +19,7 @@ import { getLessonView, type AnswerInput } from './learning'
 // the client's localStorage (lib/guest-progress.ts), so these are read-only +
 // unlogged.
 
-// Topics that have a built-in course — the guest browse gallery (/learn).
+// Topics that have a built-in course — the guest browse gallery (/skill).
 export async function getPublicTopics(): Promise<PublicTopic[]> {
   const rows = await db
     .selectDistinct({

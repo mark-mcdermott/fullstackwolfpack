@@ -241,7 +241,7 @@ function LessonPlayer({
             </button>
           ) : (
             <Link
-              to={guest ? '/learn' : '/app/topics'}
+              to={guest ? '/skill' : '/app/topics'}
               className="inline-flex items-center gap-1 font-mono text-[10px] tracking-widest text-muted-foreground uppercase hover:text-foreground"
             >
               <ArrowLeft className="size-3" /> Topics
@@ -428,7 +428,7 @@ function CompletionPanel({
           ) : (
             <>
               <Link
-                to={guest ? '/learn' : '/app/topics'}
+                to={guest ? '/skill' : '/app/topics'}
                 className={cn(
                   'inline-flex items-center gap-2 px-4 py-2 font-mono text-xs tracking-widest uppercase',
                   nextLessonId

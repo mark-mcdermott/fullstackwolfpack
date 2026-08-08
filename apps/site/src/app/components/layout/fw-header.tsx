@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 // FW-01 header — a full-width bar with the wolf brand, the primary nav (label
 // only, active in red over a fixed-width underline), a latency readout, an API
 // health pip, and the light/dark toggle. Used on the guest surfaces (`/`,
-// `/learn`, `/play`) and the auth pages.
+// `/skill`, `/play`) and the auth pages.
 //
 // `minWidth` hides the tail of the nav on narrow viewports rather than letting
 // the items overflow — the brand and toggle refuse to shrink, so something has
@@ -18,8 +18,11 @@ const NAV: {
   end?: boolean
   minWidth?: string
 }[] = [
-  { to: '/', label: 'Play', end: true },
-  { to: '/learn', label: 'Learn' },
+  // "Mission" is the launcher at the root, not `/play` — `/play` is Arcade's.
+  { to: '/', label: 'Mission', end: true },
+  // Singular while there is one skill to browse; it becomes "Skills" when
+  // there is more than one.
+  { to: '/skill', label: 'Skill' },
   { to: '/play', label: 'Arcade' },
   // Parked. There is no guest community surface yet; this pointed at the real
   // page behind RequireAuth so a logged-out click funnelled to /login rather

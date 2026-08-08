@@ -107,7 +107,12 @@ export function HomeHero() {
           </span>
         ))} */}
 
-        <div className="relative flex h-full flex-col justify-center gap-6 p-6 sm:p-8">
+        {/* `isolate` is load-bearing, not tidiness: it opens a stacking context so
+            the glow below can sit at z-index -1 *inside* this layer — under the
+            copy but still above the plate art, which is the only place a
+            legibility pool does anything. Without it the -1 escapes to <main>
+            and lands under the art, where the art hides it. */}
+        <div className="hero-glow relative isolate flex h-full flex-col justify-center gap-6 p-6 sm:p-8">
           <div>
             {/* No weight utility: 400 is the heading font's pinned axis, so the
                 headline just inherits it — no `font-variation-settings` escape

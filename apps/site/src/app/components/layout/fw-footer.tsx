@@ -1,6 +1,8 @@
 import { Link } from 'react-router'
 import { WolfMark } from '@fw/ui'
-import { siteUrl } from '@/consts'
+// Parked with the nav below — its links were the only live caller left; the
+// fuller footer further down still references it, but is itself parked.
+// import { siteUrl } from '@/consts'
 // Parked while we zoom in on the core loop — restore alongside the fuller
 // footer below:
 // import { Globe } from 'lucide-react'
@@ -16,13 +18,17 @@ import { siteUrl } from '@/consts'
 // the terminal readout over the skyline, then a slim brand + nav + status row.
 // The fuller footer (link columns, social row, copyright) is commented out at
 // the bottom — we're focused on the main flow and will resurface it later.
-const NAV: [string, string][] = [
-  ['How It Works', '/how-it-works'],
-  ['Features', '/features'],
-  ['Pricing', '/pricing'],
-  ['Blog', '/blog'],
-  ['About Us', '/about'],
-]
+// Parked with the <nav> below — the footer is the brand mark and the status
+// readout for now. The pages themselves are all still there, so this is a
+// two-block restore. Matches Base.astro, whose own `footerNav` is already
+// parked; the two footers are synced copies and have to move together.
+// const NAV: [string, string][] = [
+//   ['How It Works', '/how-it-works'],
+//   ['Features', '/features'],
+//   ['Pricing', '/pricing'],
+//   ['Blog', '/blog'],
+//   ['About Us', '/about'],
+// ]
 
 // Parked — the full three-column link set + socials (the new nav row above is a
 // curated subset). Restore when we widen the footer scope again.
@@ -71,9 +77,17 @@ export function FwFooter() {
           footer is now just the slim status bar. */}
 
       {/* Slim brand + nav row. No top rule — the tiles above it already close
-          the page with their own edges. Kept in sync with Base.astro. */}
+          the page with their own edges. Kept in sync with Base.astro.
+
+          Three shapes. Below sm it is a centred column; at md and up a single
+          justify-between row. At sm only it is a two-column grid that pairs the
+          six items into three rows — brand·API / build·deploy / env·copyright —
+          which is why the status readout below goes `contents` there: its five
+          spans have to be grid items of *this* grid to pair with the brand, and
+          a wrapper would keep them one cell. Row-major fill does the rest, so
+          the order is just DOM order. */}
       <div>
-        <div className="mx-auto flex max-w-page flex-col items-center gap-5 px-5 py-6 md:flex-row md:justify-between md:gap-8 md:px-8">
+        <div className="mx-auto flex max-w-page flex-col items-center gap-5 px-5 py-6 sm:max-md:grid sm:max-md:grid-cols-2 sm:max-md:justify-items-center sm:max-md:gap-x-6 sm:max-md:gap-y-3 md:flex-row md:justify-between md:gap-8 md:px-8">
           <Link
             to="/"
             aria-label="Fullstack Wolfpack home"
@@ -88,6 +102,7 @@ export function FwFooter() {
               ウルフパック
             </span>
           </Link>
+          {/* Parked with NAV above.
           <nav className="flex flex-wrap items-center justify-center gap-x-7 gap-y-2">
             {NAV.map(([label, to]) => (
               <a
@@ -98,10 +113,12 @@ export function FwFooter() {
                 {label}
               </a>
             ))}
-          </nav>
+          </nav> */}
           {/* Status readout — all one muted color; each item reads as a phrase,
-              not a key/value pair. */}
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 font-mono text-[11px] text-muted-foreground">
+              not a key/value pair. `contents` at sm dissolves this wrapper so
+              the five spans become cells of the grid above (see the note there);
+              it is a real flex row again either side of that. */}
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 font-mono text-[11px] text-muted-foreground sm:max-md:contents">
             <span className="flex items-center gap-1.5">
               API
               <span className="size-1.5 rounded-full bg-green-500" />

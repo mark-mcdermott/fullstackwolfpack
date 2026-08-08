@@ -6,8 +6,9 @@ import {
   ChevronUp,
   Code,
   Gamepad2,
-  Star,
-  StarHalf,
+  // Parked with <RatingStars>.
+  // Star,
+  // StarHalf,
 } from 'lucide-react'
 import { useMemo, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router'
@@ -57,13 +58,14 @@ const STATIC_GAMES: Game[] = [
   })),
 ]
 
-// The course level as a read-only 0–5 star rating (half-stars allowed). Estimated
-// XP scales with the learn slice and the difficulty.
-const LEVEL_RATING: Record<Difficulty, number> = {
-  beginner: 1.5,
-  intermediate: 2.5,
-  advanced: 4.5,
-}
+// Parked with <RatingStars> and the Difficulty control.
+// // The course level as a read-only 0–5 star rating (half-stars allowed). Estimated
+// // XP scales with the learn slice and the difficulty.
+// const LEVEL_RATING: Record<Difficulty, number> = {
+//   beginner: 1.5,
+//   intermediate: 2.5,
+//   advanced: 4.5,
+// }
 const LEVEL_MULT: Record<Difficulty, number> = {
   beginner: 1,
   intermediate: 1.2,
@@ -169,11 +171,11 @@ function LauncherForm({
   // The order swap reorders the two time fields (learn-first opens a lesson
   // before the game; play-first drops straight into the game).
   const first = learnFirst
-    ? { label: 'Focus time', name: 'Learn', value: learnMinutes, set: setLearnMinutes }
-    : { label: 'Mission length', name: 'Play', value: playMinutes, set: setPlayMinutes }
+    ? { label: 'Learn', name: 'Learn', value: learnMinutes, set: setLearnMinutes }
+    : { label: 'Play', name: 'Play', value: playMinutes, set: setPlayMinutes }
   const second = learnFirst
-    ? { label: 'Mission length', name: 'Play', value: playMinutes, set: setPlayMinutes }
-    : { label: 'Focus time', name: 'Learn', value: learnMinutes, set: setLearnMinutes }
+    ? { label: 'Play', name: 'Play', value: playMinutes, set: setPlayMinutes }
+    : { label: 'Learn', name: 'Learn', value: learnMinutes, set: setLearnMinutes }
 
   function onTopicChange(slug: string) {
     setTopicSlug(slug)
@@ -255,18 +257,23 @@ function LauncherForm({
       {/* Responsive control row. >=1150: everything on one line (XP + START in a
           right-hand column). 1024–1149: drop XP + difficulty, one line, START
           centered in the leftover gap. md (768–1023): drop XP + difficulty and
-          stack into three centered rows — [game·skill] / [play·learn] / [start].
-          <768: cards stack, difficulty returns, XP stays hidden, START centered. */}
+          run everything on one line, START inline and sized to its text.
+          sm (640–767): a two-column grid — [game·skill] / [play·learn] /
+          [start], START spanning both. <768: cards stack, difficulty returns,
+          XP stays hidden, START centered.
+          The play/learn swap is hidden across sm and md: it is the one control
+          that can go without losing a setting (the order still defaults), and
+          dropping it is what buys the md single line its last ~52px. */}
       {/* The row gap only ever shows once this wraps. Between md and 1023 the
           button is the wrapped line and 24px reads as a hole above it — the same
           range that already takes it to half width, so the two go together. */}
-      <div className="flex flex-wrap items-start gap-x-4 gap-y-6 md:max-[1023px]:gap-y-2 md:max-[1149px]:justify-center min-[1150px]:flex-nowrap min-[1150px]:justify-between">
+      <div className="flex flex-wrap items-start gap-x-4 gap-y-6 min-[430px]:max-md:grid min-[430px]:max-md:grid-cols-2 min-[430px]:max-md:items-start min-[430px]:max-md:gap-y-4 md:max-lg:flex-nowrap md:max-lg:gap-y-2 md:max-[1150px]:justify-center min-[1150px]:flex-nowrap min-[1150px]:justify-between">
         {/* game + skill — full-width stacked cards below md; fluid width sharing
             the md single line (title wraps as they narrow); fixed w-52 at
             >=1024. */}
         <Control
-          label="Game mode"
-          className="w-full md:max-[1023px]:w-auto md:max-[1023px]:min-w-0 md:max-[1023px]:flex-1 lg:w-52"
+          label="Game"
+          className="w-full min-w-0 min-[430px]:max-md:w-auto md:max-lg:w-auto md:max-lg:min-w-0 md:max-lg:flex-1 lg:w-52"
         >
           <SelectCard
             icon={
@@ -292,8 +299,8 @@ function LauncherForm({
         </Control>
 
         <Control
-          label="Target skill"
-          className="w-full md:max-[1023px]:w-auto md:max-[1023px]:min-w-0 md:max-[1023px]:flex-1 lg:w-52"
+          label="Skill"
+          className="w-full min-w-0 min-[430px]:max-md:w-auto md:max-lg:w-auto md:max-lg:min-w-0 md:max-lg:flex-1 lg:w-52"
         >
           <SelectCard
             icon={
@@ -311,22 +318,25 @@ function LauncherForm({
           />
         </Control>
 
-        {/* Shown only at >=1150. */}
-        <Control label="Difficulty" className="max-[1149px]:hidden">
+        {/* Parked — the read-only difficulty stars. It only ever surfaced at
+            >=1150 and is out of the row at every width now. RatingStars and
+            LEVEL_RATING stay below, so this is a one-block restore.
+        <Control label="Difficulty" className="max-[1150px]:hidden">
           <RatingStars rating={currentTopic ? LEVEL_RATING[level] : null} />
-        </Control>
+        </Control> */}
 
         {/* play + learn — a centered row of their own below md; inline on the
             shared line at md and up. */}
-        <div className="flex items-start gap-2 max-[767px]:w-full max-[767px]:justify-center">
-          <Control label={first.label}>
+        <div className="flex items-start gap-2 max-md:w-full max-md:justify-center min-[430px]:max-md:contents">
+          <Control label={first.label} className="min-w-0">
             <TimeStepper
               value={first.value}
               onChange={first.set}
               name={first.name}
+              className="min-[430px]:max-md:w-full"
             />
           </Control>
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 min-[430px]:max-lg:hidden">
             <FieldLabel aria-hidden="true" className="opacity-0">
               swap
             </FieldLabel>
@@ -342,11 +352,12 @@ function LauncherForm({
               </button>
             </div>
           </div>
-          <Control label={second.label}>
+          <Control label={second.label} className="min-w-0">
             <TimeStepper
               value={second.value}
               onChange={second.set}
               name={second.name}
+              className="min-[430px]:max-md:w-full"
             />
           </Control>
         </div>
@@ -355,10 +366,10 @@ function LauncherForm({
             column (histogram right edge lines up with the button); the XP
             readout is the first to drop (768–1149), and START then goes inline
             at the end of the row. */}
-        <div className="flex flex-col items-center gap-1 max-[1023px]:w-full lg:max-[1149px]:flex-1 lg:max-[1149px]:flex-row lg:max-[1149px]:items-end lg:max-[1149px]:justify-center lg:max-[1149px]:gap-4 min-[1150px]:items-stretch min-[1150px]:w-52">
-          <div className="flex flex-col gap-1.5 max-[1149px]:hidden">
+        <div className="flex flex-col items-center gap-1 max-lg:w-full min-[430px]:max-md:col-span-2 md:max-lg:w-auto md:max-lg:shrink-0 md:max-lg:gap-1.5 lg:flex-1 lg:flex-row lg:items-start lg:gap-4">
+          <div className="flex flex-col gap-1.5 max-[1150px]:hidden min-[1150px]:shrink-0">
             <FieldLabel>Reward</FieldLabel>
-            <div className="flex h-12 items-center">
+            <div className="flex h-16 items-center">
               {ready ? (
                 <div className="flex w-full items-center justify-between gap-2">
                   <span className="flex items-baseline gap-1">
@@ -369,7 +380,8 @@ function LauncherForm({
                       XP
                     </span>
                   </span>
-                  <XpBars />
+                  {/* Parked with XpBars below — START occupies this slot now. */}
+                  {/* <XpBars /> */}
                 </div>
               ) : (
                 <div className="w-full">
@@ -378,7 +390,8 @@ function LauncherForm({
                       <span className="text-blue-600 dark:text-blue-400">--</span>
                       <span className="text-muted-foreground"> XP</span>
                     </span>
-                    <XpBars muted />
+                    {/* Parked with XpBars below. */}
+                    {/* <XpBars muted /> */}
                   </div>
                   <p className="mt-0.5 font-mono text-[11px] leading-tight text-muted-foreground">
                     Complete the selections to see your XP
@@ -388,6 +401,22 @@ function LauncherForm({
             </div>
           </div>
 
+          {/* The button carries no label of its own, so wherever it shares a line
+              with the fields it sat a label-height above them. This column
+              reserves exactly what Control reserves — a transparent label row,
+              then a 64px box that centres its child — which is the same trick
+              the play/learn swap uses to sit on that line. Both the md single
+              line and the >=1150 row need it; everywhere else the three
+              wrappers collapse (`contents` / `hidden`) and the button goes back
+              to being a direct child of the column, so nothing moves. */}
+          <div className="contents md:flex md:flex-col md:gap-1.5 lg:flex-1">
+          <FieldLabel
+            aria-hidden="true"
+            className="hidden opacity-0 md:block"
+          >
+            start
+          </FieldLabel>
+          <div className="contents md:flex md:h-16 md:items-center">
           <button
             type="button"
             onClick={start}
@@ -396,10 +425,14 @@ function LauncherForm({
               raisedCtaClass,
               'cta-flare',
               // Tighter than the hero's CTA by design: `px-3` halves the side
-              // padding, and at ≥1150 it drops `w-full` so the width follows the
-              // text rather than the column — right-aligned, so the histogram
-              // above still lands on its trailing edge.
-              'w-full px-3 disabled:opacity-50 max-[767px]:w-auto md:max-[1023px]:w-1/2 md:max-[1023px]:max-w-[27rem] lg:max-[1149px]:mt-5 lg:max-[1149px]:w-auto min-[1150px]:w-fit min-[1150px]:self-end',
+              // padding. From lg up it just takes the base `w-full` and fills
+              // the flex-1 column it sits in — that column starts one row-gap
+              // after the field before it and ends on the card's padding, so
+              // filling it is what squares the button with the tile edge. It
+              // used to be `w-auto` centred in the leftover space (lg–1149) and
+              // `w-fit` right-aligned under the XP histogram (>=1150); the
+              // histogram is parked and START took its slot.
+              'w-full px-3 disabled:opacity-50 max-[430px]:w-auto md:max-lg:w-auto',
               // Glow + expand as the mission kicks off (the launcher then fades out).
               starting && 'scale-[1.04] shadow-[0_0_45px] shadow-primary/70',
             )}
@@ -407,6 +440,8 @@ function LauncherForm({
             {starting ? 'Starting…' : 'Start mission'}
             <ArrowRight className="size-4" />
           </button>
+          </div>
+          </div>
         </div>
       </div>
     </Panel>
@@ -470,15 +505,24 @@ function SelectCard({
       onClick={onClick}
       className="flex h-16 w-full items-center gap-2.5 rounded-lg border border-border bg-card px-2.5 text-left transition-colors hover:border-primary focus-visible:border-primary focus-visible:outline-none light:shadow-[var(--field-shadow)]"
     >
-      {icon}
+      {/* The card is at its narrowest on the md single line (131px at 768) —
+          narrower even than the two-column band. The leading square is what
+          gives way there: it is decorative next to a title that already names
+          the choice. `contents` so the wrapper is transparent at every other
+          width; `hidden` drops the subtree and its flex gap together. */}
+      <span className="contents md:max-lg:hidden">{icon}</span>
       <div className="min-w-0 flex-1">
-        {/* 2x title on the big stacked mobile cards; normal size but wrapping in
-            the narrow md cards; single-line truncated at >=1024. */}
-        <div className="font-sans text-lg leading-tight font-semibold text-hero-title md:text-sm md:leading-normal lg:truncate">
+        {/* 2x title on the big stacked mobile cards; normal size but wrapping
+            once the cards are a narrow column (430 up — the two-column band and
+            the md line both qualify); single-line truncated at >=1024.
+            The step has to land with the columns, not at md: at text-lg a
+            one-word title like "JavaScript" is wider than a 110px text column
+            and, having nowhere to wrap, spilled over the chevron. */}
+        <div className="font-sans text-lg leading-tight font-semibold text-hero-title min-[430px]:text-sm min-[430px]:leading-normal lg:truncate">
           {title}
         </div>
         {/* "Ready to play / learn" — hidden below 1024. */}
-        <div className="truncate font-mono text-[11px] text-muted-foreground max-[1023px]:hidden">
+        <div className="truncate font-mono text-[11px] text-muted-foreground max-lg:hidden">
           {subtitle}
         </div>
       </div>
@@ -487,47 +531,55 @@ function SelectCard({
   )
 }
 
-// Read-only difficulty rating — full/half/empty stars for a 0–5 value. A half
-// star overlays a lucide StarHalf (coral left half) on an empty outline.
-function RatingStars({ rating }: { rating: number | null }) {
-  const r = rating ?? 0
-  return (
-    <div className="flex items-center gap-1" aria-label={`Difficulty ${r} of 5`}>
-      {[1, 2, 3, 4, 5].map((i) => {
-        if (r >= i) {
-          return <Star key={i} className="size-5 fill-primary text-primary" />
-        }
-        if (r >= i - 0.5) {
-          return (
-            <span key={i} className="relative inline-flex size-5">
-              <Star className="size-5 fill-transparent text-muted-foreground/40" />
-              <StarHalf className="absolute inset-0 size-5 fill-primary text-primary" />
-            </span>
-          )
-        }
-        return (
-          <Star
-            key={i}
-            className="size-5 fill-transparent text-muted-foreground/40"
-          />
-        )
-      })}
-    </div>
-  )
-}
-
+// Parked with the Difficulty control in the row above.
+// // Read-only difficulty rating — full/half/empty stars for a 0–5 value. A half
+// // star overlays a lucide StarHalf (coral left half) on an empty outline.
+// function RatingStars({ rating }: { rating: number | null }) {
+//   const r = rating ?? 0
+//   return (
+//     <div className="flex items-center gap-1" aria-label={`Difficulty ${r} of 5`}>
+//       {[1, 2, 3, 4, 5].map((i) => {
+//         if (r >= i) {
+//           return <Star key={i} className="size-5 fill-primary text-primary" />
+//         }
+//         if (r >= i - 0.5) {
+//           return (
+//             <span key={i} className="relative inline-flex size-5">
+//               <Star className="size-5 fill-transparent text-muted-foreground/40" />
+//               <StarHalf className="absolute inset-0 size-5 fill-primary text-primary" />
+//             </span>
+//           )
+//         }
+//         return (
+//           <Star
+//             key={i}
+//             className="size-5 fill-transparent text-muted-foreground/40"
+//           />
+//         )
+//       })}
+//     </div>
+//   )
+// }
+//
 function TimeStepper({
   value,
   onChange,
   name,
+  className,
 }: {
   value: number
   onChange: (v: number) => void
   name: string
+  className?: string
 }) {
   const clamp = (v: number) => Math.min(120, Math.max(1, v))
   return (
-    <div className="flex h-11 items-stretch rounded-lg border border-border bg-card focus-within:border-primary light:shadow-[var(--field-shadow)]">
+    <div
+      className={cn(
+        'flex h-11 items-stretch rounded-lg border border-border bg-card focus-within:border-primary light:shadow-[var(--field-shadow)]',
+        className,
+      )}
+    >
       <input
         type="number"
         min={1}
@@ -535,7 +587,7 @@ function TimeStepper({
         value={value}
         onChange={(e) => onChange(clamp(Number(e.target.value) || 1))}
         aria-label={`${name} minutes`}
-        className="w-11 bg-transparent pl-3 text-base font-semibold tabular-nums text-hero-title outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        className="w-11 flex-1 bg-transparent pl-3 text-base font-semibold tabular-nums text-hero-title outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
       <span className="flex items-center pr-2 font-mono text-[10px] tracking-wide text-hero-title uppercase">
         min
@@ -562,29 +614,31 @@ function TimeStepper({
   )
 }
 
-// Decorative rising histogram next to the estimated-XP readout.
-const XP_BARS = [
-  8, 12, 7, 15, 11, 19, 14, 24, 18, 30, 22, 38, 28, 46, 36, 56, 44, 68, 54, 82,
-  66, 100,
-]
-function XpBars({ muted = false }: { muted?: boolean }) {
-  return (
-    <div
-      className={cn(
-        'flex h-8 w-20 items-end gap-px',
-        muted
-          ? 'text-muted-foreground/50'
-          : 'text-blue-600 dark:text-blue-400',
-      )}
-      aria-hidden="true"
-    >
-      {XP_BARS.map((h, i) => (
-        <div
-          key={i}
-          className="min-w-0 flex-1 rounded-sm bg-current"
-          style={{ height: `${h}%` }}
-        />
-      ))}
-    </div>
-  )
-}
+// Parked — START took this slot beside the XP readout.
+// // Decorative rising histogram next to the estimated-XP readout.
+// const XP_BARS = [
+//   8, 12, 7, 15, 11, 19, 14, 24, 18, 30, 22, 38, 28, 46, 36, 56, 44, 68, 54, 82,
+//   66, 100,
+// ]
+// function XpBars({ muted = false }: { muted?: boolean }) {
+//   return (
+//     <div
+//       className={cn(
+//         'flex h-8 w-20 items-end gap-px',
+//         muted
+//           ? 'text-muted-foreground/50'
+//           : 'text-blue-600 dark:text-blue-400',
+//       )}
+//       aria-hidden="true"
+//     >
+//       {XP_BARS.map((h, i) => (
+//         <div
+//           key={i}
+//           className="min-w-0 flex-1 rounded-sm bg-current"
+//           style={{ height: `${h}%` }}
+//         />
+//       ))}
+//     </div>
+//   )
+// }
+//

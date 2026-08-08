@@ -311,6 +311,65 @@
   opacity: 0.045;
 }
 
+/* Hero glow (dark only): two black pools, one under the headline and a lighter
+   one under the three-line subtitle, so the copy reads against the plate art
+   instead of competing with it.
+   Painted on the hero's content layer, at z-index -1 inside its own stacking
+   context: under the copy, above the plate art. Both halves of that matter —
+   an earlier pass put them on the *plate's* background, which is below every
+   child by definition, so the art covered them and toggling the rule did
+   nothing across most of the headline.
+   Black rather than a tint, so the pair darkens what is behind the words rather
+   than colouring it; it also makes the ramp clean, since CSS `transparent` is
+   already black at zero alpha and there is no grey midpoint to fade through.
+   Not the body, whose layers are `position: fixed` and would slide out from
+   under the hero on the first scroll. And not pseudo-elements on the h1: a first
+   pass did that and the ellipses were still coloured where their boxes ended, so
+   `overflow-hidden` cut them into visible rectangles — the edge the note on
+   Akela's quote halo warns about.
+   Light gets none of it: its plate is high-key and the copy already reads. */
+.dark .hero-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  /* Origins are the measured centre of the *glyphs*, as a fraction of the plate
+     — not of the h1, which is a full-width block the text sits left-aligned
+     inside, and which is what put an earlier pass's pools out in empty space to
+     the right of the copy. Both centres travel a long way across the range (the
+     subtitle's from 31% of the plate at 375 to 12% at xl) because the copy holds
+     the left edge while the plate grows, so they are re-pinned per bucket. */
+  --hero-glow-title: 22% 16%;
+  --hero-glow-sub: 28% 42%;
+  background-image:
+    radial-gradient(
+      ellipse 60% 68% at var(--hero-glow-title),
+      oklch(0 0 0 / 0.5) 0%,
+      oklch(0 0 0 / 0.24) 42%,
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 48% 44% at var(--hero-glow-sub),
+      oklch(0 0 0 / 0.27) 0%,
+      transparent 72%
+    );
+}
+
+@media (width >= 40rem) {
+  .dark .hero-glow {
+    --hero-glow-title: 23% 24%;
+    --hero-glow-sub: 20% 55%;
+  }
+}
+
+@media (width >= 64rem) {
+  .dark .hero-glow {
+    --hero-glow-title: 18% 30%;
+    --hero-glow-sub: 12% 58%;
+  }
+}
+
 /* Page wash (light only): a barely-there vertical gradient, so the page isn't a
    flat sheet under the tinted header and cards. Spans the document rather than
    the viewport — the bottom stop is meant to land at the end of the content,

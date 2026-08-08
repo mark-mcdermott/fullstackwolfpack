@@ -83,7 +83,7 @@ describe('LearnBrowse', () => {
     const cta = await screen.findByRole('link', {
       name: /start: scope & closures/i,
     })
-    expect(cta).toHaveAttribute('href', '/learn/l1')
+    expect(cta).toHaveAttribute('href', '/skill/l1')
   })
 
   it('continues from the guest’s saved progress', async () => {
@@ -94,7 +94,7 @@ describe('LearnBrowse', () => {
     renderPage()
 
     const cta = await screen.findByRole('link', { name: /continue: promises/i })
-    expect(cta).toHaveAttribute('href', '/learn/l2')
+    expect(cta).toHaveAttribute('href', '/skill/l2')
     expect(screen.getByText('75')).toBeInTheDocument() // XP banked as a guest
     expect(screen.getByText('1 / 2')).toBeInTheDocument() // lessons done
   })
