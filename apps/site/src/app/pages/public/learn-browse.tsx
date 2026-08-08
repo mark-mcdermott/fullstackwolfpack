@@ -14,9 +14,9 @@ import { useAuth } from '@/hooks/auth-context'
 import { useAsync } from '@/hooks/use-async'
 import { guestCompletedLessonIds, guestXp } from '@/lib/guest-progress'
 
-const lessonPath = (lessonId: string) => `/learn/${lessonId}`
+const lessonPath = (lessonId: string) => `/skill/${lessonId}`
 
-// Guest learn hub (/learn): the featured built-in course up front — its real
+// Guest learn hub (/skill): the featured built-in course up front — its real
 // outline, length and progress — with the other built-ins one click away.
 // Signed-in users get the full Topics page instead.
 export function LearnBrowse() {
@@ -178,7 +178,7 @@ function MoreSkills({ topics }: { topics: PublicTopic[] }) {
         {topics.map((topic) => (
           <Link
             key={topic.slug}
-            to={`/learn?topic=${encodeURIComponent(topic.slug)}`}
+            to={`/skill?topic=${encodeURIComponent(topic.slug)}`}
             className="group flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-colors hover:border-primary/60"
           >
             <SkillIcon topic={topic} />

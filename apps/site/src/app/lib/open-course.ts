@@ -11,11 +11,11 @@ export async function nextLessonPath(topicSlug: string): Promise<string> {
 }
 
 // Guest version: reads the public course outline and returns the guest player
-// path (/learn/:id). Guests have no per-user progress, so "next" is the first.
+// path (/skill/:id). Guests have no per-user progress, so "next" is the first.
 export async function guestNextLessonPath(topicSlug: string): Promise<string> {
   const outline = await api.public.course(topicSlug)
   if (!outline.nextLessonId) throw new Error('This course has no lessons yet.')
-  return `/learn/${outline.nextLessonId}`
+  return `/skill/`
 }
 
 // Pick the single topic slug to *continue* — for a topic-agnostic entry point

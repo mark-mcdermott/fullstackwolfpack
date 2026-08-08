@@ -5,7 +5,7 @@ import { FwFooter } from './fw-footer'
 import { FwHeader } from './fw-header'
 
 // Public chrome for guest-accessible routes (`/` launcher, `/play` arcade,
-// `/learn` tutorials, `/leaderboard`). Reuses the FW-01 header/footer and shows a
+// `/skill` tutorials, `/leaderboard`). Reuses the FW-01 header/footer and shows a
 // "sign up to save your progress" banner. No RequireAuth — anyone can view; the
 // banner is for guests. The primary nav now lives in the header (FwHeader).
 export function GuestLayout() {
@@ -28,7 +28,7 @@ export function GuestLayout() {
 
 // The per-surface guest nav moved into the header (FwHeader). Kept here,
 // commented, in case we want a secondary sub-nav back:
-// function GuestNav() { ... /  /play  /learn  /leaderboard ... }
+// function GuestNav() { ... /  /play  /skill  /leaderboard ... }
 
 // Parked. A quiet strip, not an alert: the red wash made it read as a warning,
 // so it's just a faintly raised band now with the two actions carrying the color.

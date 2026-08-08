@@ -45,8 +45,8 @@ function App() {
         <Route path="/" element={<GuestHome />} />
         <Route path="/start" element={<GuestHome />} />
         <Route path="/play" element={<ArcadePage />} />
-        <Route path="/learn" element={<LearnBrowse />} />
-        <Route path="/learn/:lessonId" element={<GuestLearn />} />
+        <Route path="/skill" element={<LearnBrowse />} />
+        <Route path="/skill/:lessonId" element={<GuestLearn />} />
         <Route path="/leaderboard" element={<GuestLeaderboard />} />
       </Route>
 

@@ -1,6 +1,8 @@
 import { Link } from 'react-router'
 import { WolfMark } from '@fw/ui'
-import { siteUrl } from '@/consts'
+// Parked with the nav below — its links were the only live caller left; the
+// fuller footer further down still references it, but is itself parked.
+// import { siteUrl } from '@/consts'
 // Parked while we zoom in on the core loop — restore alongside the fuller
 // footer below:
 // import { Globe } from 'lucide-react'
@@ -16,13 +18,17 @@ import { siteUrl } from '@/consts'
 // the terminal readout over the skyline, then a slim brand + nav + status row.
 // The fuller footer (link columns, social row, copyright) is commented out at
 // the bottom — we're focused on the main flow and will resurface it later.
-const NAV: [string, string][] = [
-  ['How It Works', '/how-it-works'],
-  ['Features', '/features'],
-  ['Pricing', '/pricing'],
-  ['Blog', '/blog'],
-  ['About Us', '/about'],
-]
+// Parked with the <nav> below — the footer is the brand mark and the status
+// readout for now. The pages themselves are all still there, so this is a
+// two-block restore. Matches Base.astro, whose own `footerNav` is already
+// parked; the two footers are synced copies and have to move together.
+// const NAV: [string, string][] = [
+//   ['How It Works', '/how-it-works'],
+//   ['Features', '/features'],
+//   ['Pricing', '/pricing'],
+//   ['Blog', '/blog'],
+//   ['About Us', '/about'],
+// ]
 
 // Parked — the full three-column link set + socials (the new nav row above is a
 // curated subset). Restore when we widen the footer scope again.
@@ -88,6 +94,7 @@ export function FwFooter() {
               ウルフパック
             </span>
           </Link>
+          {/* Parked with NAV above.
           <nav className="flex flex-wrap items-center justify-center gap-x-7 gap-y-2">
             {NAV.map(([label, to]) => (
               <a
@@ -98,7 +105,7 @@ export function FwFooter() {
                 {label}
               </a>
             ))}
-          </nav>
+          </nav> */}
           {/* Status readout — all one muted color; each item reads as a phrase,
               not a key/value pair. */}
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 font-mono text-[11px] text-muted-foreground">
