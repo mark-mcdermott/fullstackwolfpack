@@ -131,6 +131,84 @@ export function Pill({
   )
 }
 
+// A hover/focus label for an icon-only control — the readout FW-01 would print
+// next to a switch, not a rounded chat bubble: mono, uppercase, wide-tracked,
+// square, with a small pointer back to the trigger.
+//
+// CSS-only by construction. There is no open state and no timer, so it costs
+// nothing to hydrate and works the same inside an Astro island as in the app;
+// `group-hover` and `group-focus-visible` mean a keyboard tab reveals it too.
+// It stays `pointer-events-none` so it can never eat a click meant for the
+// trigger underneath, and `aria-hidden` because the trigger's own `aria-label`
+// already carries the text — announcing both just says it twice.
+export function Tooltip({
+  label,
+  side = 'bottom',
+  disabled = false,
+  children,
+  className,
+}: {
+  label: string
+  side?: 'top' | 'bottom'
+  disabled?: boolean
+  children: ReactNode
+  className?: string
+}) {
+  // The fill is shared by the bubble and its pointer so the two read as one
+  // shape: flat and high-contrast in light, tinted glass in dark. The tint is
+  // heavy (95%) because the pointer is tucked *behind* the bubble and the
+  // overlap has to actually be covered — at the 80% a lighter glass wants, the
+  // pointer's far edges showed straight through and it read as a floating
+  // diamond rather than as part of the bubble.
+  const fill = 'bg-foreground dark:bg-card/95 dark:backdrop-blur-xl'
+  const isBottom = side === 'bottom'
+  return (
+    <span className={cn('group/tip relative inline-flex', className)}>
+      {children}
+      {!disabled && (
+        <>
+          <span
+            aria-hidden="true"
+            className={cn(
+              'pointer-events-none absolute left-1/2 z-50 -translate-x-1/2 px-2.5 py-1.5 whitespace-nowrap',
+              'font-mono text-[10px] leading-none tracking-[0.18em] uppercase',
+              'text-background dark:text-foreground',
+              fill,
+              'light:shadow-[3px_3px_0_rgb(0_0_0/0.10)]',
+              'dark:ring-1 dark:ring-inset dark:ring-white/15',
+              // Held a few pixels toward the trigger and eased out to rest —
+              // the same small settle as the reference, without the loop.
+              'opacity-0 transition-[opacity,translate] duration-200 ease-out',
+              'group-hover/tip:opacity-100 group-focus-visible/tip:opacity-100',
+              'group-hover/tip:translate-y-0 group-focus-visible/tip:translate-y-0',
+              isBottom ? 'top-full mt-2.5 translate-y-1' : 'bottom-full mb-2.5 -translate-y-1',
+            )}
+          >
+            {label}
+          </span>
+          {/* The pointer: a square turned 45°, sitting half behind the bubble so
+              only the two outward edges show. Those two get a border and the
+              other two do not — a ring draws all four, which in dark outlined
+              the whole diamond and detached it from the bubble. Which pair is
+              outward flips with the side. No cast shadow either: offset by the
+              bubble's 3px it would trail a second diamond. */}
+          <span
+            aria-hidden="true"
+            className={cn(
+              'pointer-events-none absolute left-1/2 z-40 size-2 -translate-x-1/2 rotate-45',
+              fill,
+              'border-foreground dark:border-white/15',
+              'opacity-0 transition-opacity duration-200 ease-out',
+              'group-hover/tip:opacity-100 group-focus-visible/tip:opacity-100',
+              isBottom ? 'top-full mt-1.5 border-t border-l' : 'bottom-full mb-1.5 border-r border-b',
+            )}
+          />
+        </>
+      )}
+    </span>
+  )
+}
+
 export function StatTile({
   icon: Icon,
   value,
