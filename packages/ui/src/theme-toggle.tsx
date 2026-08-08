@@ -131,7 +131,10 @@ export function ThemeToggle({
       {/* Suppressed while the menu is open: the menu is a descendant of this
           root, so hovering an item still counts as hovering the trigger and the
           tooltip would sit over the list it is describing. */}
-      <Tooltip label={`${current.label} mode`} side={side} disabled={open}>
+      {/* End-aligned for the same reason the menu below is `right-0`: this
+          control is the last thing in the bars that host it, so a centred bubble
+          hangs off the viewport. */}
+      <Tooltip label={`${current.label} mode`} side={side} align="end" disabled={open}>
         <button
           ref={buttonRef}
           type="button"
