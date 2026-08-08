@@ -314,8 +314,11 @@
 /* Hero glow (dark only): two black pools, one under the headline and a lighter
    one under the three-line subtitle, so the copy reads against the plate art
    instead of competing with it.
-   Painted as the plate's own background, which puts them under the art with no
-   z-index juggling — a parent's background is below every child by definition.
+   Painted on the hero's content layer, at z-index -1 inside its own stacking
+   context: under the copy, above the plate art. Both halves of that matter —
+   an earlier pass put them on the *plate's* background, which is below every
+   child by definition, so the art covered them and toggling the rule did
+   nothing across most of the headline.
    Black rather than a tint, so the pair darkens what is behind the words rather
    than colouring it; it also makes the ramp clean, since CSS `transparent` is
    already black at zero alpha and there is no grey midpoint to fade through.
@@ -325,7 +328,12 @@
    `overflow-hidden` cut them into visible rectangles — the edge the note on
    Akela's quote halo warns about.
    Light gets none of it: its plate is high-key and the copy already reads. */
-.dark .hero-glow {
+.dark .hero-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
   /* Origins are the measured centre of the *glyphs*, as a fraction of the plate
      — not of the h1, which is a full-width block the text sits left-aligned
      inside, and which is what put an earlier pass's pools out in empty space to

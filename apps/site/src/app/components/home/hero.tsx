@@ -53,7 +53,7 @@ export function HomeHero() {
           Transparent, not `bg-card`: the panel sits over the page itself. */}
       <Panel
         brackets={false}
-        className="hero-glow relative -mx-5 -mt-6 min-h-[19rem] overflow-hidden rounded-none border-0 bg-transparent p-0 max-lg:-mb-6 sm:-mx-7 md:min-h-[22rem] lg:col-span-2 lg:col-start-1 lg:row-start-1 lg:min-h-[28rem]"
+        className="relative -mx-5 -mt-6 min-h-[19rem] overflow-hidden rounded-none border-0 bg-transparent p-0 max-lg:-mb-6 sm:-mx-7 md:min-h-[22rem] lg:col-span-2 lg:col-start-1 lg:row-start-1 lg:min-h-[28rem]"
       >
         {/* Decorative, so the art rides on a background rather than an <img>:
             the theme picks the plate via `--hero-image` (index.css), which keeps
@@ -107,7 +107,12 @@ export function HomeHero() {
           </span>
         ))} */}
 
-        <div className="relative flex h-full flex-col justify-center gap-6 p-6 sm:p-8">
+        {/* `isolate` is load-bearing, not tidiness: it opens a stacking context so
+            the glow below can sit at z-index -1 *inside* this layer — under the
+            copy but still above the plate art, which is the only place a
+            legibility pool does anything. Without it the -1 escapes to <main>
+            and lands under the art, where the art hides it. */}
+        <div className="hero-glow relative isolate flex h-full flex-col justify-center gap-6 p-6 sm:p-8">
           <div>
             {/* No weight utility: 400 is the heading font's pinned axis, so the
                 headline just inherits it — no `font-variation-settings` escape
