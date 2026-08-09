@@ -49,9 +49,14 @@ const guest = {
   loading: false,
 } as unknown as AuthContextValue
 
-function renderPage() {
+const signedIn = {
+  user: { id: 'u1', email: 'wolf@example.com' },
+  loading: false,
+} as unknown as AuthContextValue
+
+function renderPage(auth: AuthContextValue = guest) {
   render(
-    <AuthContext.Provider value={guest}>
+    <AuthContext.Provider value={auth}>
       <MemoryRouter>
         <LearnBrowse />
       </MemoryRouter>
@@ -97,5 +102,29 @@ describe('LearnBrowse', () => {
     expect(cta).toHaveAttribute('href', '/skill/l2')
     expect(screen.getByText('75')).toBeInTheDocument() // XP banked as a guest
     expect(screen.getByText('1 / 2')).toBeInTheDocument() // lessons done
+  })
+
+  // It used to redirect them to /app/topics, which made "Skill" in the header a
+  // dead nav item once signed-in users started landing on `/`.
+  it('renders the built-ins for a signed-in user instead of redirecting', async () => {
+    renderPage(signedIn)
+
+    expect(
+      await screen.findByRole('heading', { name: 'JavaScript' }),
+    ).toBeInTheDocument()
+    // The signup pitch and the device-local progress card are guest-only; they
+    // hand off to the account's own copy of the course.
+    expect(
+      screen.getByRole('link', { name: /open in my account/i }),
+    ).toHaveAttribute('href', '/app/topics?topic=javascript')
+    expect(screen.queryByText(/create a free account/i)).not.toBeInTheDocument()
+  })
+
+  // Rendering on an unresolved session would flash the signup CTA at someone
+  // who is signed in.
+  it('renders nothing until the session resolves', () => {
+    renderPage({ user: null, loading: true } as unknown as AuthContextValue)
+
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument()
   })
 })
