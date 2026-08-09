@@ -20,6 +20,10 @@ import { getLessonView, type AnswerInput } from './learning'
 // unlogged.
 
 // Topics that have a built-in course — the guest browse gallery (/skill).
+// Archived topics are held back: built, seeded, but off the menu (see
+// `topicStatus` in db/schema/catalog.ts). This is a gallery, so it filters;
+// getPublicCourseOutline below deliberately does not, and an archived topic
+// stays reachable by its slug.
 export async function getPublicTopics(): Promise<PublicTopic[]> {
   const rows = await db
     .selectDistinct({
@@ -29,7 +33,7 @@ export async function getPublicTopics(): Promise<PublicTopic[]> {
     })
     .from(topics)
     .innerJoin(courses, eq(courses.topicId, topics.id))
-    .where(isNull(courses.ownerUserId))
+    .where(and(isNull(courses.ownerUserId), eq(topics.status, 'active')))
     .orderBy(topics.name)
   return rows.map((r) => ({
     slug: r.slug,
