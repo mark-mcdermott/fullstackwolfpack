@@ -17,7 +17,8 @@ import { useAuth } from '@/hooks/auth-context'
 import { useRomLibrary } from '@/hooks/use-rom-library'
 // TEMP (single-title focus): RomSystem returns with the upload handler.
 // import type { RomSystem } from '@/core/roms'
-import { Panel, SectionLabel } from '@fw/ui'
+import { Panel, SectionLabel, cardLiftClass } from '@fw/ui'
+import { cn } from '@/lib/utils'
 
 // TEMP (single-title focus): the arcade leads with one title while we make it
 // perfect. Drop this and the gallery below returns to being the whole page.
@@ -113,7 +114,7 @@ const STEPS = [
 // subtitle copy.
 function LoopSteps() {
   return (
-    <Panel brackets={false} className="rounded-2xl">
+    <Panel brackets={false} className={cn('rounded-2xl', cardLiftClass)}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <SectionLabel>How the loop works</SectionLabel>
         <span className="font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
@@ -150,7 +151,10 @@ function LoopSteps() {
 function Controls() {
   const signedIn = !!useAuth().user
   return (
-    <Panel brackets={false} className="flex flex-col gap-4 rounded-2xl">
+    <Panel
+      brackets={false}
+      className={cn('flex flex-col gap-4 rounded-2xl', cardLiftClass)}
+    >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <SectionLabel>Controls</SectionLabel>
         <span className="font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
@@ -188,7 +192,10 @@ function AboutRom({ game }: { game: RomEntry }) {
     ['License', game.license],
   ]
   return (
-    <Panel brackets={false} className="flex flex-col gap-4 rounded-2xl">
+    <Panel
+      brackets={false}
+      className={cn('flex flex-col gap-4 rounded-2xl', cardLiftClass)}
+    >
       <SectionLabel>About this ROM</SectionLabel>
       <dl className="flex flex-col gap-2 font-mono text-[11px]">
         {rows.map(([label, value]) => (

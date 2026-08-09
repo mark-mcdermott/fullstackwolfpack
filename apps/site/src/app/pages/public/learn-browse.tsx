@@ -6,7 +6,13 @@ import { AsyncView, EmptyState } from '@/components/layout/async-view'
 import { SkillIcon } from '@/components/launch/skill-icon'
 import { CourseHero } from '@/components/learn/course-hero'
 import { CourseOutlineList } from '@/components/learn/course-outline-list'
-import { Panel, SectionLabel } from '@fw/ui'
+import {
+  Panel,
+  SectionLabel,
+  cardLiftClass,
+  raisedCtaClass,
+  raisedCtaCompactClass,
+} from '@fw/ui'
 import type { CourseLesson } from '@/core/app-data'
 import { formatPlaytime } from '@/core/playtime'
 import type { PublicTopic } from '@/core/public-content'
@@ -14,6 +20,7 @@ import { useAuth } from '@/hooks/auth-context'
 import { useAsync } from '@/hooks/use-async'
 import { guestCompletedLessonIds, guestXp } from '@/lib/guest-progress'
 import { topicCoursePath } from '@/lib/open-course'
+import { cn } from '@/lib/utils'
 
 const lessonPath = (lessonId: string) => `/skill/${lessonId}`
 
@@ -101,7 +108,7 @@ function FeaturedCourse({
               )}
             </section>
 
-            <Panel brackets={false} className="rounded-2xl">
+            <Panel brackets={false} className={cn('rounded-2xl', cardLiftClass)}>
               <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
                 <SectionLabel>Course outline</SectionLabel>
                 <span className="font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
@@ -148,7 +155,10 @@ function AccountCourseCard({
   lessons: CourseLesson[]
 }) {
   return (
-    <Panel brackets={false} className="flex flex-col gap-4 rounded-2xl">
+    <Panel
+      brackets={false}
+      className={cn('flex flex-col gap-4 rounded-2xl', cardLiftClass)}
+    >
       <SectionLabel>Built-in track</SectionLabel>
 
       <div className="flex items-baseline gap-1">
@@ -174,7 +184,7 @@ function AccountCourseCard({
       <div className="mt-auto">
         <Link
           to={topicCoursePath(topic.slug)}
-          className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 font-mono text-xs font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90"
+          className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-blaze w-full')}
         >
           Open in my account
           <ArrowRight className="size-4" />
@@ -198,7 +208,10 @@ function GuestProgressCard({
   const done = lessons.filter((l) => completedIds.has(l.lessonId)).length
 
   return (
-    <Panel brackets={false} className="flex flex-col gap-4 rounded-2xl">
+    <Panel
+      brackets={false}
+      className={cn('flex flex-col gap-4 rounded-2xl', cardLiftClass)}
+    >
       <SectionLabel>Your progress</SectionLabel>
 
       <div className="flex items-baseline gap-1">
@@ -225,7 +238,7 @@ function GuestProgressCard({
       <div className="mt-auto flex flex-col gap-2">
         <Link
           to="/signup"
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 font-mono text-xs font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90"
+          className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-blaze w-full')}
         >
           {done > 0 ? 'Save my progress' : 'Create a free account'}
           <ArrowRight className="size-4" />
@@ -251,7 +264,10 @@ function MoreSkills({ topics }: { topics: PublicTopic[] }) {
           <Link
             key={topic.slug}
             to={`/skill?topic=${encodeURIComponent(topic.slug)}`}
-            className="group flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-colors hover:border-primary/60"
+            className={cn(
+              'group flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-colors hover:border-primary/60',
+              cardLiftClass,
+            )}
           >
             <SkillIcon topic={topic} />
             <span className="min-w-0 flex-1">
@@ -272,9 +288,15 @@ function MoreSkills({ topics }: { topics: PublicTopic[] }) {
 
 function UnlockStrip() {
   return (
+    // Lifted like its siblings, but the dashed border stays: the elevation
+    // makes it a card, the dash keeps it reading as an aside rather than
+    // another course surface.
     <Panel
       brackets={false}
-      className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border-dashed"
+      className={cn(
+        'flex flex-wrap items-center justify-between gap-4 rounded-2xl border-dashed',
+        cardLiftClass,
+      )}
     >
       <div>
         <SectionLabel>Beyond the built-ins</SectionLabel>

@@ -58,6 +58,30 @@ export const raisedCtaClass = cn(
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
 )
 
+// The compact step of the raised CTA — the size that belongs in a card footer
+// or beside body copy rather than under a hero headline. 40px against the base
+// 56px, with the type one step down to match.
+//
+// The `dark:` padding is not decoration: `raisedCtaClass` ships its own
+// `dark:pt-4 dark:pb-4`, and a `dark:` utility outranks an unprefixed pair, so
+// a compact button that only restated the light padding would silently grow
+// back to 52px in dark. Same 20px total either way, split evenly here because
+// dark's rim is even top and bottom where light's bevel sits a pixel low.
+export const raisedCtaCompactClass = cn(
+  'px-4 pt-[11px] pb-[9px] text-[20px]/[20px]',
+  'dark:pt-[10.5px] dark:pb-[9.5px]',
+)
+
+// Card elevation. Light lifts the surface off the page the way the home
+// header and Akela's tile do; dark can't reuse that shadow — a black haze on a
+// near-black page is invisible — so it goes deeper and tighter, reading as
+// depth under a glassy surface rather than a cast shadow.
+//
+// Carried as a token (`--panel-lift`, declared in the index.css/theme.css
+// pair) rather than two arbitrary values, so the two themes stay one DOM tree
+// and the lift can be retuned in one place.
+export const cardLiftClass = 'shadow-[var(--panel-lift)]'
+
 export function RaisedButton({ className, ...props }: ComponentProps<'button'>) {
   return (
     <button type="button" className={cn(raisedCtaClass, className)} {...props} />

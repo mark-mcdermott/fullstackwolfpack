@@ -1,7 +1,15 @@
 import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router'
 import { SkillIcon } from '@/components/launch/skill-icon'
-import { Panel, ProgressMeter, SectionLabel } from '@fw/ui'
+import {
+  Panel,
+  ProgressMeter,
+  SectionLabel,
+  cardLiftClass,
+  raisedCtaClass,
+  raisedCtaCompactClass,
+} from '@fw/ui'
+import { cn } from '@/lib/utils'
 import type { CourseLesson } from '@/core/app-data'
 import { XP } from '@/core/learning'
 import { formatPlaytime } from '@/core/playtime'
@@ -33,7 +41,10 @@ export function CourseHero({
   return (
     <Panel
       brackets={false}
-      className="relative min-h-[17rem] overflow-hidden rounded-2xl p-0 md:min-h-[19rem]"
+      className={cn(
+        'relative min-h-[17rem] overflow-hidden rounded-2xl p-0 md:min-h-[19rem]',
+        cardLiftClass,
+      )}
     >
       <img
         src="/images/footer-2.png"
@@ -82,9 +93,19 @@ export function CourseHero({
 
           {next && (
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              {/* `flare`, the launcher's variant, rather than the hero's
+                  `ember`: this button sits on the skyline plate, and ember is
+                  all but out by 70% of its width — tuned to read against the
+                  home hero's high-key art, it sinks into this one. `max-w-full`
+                  because the label carries a lesson title, so the CTA's `w-fit`
+                  has to be able to give. */}
               <Link
                 to={hrefFor(next.lessonId)}
-                className="inline-flex h-11 max-w-full items-center gap-2 rounded-lg bg-primary px-5 font-mono text-xs font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90"
+                className={cn(
+                  raisedCtaClass,
+                  raisedCtaCompactClass,
+                  'cta-flare max-w-full',
+                )}
               >
                 <span className="truncate">
                   {done > 0 ? 'Continue' : 'Start'}: {next.title}
