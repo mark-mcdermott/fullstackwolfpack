@@ -103,7 +103,7 @@ function DPad({ onDown, onUp }: PadHandlers) {
     <div
       ref={ref}
       aria-label="D-pad"
-      className="grid size-28 shrink-0 touch-none grid-cols-3 grid-rows-3 select-none"
+      className="grid size-[min(8.75rem,34vw)] shrink-0 touch-none grid-cols-3 grid-rows-3 select-none"
       onContextMenu={(e) => e.preventDefault()}
       onPointerDown={(e) => {
         if (pointerId.current !== null) return
@@ -155,7 +155,7 @@ function DpadArm({
         active ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground',
       )}
     >
-      <Icon className="size-5" />
+      <Icon className="size-7" />
     </span>
   )
 }
@@ -220,7 +220,7 @@ export function TouchControls({
   const handlers = { onDown, onUp }
 
   return (
-    <div className="flex flex-col gap-3 border border-border bg-background/60 p-3 select-none">
+    <div className="flex flex-col gap-4 border border-border bg-background/60 p-3 select-none min-[400px]:p-4">
       {shoulders.length > 0 && (
         <div className="flex items-center justify-between">
           {shoulders.map((b) => (
@@ -228,29 +228,29 @@ export function TouchControls({
               key={b}
               button={b}
               label={BUTTON_META[b].label}
-              className="h-9 w-20 text-xs tracking-widest"
+              className="h-12 w-24 text-sm tracking-widest"
               {...handlers}
             />
           ))}
         </div>
       )}
 
-      <div className="flex items-center justify-center gap-3">
+      <div className="flex items-center justify-center gap-3 min-[400px]:gap-6">
         <DPad {...handlers} />
         <FaceCluster face={face} {...handlers} />
       </div>
 
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex items-center justify-center gap-4 min-[400px]:gap-6">
         <PadButton
           button="select"
           label="Select"
-          className="h-6 w-16 text-[9px] tracking-wide uppercase"
+          className="h-11 w-[min(8rem,34vw)] rounded-lg text-[11px] tracking-widest uppercase"
           {...handlers}
         />
         <PadButton
           button="start"
           label="Start"
-          className="h-6 w-16 text-[9px] tracking-wide uppercase"
+          className="h-11 w-[min(8rem,34vw)] rounded-lg text-[11px] tracking-widest uppercase"
           {...handlers}
         />
       </div>
@@ -262,7 +262,7 @@ export function TouchControls({
 // (X top · Y left · A right · B bottom).
 function FaceCluster({ face, onDown, onUp }: PadHandlers & { face: RetroButton[] }) {
   const handlers = { onDown, onUp }
-  const round = 'size-12 rounded-full text-sm'
+  const round = 'size-[min(4rem,15.5vw)] rounded-full text-base'
 
   if (face.length <= 2) {
     return (
@@ -284,7 +284,7 @@ function FaceCluster({ face, onDown, onUp }: PadHandlers & { face: RetroButton[]
     <PadButton button={b} label={BUTTON_META[b].label} className={round} {...handlers} />
   )
   return (
-    <div className="grid size-32 shrink-0 grid-cols-3 grid-rows-3 place-items-center">
+    <div className="grid size-[min(11rem,42vw)] shrink-0 grid-cols-3 grid-rows-3 place-items-center">
       <span />
       {slot('x')}
       <span />
