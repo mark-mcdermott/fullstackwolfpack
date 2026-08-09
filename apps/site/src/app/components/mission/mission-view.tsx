@@ -4,6 +4,8 @@ import {
   CircleCheck,
   CircleDot,
   Code,
+  Eye,
+  EyeOff,
   Gamepad2,
   Pause,
   Play,
@@ -12,8 +14,8 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react'
-import { type ReactNode } from 'react'
-import { Panel } from '@fw/ui'
+import { useState, type ReactNode } from 'react'
+import { Panel, Tooltip } from '@fw/ui'
 import { LessonStage } from '@/components/mission/lesson-stage'
 import { MissionGame } from '@/components/mission/mission-game'
 import { MissionLessonResolver } from '@/components/mission/mission-lesson-resolver'
@@ -48,9 +50,15 @@ export function MissionView({
   const learnPhase = phase === 'learn'
   const paused = timer.active && timer.paused
   const phaseTotal = timer.step ? timer.step.seconds : session.playMinutes * 60
+  // Focus mode strips the mission down to the one tile you are actually in —
+  // the game while playing, the lesson while learning. Everything else (bar,
+  // control panel, progress rail) is orientation, and orientation is exactly
+  // what you do not want while concentrating.
+  const [focus, setFocus] = useState(false)
 
   return (
     <div className="flex flex-col gap-4">
+      {!focus && (
       <MissionBar
         session={session}
         phase={phase}
@@ -63,8 +71,9 @@ export function MissionView({
         onPauseToggle={paused ? timer.resume : timer.pause}
         onExit={onExit}
       />
+      )}
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
+      <div className={cn('grid gap-4', !focus && 'lg:grid-cols-[1fr_20rem]')}>
         <div className="relative min-w-0">
           {/* The game stays mounted the whole session so its state is preserved.
               During learn we take it out of the layout (the lesson takes the
@@ -80,11 +89,42 @@ export function MissionView({
             <GameStage session={session} paused={learnPhase || paused} />
           </div>
           {learnPhase && <LessonStage onResume={timer.skip} />}
+          {/* The way out. On the stage rather than back in the chrome, because
+              the chrome is precisely what focus mode has taken away — an exit
+              anywhere else would be invisible from inside the mode. */}
+          {/* The positioning goes on the Tooltip, not the button: Tooltip wraps
+              its child in its own `relative` span, so an `absolute` on the
+              button anchors to that span and lands wherever the span happens to
+              sit in flow — which put it against the far left of the page. */}
+          {focus && (
+            <Tooltip
+              label="End focus"
+              side="top"
+              align="end"
+              className="absolute right-3 bottom-3 z-20"
+            >
+              <button
+                type="button"
+                onClick={() => setFocus(false)}
+                aria-label="End focus"
+                className="flex size-9 items-center justify-center rounded-md border border-border bg-card/85 text-muted-foreground backdrop-blur transition-colors hover:border-primary hover:text-primary"
+              >
+                <EyeOff className="size-4" />
+              </button>
+            </Tooltip>
+          )}
         </div>
-        <MissionControl session={session} phase={phase} onSkip={timer.skip} />
+        {!focus && (
+          <MissionControl
+            session={session}
+            phase={phase}
+            onSkip={timer.skip}
+            onFocus={() => setFocus(true)}
+          />
+        )}
       </div>
 
-      <SessionProgress />
+      {!focus && <SessionProgress />}
 
       {/* Feeds the Mission Control TOC during play (the lesson player, which
           feeds it during learn, isn't mounted then). */}
@@ -282,10 +322,12 @@ function MissionControl({
   session,
   phase,
   onSkip,
+  onFocus,
 }: {
   session: MissionSession
   phase: FocusPhase | null
   onSkip: () => void
+  onFocus: () => void
 }) {
   const learn = phase === 'learn'
 
@@ -358,6 +400,23 @@ function MissionControl({
             </span>
             <Histogram />
           </div>
+        </div>
+
+        {/* Icon-only, at the foot of the panel — it is a mode switch, not a
+            mission action, so it sits apart from the ones above it. Tooltip
+            rather than a label for the same reason the theme control uses one:
+            the word would give it more weight in the column than it deserves. */}
+        <div className="flex justify-end border-t border-border pt-4">
+          <Tooltip label="Focus" side="top" align="end">
+            <button
+              type="button"
+              onClick={onFocus}
+              aria-label="Focus"
+              className="flex size-9 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+            >
+              <Eye className="size-4" />
+            </button>
+          </Tooltip>
         </div>
       </div>
     </Panel>
