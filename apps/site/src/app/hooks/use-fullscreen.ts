@@ -67,14 +67,20 @@ export function useFullscreen<T extends HTMLElement>(): {
     }
   }, [])
 
-  // While immersive, the page behind must not scroll — a stray drag otherwise
-  // slides the surface off screen with no way back to it.
+  // While immersive: lock the page behind (a stray drag would otherwise slide
+  // the surface off screen with no way back), and flag the body so the chrome
+  // can get out of the way. `fixed inset-0` is not enough on its own — <main>
+  // is `isolate`, so every z-index inside it is trapped in that stacking
+  // context and the header paints straight over a "fullscreen" game. The CSS
+  // that flag drives is in index.css.
   useEffect(() => {
     if (!immersive) return
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+    document.body.dataset.immersive = 'true'
     return () => {
       document.body.style.overflow = prev
+      delete document.body.dataset.immersive
     }
   }, [immersive])
 

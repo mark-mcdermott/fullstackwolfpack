@@ -502,6 +502,22 @@
      with the default farthest-corner the gradient outruns the box horizontally
      and clips into a hard vertical line.
    - The top of the box sits behind the header, which is opaque in light. */
+/* Immersive fullscreen fallback — the path taken where there is no element
+   fullscreen API at all (iPhone Safari). The surface pins itself with
+   `fixed inset-0 z-50`, but that alone leaves the page chrome on top of it:
+   <main> carries `isolate`, so a z-index inside it cannot outrank a sibling
+   header no matter how large. Dropping main's isolation for the duration, and
+   taking the chrome out of the flow, is what actually clears the screen.
+   Set by `useFullscreen` on <body> so it can reach across the whole tree. */
+body[data-immersive] header,
+body[data-immersive] footer {
+  display: none;
+}
+
+body[data-immersive] main {
+  isolation: auto;
+}
+
 /* Hero atmosphere (dark only). Two very faint pools — violet behind the
    headline, cooler blue out towards Akela — so the top of the page reads as air
    with something in it rather than as unlit black around a lit plate.
