@@ -12,7 +12,20 @@ import { gitGoalSchema } from './git-sim'
 // renders the question; the server grades it and returns an `AnswerFeedback`. That way
 // the answers can't be read out of the page source.
 
-export const segmentKinds = ['reading', 'code', 'practice', 'quiz'] as const
+// The first four are the original vocabulary, kept for content already stored
+// against them; the rest are the teaching roles new lessons are built from.
+export const segmentKinds = [
+  'reading',
+  'code',
+  'practice',
+  'quiz',
+  'hook',
+  'mechanism',
+  'predict',
+  'reveal',
+  'derive',
+  'check',
+] as const
 export const questionKinds = ['mcq', 'short_answer'] as const
 
 export const questionViewSchema = z.object({

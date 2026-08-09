@@ -46,7 +46,17 @@ export type SeedExercise = SeedJsExercise | SeedGitExercise
 
 export type SeedSegment = {
   id: string
-  type: 'reading' | 'code' | 'practice' | 'quiz'
+  type:
+    | 'reading'
+    | 'code'
+    | 'practice'
+    | 'quiz'
+    | 'hook'
+    | 'mechanism'
+    | 'predict'
+    | 'reveal'
+    | 'derive'
+    | 'check'
   title: string
   markdown: string
   estMinutes: number

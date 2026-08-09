@@ -225,11 +225,29 @@ describe('buildGenerationPrompt', () => {
     expect(p).toContain(`${COURSE_TARGET.minLessons}-${COURSE_TARGET.maxLessons} lessons`)
     expect(p).toContain(`${COURSE_TARGET.minQuizPerLesson} quiz questions`)
   })
-  it('demands substantive readings, not one-sentence definitions', () => {
+  it('asks for one idea per segment and refuses unexplained concepts', () => {
     const p = buildGenerationPrompt({ topic: 'Docker', difficulty: 'beginner' })
-    expect(p).toMatch(/at least 120 words/)
-    expect(p).toMatch(/inline example/i)
-    expect(p).toMatch(/unacceptable/i)
+    expect(p).toMatch(/ONE idea per segment/)
+    expect(p).toMatch(/NEVER name a concept you do not then explain/)
+    expect(p).toMatch(/NO forward references/)
+  })
+
+  // The regression this guards is the one that produced the thin content in the
+  // first place: a word floor becomes the target the model writes to and stops
+  // at. Depth has to come from each segment having a job, not from a minimum.
+  it('sets no word floor — segment length follows the job', () => {
+    const p = buildGenerationPrompt({ topic: 'Docker', difficulty: 'beginner' })
+    expect(p).not.toMatch(/at least \d+ words/i)
+    expect(p).toMatch(/Length is whatever the job takes/)
+  })
+
+  it('gives every teaching role a job', () => {
+    const p = buildGenerationPrompt({ topic: 'JavaScript', difficulty: 'beginner' })
+    for (const role of ['hook', 'mechanism', 'predict', 'reveal', 'derive', 'check']) {
+      expect(p).toContain(`"${role}"`)
+    }
+    // predict must not leak its own answer, or the commitment is worthless.
+    expect(p).toMatch(/Never reveal the outcome in a predict body/)
   })
   it('describes runnable exercises (starterCode + tests) for practice segments', () => {
     const p = buildGenerationPrompt({ topic: 'JavaScript', difficulty: 'beginner' })

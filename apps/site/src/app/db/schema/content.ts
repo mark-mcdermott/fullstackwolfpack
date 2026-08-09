@@ -25,11 +25,20 @@ export const difficulty = pgEnum('difficulty', [
   'intermediate',
   'advanced',
 ])
+// The first four are the original vocabulary and stay for the content already
+// in the database. The six after them are the teaching roles a lesson is built
+// from now — see core/generation.ts for what each one owes the reader.
 export const segmentType = pgEnum('segment_type', [
   'reading',
   'code',
   'practice',
   'quiz',
+  'hook',
+  'mechanism',
+  'predict',
+  'reveal',
+  'derive',
+  'check',
 ])
 export const questionType = pgEnum('question_type', ['mcq', 'short_answer'])
 
