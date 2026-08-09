@@ -336,8 +336,11 @@ function LauncherForm({
 
         {/* play + learn — a centered row of their own below md; inline on the
             shared line at md and up. */}
-        <div className="flex items-start gap-2 max-md:w-full max-md:justify-center min-[430px]:max-md:contents">
-          <Control label={first.label} className="min-w-0">
+        <div className="flex items-start gap-2 max-md:w-full max-md:justify-center min-[430px]:max-md:col-span-2 min-[430px]:max-md:grid min-[430px]:max-md:grid-cols-5 min-[430px]:max-md:gap-x-2">
+          <Control
+            label={first.label}
+            className="min-w-0 min-[430px]:max-md:col-span-2"
+          >
             <TimeStepper
               value={first.value}
               onChange={first.set}
@@ -345,7 +348,7 @@ function LauncherForm({
               className="min-[430px]:max-md:w-full"
             />
           </Control>
-          <div className="flex flex-col gap-1.5 min-[430px]:max-lg:hidden">
+          <div className="flex flex-col gap-1.5 md:max-lg:hidden min-[430px]:max-md:items-center">
             <FieldLabel aria-hidden="true" className="opacity-0">
               swap
             </FieldLabel>
@@ -361,7 +364,10 @@ function LauncherForm({
               </button>
             </div>
           </div>
-          <Control label={second.label} className="min-w-0">
+          <Control
+            label={second.label}
+            className="min-w-0 min-[430px]:max-md:col-span-2"
+          >
             <TimeStepper
               value={second.value}
               onChange={second.set}
