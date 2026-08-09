@@ -138,9 +138,12 @@ function PlaytimeCard({
   const played = playtime?.seconds ?? 0
 
   return (
+    // `self-start` so the card hugs its rows rather than stretching to the
+    // featured tile's height — with the signup block parked, the guest side
+    // has only XP and the two rates to fill it and read as half empty.
     <Panel
       brackets={false}
-      className={cn('flex flex-col gap-4 rounded-2xl', cardLiftClass)}
+      className={cn('flex flex-col gap-4 self-start rounded-2xl', cardLiftClass)}
     >
       <SectionLabel>{signedIn ? 'Your playtime' : 'Your run'}</SectionLabel>
 
@@ -185,6 +188,9 @@ function PlaytimeCard({
               <dd>{PLAY_XP_DAILY_CAP} XP</dd>
             </div>
           </dl>
+          {/* Parked with the rest of the signup pitch. What is left is the
+              guest's own run — XP banked, earn rate, daily cap — with nothing
+              asking them to convert.
           <p className="font-mono text-[11px] leading-relaxed text-muted-foreground">
             Play as long as you like — an account keeps the XP and tracks your
             time per title.
@@ -204,6 +210,7 @@ function PlaytimeCard({
               </Link>
             </p>
           </div>
+          */}
         </>
       )}
     </Panel>

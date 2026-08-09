@@ -125,7 +125,8 @@ function FeaturedCourse({
             </Panel>
 
             {others.length > 0 && <MoreSkills topics={others} />}
-            {!signedIn && <UnlockStrip />}
+            {/* Parked: the whole strip is a signup pitch.
+            {!signedIn && <UnlockStrip />} */}
           </div>
         )
       }
@@ -208,9 +209,13 @@ function GuestProgressCard({
   const done = lessons.filter((l) => completedIds.has(l.lessonId)).length
 
   return (
+    // `self-start`, unlike its signed-in sibling: a grid item stretches to the
+    // hero's height by default, and with the signup block parked there is no
+    // longer the content to fill it — the card was half empty. It hugs what it
+    // has instead. Drop this if the pitch (or anything else) comes back.
     <Panel
       brackets={false}
-      className={cn('flex flex-col gap-4 rounded-2xl', cardLiftClass)}
+      className={cn('flex flex-col gap-4 self-start rounded-2xl', cardLiftClass)}
     >
       <SectionLabel>Your progress</SectionLabel>
 
@@ -229,6 +234,9 @@ function GuestProgressCard({
         </span>
       </div>
 
+      {/* Parked with the rest of the signup pitch. The card is the guest's
+          run, not a conversion surface, for now — it keeps the XP and the
+          lesson count and says nothing about accounts.
       <p className="font-mono text-[11px] leading-relaxed text-muted-foreground">
         {done > 0
           ? 'Saved on this device only — an account keeps it on all of them.'
@@ -250,6 +258,7 @@ function GuestProgressCard({
           </Link>
         </p>
       </div>
+      */}
     </Panel>
   )
 }
@@ -286,6 +295,10 @@ function MoreSkills({ topics }: { topics: PublicTopic[] }) {
   )
 }
 
+// Parked with its call site above — "Beyond the built-ins" is entirely an
+// account pitch. Kept whole (including its lift, which is the dashed-border
+// treatment its siblings don't need) so bringing it back is one uncomment.
+/*
 function UnlockStrip() {
   return (
     // Lifted like its siblings, but the dashed border stays: the elevation
@@ -315,3 +328,4 @@ function UnlockStrip() {
     </Panel>
   )
 }
+*/
