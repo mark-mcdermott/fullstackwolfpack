@@ -1,3 +1,4 @@
+import { Maximize, Minimize } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { TouchControls } from '@/components/controls/touch-controls'
 import { bindsToRetroarchConfig, type RetroButton } from '@/core/controls'
@@ -10,6 +11,8 @@ import {
 } from '@/lib/rom-catalog'
 import { loadGamepadBinds, loadKeyboardBinds } from '@/lib/controls-store'
 import { useCoarsePointer } from '@/hooks/use-coarse-pointer'
+import { useFullscreen } from '@/hooks/use-fullscreen'
+import { cn } from '@/lib/utils'
 
 type Status = 'loading' | 'playing' | 'missing' | 'error'
 
@@ -27,6 +30,11 @@ export function MissionGame({
   const sessionRef = useRef<EmulatorSession | null>(null)
   const [status, setStatus] = useState<Status>('loading')
   const coarse = useCoarsePointer()
+  // The arcade route has had this all along; the mission surface never did,
+  // because it was built as RomPlayer minus the page chrome. The target is the
+  // whole column, not just the frame — the on-screen pad has to come with it or
+  // fullscreen makes the game unplayable on a phone.
+  const fs = useFullscreen<HTMLDivElement>()
 
   const pressDown = useCallback(
     (b: RetroButton) => sessionRef.current?.pressDown(b),
@@ -99,9 +107,39 @@ export function MissionGame({
   }, [paused, status])
 
   return (
-    <div className="flex w-full flex-col items-center gap-4">
-      <div className="relative aspect-[10/9] w-full max-w-[42rem] overflow-hidden rounded-md border border-white/10 bg-black">
+    <div
+      ref={fs.ref}
+      className={cn(
+        'flex w-full flex-col items-center gap-4',
+        fs.isFullscreen && 'justify-center bg-black p-2',
+        // The CSS fallback path (iPhone has no element-fullscreen API).
+        // `dvh` so Safari's collapsing toolbars cannot crop the pad off the
+        // bottom, which is the one thing that would make this worse than not
+        // going fullscreen at all.
+        fs.immersive && 'fixed inset-0 z-50 h-[100dvh] w-screen',
+      )}
+    >
+      <div
+        className={cn(
+          'relative aspect-[10/9] overflow-hidden rounded-md border border-white/10 bg-black',
+          fs.isFullscreen
+            ? 'max-h-full min-h-0 w-auto max-w-full flex-1'
+            : 'w-full max-w-[42rem]',
+        )}
+      >
         <div ref={containerRef} className="absolute inset-0" />
+        <button
+          type="button"
+          onClick={fs.toggle}
+          aria-label={fs.isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+          className="absolute top-2 right-2 z-10 flex size-9 items-center justify-center rounded-md border border-white/15 bg-black/55 text-white/80 backdrop-blur transition-colors hover:border-white/40 hover:text-white"
+        >
+          {fs.isFullscreen ? (
+            <Minimize className="size-4" />
+          ) : (
+            <Maximize className="size-4" />
+          )}
+        </button>
         {status !== 'playing' && (
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="font-mono text-[11px] tracking-wide text-white/50">
