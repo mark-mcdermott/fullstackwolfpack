@@ -29,7 +29,7 @@ export function CreedBand() {
           slice is 18KB against dark's 2.4MB. Same seam as `--hero-image`. */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[image:var(--creed-image)] bg-cover bg-center bg-no-repeat md:[mask-image:linear-gradient(to_right,transparent,black_30%,black_85%,transparent)] dark:brightness-[0.82] dark:saturate-[0.85]"
+        className="absolute inset-0 bg-[image:var(--creed-image)] bg-cover bg-[position:78%_center] bg-no-repeat md:bg-center md:[mask-image:linear-gradient(to_right,transparent,black_30%,black_85%,transparent)] dark:brightness-[0.82] dark:saturate-[0.85]"
       />
       {/* Scrims parked. All three existed to tame the dark neon plate; light's
           purpose-cut slice is high-key and carries its own edge mask, so they
@@ -84,7 +84,7 @@ export function CreedBand() {
 
         {/* Terminal readout. Its own surface in light so it reads as a panel
             against the art rather than sitting loose on it. */}
-        <div className="flex shrink-0 flex-col justify-center rounded-r-xl border-border md:self-stretch light:border-l light:border-[#e2dfde] light:bg-white light:p-4 light:shadow-[var(--field-shadow)] md:border-l md:pl-8 md:light:pl-4 dark:border-white/15">
+        <div className="flex shrink-0 flex-col justify-center rounded-r-xl border-border p-4 md:self-stretch light:border-l light:border-[#e2dfde] light:bg-white light:shadow-[var(--field-shadow)] md:border-l dark:border-white/15 dark:bg-[#0b1018]">
           <div className="flex flex-col font-mono text-sm tracking-wide">
             {[
               { label: 'Lock in', tone: 'text-primary' },
@@ -207,15 +207,80 @@ function PathHex({ last, children }: { last: boolean; children: ReactNode }) {
 // 35px is the hex's half-width, +4 for breathing room; `top` is that same half
 // less 1, to sit the rule on the hex's centre line. Both track the hex size —
 // resize PathHex and these move with it.
-function PathRail() {
+// The connectors between steps. Three layouts to serve, because the grid is
+// 2 / 3 / 6 across: what is a mid-row link at one width is a line wrap at
+// another, so each step renders every variant it might need and the breakpoint
+// picks one. `cols` is which grid this variant belongs to.
+//
+// Mid-row is a straight run from this hex's edge to the next one's, ending in a
+// chevron — the mock's dotted rule in light, a solid one in dark.
+function PathRailAcross({ cols, violet }: { cols: 2 | 3 | 6; violet?: boolean }) {
   return (
     <span
       aria-hidden="true"
-      className="absolute top-[30px] right-[calc(-50%+39px)] left-[calc(50%+39px)] hidden items-center gap-1 sm:top-[34px] md:flex"
+      className={cn(
+        'pointer-events-none absolute top-[30px] right-[calc(-50%+39px)] left-[calc(50%+39px)] items-center gap-1 sm:top-[34px]',
+        cols === 2 && 'flex sm:hidden',
+        cols === 3 && 'hidden sm:flex md:hidden',
+        cols === 6 && 'hidden md:flex',
+      )}
     >
-      <span className="h-0 flex-1 border-t light:border-dotted light:border-[#c9c4c2] dark:border-primary/70" />
-      <ChevronRight className="size-3 shrink-0 light:text-[#9c9694] dark:text-primary" />
+      <span
+        className={cn(
+          'h-0 flex-1 border-t light:border-dotted light:border-[#c9c4c2]',
+          // The run into the last step carries the violet the hexagon shifts to,
+          // so the payoff is signalled before you reach it — the mock does this.
+          violet ? 'dark:border-violet-500/70' : 'dark:border-primary/70',
+        )}
+      />
+      <ChevronRight
+        className={cn(
+          'size-3 shrink-0 light:text-[#9c9694]',
+          violet ? 'dark:text-violet-400' : 'dark:text-primary',
+        )}
+      />
     </span>
+  )
+}
+
+// At a line wrap the path cannot run to its neighbour — the next number is at
+// the far left of the row below. So it turns: out of the last hex in the row,
+// right past the column edge, and down to the middle of the row gap. Its
+// partner (`PathRailEnter`) picks the line up there and carries it back.
+//
+// `bottom: -18px` rather than a height, because the cells are as tall as their
+// copy and that varies: -18 is half of the grid's `gap-y-9`, so the turn always
+// lands exactly on the gap's midline whatever the row measures.
+function PathRailTurn({ cols }: { cols: 2 | 3 }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        'pointer-events-none absolute top-[30px] -bottom-[18px] left-[calc(50%+39px)] -right-2 rounded-tr-md border-t border-r sm:top-[34px]',
+        'light:border-dotted light:border-[#c9c4c2] dark:border-primary/70',
+        cols === 2 && 'block sm:hidden',
+        cols === 3 && 'hidden sm:block md:hidden',
+      )}
+    />
+  )
+}
+
+// The return leg: along the gap's midline from where the turn left off, then
+// down into the first hex of the row. The negative right inset is what reaches
+// back across the row — one cell plus one gap per column to the right of this
+// one, plus the 8px the turn sits outside the grid — so the two elbows meet
+// instead of reading as two unrelated stubs.
+function PathRailEnter({ cols }: { cols: 2 | 3 }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        'pointer-events-none absolute -top-[18px] left-1/2 h-12 rounded-tl-md border-t border-l sm:h-[52px]',
+        'light:border-dotted light:border-[#c9c4c2] dark:border-primary/70',
+        cols === 2 && 'right-[calc(-100%-24px)] block sm:hidden',
+        cols === 3 && 'hidden right-[calc(-200%-40px)] sm:block md:hidden',
+      )}
+    />
   )
 }
 
@@ -234,7 +299,20 @@ export function WolfPath() {
           const last = i === PATH_STEPS.length - 1
           return (
             <div key={title} className="relative flex flex-col items-center">
-              {!last && <PathRail />}
+              {/* Which connector this step needs depends on where it sits in
+                  the row, and that differs per breakpoint — so the decision is
+                  made once per grid here and the variants hide themselves. */}
+              {!last && (i + 1) % 2 !== 0 && <PathRailAcross cols={2} />}
+              {!last && (i + 1) % 2 === 0 && <PathRailTurn cols={2} />}
+              {i % 2 === 0 && i > 0 && <PathRailEnter cols={2} />}
+              {!last && (i + 1) % 3 !== 0 && (
+                <PathRailAcross cols={3} violet={i === PATH_STEPS.length - 2} />
+              )}
+              {!last && (i + 1) % 3 === 0 && <PathRailTurn cols={3} />}
+              {i % 3 === 0 && i > 0 && <PathRailEnter cols={3} />}
+              {!last && (
+                <PathRailAcross cols={6} violet={i === PATH_STEPS.length - 2} />
+              )}
               <PathHex last={last}>
                 {Icon && <Icon className="size-8" strokeWidth={2} />}
                 {glyph && (
