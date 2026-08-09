@@ -514,6 +514,16 @@ body[data-immersive] footer {
   display: none;
 }
 
+/* Focus mode (mission view) takes the page chrome with it — the mode exists to
+   leave nothing on screen but the tile you are working in, and the header is
+   the last thing standing once the bar, the control panel and the progress
+   rail are gone. Set by MissionView on <body>, since the header sits outside
+   its tree entirely. */
+body[data-focus] header,
+body[data-focus] footer {
+  display: none;
+}
+
 body[data-immersive] main {
   isolation: auto;
 }

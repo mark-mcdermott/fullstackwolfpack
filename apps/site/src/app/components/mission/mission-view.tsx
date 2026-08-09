@@ -14,13 +14,14 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Panel, Tooltip } from '@fw/ui'
 import { LessonStage } from '@/components/mission/lesson-stage'
 import { MissionGame } from '@/components/mission/mission-game'
 import { MissionLessonResolver } from '@/components/mission/mission-lesson-resolver'
 import { SessionProgress } from '@/components/mission/session-progress'
 import type { FocusPhase } from '@/core/focus-session'
+import { formatClock } from '@/core/focus-session'
 import { useTimer } from '@/hooks/timer-context'
 import { useMissionLessonToc } from '@/lib/mission-lesson-store'
 import { missionName, type MissionSession } from '@/lib/mission'
@@ -56,8 +57,58 @@ export function MissionView({
   // what you do not want while concentrating.
   const [focus, setFocus] = useState(false)
 
+  // The header is a sibling of <main>, well outside this tree, so it cannot be
+  // hidden with a prop from here. A flag on <body> is how the immersive
+  // fullscreen path already reaches across the same gap; index.css does the
+  // rest. The cleanup matters — leaving a mission mid-focus would otherwise
+  // strand the page with no chrome at all.
+  useEffect(() => {
+    if (!focus) return
+    document.body.dataset.focus = 'true'
+    return () => {
+      delete document.body.dataset.focus
+    }
+  }, [focus])
+
   return (
     <div className="flex flex-col gap-4">
+      {/* Focus takes the header, so the clock and the way out move here — one
+          fixed cluster at the viewport's top-right, which is where the clock
+          already was. Both live here rather than the exit sitting on the tile:
+          the tile's bottom-right is the lesson's Next button during learn, and
+          a phase-dependent home would mean hunting for it. `pointer-events`
+          are off on the shell and back on for the button, so the readout can
+          never shadow a control underneath it. */}
+      {focus && (
+        <div className="pointer-events-none fixed top-2 right-3 z-30 flex items-center gap-2">
+          {timer.active && timer.step && (
+            <div className="flex items-center gap-2.5 rounded-md border border-border bg-card/85 px-2.5 py-1.5 font-mono backdrop-blur">
+              <span className="text-[10px] tracking-widest text-muted-foreground uppercase">
+                {timer.step.phase === 'play' ? 'Play' : 'Learn'}
+              </span>
+              <span className="text-sm tabular-nums text-foreground">
+                {formatClock(timer.secondsLeft)}
+              </span>
+              <span className="text-[10px] tracking-widest text-muted-foreground uppercase">
+                {timer.paused
+                  ? 'paused'
+                  : `${timer.currentRound}/${timer.rounds}`}
+              </span>
+            </div>
+          )}
+          <Tooltip label="End focus" side="bottom" align="end">
+            <button
+              type="button"
+              onClick={() => setFocus(false)}
+              aria-label="End focus"
+              className="pointer-events-auto flex size-9 items-center justify-center rounded-md border border-border bg-card/85 text-muted-foreground backdrop-blur transition-colors hover:border-primary hover:text-primary"
+            >
+              <EyeOff className="size-4" />
+            </button>
+          </Tooltip>
+        </div>
+      )}
+
       {!focus && (
       <MissionBar
         session={session}
@@ -89,30 +140,6 @@ export function MissionView({
             <GameStage session={session} paused={learnPhase || paused} />
           </div>
           {learnPhase && <LessonStage onResume={timer.skip} />}
-          {/* The way out. On the stage rather than back in the chrome, because
-              the chrome is precisely what focus mode has taken away — an exit
-              anywhere else would be invisible from inside the mode. */}
-          {/* The positioning goes on the Tooltip, not the button: Tooltip wraps
-              its child in its own `relative` span, so an `absolute` on the
-              button anchors to that span and lands wherever the span happens to
-              sit in flow — which put it against the far left of the page. */}
-          {focus && (
-            <Tooltip
-              label="End focus"
-              side="top"
-              align="end"
-              className="absolute right-3 bottom-3 z-20"
-            >
-              <button
-                type="button"
-                onClick={() => setFocus(false)}
-                aria-label="End focus"
-                className="flex size-9 items-center justify-center rounded-md border border-border bg-card/85 text-muted-foreground backdrop-blur transition-colors hover:border-primary hover:text-primary"
-              >
-                <EyeOff className="size-4" />
-              </button>
-            </Tooltip>
-          )}
         </div>
         {!focus && (
           <MissionControl
@@ -333,7 +360,7 @@ function MissionControl({
 
   return (
     <Panel brackets={false} className="rounded-2xl p-5">
-      <div className="flex flex-col gap-5">
+      <div className="flex h-full flex-col gap-5">
         <span className="font-heading text-sm font-bold tracking-widest text-foreground uppercase">
           Mission Control
         </span>
@@ -402,11 +429,15 @@ function MissionControl({
           </div>
         </div>
 
-        {/* Icon-only, at the foot of the panel — it is a mode switch, not a
-            mission action, so it sits apart from the ones above it. Tooltip
-            rather than a label for the same reason the theme control uses one:
-            the word would give it more weight in the column than it deserves. */}
-        <div className="flex justify-end border-t border-border pt-4">
+        {/* Icon-only, in the panel's bottom-right corner — it is a mode switch,
+            not a mission action, so it sits apart from the ones above rather
+            than in the stack with them. `mt-auto` against the column's `h-full`
+            is what reaches the real corner: the panel stretches to the game
+            tile's height, so anything merely placed last floats mid-panel with
+            dead space under it. Tooltip rather than a label for the same reason
+            the theme control uses one — the word would give a mode switch more
+            weight in this column than it deserves. */}
+        <div className="mt-auto flex justify-end pt-4">
           <Tooltip label="Focus" side="top" align="end">
             <button
               type="button"
