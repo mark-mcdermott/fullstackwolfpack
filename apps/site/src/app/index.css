@@ -78,6 +78,7 @@
     --color-chart-2: var(--chart-2);
     --color-chart-1: var(--chart-1);
     --color-ring: var(--ring);
+    --color-accent-blue: var(--accent-blue);
     --color-input: var(--input);
     --color-border: var(--border);
     --color-destructive: var(--destructive);
@@ -140,6 +141,15 @@
        elements that sit proudly off the page rather than flush in it. Deeper
        and wider than a hairline-plus-haze so it reads as real elevation. */
     --card-shadow: 0 6px 24px rgb(0 0 0 / 0.1);
+    /* The one blue in the app — XP figures, "Keep learning", the API health
+       readout, the current-lesson row. Light takes a pale sky (#83d0f3); dark
+       keeps the blue-400 it always had, which reads correctly on a dark plate.
+       Held as a token so the two themes stay one DOM tree and the shade moves
+       in one place rather than across ~12 call sites.
+       NOTE: #83d0f3 measures 1.7:1 on white — well under WCAG AA (4.5:1 body,
+       3:1 large). It is a deliberate look, not an oversight; darken toward
+       ~#1a7fb0 if these ever need to pass. */
+    --accent-blue: #83d0f3;
     /* Card elevation for the downstream surfaces (Skill, Arcade), applied via
        `cardLiftClass`. Light is `--card-shadow`'s lift with a hairline contact
        shadow under it, so a card sitting directly on the page background still
@@ -221,6 +231,9 @@
        would elsewhere — this plate is mostly smooth gradient, which is JPEG's
        worst case, and dark's contrast/saturate filters amplify the artifacts. */
     --hero-image: url('/images/hero-dark.webp');
+    /* Unchanged from the blue-400 these elements always used — dark never had
+       the contrast problem light's pale sky introduces. */
+    --accent-blue: #7fa8d4;
     --creed-image: url('/images/creed-dark.webp');
     --path-banner: url('/images/motorcycle-dark.webp');
     /* Light's haze is invisible here — a black shadow on a near-black page has
@@ -237,31 +250,43 @@
     --eyes-image: url('/images/eyes-dark.webp');
     /* Dark keeps the plain foreground it already used. */
     --hero-title: oklch(0.985 0 0);
-    --background: oklch(0.14 0.014 268);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.159 0.016 267);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.2 0.019 266);
+    /* The midnight ramp's middle stop. `body::before` paints the full
+       gradient (#11151E → this → #090B12); this value is what anything
+       using `bg-background` lands on, so the two agree. Lighter and cooler
+       than the near-black it replaced — the page should read as an unlit
+       room, not as a void. */
+    --background: #0d1320;
+    /* Not pure white. Body copy at 0.985 is what had every label competing
+       with the headline; near-white reads identically and stops shouting.
+       Major headings opt back up to #fff explicitly (`--hero-title`, the
+       creed's `dark:text-neutral-50`). */
+    --foreground: oklch(0.94 0.005 268);
+    /* A clear step above the page. Depth comes from this step rather than
+       from heavier borders or shadows, which is what kept dark reading as
+       high-contrast panels on black. */
+    --card: #171e2c;
+    --card-foreground: oklch(0.94 0.005 268);
+    --popover: #222a38;
     --popover-foreground: oklch(0.985 0 0);
     --primary: oklch(0.62 0.223 27.3);
     --primary-foreground: oklch(0.985 0 0);
     --secondary: oklch(0.249 0.03 267);
     --secondary-foreground: oklch(0.985 0 0);
     --muted: oklch(0.249 0.03 267);
-    --muted-foreground: oklch(0.714 0.028 264);
+    --muted-foreground: oklch(0.655 0.024 264);
     --accent: oklch(0.249 0.03 267);
     --accent-foreground: oklch(0.985 0 0);
     --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
+    --border: oklch(1 0 0 / 7%);
+    --input: oklch(1 0 0 / 11%);
     --ring: oklch(0.556 0 0);
     --chart-1: oklch(0.87 0 0);
     --chart-2: oklch(0.556 0 0);
     --chart-3: oklch(0.439 0 0);
     --chart-4: oklch(0.371 0 0);
     --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.159 0.016 267);
-    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar: #171e2c;
+    --sidebar-foreground: oklch(0.94 0.005 268);
     --sidebar-primary: oklch(0.62 0.223 27.3);
     --sidebar-primary-foreground: oklch(0.985 0 0);
     --sidebar-accent: oklch(0.249 0.03 267);
@@ -308,13 +333,16 @@
   pointer-events: none;
 }
 
+/* The page itself: a midnight ramp rather than one flat value, lit slightly at
+   the top and settling darker at the foot. It is opaque and covers `--background`
+   exactly — the token holds the middle stop, so anything painting `bg-background`
+   over this lands on the same colour and the seam never shows.
+   The point is not to look blue. It is to stop the page reading as a void: a
+   flat near-black has no depth cue at all, so every card on it separates by
+   contrast alone, which is what made dark feel louder than light. */
 .dark body::before {
-  background: linear-gradient(
-    to top,
-    oklch(0.38 0.09 264 / 0.34) 0%,
-    oklch(0.32 0.08 264 / 0.16) 28%,
-    transparent 62%
-  );
+  background:
+    linear-gradient(to bottom, #11151e 0%, #0d1320 46%, #090b12 100%);
 }
 
 .dark body::after {
@@ -474,6 +502,39 @@
      with the default farthest-corner the gradient outruns the box horizontally
      and clips into a hard vertical line.
    - The top of the box sits behind the header, which is opaque in light. */
+/* Hero atmosphere (dark only). Two very faint pools — violet behind the
+   headline, cooler blue out towards Akela — so the top of the page reads as air
+   with something in it rather than as unlit black around a lit plate.
+   On `main` rather than on the body, so it scrolls away with the hero instead of
+   following the viewport; and on `::before`, which the dot field only claims
+   under `:root:not(.dark)`, so the two never meet. `z-index: -1` inside main's
+   own `isolate` puts it under the content but over the page gradient.
+   Deliberately below the threshold where you would call it blue — take the
+   opacities up and it stops being atmosphere and becomes a backdrop. */
+.dark .fw-dot-field::before {
+  content: '';
+  position: absolute;
+  top: -7rem;
+  left: 50%;
+  z-index: -1;
+  width: 132%;
+  max-width: 1700px;
+  height: 48rem;
+  translate: -50% 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(
+      ellipse 44% 44% at 24% 26%,
+      oklch(0.55 0.13 285 / 0.11) 0%,
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse 40% 38% at 78% 12%,
+      oklch(0.58 0.1 248 / 0.08) 0%,
+      transparent 70%
+    );
+}
+
 :root:not(.dark) .fw-dot-field::before,
 :root:not(.dark) .fw-dot-field::after {
   content: '';
@@ -580,6 +641,7 @@
 .dark .cta-ember,
 .dark .cta-flare,
 .dark .cta-blaze {
+    --cta-hover: 1.28;
     /* So the smoke's `mix-blend-mode` sees the button's own face as its
        backdrop and not the page behind it. */
     isolation: isolate;
@@ -625,6 +687,7 @@
    truly reads as an ember: the face is all but out by 70% of the width
    (#1c0003), so the rim and the underside glow are doing the work. */
 .dark .cta-ember {
+    --cta-hover: 1.85;
     --cta-face:
         /* The bottom and top rims bleeding back into the face — in the mock
            the two rows inside each rule are visibly lifted. */
@@ -668,6 +731,7 @@
 /* Launcher — "Start mission". Mid exposure: #d2 down to #6c, so the falloff
    still reads but the slab stays plainly red. */
 .dark .cta-flare {
+    --cta-hover: 1.4;
     --cta-face:
         linear-gradient(to top, rgb(230 30 22 / 0.22) 0%, transparent 34%),
         linear-gradient(to bottom, rgb(255 80 70 / 0.14) 0%, transparent 22%),
@@ -677,11 +741,14 @@
         radial-gradient(34% 70% at 100% 100%, #ffd9c6 0%, #ff5a48 28%, transparent 66%),
         linear-gradient(to top, rgb(214 6 12 / 1) 0%, transparent 44%),
         linear-gradient(to right, #f5312c 0%, #d8140f 26%, #a5040c 62%, #93030b 100%);
-    --cta-smoke-strength: 0.28;
+    --cta-smoke-strength: 0.24;
+    /* Contrast pass: the bloom is the hero CTA's alone now. This one keeps a
+       tight contact glow so the slab still sits on the tile, and drops the two
+       wide halos that had it competing for first look from halfway down the
+       page. */
     --cta-edge:
-        0 2px 6px -1px rgb(255 60 48 / 0.4),
-        0 6px 20px -5px rgb(225 22 22 / 0.45),
-        0 12px 36px -12px rgb(210 14 14 / 0.38);
+        0 1px 4px -1px rgb(255 60 48 / 0.22),
+        0 4px 14px -8px rgb(225 22 22 / 0.28);
 }
 
 /* Join row — "Create free account". Brightest and flattest: #d8 to #a6 only,
@@ -697,11 +764,12 @@
         radial-gradient(34% 70% at 100% 100%, #ffcdb8 0%, #ff5040 30%, transparent 68%),
         linear-gradient(to top, rgb(216 5 10 / 1) 0%, transparent 42%),
         linear-gradient(to right, #f22e26 0%, #db1c16 24%, #b4060e 60%, #a6040c 100%);
-    --cta-smoke-strength: 0.2;
+    --cta-smoke-strength: 0.18;
+    /* Same reasoning as `.cta-flare` — this one sits in card footers, where a
+       40px halo was the loudest thing on a quiet panel. */
     --cta-edge:
-        0 2px 8px -1px rgb(255 70 58 / 0.45),
-        0 6px 22px -5px rgb(232 24 24 / 0.48),
-        0 14px 40px -12px rgb(215 15 15 / 0.4);
+        0 1px 4px -1px rgb(255 70 58 / 0.24),
+        0 4px 14px -8px rgb(232 24 24 / 0.3);
 }
 
 /* ── The join row's lit frame ──────────────────────────────────────────────

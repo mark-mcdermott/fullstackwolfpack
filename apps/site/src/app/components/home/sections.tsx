@@ -29,7 +29,7 @@ export function CreedBand() {
           slice is 18KB against dark's 2.4MB. Same seam as `--hero-image`. */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[image:var(--creed-image)] bg-cover bg-center bg-no-repeat md:[mask-image:linear-gradient(to_right,transparent,black_30%,black_85%,transparent)]"
+        className="absolute inset-0 bg-[image:var(--creed-image)] bg-cover bg-center bg-no-repeat md:[mask-image:linear-gradient(to_right,transparent,black_30%,black_85%,transparent)] dark:brightness-[0.82] dark:saturate-[0.85]"
       />
       {/* Scrims parked. All three existed to tame the dark neon plate; light's
           purpose-cut slice is high-key and carries its own edge mask, so they
@@ -88,7 +88,7 @@ export function CreedBand() {
           <div className="flex flex-col font-mono text-sm tracking-wide">
             {[
               { label: 'Lock in', tone: 'text-primary' },
-              { label: 'Keep learning', tone: 'text-blue-600 dark:text-blue-400' },
+              { label: 'Keep learning', tone: 'text-accent-blue' },
               { label: 'Level up', tone: 'text-primary' },
             ].map(({ label, tone }) => (
               <span
@@ -132,7 +132,13 @@ const PATH_STEPS: {
     title: 'Select a skill',
     text: 'Choose what you want to learn or improve.',
   },
-  { icon: Clock, title: 'Play', text: 'Focus for 25 minutes. No distractions.' },
+  // No number here on purpose: the interval is the user's to set, and this line
+  // used to quote the old 25-minute default back at them.
+  {
+    icon: Clock,
+    title: 'Play',
+    text: 'Lock in for as long as you want. No distractions.',
+  },
   {
     icon: BookOpen,
     title: 'Learn',
@@ -166,8 +172,8 @@ function PathHex({ last, children }: { last: boolean; children: ReactNode }) {
           // hexagon, and a box-shadow would trace the <svg>'s square box.
           'light:drop-shadow-[0_1px_2px_rgb(0_0_0/0.10)]',
           last
-            ? 'dark:drop-shadow-[0_0_7px_var(--color-violet-500)]'
-            : 'dark:drop-shadow-[0_0_7px_var(--primary)]',
+            ? 'dark:drop-shadow-[0_0_4px_color-mix(in_oklab,var(--color-violet-500)_55%,transparent)]'
+            : 'dark:drop-shadow-[0_0_4px_color-mix(in_oklab,var(--primary)_50%,transparent)]',
         )}
       >
         {/* Same pointy-top hexagon as the plain polygon it replaced, with each
@@ -178,15 +184,15 @@ function PathHex({ last, children }: { last: boolean; children: ReactNode }) {
           d="M42.16,7.43 Q50,3 57.84,7.43 L88.16,24.57 Q96,29 96,38 L96,77 Q96,86 88.16,90.43 L57.84,107.57 Q50,112 42.16,107.57 L11.84,90.43 Q4,86 4,77 L4,38 Q4,29 11.84,24.57 Z"
           strokeWidth="3"
           className={cn(
-            'light:fill-white light:stroke-[#dad7d6] dark:fill-[#12060c]',
-            last ? 'dark:stroke-violet-500' : 'dark:stroke-primary',
+            'light:fill-white light:stroke-[#dad7d6] dark:fill-card',
+            last ? 'dark:stroke-violet-500/60' : 'dark:stroke-primary/60',
           )}
         />
       </svg>
       <span
         className={cn(
           'relative flex items-center justify-center',
-          last ? 'text-foreground dark:text-violet-300' : 'text-foreground',
+          last ? 'text-foreground dark:text-violet-300/85' : 'text-foreground',
         )}
       >
         {children}
@@ -310,7 +316,7 @@ export function PathBanner() {
   return (
     <div
       aria-hidden="true"
-      className="-mx-5 h-[120px] rounded-2xl bg-[image:var(--path-banner)] bg-cover bg-top sm:-mx-7 sm:h-[150px] md:h-[178px] dark:mx-[calc(50%-50vw)] dark:aspect-[var(--banner-aspect)] dark:h-auto dark:max-h-[17.5rem] dark:min-h-[120px] dark:rounded-none dark:bg-[position:50%_31%] sm:dark:min-h-[150px] md:dark:min-h-[178px]"
+      className="-mx-5 h-[120px] rounded-2xl bg-[image:var(--path-banner)] bg-cover bg-top sm:-mx-7 sm:h-[150px] md:h-[178px] dark:mx-[calc(50%-50vw)] dark:brightness-[0.85] dark:saturate-[0.88] dark:aspect-[var(--banner-aspect)] dark:h-auto dark:max-h-[17.5rem] dark:min-h-[120px] dark:rounded-none dark:bg-[position:50%_31%] sm:dark:min-h-[150px] md:dark:min-h-[178px]"
     />
   )
 }
@@ -339,7 +345,7 @@ export function ReadyToJoin() {
     // the footer is loose text that would drift away from the page if it were
     // given the same. Note the bottom is still negative — main's pb-6 and the
     // footer's own pt-6 already stack to 48px on their own.
-    <section className="join-frame relative -mt-[19px] -mb-[34px] overflow-hidden rounded-2xl dark:mt-14 dark:-mb-2 border border-border bg-card light:border-[#e2dfde] light:bg-[#f8f6f4] light:shadow-[var(--tile-shadow)] dark:border-[#7a0406] dark:shadow-[0_0_28px_-6px_rgb(180_12_12/0.55)]">
+    <section className="join-frame relative -mt-[19px] -mb-[34px] overflow-hidden rounded-2xl dark:mt-14 dark:-mb-2 border border-border bg-card light:border-[#e2dfde] light:bg-[#f8f6f4] light:shadow-[var(--tile-shadow)] dark:border-[#5c0405] dark:shadow-[0_0_22px_-10px_rgb(180_12_12/0.3)]">
       {/* Red glow parked.
       <div className="pointer-events-none absolute -top-12 -left-12 size-56 rounded-full bg-primary/20 blur-3xl" /> */}
       {/* Moody wolf on the far right, on a background rather than an <img> so
@@ -377,7 +383,7 @@ export function ReadyToJoin() {
             is a border-box height, so padding would eat into the glyph rather
             than sit around it — `py-3` here would render the mark smaller than
             it was at h-16. */}
-        <WolfMark className="my-3 h-20 shrink-0 text-foreground dark:text-primary dark:drop-shadow-[0_0_10px_var(--primary)]" />
+        <WolfMark className="my-3 h-20 shrink-0 text-foreground dark:text-primary" />
         <div className="flex-1">
           {/* 300 rather than the heading font's pinned 400, which needs the
               variation-settings escape or the pin swallows it — the same dance

@@ -1,4 +1,4 @@
-import { ArrowRight, ChevronRight } from 'lucide-react'
+import { ArrowRight, ChevronRight, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { api } from '@/api-client'
@@ -163,7 +163,7 @@ function AccountCourseCard({
       <SectionLabel>Built-in track</SectionLabel>
 
       <div className="flex items-baseline gap-1">
-        <span className="font-heading text-4xl font-bold tabular-nums text-blue-600 dark:text-blue-400">
+        <span className="font-heading text-4xl font-bold tabular-nums text-foreground">
           {lessons.length}
         </span>
         <span className="font-mono text-sm font-semibold text-muted-foreground">
@@ -219,8 +219,12 @@ function GuestProgressCard({
     >
       <SectionLabel>Your progress</SectionLabel>
 
-      <div className="flex items-baseline gap-1">
-        <span className="font-heading text-4xl font-bold tabular-nums text-blue-600 dark:text-blue-400">
+      <div className="flex items-baseline gap-1.5">
+        <Sparkles
+          className="size-4 self-center text-accent-blue"
+          aria-hidden="true"
+        />
+        <span className="font-heading text-4xl font-bold tabular-nums text-foreground">
           {xp}
         </span>
         <span className="font-mono text-sm font-semibold text-muted-foreground">

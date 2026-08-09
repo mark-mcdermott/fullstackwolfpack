@@ -157,22 +157,37 @@ export function ThemeToggle({
       </Tooltip>
 
       {open && (
+        <>
         <div
           role="menu"
           aria-label="Theme"
           className={cn(
             'absolute right-0 z-50 w-44 p-1',
             side === 'bottom' ? 'top-full mt-2' : 'bottom-full mb-2',
-            // Square, ruled and cast-shadowed: the kit's panels have hard edges,
-            // and the old `rounded-md` + soft `shadow-lg` was the generic popover
-            // look rather than this one.
+            // Square and ruled: the kit's panels have hard edges, and a
+            // `rounded-md` + `shadow-lg` popover would be the generic look
+            // rather than this one.
             'border border-border bg-card text-foreground',
-            'light:shadow-[4px_4px_0_rgb(0_0_0/0.07)]',
-            // Dark takes the glass treatment instead of the cast shadow: the
-            // card colour thinned out over a blur, a hairline of lit edge along
-            // the top (the `::before`, which light never renders), and depth
-            // from a wide soft drop rather than a hard offset one.
-            'dark:border-white/12 dark:bg-card/75 dark:shadow-[0_20px_50px_-20px_rgb(0_0_0/0.9)] dark:backdrop-blur-xl',
+            // A real cast shadow — wide and soft over a tight contact layer —
+            // instead of the 4px hard offset it used to carry. That offset read
+            // as a sticker on a page this light, so the menu had almost no
+            // separation from what it opened over.
+            'light:shadow-[0_20px_50px_rgb(0_0_0/0.18),0_4px_12px_rgb(0_0_0/0.08)]',
+            // Dark cannot borrow light's approach, and the reason is worth
+            // stating: a drop shadow separates by darkening a backdrop that is
+            // lighter than the shadow. Measured against this page there is
+            // nothing left to darken — the header sits at #090909, so a #101114
+            // plate came out at 1.05:1 against it and the black shadow landed
+            // invisibly. (The old `bg-card/75` over a backdrop blur was worse
+            // still: thinning the surface is what let the page through it.)
+            //
+            // So dark separates with light instead. The plate steps up to a
+            // clearly lighter surface than the page, the hairline goes to 18%
+            // white so the frame reads on its own, and a 1px white ring sits
+            // outside it. The black drops stay — they are not wasted, since the
+            // menu overhangs the hero art and Akela's card, which are lighter.
+            'dark:border-white/[0.18] dark:bg-[#22262f]',
+            'dark:shadow-[0_18px_40px_rgb(0_0_0/0.55),0_2px_8px_rgb(0_0_0/0.35),0_0_0_1px_rgb(255_255_255/0.08)]',
             'dark:before:pointer-events-none dark:before:absolute dark:before:inset-x-0 dark:before:top-0 dark:before:h-px',
             'dark:before:bg-gradient-to-r dark:before:from-transparent dark:before:via-white/25 dark:before:to-transparent',
           )}
@@ -212,6 +227,29 @@ export function ThemeToggle({
             </button>
           ))}
         </div>
+
+        {/* The pointer, same construction as the tooltip's: a square turned 45°
+            overlapping the panel, borders on only the two outward edges, and
+            painted above the panel so the panel's own edge cannot run across
+            its base. Without it the menu was a rectangle arriving from nowhere
+            — nothing tied it to the control that opened it.
+
+            Anchored to the root rather than to the panel, which is what aims
+            it: the root wraps the trigger and nothing else, so `left-1/2`
+            centres the point on the icon. The panel is `right-0` and much
+            wider, so centring on *that* would have pointed into empty bar. */}
+        <span
+          aria-hidden="true"
+          className={cn(
+            'pointer-events-none absolute left-1/2 z-[51] size-2 -translate-x-1/2 rotate-45',
+            'bg-card dark:bg-[#22262f]',
+            'border-border dark:border-white/[0.18]',
+            side === 'bottom'
+              ? 'top-full mt-1 border-t border-l'
+              : 'bottom-full mb-1 border-r border-b',
+          )}
+        />
+        </>
       )}
     </div>
   )

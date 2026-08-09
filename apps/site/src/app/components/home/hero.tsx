@@ -89,7 +89,7 @@ export function HomeHero() {
             it, so it is the one that carries the most bare edge. */}
         <div
           aria-hidden="true"
-          className="absolute inset-y-0 left-[73%] h-full w-auto -translate-x-[51.5%] aspect-[var(--hero-aspect)] bg-[image:var(--hero-image)] bg-cover bg-center bg-no-repeat [mask-image:linear-gradient(to_right,transparent_0%,black_15%,black_85%,transparent_100%)] sm:-translate-x-[60%] lg:left-1/2 lg:-translate-x-1/2 dark:brightness-105 dark:contrast-[1.12] dark:saturate-[1.25]"
+          className="absolute inset-y-0 left-[73%] h-full w-auto -translate-x-[51.5%] aspect-[var(--hero-aspect)] bg-[image:var(--hero-image)] bg-cover bg-center bg-no-repeat [mask-image:linear-gradient(to_right,transparent_0%,black_15%,black_85%,transparent_100%)] sm:-translate-x-[60%] lg:left-1/2 lg:-translate-x-1/2 dark:brightness-[0.9] dark:contrast-[1.04] dark:saturate-[0.9]"
         />
 
         {/* Parked with XP_CHIPS above.
@@ -162,7 +162,7 @@ export function HomeHero() {
             in the lg column layout Akela shrinks to the right besides. Follows
             the theme: the card used to be hard-dark in both, which left a black
             slab beside a light hero. */}
-        <div className="pointer-events-none absolute inset-0 bg-card light:bg-[#f7f4f3] dark:bg-neutral-950" />
+        <div className="pointer-events-none absolute inset-0 bg-card light:bg-[#f7f4f3]" />
         {/* Portrait pinned to the right (natural width via left:auto — the img
             is a replaced element, so no w-full); a small thumbnail once the card
             is the narrow lg column. The artwork carries no backdrop of its own, so the
@@ -172,10 +172,10 @@ export function HomeHero() {
         <img
           src="/images/akela.webp"
           alt="Akela, your AI mentor"
-          className="pointer-events-none absolute inset-y-0 right-0 h-full object-cover object-[center_30%] [mask-image:linear-gradient(to_left,black_55%,transparent),linear-gradient(to_top,transparent,black_35%)] [mask-composite:intersect] lg:top-[5px] lg:bottom-auto lg:h-[75%]"
+          className="pointer-events-none absolute inset-y-0 right-0 h-full object-cover object-[center_30%] dark:brightness-[0.82] dark:contrast-[0.94] [mask-image:linear-gradient(to_left,black_55%,transparent),linear-gradient(to_top,transparent,black_35%)] [mask-composite:intersect] lg:top-[5px] lg:bottom-auto lg:h-[75%]"
         />
         {/* Fade the portrait down to the challenge box (media layout only). */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-20% via-card/70 via-65% to-card/95 light:via-[#f7f4f3]/70 light:to-[#f7f4f3]/95 dark:via-neutral-950/55 dark:to-neutral-950/95" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-20% via-card/70 via-65% to-card/95 light:via-[#f7f4f3]/70 light:to-[#f7f4f3]/95" />
         {/* The bright inner rule. It rides above the portrait and its scrim —
             both are inset-0 siblings, so a ring on the panel itself would be
             painted straight over. */}
@@ -187,7 +187,7 @@ export function HomeHero() {
               <span className="font-heading text-3xl font-bold tracking-wide text-foreground dark:text-white">
                 AKELA
               </span>
-              <span className="size-1.5 rounded-full bg-primary shadow-[0_0_6px] shadow-primary/70" />
+              <span className="size-1.5 rounded-full bg-primary shadow-[0_0_6px] shadow-primary/70 dark:shadow-none" />
             </div>
             <span className="mt-1 block font-mono text-[11px] font-semibold tracking-tighter text-primary uppercase [word-spacing:-0.08em]">
               Leader of the pack

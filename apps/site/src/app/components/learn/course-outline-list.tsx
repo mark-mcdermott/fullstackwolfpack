@@ -30,7 +30,7 @@ export function CourseOutlineList({
               className={cn(
                 'group flex items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors',
                 isCurrent
-                  ? 'border-blue-500/40 bg-blue-500/5'
+                  ? 'border-accent-blue/40 bg-accent-blue/5'
                   : 'border-transparent hover:border-border hover:bg-muted/40',
               )}
             >
@@ -43,7 +43,7 @@ export function CourseOutlineList({
                   isDone
                     ? 'text-emerald-600 dark:text-emerald-400'
                     : isCurrent
-                      ? 'text-blue-600 dark:text-blue-400'
+                      ? 'text-accent-blue'
                       : 'text-muted-foreground/40',
                 )}
               />

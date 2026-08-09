@@ -121,8 +121,8 @@ export function FwFooter() {
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 font-mono text-[11px] text-muted-foreground sm:max-md:contents">
             <span className="flex items-center gap-1.5">
               API
-              <span className="size-1.5 rounded-full bg-green-500" />
-              <span className="text-blue-600 dark:text-blue-400">Healthy</span>
+              <span className="size-1.5 rounded-full bg-green-500 dark:bg-green-500/65" />
+              <span className="text-accent-blue">Healthy</span>
             </span>
             <span>Build v0.1.0</span>
             <span>Deployed 2h ago</span>

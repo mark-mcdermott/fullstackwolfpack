@@ -53,7 +53,12 @@ export const raisedCtaClass = cn(
   // border would sit outside it and read as a sixth edge.
   'bg-[image:var(--cta-face)]',
   'shadow-[var(--cta-edge)]',
-  'transition-[filter,box-shadow,translate] hover:brightness-[1.06]',
+  // Hover amount is per-variant, not global. 1.06 is right in light, where the
+  // face is already bright red — but dark's faces are burnt down to near-black
+  // (ember bottoms out at #1c0003), and 6% of nearly nothing is nothing. Each
+  // `.cta-*` sets its own `--cta-hover` under `.dark`; the filter also lifts the
+  // box-shadow, so the edge glow comes up with the face.
+  'transition-[filter,box-shadow,translate] hover:brightness-[var(--cta-hover,1.06)]',
   'active:translate-y-px active:shadow-[inset_0_2px_3px_rgb(0_0_0/0.3),0_1px_2px_rgb(0_0_0/0.25)]',
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
 )
@@ -221,16 +226,27 @@ export function Tooltip({
           >
             {label}
           </span>
-          {/* The pointer: a square turned 45°, sitting half behind the bubble so
-              only the two outward edges show. Those two get a border and the
-              other two do not — a ring draws all four, which in dark outlined
-              the whole diamond and detached it from the bubble. Which pair is
+          {/* The pointer: a square turned 45°, overlapping the bubble so only
+              the two outward edges show. Those two get a border and the other
+              two do not — a ring draws all four, which in dark outlined the
+              whole diamond and detached it from the bubble. Which pair is
               outward flips with the side. No cast shadow either: offset by the
-              bubble's 3px it would trail a second diamond. */}
+              bubble's 3px it would trail a second diamond.
+
+              It paints *above* the bubble (z-51 vs z-50), which is what keeps
+              the two reading as one shape in dark. The bubble's outline is an
+              inset ring, so it draws on all four inner edges — including the
+              one the pointer meets. Underneath the bubble, that line ran
+              straight across the diamond's base and the pointer read as a
+              separate tab stuck to a bordered box. On top, the pointer's fill
+              hides that segment and its own two borders carry the outline
+              around the point. Light never showed the seam because its bubble
+              has no ring at all — only a shadow — which is why this looked like
+              a dark-only bug rather than a z-order one. */}
           <span
             aria-hidden="true"
             className={cn(
-              'pointer-events-none absolute left-1/2 z-40 size-2 -translate-x-1/2 rotate-45',
+              'pointer-events-none absolute left-1/2 z-[51] size-2 -translate-x-1/2 rotate-45',
               fill,
               'border-foreground dark:border-white/15',
               'opacity-0 transition-opacity duration-200 ease-out',

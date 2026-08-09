@@ -1,4 +1,4 @@
-import { ArrowRight, Clock, Play } from 'lucide-react'
+import { ArrowRight, Clock, Play, Sparkles } from 'lucide-react'
 import { Link } from 'react-router'
 import {
   Panel,
@@ -170,8 +170,12 @@ function PlaytimeCard({
         </>
       ) : (
         <>
-          <div className="flex items-baseline gap-1">
-            <span className="font-heading text-4xl font-bold tabular-nums text-blue-600 dark:text-blue-400">
+          <div className="flex items-baseline gap-1.5">
+            <Sparkles
+              className="size-4 self-center text-accent-blue"
+              aria-hidden="true"
+            />
+            <span className="font-heading text-4xl font-bold tabular-nums text-foreground">
               {guestPlayXp()}
             </span>
             <span className="font-mono text-sm font-semibold text-muted-foreground">
