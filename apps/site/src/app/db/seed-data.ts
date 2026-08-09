@@ -23,6 +23,14 @@ export const SEED_TOPICS: SeedTopic[] = [
   { slug: 'javascript', name: 'JavaScript', category: 'frontend', icon: 'javascript', description: 'The language of the web.' },
   // Pruned to a focused set while we polish the core flow — uncomment to bring
   // a topic back (each still has its built-in course in seed-content.generated).
+  //
+  // Commenting a topic out here only affects a FRESH seed. scripts/seed.ts
+  // inserts with onConflictDoNothing and never deletes, so a database that was
+  // seeded before the prune keeps every row — which is exactly why prod carried
+  // 12 topics while a re-seeded dev DB showed 1. The lever for an already-seeded
+  // database is `topics.status`: `npm run db:park -- --keep javascript` archives
+  // the rest (galleries hide them, nothing is deleted), and `--restore <slug>`
+  // brings one back. Un-parking is that UPDATE, not a re-seed.
   // { slug: 'react', name: 'React', category: 'frontend', icon: 'react', description: 'Build component-driven UIs.' },
   // { slug: 'typescript', name: 'TypeScript', category: 'frontend', icon: 'typescript', description: 'Type-safe JavaScript at scale.' },
   // { slug: 'nodejs', name: 'Node.js', category: 'backend', icon: 'nodejs', description: 'JavaScript on the server.' },

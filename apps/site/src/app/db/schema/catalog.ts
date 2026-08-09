@@ -16,7 +16,18 @@ export const topicCategory = pgEnum('topic_category', [
   'tools',
   'ai_data',
 ])
-export const topicStatus = pgEnum('topic_status', ['active', 'coming_soon'])
+// `archived` parks a topic that is built but deliberately not on the menu — the
+// paring-back to a JavaScript-only launch. It is distinct from `coming_soon`,
+// which promises content that does not exist yet; an archived topic has a real
+// built-in course sitting behind it, ready to come back with one UPDATE.
+// Only the two galleries filter on this (getPublicTopics, getTopicsView).
+// Lookups by slug stay unfiltered on purpose, so a deep link, an enrolled
+// course and existing progress all keep working while the topic is parked.
+export const topicStatus = pgEnum('topic_status', [
+  'active',
+  'coming_soon',
+  'archived',
+])
 
 // Global topic catalog (Topics page). Per-user progress lives in user_topics.
 export const topics = pgTable('topics', {

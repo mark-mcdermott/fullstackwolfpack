@@ -123,6 +123,11 @@ export async function getTopicsView(userId: string): Promise<TopicProgress[]> {
       userTopics,
       and(eq(userTopics.topicId, topics.id), eq(userTopics.userId, userId)),
     )
+    // The account-side gallery, so archived topics are held back here too (see
+    // `topicStatus` in db/schema/catalog.ts). A user already enrolled in one
+    // keeps it: getCourseOutline and the lesson player look topics up by slug
+    // and never filter, so only the browse grid loses the card.
+    .where(eq(topics.status, 'active'))
     .orderBy(topics.name)
 
   // Count only the ACTIVE track's lessons per topic (the course this user is on,
