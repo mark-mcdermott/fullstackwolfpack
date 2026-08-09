@@ -514,22 +514,25 @@
 .dark .fw-dot-field::before {
   content: '';
   position: absolute;
+  /* Inset to <main> rather than 132% wide and centred on it. The wider box was
+     meant to let the haze bleed past the content column, but `main` does not
+     clip — so half of that 32% hung off the right edge and became document
+     scroll at every width. It is why the page could be dragged sideways on a
+     phone: 16% of the viewport, on every page, in both orientations.
+     The spread is back in the gradients instead, which cost nothing. */
+  inset-inline: 0;
   top: -7rem;
-  left: 50%;
   z-index: -1;
-  width: 132%;
-  max-width: 1700px;
   height: 48rem;
-  translate: -50% 0;
   pointer-events: none;
   background-image:
     radial-gradient(
-      ellipse 44% 44% at 24% 26%,
+      ellipse 62% 46% at 22% 26%,
       oklch(0.55 0.13 285 / 0.11) 0%,
       transparent 68%
     ),
     radial-gradient(
-      ellipse 40% 38% at 78% 12%,
+      ellipse 56% 40% at 80% 12%,
       oklch(0.58 0.1 248 / 0.08) 0%,
       transparent 70%
     );
