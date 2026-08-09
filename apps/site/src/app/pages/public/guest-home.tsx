@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { Navigate } from 'react-router'
 import { SessionLauncher } from '@/components/launch/session-launcher'
 import { HomeHero } from '@/components/home/hero'
 import {
@@ -30,16 +29,22 @@ type Phase = 'idle' | 'exiting' | 'running' | 'pausing'
 const EXIT_MS = 460
 const ENTER_MS = 500
 
-// The guest front door (`/`): logged-out visitors land here — the session
-// launcher in guest mode — instead of being bounced to the marketing site.
-// Signed-in users go straight to the app. Rendered under GuestLayout, so it
-// carries the guest header/footer + the "sign up to save progress" banner.
+// The front door (`/`) for everyone, signed in or not. It used to bounce a
+// signed-in visitor to /app, which meant the core-loop page — hero, launcher,
+// creed, path — was only ever seen logged out, and signing in dropped you into
+// a different shell. The launcher already reads authed topics when there is a
+// user (see SessionLauncher's `guest` branch), and GuestLayout is just the
+// FW-01 header and footer now that the guest banner is parked, so there is
+// nothing guest-only left to gate on. FwHeader carries the way through to the
+// app shell for signed-in users.
 //
 // Starting a mission MORPHS the launcher into the in-place "mission in progress"
 // view (no page navigation); Pause reverses it. The launcher hands over the
 // chosen session; the hero's quick-start uses the defaults.
 export function GuestHome() {
-  const { user, loading } = useAuth()
+  // `loading` only — the page renders the same for signed-in and guest
+  // visitors now; SessionLauncher reads the user itself for its data source.
+  const { loading } = useAuth()
   const timer = useTimer()
   const [phase, setPhase] = useState<Phase>('idle')
   const [launcherEntering, setLauncherEntering] = useState(false)
@@ -78,7 +83,6 @@ export function GuestHome() {
   }, [phase, timer.active, timer.paused])
 
   if (loading) return null
-  if (user) return <Navigate to="/app" replace />
 
   function startMission(next?: MissionSession) {
     const s = next ?? DEFAULT_SESSION
