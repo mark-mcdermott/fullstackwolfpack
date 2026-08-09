@@ -1,4 +1,5 @@
 import type { Difficulty } from '@/core/generation'
+import { DEFAULT_MINUTES } from '@/core/session-minutes'
 
 // The chosen session, handed over by the launcher (or the hero's quick-start),
 // and persisted so a mission survives a refresh / "take a break".
@@ -30,8 +31,8 @@ export const DEFAULT_SESSION: MissionSession = {
   skillName: 'JavaScript',
   topicSlug: 'javascript',
   difficulty: 'intermediate',
-  playMinutes: 25,
-  learnMinutes: 5,
+  playMinutes: DEFAULT_MINUTES,
+  learnMinutes: DEFAULT_MINUTES,
   learnFirst: false,
   estimatedXp: 240,
 }

@@ -83,6 +83,7 @@
     --color-chart-2: var(--chart-2);
     --color-chart-1: var(--chart-1);
     --color-ring: var(--ring);
+    --color-accent-blue: var(--accent-blue);
     --color-input: var(--input);
     --color-border: var(--border);
     --color-destructive: var(--destructive);
@@ -168,6 +169,15 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.708 0 0);
+    /* The one blue in the app — XP figures, "Keep learning", the API health
+       readout, the current-lesson row. Light takes a pale sky (#83d0f3); dark
+       keeps the blue-400 it always had, which reads correctly on a dark plate.
+       Held as a token so the two themes stay one DOM tree and the shade moves
+       in one place rather than across ~12 call sites.
+       NOTE: #83d0f3 measures 1.7:1 on white — well under WCAG AA (4.5:1 body,
+       3:1 large). It is a deliberate look, not an oversight; darken toward
+       ~#1a7fb0 if these ever need to pass. */
+    --accent-blue: #83d0f3;
     /* Card elevation, applied via `cardLiftClass` (ui-kit.tsx). Light is a
        wide, soft lift with a hairline contact shadow under it — the haze alone
        is too diffuse to separate a card that sits straight on the page.
@@ -207,6 +217,9 @@
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.556 0 0);
+    /* Unchanged from the blue-400 these elements always used — dark never had
+       the contrast problem light's pale sky introduces. */
+    --accent-blue: #60a5fa;
     /* A black haze on a near-black page darkens nothing, so dark cannot reuse
        light's lift. Depth instead: a tight opaque pool right under the card
        plus a wider fall, which is what separates one dark surface from

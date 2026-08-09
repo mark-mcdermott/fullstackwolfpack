@@ -348,7 +348,7 @@ function MissionControl({
         <div>
           <Label>Estimated reward</Label>
           <div className="mt-1.5 flex items-end justify-between gap-3">
-            <span className="font-heading text-xl font-bold text-blue-600 dark:text-blue-400">
+            <span className="font-heading text-xl font-bold text-accent-blue">
               +{session.estimatedXp}
               <span className="ml-1 font-mono text-sm text-muted-foreground">
                 XP
@@ -412,7 +412,7 @@ function LessonToc() {
                     isDone
                       ? 'text-emerald-600 dark:text-emerald-400'
                       : isCurrent
-                        ? 'text-blue-600 dark:text-blue-400'
+                        ? 'text-accent-blue'
                         : 'text-muted-foreground/40',
                   )}
                 />
@@ -445,7 +445,7 @@ function Histogram() {
       {BARS.map((h, i) => (
         <span
           key={i}
-          className="w-0.5 rounded-full bg-blue-600 dark:bg-blue-400"
+          className="w-0.5 rounded-full bg-accent-blue"
           style={{ height: `${h}%` }}
         />
       ))}

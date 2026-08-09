@@ -18,6 +18,14 @@ import { SkillIcon } from '@/components/launch/skill-icon'
 import { Panel, SectionLabel, raisedCtaClass } from '@fw/ui'
 import type { MissionSession } from '@/components/mission/mission-view'
 import type { Difficulty } from '@/core/generation'
+import {
+  DEFAULT_MINUTES,
+  MAX_MINUTES,
+  MIN_MINUTES,
+  clampMinutes,
+  stepMinutesDown,
+  stepMinutesUp,
+} from '@/core/session-minutes'
 import { EMBED_CATALOG } from '@/lib/embed-catalog'
 import { guestNextLessonPath, nextLessonPath } from '@/lib/open-course'
 import { ROM_CATALOG } from '@/lib/rom-catalog'
@@ -158,8 +166,8 @@ function LauncherForm({
   const [level, setLevel] = useState<Difficulty>(
     (initial?.difficulty as Difficulty) ?? 'beginner',
   )
-  const [playMinutes, setPlayMinutes] = useState(25)
-  const [learnMinutes, setLearnMinutes] = useState(5)
+  const [playMinutes, setPlayMinutes] = useState(DEFAULT_MINUTES)
+  const [learnMinutes, setLearnMinutes] = useState(DEFAULT_MINUTES)
   const [learnFirst, setLearnFirst] = useState(false)
   const [starting, setStarting] = useState(false)
 
@@ -373,10 +381,12 @@ function LauncherForm({
               {ready ? (
                 <div className="flex w-full items-center justify-between gap-2">
                   <span className="flex items-baseline gap-1">
-                    <span className="text-2xl font-bold tabular-nums text-blue-600 dark:text-blue-400">
+                    <span className="text-2xl font-medium tabular-nums text-accent-blue">
                       +{estimatedXp}
                     </span>
-                    <span className="font-mono text-sm font-semibold text-muted-foreground">
+                    {/* The unit takes the figure's colour, not muted — the two
+                        read as one reward, not a number with a caption. */}
+                    <span className="font-mono text-sm font-semibold text-accent-blue">
                       XP
                     </span>
                   </span>
@@ -387,7 +397,7 @@ function LauncherForm({
                 <div className="w-full">
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-mono text-lg font-bold">
-                      <span className="text-blue-600 dark:text-blue-400">--</span>
+                      <span className="text-accent-blue">--</span>
                       <span className="text-muted-foreground"> XP</span>
                     </span>
                     {/* Parked with XpBars below. */}
@@ -572,7 +582,6 @@ function TimeStepper({
   name: string
   className?: string
 }) {
-  const clamp = (v: number) => Math.min(120, Math.max(1, v))
   return (
     <div
       className={cn(
@@ -582,10 +591,10 @@ function TimeStepper({
     >
       <input
         type="number"
-        min={1}
-        max={120}
+        min={MIN_MINUTES}
+        max={MAX_MINUTES}
         value={value}
-        onChange={(e) => onChange(clamp(Number(e.target.value) || 1))}
+        onChange={(e) => onChange(clampMinutes(Number(e.target.value) || MIN_MINUTES))}
         aria-label={`${name} minutes`}
         className="w-11 flex-1 bg-transparent pl-3 text-base font-semibold tabular-nums text-hero-title outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
@@ -596,7 +605,7 @@ function TimeStepper({
         <button
           type="button"
           aria-label={`Increase ${name.toLowerCase()} time`}
-          onClick={() => onChange(clamp(value + 5))}
+          onClick={() => onChange(stepMinutesUp(value))}
           className="flex flex-1 items-center justify-center px-1.5 text-muted-foreground transition-colors hover:text-primary"
         >
           <ChevronUp className="size-3.5" />
@@ -604,7 +613,7 @@ function TimeStepper({
         <button
           type="button"
           aria-label={`Decrease ${name.toLowerCase()} time`}
-          onClick={() => onChange(clamp(value - 5))}
+          onClick={() => onChange(stepMinutesDown(value))}
           className="flex flex-1 items-center justify-center border-t border-border px-1.5 text-muted-foreground transition-colors hover:text-primary"
         >
           <ChevronDown className="size-3.5" />
@@ -627,7 +636,7 @@ function TimeStepper({
 //         'flex h-8 w-20 items-end gap-px',
 //         muted
 //           ? 'text-muted-foreground/50'
-//           : 'text-blue-600 dark:text-blue-400',
+//           : 'text-accent-blue',
 //       )}
 //       aria-hidden="true"
 //     >

@@ -88,7 +88,7 @@ export function CreedBand() {
           <div className="flex flex-col font-mono text-sm tracking-wide">
             {[
               { label: 'Lock in', tone: 'text-primary' },
-              { label: 'Keep learning', tone: 'text-blue-600 dark:text-blue-400' },
+              { label: 'Keep learning', tone: 'text-accent-blue' },
               { label: 'Level up', tone: 'text-primary' },
             ].map(({ label, tone }) => (
               <span

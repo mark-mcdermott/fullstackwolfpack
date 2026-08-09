@@ -163,7 +163,7 @@ function AccountCourseCard({
       <SectionLabel>Built-in track</SectionLabel>
 
       <div className="flex items-baseline gap-1">
-        <span className="font-heading text-4xl font-bold tabular-nums text-blue-600 dark:text-blue-400">
+        <span className="font-heading text-4xl font-bold tabular-nums text-accent-blue">
           {lessons.length}
         </span>
         <span className="font-mono text-sm font-semibold text-muted-foreground">
@@ -220,7 +220,7 @@ function GuestProgressCard({
       <SectionLabel>Your progress</SectionLabel>
 
       <div className="flex items-baseline gap-1">
-        <span className="font-heading text-4xl font-bold tabular-nums text-blue-600 dark:text-blue-400">
+        <span className="font-heading text-4xl font-bold tabular-nums text-accent-blue">
           {xp}
         </span>
         <span className="font-mono text-sm font-semibold text-muted-foreground">

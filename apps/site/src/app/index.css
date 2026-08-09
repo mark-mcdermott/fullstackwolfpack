@@ -78,6 +78,7 @@
     --color-chart-2: var(--chart-2);
     --color-chart-1: var(--chart-1);
     --color-ring: var(--ring);
+    --color-accent-blue: var(--accent-blue);
     --color-input: var(--input);
     --color-border: var(--border);
     --color-destructive: var(--destructive);
@@ -140,6 +141,15 @@
        elements that sit proudly off the page rather than flush in it. Deeper
        and wider than a hairline-plus-haze so it reads as real elevation. */
     --card-shadow: 0 6px 24px rgb(0 0 0 / 0.1);
+    /* The one blue in the app — XP figures, "Keep learning", the API health
+       readout, the current-lesson row. Light takes a pale sky (#83d0f3); dark
+       keeps the blue-400 it always had, which reads correctly on a dark plate.
+       Held as a token so the two themes stay one DOM tree and the shade moves
+       in one place rather than across ~12 call sites.
+       NOTE: #83d0f3 measures 1.7:1 on white — well under WCAG AA (4.5:1 body,
+       3:1 large). It is a deliberate look, not an oversight; darken toward
+       ~#1a7fb0 if these ever need to pass. */
+    --accent-blue: #83d0f3;
     /* Card elevation for the downstream surfaces (Skill, Arcade), applied via
        `cardLiftClass`. Light is `--card-shadow`'s lift with a hairline contact
        shadow under it, so a card sitting directly on the page background still
@@ -221,6 +231,9 @@
        would elsewhere — this plate is mostly smooth gradient, which is JPEG's
        worst case, and dark's contrast/saturate filters amplify the artifacts. */
     --hero-image: url('/images/hero-dark.webp');
+    /* Unchanged from the blue-400 these elements always used — dark never had
+       the contrast problem light's pale sky introduces. */
+    --accent-blue: #60a5fa;
     --creed-image: url('/images/creed-dark.webp');
     --path-banner: url('/images/motorcycle-dark.webp');
     /* Light's haze is invisible here — a black shadow on a near-black page has

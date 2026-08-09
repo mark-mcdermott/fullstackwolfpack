@@ -171,7 +171,7 @@ function PlaytimeCard({
       ) : (
         <>
           <div className="flex items-baseline gap-1">
-            <span className="font-heading text-4xl font-bold tabular-nums text-blue-600 dark:text-blue-400">
+            <span className="font-heading text-4xl font-bold tabular-nums text-accent-blue">
               {guestPlayXp()}
             </span>
             <span className="font-mono text-sm font-semibold text-muted-foreground">

@@ -33,7 +33,7 @@ export function SessionProgress() {
                   className={cn(
                     'flex size-9 items-center justify-center rounded-full border transition-colors',
                     active
-                      ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                      ? 'border-accent-blue text-accent-blue'
                       : done
                         ? 'border-emerald-600/60 bg-emerald-500/10 text-emerald-600 dark:border-emerald-400/50 dark:text-emerald-400'
                         : 'border-border text-muted-foreground group-hover:border-muted-foreground',
@@ -54,7 +54,7 @@ export function SessionProgress() {
                     className={cn(
                       'font-mono text-[11px] tabular-nums',
                       active
-                        ? 'text-blue-600 dark:text-blue-400'
+                        ? 'text-accent-blue'
                         : 'text-muted-foreground',
                     )}
                   >
