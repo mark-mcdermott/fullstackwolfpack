@@ -29,5 +29,17 @@ export default defineConfig({
         '@fw/ui': path.resolve(import.meta.dirname, '../../packages/ui/src'),
       },
     },
+    optimizeDeps: {
+      // `nostalgist` is reached only through a dynamic import inside the
+      // player's launch path (lib/emulator.ts), so Vite's initial scan never
+      // sees it. In dev that meant the *first* attempt to start a ROM was what
+      // triggered discovery: Vite re-optimized, the already-loaded page was
+      // left holding a stale `?v=` hash, and the import rejected with a 504
+      // "Outdated Optimize Dep" — which the player surfaced as "couldn't start
+      // this game" in both the Arcade and Mission lanes. Pre-bundling it at
+      // startup means the hash is stable before anyone can click Play.
+      // Dev-only: the production build bundles the dynamic chunk normally.
+      include: ['nostalgist'],
+    },
   },
 })

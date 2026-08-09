@@ -1,6 +1,8 @@
 // import { Signal } from 'lucide-react' // parked with LatencyReadout
-import { NavLink } from 'react-router'
-import { ThemeToggle, WolfMark } from '@fw/ui'
+import { LayoutDashboard } from 'lucide-react'
+import { NavLink, Link } from 'react-router'
+import { ThemeToggle, Tooltip, WolfMark } from '@fw/ui'
+import { useAuth } from '@/hooks/auth-context'
 import { useMissionExit } from '@/lib/mission-exit-store'
 import { cn } from '@/lib/utils'
 
@@ -48,6 +50,7 @@ export function FwHeader() {
   // bar's ✕ / "take a break") instead of re-navigating to the already-current
   // route, which would do nothing and strand you in the session.
   const missionExit = useMissionExit()
+  const { user } = useAuth()
   return (
     // Transparent so the page grain/glow (index.css `body::before`) runs behind
     // it unbroken; the layout wrapper supplies the base color.
@@ -181,11 +184,46 @@ export function FwHeader() {
           {/* Latency readout + API health + light/dark toggle */}
           <div className="flex flex-1 items-center justify-end gap-2 md:gap-[23px]">
             {/* <LatencyReadout /> */}
-            <span className="hidden items-center gap-3.5 font-mono text-[13px] text-foreground md:flex">
+            {/* The health readout yields to the dashboard link. Signed in, the
+                md row is 8px over its card — enough to push the theme toggle
+                outside the light card's right edge — and this is the piece that
+                can go: a decorative status line against the only route into the
+                app shell. It comes back at lg, where there is room for both. */}
+            <span
+              className={cn(
+                'hidden items-center gap-3.5 font-mono text-[13px] text-foreground',
+                user ? 'lg:flex' : 'md:flex',
+              )}
+            >
               <span className="size-2.5 rounded-full bg-green-500" />
               Healthy
             </span>
-            <span className="hidden h-[38px] w-px bg-border md:block" />
+            {/* The way into the app shell. `/` is the front door for signed-in
+                users too now, and this bar is the only chrome they get there —
+                without it the sidebar's surfaces (Dashboard, Sessions, Topics,
+                Friends) would be unreachable from the page they land on.
+                Icon-only, and carrying ThemeToggle's `-mx-2` trick: the button
+                keeps its 44px tap target but occupies only the glyph's width in
+                layout, which is what keeps the row inside the viewport at the
+                narrow end — the bar has ~30-50px of slack and a full-width text
+                link would have spent all of it. */}
+            {user && (
+              <Tooltip label="Dashboard" side="bottom" align="end">
+                <Link
+                  to="/app"
+                  aria-label="Dashboard"
+                  className="-mx-2 inline-flex items-center justify-center p-2 text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <LayoutDashboard className="size-6" />
+                </Link>
+              </Tooltip>
+            )}
+            <span
+              className={cn(
+                'hidden h-[38px] w-px bg-border',
+                user ? 'lg:block' : 'md:block',
+              )}
+            />
             {/* The arbitrary variant sizes the icon, which ThemeToggle otherwise
                 fixes at `size-4`. `-mx-2` cancels the button's own padding for
                 layout — so it lines up as if it were just the glyph — while the
