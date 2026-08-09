@@ -1,6 +1,6 @@
 import { ArrowRight, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
-import { Link, Navigate, useSearchParams } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { api } from '@/api-client'
 import { AsyncView, EmptyState } from '@/components/layout/async-view'
 import { SkillIcon } from '@/components/launch/skill-icon'
@@ -13,18 +13,27 @@ import type { PublicTopic } from '@/core/public-content'
 import { useAuth } from '@/hooks/auth-context'
 import { useAsync } from '@/hooks/use-async'
 import { guestCompletedLessonIds, guestXp } from '@/lib/guest-progress'
+import { topicCoursePath } from '@/lib/open-course'
 
 const lessonPath = (lessonId: string) => `/skill/${lessonId}`
 
-// Guest learn hub (/skill): the featured built-in course up front — its real
+// The learn hub (/skill): the featured built-in course up front — its real
 // outline, length and progress — with the other built-ins one click away.
-// Signed-in users get the full Topics page instead.
+//
+// It renders for everyone. This used to bounce a signed-in visitor to
+// /app/topics, which made "Skill" in the header a dead nav item for them: the
+// bar is the chrome they get on `/` now, so the link went to a page they were
+// never allowed to see. The built-ins are public content — what is guest-only
+// is the device-local progress card and the signup pitch, so those are what
+// swap out below rather than the whole page.
 export function LearnBrowse() {
   const { user, loading } = useAuth()
   const [params] = useSearchParams()
   const state = useAsync(() => api.public.topics())
 
-  if (!loading && user) return <Navigate to="/app/topics" replace />
+  // Hold the page until the session resolves — `user` picks the side card, and
+  // flipping it after paint would flash the signup CTA at a signed-in visitor.
+  if (loading) return null
 
   return (
     <AsyncView state={state}>
@@ -40,6 +49,7 @@ export function LearnBrowse() {
             key={featured.slug}
             topic={featured}
             others={topics.filter((t) => t.slug !== featured.slug)}
+            signedIn={Boolean(user)}
           />
         )
       }}
@@ -50,15 +60,21 @@ export function LearnBrowse() {
 function FeaturedCourse({
   topic,
   others,
+  signedIn,
 }: {
   topic: PublicTopic
   others: PublicTopic[]
+  signedIn: boolean
 }) {
   const state = useAsync(() => api.public.course(topic.slug))
   // Guest progress is device-local; snapshot it on mount (a finished lesson
-  // navigates back here, which re-mounts the page).
-  const [completedIds] = useState(guestCompletedLessonIds)
+  // navigates back here, which re-mounts the page). Signed in it is empty by
+  // construction — signup migrates and clears it — and this outline is the
+  // built-in course (ownerUserId IS NULL), not whichever course the account
+  // has for the topic, so account progress does not belong on these rows.
+  const [guestIds] = useState(guestCompletedLessonIds)
   const [xp] = useState(guestXp)
+  const completedIds = signedIn ? EMPTY_IDS : guestIds
 
   return (
     <AsyncView state={state}>
@@ -74,11 +90,15 @@ function FeaturedCourse({
                 completedIds={completedIds}
                 hrefFor={lessonPath}
               />
-              <GuestProgressCard
-                xp={xp}
-                lessons={outline.lessons}
-                completedIds={completedIds}
-              />
+              {signedIn ? (
+                <AccountCourseCard topic={topic} lessons={outline.lessons} />
+              ) : (
+                <GuestProgressCard
+                  xp={xp}
+                  lessons={outline.lessons}
+                  completedIds={completedIds}
+                />
+              )}
             </section>
 
             <Panel brackets={false} className="rounded-2xl">
@@ -98,7 +118,7 @@ function FeaturedCourse({
             </Panel>
 
             {others.length > 0 && <MoreSkills topics={others} />}
-            <UnlockStrip />
+            {!signedIn && <UnlockStrip />}
           </div>
         )
       }
@@ -106,11 +126,63 @@ function FeaturedCourse({
   )
 }
 
+// Module-level so it is referentially stable — a fresh `new Set()` per render
+// would churn every consumer that keys off it.
+const EMPTY_IDS: Set<string> = new Set()
+
 const totalMinutes = (lessons: CourseLesson[]) =>
   lessons.reduce((sum, l) => sum + l.estMinutes, 0)
 
 const nextLessonId = (lessons: CourseLesson[], completedIds: Set<string>) =>
   (lessons.find((l) => !completedIds.has(l.lessonId)) ?? lessons[0]).lessonId
+
+// The signed-in counterpart to GuestProgressCard. It deliberately reports the
+// course, not the reader: the outline beside it is the built-in track, while
+// the account's own progress lives against whichever course it has for the
+// topic — so this hands off to Topics rather than inventing a number here.
+function AccountCourseCard({
+  topic,
+  lessons,
+}: {
+  topic: PublicTopic
+  lessons: CourseLesson[]
+}) {
+  return (
+    <Panel brackets={false} className="flex flex-col gap-4 rounded-2xl">
+      <SectionLabel>Built-in track</SectionLabel>
+
+      <div className="flex items-baseline gap-1">
+        <span className="font-heading text-4xl font-bold tabular-nums text-blue-600 dark:text-blue-400">
+          {lessons.length}
+        </span>
+        <span className="font-mono text-sm font-semibold text-muted-foreground">
+          {lessons.length === 1 ? 'lesson' : 'lessons'}
+        </span>
+      </div>
+      <div className="flex items-baseline justify-between gap-3 border-t border-border pt-3 font-mono text-[10px] tracking-widest uppercase">
+        <span className="text-muted-foreground">Est. time</span>
+        <span className="tabular-nums">
+          {formatPlaytime(totalMinutes(lessons) * 60)}
+        </span>
+      </div>
+
+      <p className="font-mono text-[11px] leading-relaxed text-muted-foreground">
+        Free to browse. Open {topic.name} in your account to bank XP, keep a
+        streak, and have Wolfpack tailor the course to you.
+      </p>
+
+      <div className="mt-auto">
+        <Link
+          to={topicCoursePath(topic.slug)}
+          className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 font-mono text-xs font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90"
+        >
+          Open in my account
+          <ArrowRight className="size-4" />
+        </Link>
+      </div>
+    </Panel>
+  )
+}
 
 // The guest's device-local run: XP banked, lessons done, and the one CTA that
 // turns it into a real account before it's lost.

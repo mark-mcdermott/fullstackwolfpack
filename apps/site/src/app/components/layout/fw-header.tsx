@@ -1,8 +1,8 @@
 // import { Signal } from 'lucide-react' // parked with LatencyReadout
-import { LayoutDashboard } from 'lucide-react'
-import { NavLink, Link } from 'react-router'
-import { ThemeToggle, Tooltip, WolfMark } from '@fw/ui'
-import { useAuth } from '@/hooks/auth-context'
+// import { LayoutDashboard } from 'lucide-react' // parked with the dashboard link
+// import { Link } from 'react-router' // parked with the dashboard link
+import { NavLink } from 'react-router'
+import { ThemeToggle, WolfMark } from '@fw/ui'
 import { useMissionExit } from '@/lib/mission-exit-store'
 import { cn } from '@/lib/utils'
 
@@ -50,7 +50,6 @@ export function FwHeader() {
   // bar's ✕ / "take a break") instead of re-navigating to the already-current
   // route, which would do nothing and strand you in the session.
   const missionExit = useMissionExit()
-  const { user } = useAuth()
   return (
     // Transparent so the page grain/glow (index.css `body::before`) runs behind
     // it unbroken; the layout wrapper supplies the base color.
@@ -184,29 +183,22 @@ export function FwHeader() {
           {/* Latency readout + API health + light/dark toggle */}
           <div className="flex flex-1 items-center justify-end gap-2 md:gap-[23px]">
             {/* <LatencyReadout /> */}
-            {/* The health readout yields to the dashboard link. Signed in, the
-                md row is 8px over its card — enough to push the theme toggle
-                outside the light card's right edge — and this is the piece that
-                can go: a decorative status line against the only route into the
-                app shell. It comes back at lg, where there is room for both. */}
-            <span
-              className={cn(
-                'hidden items-center gap-3.5 font-mono text-[13px] text-foreground',
-                user ? 'lg:flex' : 'md:flex',
-              )}
-            >
+            {/* Back to one breakpoint for everyone now the dashboard link is
+                parked. It was `user ? 'lg:flex' : 'md:flex'` only to buy that
+                link room at md — restore the pair here and on the divider below
+                if the link ever comes back. */}
+            <span className="hidden items-center gap-3.5 font-mono text-[13px] text-foreground md:flex">
               <span className="size-2.5 rounded-full bg-green-500" />
               Healthy
             </span>
-            {/* The way into the app shell. `/` is the front door for signed-in
-                users too now, and this bar is the only chrome they get there —
-                without it the sidebar's surfaces (Dashboard, Sessions, Topics,
-                Friends) would be unreachable from the page they land on.
-                Icon-only, and carrying ThemeToggle's `-mx-2` trick: the button
-                keeps its 44px tap target but occupies only the glyph's width in
-                layout, which is what keeps the row inside the viewport at the
-                narrow end — the bar has ~30-50px of slack and a full-width text
-                link would have spent all of it. */}
+            {/* Parked. The icon-only way into the app shell, shown to signed-in
+                users only. `/` is the front door for them too now and this bar
+                is the only chrome they get there, so without it the sidebar's
+                surfaces (Dashboard, Sessions, Topics, Friends) are unreachable
+                from the page they land on — restore it if that becomes a dead
+                end again. It carried ThemeToggle's `-mx-2` trick: a 44px tap
+                target occupying only the glyph's width in layout, which is what
+                kept the row inside the viewport at the narrow end.
             {user && (
               <Tooltip label="Dashboard" side="bottom" align="end">
                 <Link
@@ -217,13 +209,8 @@ export function FwHeader() {
                   <LayoutDashboard className="size-6" />
                 </Link>
               </Tooltip>
-            )}
-            <span
-              className={cn(
-                'hidden h-[38px] w-px bg-border',
-                user ? 'lg:block' : 'md:block',
-              )}
-            />
+            )} */}
+            <span className="hidden h-[38px] w-px bg-border md:block" />
             {/* The arbitrary variant sizes the icon, which ThemeToggle otherwise
                 fixes at `size-4`. `-mx-2` cancels the button's own padding for
                 layout — so it lines up as if it were just the glyph — while the
