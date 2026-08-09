@@ -132,7 +132,13 @@ const PATH_STEPS: {
     title: 'Select a skill',
     text: 'Choose what you want to learn or improve.',
   },
-  { icon: Clock, title: 'Play', text: 'Focus for 25 minutes. No distractions.' },
+  // No number here on purpose: the interval is the user's to set, and this line
+  // used to quote the old 25-minute default back at them.
+  {
+    icon: Clock,
+    title: 'Play',
+    text: 'Lock in for as long as you want. No distractions.',
+  },
   {
     icon: BookOpen,
     title: 'Learn',

@@ -163,16 +163,24 @@ export function ThemeToggle({
           className={cn(
             'absolute right-0 z-50 w-44 p-1',
             side === 'bottom' ? 'top-full mt-2' : 'bottom-full mb-2',
-            // Square, ruled and cast-shadowed: the kit's panels have hard edges,
-            // and the old `rounded-md` + soft `shadow-lg` was the generic popover
-            // look rather than this one.
+            // Square and ruled: the kit's panels have hard edges, and a
+            // `rounded-md` + `shadow-lg` popover would be the generic look
+            // rather than this one.
             'border border-border bg-card text-foreground',
-            'light:shadow-[4px_4px_0_rgb(0_0_0/0.07)]',
-            // Dark takes the glass treatment instead of the cast shadow: the
-            // card colour thinned out over a blur, a hairline of lit edge along
-            // the top (the `::before`, which light never renders), and depth
-            // from a wide soft drop rather than a hard offset one.
-            'dark:border-white/12 dark:bg-card/75 dark:shadow-[0_20px_50px_-20px_rgb(0_0_0/0.9)] dark:backdrop-blur-xl',
+            // A real cast shadow — wide and soft over a tight contact layer —
+            // instead of the 4px hard offset it used to carry. That offset read
+            // as a sticker on a page this light, so the menu had almost no
+            // separation from what it opened over.
+            'light:shadow-[0_20px_50px_rgb(0_0_0/0.18),0_4px_12px_rgb(0_0_0/0.08)]',
+            // Dark drops the translucency it used to have (`bg-card/75` over a
+            // backdrop blur). Thinning the surface was exactly what made the
+            // menu disappear into the page behind it — a blur only separates
+            // two layers when they differ, and here they barely did. Opaque
+            // plate, hairline border, and depth from the same wide-plus-tight
+            // shadow pair, with a near-invisible outer ring holding the edge
+            // where the shadow is too soft to.
+            'dark:border-white/[0.08] dark:bg-[#101114]',
+            'dark:shadow-[0_18px_40px_rgb(0_0_0/0.55),0_2px_8px_rgb(0_0_0/0.35),0_0_0_1px_rgb(255_255_255/0.02)]',
             'dark:before:pointer-events-none dark:before:absolute dark:before:inset-x-0 dark:before:top-0 dark:before:h-px',
             'dark:before:bg-gradient-to-r dark:before:from-transparent dark:before:via-white/25 dark:before:to-transparent',
           )}

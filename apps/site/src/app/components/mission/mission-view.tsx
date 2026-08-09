@@ -8,6 +8,7 @@ import {
   Pause,
   Play,
   SkipForward,
+  Sparkles,
   X,
   type LucideIcon,
 } from 'lucide-react'
@@ -348,7 +349,8 @@ function MissionControl({
         <div>
           <Label>Estimated reward</Label>
           <div className="mt-1.5 flex items-end justify-between gap-3">
-            <span className="font-heading text-xl font-bold text-accent-blue">
+            <span className="inline-flex items-center gap-1.5 font-heading text-xl font-bold text-foreground">
+              <Sparkles className="size-3.5 text-accent-blue" aria-hidden="true" />
               +{session.estimatedXp}
               <span className="ml-1 font-mono text-sm text-muted-foreground">
                 XP

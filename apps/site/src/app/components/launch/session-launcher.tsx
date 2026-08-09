@@ -6,6 +6,7 @@ import {
   ChevronUp,
   Code,
   Gamepad2,
+  Sparkles,
   // Parked with <RatingStars>.
   // Star,
   // StarHalf,
@@ -380,13 +381,21 @@ function LauncherForm({
             <div className="flex h-16 items-center">
               {ready ? (
                 <div className="flex w-full items-center justify-between gap-2">
-                  <span className="flex items-baseline gap-1">
-                    <span className="text-2xl font-medium tabular-nums text-accent-blue">
+                  {/* The reward, set in the text colours rather than the accent:
+                      the figure is the loudest number in the row, and in cyan it
+                      was a fifth headline colour competing with red/green/amber.
+                      Cyan survives as the sparkle only — a supporting mark, not
+                      the thing you read. `self-center` because the row is
+                      baseline-aligned and an icon has no useful baseline. */}
+                  <span className="flex items-baseline gap-1.5">
+                    <Sparkles
+                      className="size-3.5 self-center text-accent-blue"
+                      aria-hidden="true"
+                    />
+                    <span className="text-2xl font-medium tabular-nums text-foreground">
                       +{estimatedXp}
                     </span>
-                    {/* The unit takes the figure's colour, not muted — the two
-                        read as one reward, not a number with a caption. */}
-                    <span className="font-mono text-sm font-semibold text-accent-blue">
+                    <span className="font-mono text-sm font-semibold text-muted-foreground">
                       XP
                     </span>
                   </span>
@@ -396,9 +405,10 @@ function LauncherForm({
               ) : (
                 <div className="w-full">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-lg font-bold">
-                      <span className="text-accent-blue">--</span>
-                      <span className="text-muted-foreground"> XP</span>
+                    {/* Placeholder follows the ready state: no headline cyan on
+                        a figure that isn't a figure yet. */}
+                    <span className="font-mono text-lg font-bold text-muted-foreground">
+                      -- XP
                     </span>
                     {/* Parked with XpBars below. */}
                     {/* <XpBars muted /> */}
