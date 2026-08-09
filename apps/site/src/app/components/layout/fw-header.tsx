@@ -3,6 +3,8 @@
 // import { Link } from 'react-router' // parked with the dashboard link
 import { NavLink } from 'react-router'
 import { ThemeToggle, WolfMark } from '@fw/ui'
+import { formatClock } from '@/core/focus-session'
+import { useTimer } from '@/hooks/timer-context'
 import { useMissionExit } from '@/lib/mission-exit-store'
 import { cn } from '@/lib/utils'
 
@@ -50,6 +52,12 @@ export function FwHeader() {
   // bar's ✕ / "take a break") instead of re-navigating to the already-current
   // route, which would do nothing and strand you in the session.
   const missionExit = useMissionExit()
+  // While a mission runs the bar's right-hand cluster becomes the clock. The
+  // health pip and the theme control are page furniture; a countdown you are
+  // actually racing is not, and it is the one thing worth a fixed position on
+  // screen while the session is live.
+  const timer = useTimer()
+  const onMission = timer.active && !!timer.step
   return (
     // Transparent so the page grain/glow (index.css `body::before`) runs behind
     // it unbroken; the layout wrapper supplies the base color.
@@ -186,14 +194,28 @@ export function FwHeader() {
           {/* Latency readout + API health + light/dark toggle */}
           <div className="flex flex-1 items-center justify-end gap-2 md:gap-[23px]">
             {/* <LatencyReadout /> */}
-            {/* Back to one breakpoint for everyone now the dashboard link is
-                parked. It was `user ? 'lg:flex' : 'md:flex'` only to buy that
-                link room at md — restore the pair here and on the divider below
-                if the link ever comes back. */}
-            <span className="hidden items-center gap-3.5 font-mono text-[13px] text-foreground md:flex">
-              <span className="size-2.5 rounded-full bg-green-500 dark:bg-green-500/65" />
-              Healthy
-            </span>
+            {onMission && timer.step ? (
+              <span className="flex items-center gap-2.5 font-mono text-[13px] text-foreground">
+                <span className="text-[10px] tracking-widest text-muted-foreground uppercase">
+                  {timer.step.phase === 'play' ? 'Play' : 'Learn'}
+                </span>
+                <span className="text-base tabular-nums">
+                  {formatClock(timer.secondsLeft)}
+                </span>
+                <span className="text-[10px] tracking-widest text-muted-foreground uppercase">
+                  {timer.paused ? 'paused' : `${timer.currentRound}/${timer.rounds}`}
+                </span>
+              </span>
+            ) : (
+              <>
+                {/* Back to one breakpoint for everyone now the dashboard link is
+                    parked. It was `user ? 'lg:flex' : 'md:flex'` only to buy that
+                    link room at md — restore the pair here and on the divider
+                    below if the link ever comes back. */}
+                <span className="hidden items-center gap-3.5 font-mono text-[13px] text-foreground md:flex">
+                  <span className="size-2.5 rounded-full bg-green-500 dark:bg-green-500/65" />
+                  Healthy
+                </span>
             {/* Parked. The icon-only way into the app shell, shown to signed-in
                 users only. `/` is the front door for them too now and this bar
                 is the only chrome they get there, so without it the sidebar's
@@ -213,7 +235,7 @@ export function FwHeader() {
                 </Link>
               </Tooltip>
             )} */}
-            <span className="hidden h-[38px] w-px bg-border md:block" />
+                <span className="hidden h-[38px] w-px bg-border md:block" />
             {/* The arbitrary variant sizes the icon, which ThemeToggle otherwise
                 fixes at `size-4`. `-mx-2` cancels the button's own padding for
                 layout — so it lines up as if it were just the glyph — while the
@@ -221,7 +243,9 @@ export function FwHeader() {
                 Scoped to the trigger by its data attribute: a bare `[&_svg]`
                 is a descendant selector, so it also caught the icons in the
                 open menu — and at 0,1,1 it outranked their own `size-3.5`. */}
-            <ThemeToggle className="-mx-2 [&_[data-theme-trigger]_svg]:size-7" />
+                <ThemeToggle className="-mx-2 [&_[data-theme-trigger]_svg]:size-7" />
+              </>
+            )}
             {/* Parked with the rest of the guest CTA work.
             {!user && (
               <Link

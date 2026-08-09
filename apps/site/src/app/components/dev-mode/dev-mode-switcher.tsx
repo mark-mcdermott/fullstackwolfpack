@@ -48,7 +48,12 @@ export function DevModeSwitcher() {
   }
 
   return (
-    <div className="fixed right-2 top-2 z-[100] w-fit select-none rounded-lg border border-border/60 bg-background/85 px-2 py-1.5 shadow-lg backdrop-blur">
+    <div // Bottom-right, not top-right: this is dev-only chrome and it was sitting on
+      // top of product UI in that corner — the mission's focus-mode exit and the
+      // arcade's fullscreen button both live there, and at z-[100] it won every
+      // time. Nothing of ours occupies the bottom-right (the touch pad is bottom
+      // centre), so it is out of the way there.
+      className="fixed right-2 bottom-2 z-[100] w-fit select-none rounded-lg border border-border/60 bg-background/85 px-2 py-1.5 shadow-lg backdrop-blur">
       <button
         type="button"
         onClick={() => setCollapsed((c) => !c)}

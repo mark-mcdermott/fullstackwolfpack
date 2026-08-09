@@ -204,6 +204,10 @@ export function RomPlayer({
           className={cn(
             'relative w-full bg-black',
             fs.isFullscreen ? 'h-full' : 'aspect-video',
+            // The CSS fallback (iPhone, where there is no fullscreen API):
+            // pin the surface to the viewport itself. `dvh` rather than `vh`
+            // so Safari's collapsing toolbars do not crop the bottom.
+            fs.immersive && 'fixed inset-0 z-50 h-[100dvh] w-screen',
           )}
         >
           <div ref={containerRef} className="absolute inset-0" />
