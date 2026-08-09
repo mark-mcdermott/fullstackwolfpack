@@ -69,8 +69,14 @@ Routes are gated client-side by `RequireAuth` (UX) and server-side by the sessio
 
 ## Scripts
 
-- `npm run dev` / `build` / `preview` — Vite (`dev` also serves `api/` via the dev plugin).
+- `npm run dev` / `build` / `preview` — Astro (`astro dev` on :4321 serves the pages, the applet **and** `src/pages/api/*` in one process; the old Vite dev-api plugin died with `apps/web`).
+- `npm test` / `test:watch` — Vitest over the colocated `src/app` tests.
 - `npm run db:push` / `db:generate` / `db:migrate` / `db:studio` — Drizzle.
+- `npm run db:seed` — seed the catalog (topics, achievements, levels, built-in courses). **Insert-only** and idempotent on fixed ids, so it never deletes and never overwrites: commenting a topic out of `SEED_TOPICS` only affects a *fresh* seed, and regenerated content does not reach an already-seeded database until you re-seed it. `--refresh-builtins` wipes built-in courses first (cascades to user progress on them).
+- `npm run db:park -- --list | --keep <slug> | --restore <slug>` — show/hide topics via `topics.status` without deleting anything; only the two galleries filter, by-slug lookups don't. The lever for an already-seeded DB, where commenting out `SEED_TOPICS` does nothing.
+- `npm run db:reset-dev` — wipe the Dev Mode test users' accumulated data, keeping the accounts.
+- `npm run gen:builtins [slug…]` — regenerate `seed-content.generated.ts` with an LLM (needs a provider key). **Re-seed each environment afterwards** — nothing propagates it, least of all a deploy.
+- Targeting prod: `apps/site/.env.prod` holds the prod `DATABASE_URL` but is never auto-loaded (the npm aliases hardcode `.env`), so run `npx tsx --env-file=.env.prod scripts/<name>.ts` from `apps/site`. Details + the ordering rules in [`docs/catalog-runbook.md`](docs/catalog-runbook.md).
 - `npm run tauri <cmd>` — Tauri CLI (e.g. `tauri dev`, `tauri build`).
 - `npm run cap <cmd>` — Capacitor CLI; `npm run cap:sync` builds `dist` then syncs the native shells.
 - `npm run cap:sync:prod` / `npm run tauri:build:prod` — the **shipping** native builds; both point the webview at `https://fullstackwolfpack.com` and bundle only `native-shell/`. Capacitor takes the origin from `CAP_SERVER_URL` (overridable); Tauri from `src-tauri/tauri.prod.conf.json`. Plain `tauri build` ships only the offline notice — use `tauri:build:prod`. `tauri dev` uses `devUrl` (localhost:4321) and works fully. See `apps/site/.env.example`.

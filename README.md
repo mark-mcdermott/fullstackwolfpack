@@ -1,32 +1,70 @@
-# React + TypeScript + Vite
+# Fullstack Wolfpack
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A learning app built around one loop: **play a game, then learn a skill** — short arcade sessions paired with AI-generated lessons, so a study habit rides on top of something you already want to do. Guests can try it without an account; signing up keeps the XP.
 
-Currently, two official plugins are available:
+Live at **[fullstackwolfpack.com](https://fullstackwolfpack.com)**.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Stack
 
-## React Compiler
+**ZENCATS** — Zod · Edge (Neon) · Node · Capacitor · Auth (passkeys/TOTP) · Tauri · Shadcn
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Astro 5 with React 19 islands, Tailwind v4 + shadcn-ui, Drizzle ORM on Neon Postgres, and passkey/WebAuthn auth with TOTP as the no-password fallback. Capacitor (mobile) and Tauri (desktop) wrap the same origin rather than bundling the app — passkeys are RP-origin-bound, so a `capacitor://localhost` webview could never authenticate.
 
-## Expanding the Oxlint configuration
+## Quickstart
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+cp apps/site/.env.example apps/site/.env   # then fill in DATABASE_URL + AUTH_SECRET
+npm run db:push                            # create the tables
+npm run db:seed                            # topics, achievements, levels, built-in courses
+npm run dev                                # http://localhost:4321
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Auth needs a real database to work end to end — create a [Neon](https://neon.tech) project and put its connection string in `DATABASE_URL`. Generate `AUTH_SECRET` and `ENCRYPTION_KEY` with `openssl rand -base64 32`; production refuses to boot on the dev defaults. Full variable list in [`apps/site/.env.example`](apps/site/.env.example).
+
+## Layout
+
+An npm-workspaces monorepo with one deployable app.
+
+```
+apps/site/            @fw/site — the whole product (Astro + Vercel adapter)
+  src/pages/*.astro     static marketing/content pages
+  src/pages/[...slug]   the React SPA, mounted as a client:only island
+  src/pages/api/**      the API, as Astro endpoints
+  src/app/              the React app — components, hooks, core/, server/, db/
+  ios/ android/ src-tauri/   native shells
+packages/ui/          @fw/ui — the FW-01 design system + theme tokens
+docs/                 plans, briefs, runbooks
+```
+
+Every root script delegates to `@fw/site`; there is no second app. `@/…` imports resolve to `apps/site/src/app`.
+
+## Scripts
+
+| | |
+|---|---|
+| `npm run dev` / `build` / `preview` | Astro dev server (`:4321`), production build, preview |
+| `npm test` / `test:watch` | Vitest — 485 colocated unit tests |
+| `npm run lint` | oxlint |
+| `npm run db:push` / `db:generate` / `db:migrate` / `db:studio` | Drizzle schema + studio |
+| `npm run db:seed` | seed the catalog (idempotent) |
+| `npm run db:park -- --list \| --keep <slug> \| --restore <slug>` | show/hide topics without deleting them |
+| `npm run db:reset-dev` | wipe the Dev Mode test users' data, keep the accounts |
+| `npm run gen:builtins [slug…]` | regenerate the built-in courses with an LLM |
+| `npm run tauri <cmd>` / `cap <cmd>` | desktop / mobile shells |
+| `npm run tauri:build:prod` / `cap:sync:prod` | the **shipping** native builds |
+
+## Deploy
+
+One Vercel project, Root Directory `apps/site`. The Vercel adapter bundles every route — API and applet — into a single function. Canonical origin is the apex `fullstackwolfpack.com`; `www` 308-redirects to it, and `RP_ID` / `RP_ORIGIN` must be the apex or WebAuthn will reject.
+
+**The database is not part of a deploy.** Schema changes need `db:push` against production, and regenerated course content needs `db:seed` — neither happens automatically. See the runbook below.
+
+## Docs
+
+- [Catalog & seeding runbook](docs/catalog-runbook.md) — how built-in courses reach the database, parking topics, and the production steps a deploy does *not* do
+- [Roadmap](docs/ROADMAP.md) — every track, shipped vs left
+- [Data model](docs/data-model.md) — domains and table layout
+- [Education system](docs/education-system.md) — generation, grading, adaptive difficulty
+- [ROM licensing](docs/rom-licensing.md) — what ships in the arcade and why
+- [`CLAUDE.md`](CLAUDE.md) — architecture notes and conventions in depth
