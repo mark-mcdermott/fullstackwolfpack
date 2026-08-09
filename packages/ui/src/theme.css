@@ -168,6 +168,11 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.708 0 0);
+    /* Card elevation, applied via `cardLiftClass` (ui-kit.tsx). Light is a
+       wide, soft lift with a hairline contact shadow under it — the haze alone
+       is too diffuse to separate a card that sits straight on the page.
+       Synced with apps/site/src/app/index.css. */
+    --panel-lift: 0 1px 2px rgb(0 0 0 / 0.06), 0 6px 24px rgb(0 0 0 / 0.1);
 }
 
 .dark {
@@ -202,6 +207,12 @@
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.556 0 0);
+    /* A black haze on a near-black page darkens nothing, so dark cannot reuse
+       light's lift. Depth instead: a tight opaque pool right under the card
+       plus a wider fall, which is what separates one dark surface from
+       another. Synced with apps/site/src/app/index.css. */
+    --panel-lift:
+        0 1px 2px rgb(0 0 0 / 0.5), 0 10px 30px -8px rgb(0 0 0 / 0.65);
 }
 
 @layer base {

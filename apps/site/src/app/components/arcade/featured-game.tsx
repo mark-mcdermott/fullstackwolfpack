@@ -1,6 +1,12 @@
 import { ArrowRight, Clock, Play } from 'lucide-react'
 import { Link } from 'react-router'
-import { Panel, SectionLabel } from '@fw/ui'
+import {
+  Panel,
+  SectionLabel,
+  cardLiftClass,
+  raisedCtaClass,
+  raisedCtaCompactClass,
+} from '@fw/ui'
 import type { GamePlaytime } from '@/core/playtime'
 import {
   formatPlaytime,
@@ -12,6 +18,7 @@ import { SYSTEM_META } from '@/core/roms'
 import type { RomEntry } from '@/lib/rom-catalog'
 import { guestPlayXp } from '@/lib/guest-progress'
 import { useAuth } from '@/hooks/auth-context'
+import { cn } from '@/lib/utils'
 
 // The arcade's featured title: cover art, what it is, who made it, and the two
 // ways in — straight to the game, or into a play↔learn mission. The cover
@@ -29,7 +36,7 @@ export function FeaturedGame({
     <section className="grid gap-5 lg:grid-cols-[1fr_20rem]">
       <Panel
         brackets={false}
-        className="relative flex overflow-hidden rounded-2xl p-0"
+        className={cn('relative flex overflow-hidden rounded-2xl p-0', cardLiftClass)}
       >
         {game.coverImage && (
           <>
@@ -85,7 +92,7 @@ export function FeaturedGame({
               <button
                 type="button"
                 onClick={onPlay}
-                className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-5 font-mono text-xs font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90"
+                className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-flare')}
               >
                 <Play className="size-4" />
                 Play now
@@ -108,7 +115,9 @@ function MissionLink() {
   return (
     <Link
       to={`${home}#start-session`}
-      className="inline-flex h-11 items-center gap-2 rounded-lg border border-border px-5 font-mono text-xs font-semibold tracking-widest uppercase transition-colors hover:border-primary hover:text-primary"
+      // h-10, not h-11: it sits directly beside "Play now", and the raised CTA
+      // is 40px (11 + 20 + 9). At 44 the secondary stood proud of the primary.
+      className="inline-flex h-10 items-center gap-2 rounded-lg border border-border px-5 font-mono text-xs font-semibold tracking-widest uppercase transition-colors hover:border-primary hover:text-primary"
     >
       Start a mission
       <ArrowRight className="size-4" />
@@ -129,7 +138,13 @@ function PlaytimeCard({
   const played = playtime?.seconds ?? 0
 
   return (
-    <Panel brackets={false} className="flex flex-col gap-4 rounded-2xl">
+    // `self-start` so the card hugs its rows rather than stretching to the
+    // featured tile's height — with the signup block parked, the guest side
+    // has only XP and the two rates to fill it and read as half empty.
+    <Panel
+      brackets={false}
+      className={cn('flex flex-col gap-4 self-start rounded-2xl', cardLiftClass)}
+    >
       <SectionLabel>{signedIn ? 'Your playtime' : 'Your run'}</SectionLabel>
 
       {signedIn ? (
@@ -173,6 +188,9 @@ function PlaytimeCard({
               <dd>{PLAY_XP_DAILY_CAP} XP</dd>
             </div>
           </dl>
+          {/* Parked with the rest of the signup pitch. What is left is the
+              guest's own run — XP banked, earn rate, daily cap — with nothing
+              asking them to convert.
           <p className="font-mono text-[11px] leading-relaxed text-muted-foreground">
             Play as long as you like — an account keeps the XP and tracks your
             time per title.
@@ -180,7 +198,7 @@ function PlaytimeCard({
           <div className="mt-auto flex flex-col gap-2">
             <Link
               to="/signup"
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 font-mono text-xs font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90"
+              className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-blaze w-full')}
             >
               Create a free account
               <ArrowRight className="size-4" />
@@ -192,6 +210,7 @@ function PlaytimeCard({
               </Link>
             </p>
           </div>
+          */}
         </>
       )}
     </Panel>

@@ -140,6 +140,11 @@
        elements that sit proudly off the page rather than flush in it. Deeper
        and wider than a hairline-plus-haze so it reads as real elevation. */
     --card-shadow: 0 6px 24px rgb(0 0 0 / 0.1);
+    /* Card elevation for the downstream surfaces (Skill, Arcade), applied via
+       `cardLiftClass`. Light is `--card-shadow`'s lift with a hairline contact
+       shadow under it, so a card sitting directly on the page background still
+       reads as separated where the wide haze alone is too diffuse to. */
+    --panel-lift: 0 1px 2px rgb(0 0 0 / 0.06), 0 6px 24px rgb(0 0 0 / 0.1);
     /* Inner controls (selects, steppers, the swap key): the same white
        inner rule the tiles carry, over a shallower lift. */
     --field-shadow: inset 0 0 0 2px #fdfdfb, 0 1px 4px rgb(0 0 0 / 0.06);
@@ -218,6 +223,12 @@
     --hero-image: url('/images/hero-dark.webp');
     --creed-image: url('/images/creed-dark.webp');
     --path-banner: url('/images/motorcycle-dark.webp');
+    /* Light's haze is invisible here — a black shadow on a near-black page has
+       nothing to darken. Dark gets depth instead: a tight, opaque pool close
+       under the card plus a wider fall, which is what separates one dark
+       surface from another. */
+    --panel-lift:
+        0 1px 2px rgb(0 0 0 / 0.5), 0 10px 30px -8px rgb(0 0 0 / 0.65);
     /* Drives the full-bleed strip's height (see `PathBanner`). It is the art's
        own dimensions on purpose — the band only stays crop-free while the two
        agree, so writing the asset's numbers here makes any future re-crop that

@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
-import { WolfMark, raisedCtaClass } from '@fw/ui'
+import { WolfMark, raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
 import { cn } from '@/lib/utils'
 
 // Akela's creed + the terminal readout, as a bordered card that sits under the
@@ -395,20 +395,14 @@ export function ReadyToJoin() {
           </p>
         </div>
         <div className="flex flex-col items-start gap-2 md:items-center md:pr-32 lg:pr-56">
-          {/* Tighter than the shared CTA, and tighter still vertically. The 2px
-              padding split is load-bearing — it centres the caps on the bevel's
-              face, which sits 1px low whatever the padding. Dark has to be
-              restated, not inherited: the shared class carries its own
-              `dark:pt-4 dark:pb-4`, which outranks the unprefixed pair here
-              and would grow this button to 52px. Same 20px total, halved for
-              a rim that is even top and bottom. The font size stays light's;
-              dark's is on the shared class, one size for all three. */}
+          {/* The compact step of the raised CTA — 40px, and the size the Skill
+              and Arcade card CTAs take too. The padding it carries (including
+              the restated `dark:`, without which this grows to 52px in dark)
+              lives in `raisedCtaCompactClass`; the font size stays light's,
+              since dark's is on the shared class, one size for all three. */}
           <Link
             to="/signup"
-            className={cn(
-              raisedCtaClass,
-              'cta-blaze px-4 pt-[11px] pb-[9px] text-[20px]/[20px] dark:pt-[10.5px] dark:pb-[9.5px]',
-            )}
+            className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-blaze')}
           >
             Create free account
             <ArrowRight className="size-5" />
