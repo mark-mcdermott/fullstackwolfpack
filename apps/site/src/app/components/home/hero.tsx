@@ -194,7 +194,7 @@ export function HomeHero() {
             </span>
           </div>
 
-          <div className="mt-auto flex flex-col gap-4 ">
+          <div className="mt-auto flex flex-col">
             {/* The quote sits over the portrait, so it carries its own halo.
                 A blurred shape rather than a radial-gradient background: a
                 gradient still ends on a geometric curve, which reads as a
@@ -215,17 +215,21 @@ export function HomeHero() {
               </cite>
             </blockquote>
 
+            {/* Parked: a card inside a card. The quote takes the foot of the
+                panel on its own now — it was already `mt-auto`'d, so nothing
+                else had to move. Restore this and the wrapper's `gap-4` 
+                together; without the gap the two would sit flush.
             {/* Inner rule is uneven by design — 10px along the top and right, 1px
                 on the left and bottom — so it reads as a lit edge rather than a
                 uniform ring. Built as an eggshell fill plus an inset interior
                 plate rather than four inset shadows: the bevel is wider than the
                 10px corner radius, and an inner corner can never be rounder than
                 the outer one it is cut from, so a shadow (or a border) leaves a
-                square notch at the top right. The plate carries its own radius. */}
+                square notch at the top right. The plate carries its own radius. * /}
             <div className="relative rounded-lg border border-border pt-5 pr-5 pb-4 pl-3 light:border-[#dddfe3] light:bg-[#fcfcfb] dark:border-white/15 dark:bg-[#161616]">
               {/* Opaque, not `bg-muted/40`: the plate now sits on the eggshell
                   rather than on the card, and 40% over the lighter fill washed
-                  the bevel out to half its contrast. This is that blend, fixed. */}
+                  the bevel out to half its contrast. This is that blend, fixed. * /}
               <div className="pointer-events-none absolute top-[10px] right-[10px] bottom-px left-px rounded-md light:bg-[#f7f4f4]" />
               <span className="relative block font-mono text-xs leading-none font-semibold tracking-tight text-hero-title uppercase light:text-[#04040d]">
                 Today&rsquo;s challenge
@@ -239,6 +243,7 @@ export function HomeHero() {
                 </span>
               </div>
             </div>
+            */}
           </div>
         </div>
       </Panel>

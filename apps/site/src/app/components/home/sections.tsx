@@ -7,7 +7,7 @@ import {
   Gamepad2,
   type LucideIcon,
 } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { useId, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { WolfMark, raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
 import { cn } from '@/lib/utils'
@@ -29,7 +29,7 @@ export function CreedBand() {
           slice is 18KB against dark's 2.4MB. Same seam as `--hero-image`. */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[image:var(--creed-image)] bg-cover bg-center bg-no-repeat md:[mask-image:linear-gradient(to_right,transparent,black_30%,black_85%,transparent)] dark:brightness-[0.82] dark:saturate-[0.85]"
+        className="absolute inset-0 bg-[image:var(--creed-image)] bg-cover bg-[position:78%_center] bg-no-repeat md:bg-center md:[mask-image:linear-gradient(to_right,transparent,black_30%,black_85%,transparent)] dark:brightness-[0.82] dark:saturate-[0.85]"
       />
       {/* Scrims parked. All three existed to tame the dark neon plate; light's
           purpose-cut slice is high-key and carries its own edge mask, so they
@@ -84,7 +84,7 @@ export function CreedBand() {
 
         {/* Terminal readout. Its own surface in light so it reads as a panel
             against the art rather than sitting loose on it. */}
-        <div className="flex shrink-0 flex-col justify-center rounded-r-xl border-border md:self-stretch light:border-l light:border-[#e2dfde] light:bg-white light:p-4 light:shadow-[var(--field-shadow)] md:border-l md:pl-8 md:light:pl-4 dark:border-white/15">
+        <div className="flex shrink-0 flex-col justify-center rounded-r-xl border-border p-4 md:self-stretch light:border-l light:border-[#e2dfde] light:bg-white light:shadow-[var(--field-shadow)] md:border-l dark:border-white/15 dark:bg-[#0b1018]">
           <div className="flex flex-col font-mono text-sm tracking-wide">
             {[
               { label: 'Lock in', tone: 'text-primary' },
@@ -156,10 +156,49 @@ const PATH_STEPS: {
   },
 ]
 
+// The hexagon's six corners, in the same 0 0 100 115 space as the outline
+// below. They are the *cut* corners — the path rounds each vertex with a
+// quadratic, so these are the apexes of those curves, not where the straight
+// edges would have met.
+const HEX_VERTICES: { x: number; y: number; top?: boolean }[] = [
+  { x: 50, y: 4.6, top: true },
+  { x: 93.6, y: 30.4 },
+  { x: 93.6, y: 84.6 },
+  { x: 50, y: 110.4 },
+  { x: 6.4, y: 84.6 },
+  { x: 6.4, y: 30.4 },
+]
+
+const HEX_D =
+  'M42.16,7.43 Q50,3 57.84,7.43 L88.16,24.57 Q96,29 96,38 L96,77 Q96,86 88.16,90.43 L57.84,107.57 Q50,112 42.16,107.57 L11.84,90.43 Q4,86 4,77 L4,38 Q4,29 11.84,24.57 Z'
+
 // A pointy-top hexagon drawn as SVG rather than clip-path, so it can carry a
 // stroke — clip-path gives no border to work with, and the outline is the whole
 // look here.
-function PathHex({ last, children }: { last: boolean; children: ReactNode }) {
+//
+// Dark is where the work is. The mock's tile is not a stroked shape with a
+// shadow on it; it is a lamp. Four things build that, and dropping any one of
+// them takes the neon with it:
+//
+//   1. a bloom in three passes — a tight white-hot core, a mid halo and a wide
+//      soft one. One large `drop-shadow` reads as fog; stacking radii is what
+//      gives the falloff a filament's shape.
+//   2. an interior that is lit rather than filled: a radial from the card
+//      colour at the middle out to the accent at low alpha, so the glass
+//      catches the tube nearest the edges.
+//   3. nodes at the corners. The mock puts a dot on every vertex and a brighter
+//      one at the apex — that single detail is most of why the shape reads as
+//      built out of light rather than drawn.
+//   4. the stroke itself at full strength, since it is the filament.
+function PathHex({
+  last,
+  children,
+}: {
+  last: boolean
+  children: ReactNode
+}) {
+  const fillId = useId()
+  const accent = last ? 'var(--color-violet-400)' : 'var(--primary)'
   return (
     <span className="relative flex size-[62px] shrink-0 items-center justify-center sm:size-[70px]">
       <svg
@@ -167,32 +206,64 @@ function PathHex({ last, children }: { last: boolean; children: ReactNode }) {
         aria-hidden="true"
         className={cn(
           'absolute inset-0 size-full',
-          // Light lifts the tile off the rail; dark keeps the neon bloom it had.
-          // `drop-shadow` rather than `box-shadow`: the shadow has to follow the
-          // hexagon, and a box-shadow would trace the <svg>'s square box.
           'light:drop-shadow-[0_1px_2px_rgb(0_0_0/0.10)]',
+          // The three-pass bloom. Tuned per hue: violet carries further at the
+          // same alpha, so its wide pass is pulled back rather than matched.
           last
-            ? 'dark:drop-shadow-[0_0_4px_color-mix(in_oklab,var(--color-violet-500)_55%,transparent)]'
-            : 'dark:drop-shadow-[0_0_4px_color-mix(in_oklab,var(--primary)_50%,transparent)]',
+            ? 'dark:[filter:drop-shadow(0_0_1.5px_color-mix(in_oklab,var(--color-violet-200)_90%,transparent))_drop-shadow(0_0_5px_color-mix(in_oklab,var(--color-violet-400)_75%,transparent))_drop-shadow(0_0_13px_color-mix(in_oklab,var(--color-violet-500)_55%,transparent))_drop-shadow(0_0_30px_color-mix(in_oklab,var(--color-violet-600)_38%,transparent))]'
+            : 'dark:[filter:drop-shadow(0_0_1.5px_color-mix(in_oklab,#ffc0a8_88%,transparent))_drop-shadow(0_0_5px_color-mix(in_oklab,#ff5a3c_80%,transparent))_drop-shadow(0_0_13px_color-mix(in_oklab,var(--primary)_58%,transparent))_drop-shadow(0_0_32px_color-mix(in_oklab,var(--primary)_36%,transparent))]',
         )}
       >
-        {/* Same pointy-top hexagon as the plain polygon it replaced, with each
-            vertex cut back 9 units and bridged by a quadratic — the corner
-            radius has to live in the geometry, since stroke-linejoin would only
-            round by half the 3-unit stroke (~0.8px at this render size). */}
+        <defs>
+          {/* Lit from the rim inwards, so the middle stays dark enough for the
+              glyph and the edges pick the tube up. */}
+          <radialGradient id={fillId} cx="50%" cy="50%" r="62%">
+            <stop offset="0%" stopColor="var(--card)" />
+            <stop offset="58%" stopColor="var(--card)" />
+            <stop
+              offset="100%"
+              stopColor={accent}
+              stopOpacity={last ? 0.3 : 0.26}
+            />
+          </radialGradient>
+        </defs>
         <path
-          d="M42.16,7.43 Q50,3 57.84,7.43 L88.16,24.57 Q96,29 96,38 L96,77 Q96,86 88.16,90.43 L57.84,107.57 Q50,112 42.16,107.57 L11.84,90.43 Q4,86 4,77 L4,38 Q4,29 11.84,24.57 Z"
-          strokeWidth="3"
+          d={HEX_D}
+          strokeWidth="2.6"
           className={cn(
-            'light:fill-white light:stroke-[#dad7d6] dark:fill-card',
-            last ? 'dark:stroke-violet-500/60' : 'dark:stroke-primary/60',
+            'light:fill-white light:stroke-[#dad7d6]',
+            last ? 'dark:stroke-violet-400' : 'dark:stroke-primary',
           )}
+          // Light keeps its flat white; dark takes the lit interior. Set as an
+          // attribute rather than a class so the gradient id can reach it, and
+          // overridden back to white by the `light:fill-white` above.
+          fill={`url(#${fillId})`}
         />
+        {/* Corner nodes. Light renders none — they are a neon artefact, and on
+            a white tile they would read as dirt. */}
+        {HEX_VERTICES.map(({ x, y, top }) => (
+          <circle
+            key={`${x}-${y}`}
+            cx={x}
+            cy={y}
+            r={top ? 2.4 : 1.7}
+            className={cn(
+              'light:hidden',
+              top
+                ? last
+                  ? 'dark:fill-violet-100'
+                  : 'dark:fill-[#ffd9c8]'
+                : last
+                  ? 'dark:fill-violet-300'
+                  : 'dark:fill-[#ff7a55]',
+            )}
+          />
+        ))}
       </svg>
       <span
         className={cn(
           'relative flex items-center justify-center',
-          last ? 'text-foreground dark:text-violet-300/85' : 'text-foreground',
+          last ? 'text-foreground dark:text-violet-200' : 'text-foreground',
         )}
       >
         {children}
@@ -201,21 +272,95 @@ function PathHex({ last, children }: { last: boolean; children: ReactNode }) {
   )
 }
 
-// The rail between two hexes. Absolutely positioned rather than a flex sibling:
-// the columns are equal-width and their copy is wider than the hexes, so the
-// rail has to run hex-edge to hex-edge across the gap, not between the columns.
-// 35px is the hex's half-width, +4 for breathing room; `top` is that same half
-// less 1, to sit the rule on the hex's centre line. Both track the hex size —
-// resize PathHex and these move with it.
-function PathRail() {
+// The connectors between steps. Three layouts to serve, because the grid is
+// 2 / 3 / 6 across: what is a mid-row link at one width is a line wrap at
+// another, so each step renders every variant it might need and the breakpoint
+// picks one. `cols` is which grid this variant belongs to.
+function PathRailAcross({ cols, violet }: { cols: 2 | 3 | 6; violet?: boolean }) {
+  // The rule runs the whole span and the chevron sits *over* it — the mock's
+  // line does not break for the arrowhead, and splitting it into two halves
+  // (which is what the last pass did) left a gap either side of the glyph that
+  // read as two links rather than one.
+  const line = cn(
+    'pointer-events-none absolute inset-x-0 top-1/2 h-0 border-t',
+    'light:border-dotted light:border-[#8a888a]',
+    violet
+      ? 'dark:border-violet-400/80 dark:shadow-[0_0_6px_color-mix(in_oklab,var(--color-violet-500)_60%,transparent)]'
+      : 'dark:border-primary/85 dark:shadow-[0_0_6px_color-mix(in_oklab,var(--primary)_55%,transparent)]',
+  )
+  // Each segment is capped at both ends, as the mock is — the caps are what
+  // stop the rule dying into the bloom and make each link read as its own run.
+  const cap = cn(
+    'pointer-events-none absolute top-1/2 size-[3.5px] -translate-y-1/2 rounded-full light:hidden',
+    violet ? 'dark:bg-violet-200' : 'dark:bg-[#ffb499]',
+  )
   return (
     <span
       aria-hidden="true"
-      className="absolute top-[30px] right-[calc(-50%+39px)] left-[calc(50%+39px)] hidden items-center gap-1 sm:top-[34px] md:flex"
+      className={cn(
+        'pointer-events-none absolute top-[30px] right-[calc(-50%+39px)] left-[calc(50%+39px)] h-0 items-center justify-center sm:top-[34px]',
+        cols === 2 && 'flex sm:hidden',
+        cols === 3 && 'hidden sm:flex md:hidden',
+        cols === 6 && 'hidden md:flex',
+      )}
     >
-      <span className="h-0 flex-1 border-t light:border-dotted light:border-[#c9c4c2] dark:border-primary/70" />
-      <ChevronRight className="size-3 shrink-0 light:text-[#9c9694] dark:text-primary" />
+      <span className={line} />
+      <span className={cn(cap, '-left-px')} />
+      <span className={cn(cap, '-right-px')} />
+      {/* Brighter than its own rule, which is how the mock separates the two —
+          the arrowhead is the lit end of the segment, not more of the line. */}
+      <ChevronRight
+        className={cn(
+          'relative size-[18px] shrink-0 dark:size-6',
+          'light:text-[#1e222b]',
+          violet
+            ? 'dark:text-violet-200 dark:[filter:drop-shadow(0_0_5px_color-mix(in_oklab,var(--color-violet-400)_75%,transparent))]'
+            : 'dark:text-[#ffb499] dark:[filter:drop-shadow(0_0_5px_color-mix(in_oklab,var(--primary)_75%,transparent))]',
+        )}
+        strokeWidth={2.25}
+      />
     </span>
+  )
+}
+
+// At a line wrap the path cannot run to its neighbour — the next number is at
+// the far left of the row below. So it turns: out of the last hex in the row,
+// right past the column edge, and down to the middle of the row gap. Its
+// partner (`PathRailEnter`) picks the line up there and carries it back.
+//
+// `bottom: -18px` rather than a height, because the cells are as tall as their
+// copy and that varies: -18 is half of the grid's `gap-y-9`, so the turn always
+// lands exactly on the gap's midline whatever the row measures.
+function PathRailTurn({ cols }: { cols: 2 | 3 }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        'pointer-events-none absolute top-[30px] -bottom-[18px] left-[calc(50%+39px)] -right-2 rounded-tr-md border-t border-r sm:top-[34px]',
+        'light:border-dotted light:border-[#c9c4c2] dark:border-primary/70',
+        cols === 2 && 'block sm:hidden',
+        cols === 3 && 'hidden sm:block md:hidden',
+      )}
+    />
+  )
+}
+
+// The return leg: along the gap's midline from where the turn left off, then
+// down into the first hex of the row. The negative right inset is what reaches
+// back across the row — one cell plus one gap per column to the right of this
+// one, plus the 8px the turn sits outside the grid — so the two elbows meet
+// instead of reading as two unrelated stubs.
+function PathRailEnter({ cols }: { cols: 2 | 3 }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        'pointer-events-none absolute -top-[18px] left-1/2 h-12 rounded-tl-md border-t border-l sm:h-[52px]',
+        'light:border-dotted light:border-[#c9c4c2] dark:border-primary/70',
+        cols === 2 && 'right-[calc(-100%-24px)] block sm:hidden',
+        cols === 3 && 'hidden right-[calc(-200%-40px)] sm:block md:hidden',
+      )}
+    />
   )
 }
 
@@ -234,7 +379,20 @@ export function WolfPath() {
           const last = i === PATH_STEPS.length - 1
           return (
             <div key={title} className="relative flex flex-col items-center">
-              {!last && <PathRail />}
+              {/* Which connector this step needs depends on where it sits in
+                  the row, and that differs per breakpoint — so the decision is
+                  made once per grid here and the variants hide themselves. */}
+              {!last && (i + 1) % 2 !== 0 && <PathRailAcross cols={2} />}
+              {!last && (i + 1) % 2 === 0 && <PathRailTurn cols={2} />}
+              {i % 2 === 0 && i > 0 && <PathRailEnter cols={2} />}
+              {!last && (i + 1) % 3 !== 0 && (
+                <PathRailAcross cols={3} violet={i === PATH_STEPS.length - 2} />
+              )}
+              {!last && (i + 1) % 3 === 0 && <PathRailTurn cols={3} />}
+              {i % 3 === 0 && i > 0 && <PathRailEnter cols={3} />}
+              {!last && (
+                <PathRailAcross cols={6} violet={i === PATH_STEPS.length - 2} />
+              )}
               <PathHex last={last}>
                 {Icon && <Icon className="size-8" strokeWidth={2} />}
                 {glyph && (
