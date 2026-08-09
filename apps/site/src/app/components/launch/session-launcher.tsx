@@ -336,19 +336,19 @@ function LauncherForm({
 
         {/* play + learn — a centered row of their own below md; inline on the
             shared line at md and up. */}
-        <div className="flex items-start gap-2 max-md:w-full max-md:justify-center min-[430px]:max-md:col-span-2 min-[430px]:max-md:grid min-[430px]:max-md:grid-cols-5 min-[430px]:max-md:gap-x-2">
+        <div className="flex items-start gap-2 max-md:w-full max-md:justify-center max-md:grid max-md:grid-cols-5 max-md:gap-x-2 min-[430px]:max-md:col-span-2">
           <Control
             label={first.label}
-            className="min-w-0 min-[430px]:max-md:col-span-2"
+            className="min-w-0 max-md:col-span-2"
           >
             <TimeStepper
               value={first.value}
               onChange={first.set}
               name={first.name}
-              className="min-[430px]:max-md:w-full"
+              className="max-md:w-full"
             />
           </Control>
-          <div className="flex flex-col gap-1.5 md:max-lg:hidden min-[430px]:max-md:items-center">
+          <div className="flex flex-col gap-1.5 md:max-lg:hidden">
             <FieldLabel aria-hidden="true" className="opacity-0">
               swap
             </FieldLabel>
@@ -358,7 +358,7 @@ function LauncherForm({
                 onClick={() => setLearnFirst((v) => !v)}
                 aria-label="Swap play/learn order"
                 title="Swap which comes first"
-                className="flex size-9 items-center justify-center rounded-lg border border-border bg-card text-hero-title transition-colors hover:border-primary hover:text-primary light:shadow-[var(--field-shadow)]"
+                className="flex size-9 items-center justify-center rounded-lg border border-border bg-card text-hero-title transition-colors hover:border-primary hover:text-primary max-md:w-full light:shadow-[var(--field-shadow)]"
               >
                 <ArrowLeftRight className="size-3.5" />
               </button>
@@ -366,13 +366,13 @@ function LauncherForm({
           </div>
           <Control
             label={second.label}
-            className="min-w-0 min-[430px]:max-md:col-span-2"
+            className="min-w-0 max-md:col-span-2"
           >
             <TimeStepper
               value={second.value}
               onChange={second.set}
               name={second.name}
-              className="min-[430px]:max-md:w-full"
+              className="max-md:w-full"
             />
           </Control>
         </div>
