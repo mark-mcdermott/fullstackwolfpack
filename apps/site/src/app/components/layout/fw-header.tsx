@@ -170,8 +170,11 @@ export function FwHeader() {
                         isActive ? 'bg-primary' : 'bg-transparent',
                         isActive &&
                           'dark:bg-[linear-gradient(to_right,#3d0101_0%,#8c0200_22%,#f50104_50%,#8c0200_78%,#3d0101_100%)]',
-                        isActive &&
-                          'dark:after:pointer-events-none dark:after:absolute dark:after:inset-x-0 dark:after:-inset-y-[5px] dark:after:bg-[radial-gradient(ellipse_at_center,rgba(245,1,4,0.55)_0%,rgba(245,1,4,0.18)_45%,transparent_72%)] dark:after:blur-[3px] dark:after:content-[""]',
+                        // Bloom parked in the contrast pass: a glowing 3px
+                        // rule competed with the hero for first look, and the
+                        // graded bar above already reads as lit without it.
+                        // isActive &&
+                        //   'dark:after:pointer-events-none dark:after:absolute dark:after:inset-x-0 dark:after:-inset-y-[5px] dark:after:bg-[radial-gradient(ellipse_at_center,rgba(245,1,4,0.55)_0%,rgba(245,1,4,0.18)_45%,transparent_72%)] dark:after:blur-[3px] dark:after:content-[""]',
                       )}
                     />
                   </>
@@ -188,7 +191,7 @@ export function FwHeader() {
                 link room at md — restore the pair here and on the divider below
                 if the link ever comes back. */}
             <span className="hidden items-center gap-3.5 font-mono text-[13px] text-foreground md:flex">
-              <span className="size-2.5 rounded-full bg-green-500" />
+              <span className="size-2.5 rounded-full bg-green-500 dark:bg-green-500/65" />
               Healthy
             </span>
             {/* Parked. The icon-only way into the app shell, shown to signed-in

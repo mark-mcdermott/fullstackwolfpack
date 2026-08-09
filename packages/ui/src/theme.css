@@ -186,30 +186,32 @@
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
+    /* Synced with apps/site/src/app/index.css: the midnight ramp's middle
+       stop, with body::before painting #11151E → this → #090B12. */
+    --background: #0d1320;
+    --foreground: oklch(0.94 0.005 268);
+    --card: #171e2c;
+    --card-foreground: oklch(0.94 0.005 268);
+    --popover: #222a38;
     --popover-foreground: oklch(0.985 0 0);
     --primary: oklch(0.62 0.223 27.3);
     --primary-foreground: oklch(0.985 0 0);
     --secondary: oklch(0.269 0 0);
     --secondary-foreground: oklch(0.985 0 0);
     --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
+    --muted-foreground: oklch(0.655 0.024 264);
     --accent: oklch(0.269 0 0);
     --accent-foreground: oklch(0.985 0 0);
     --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
+    --border: oklch(1 0 0 / 7%);
+    --input: oklch(1 0 0 / 11%);
     --ring: oklch(0.556 0 0);
     --chart-1: oklch(0.87 0 0);
     --chart-2: oklch(0.556 0 0);
     --chart-3: oklch(0.439 0 0);
     --chart-4: oklch(0.371 0 0);
     --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
+    --sidebar: #171e2c;
     --sidebar-foreground: oklch(0.985 0 0);
     --sidebar-primary: oklch(0.62 0.223 27.3);
     --sidebar-primary-foreground: oklch(0.985 0 0);
@@ -219,7 +221,7 @@
     --sidebar-ring: oklch(0.556 0 0);
     /* Unchanged from the blue-400 these elements always used — dark never had
        the contrast problem light's pale sky introduces. */
-    --accent-blue: #60a5fa;
+    --accent-blue: #7fa8d4;
     /* A black haze on a near-black page darkens nothing, so dark cannot reuse
        light's lift. Depth instead: a tight opaque pool right under the card
        plus a wider fall, which is what separates one dark surface from
@@ -405,11 +407,14 @@
         radial-gradient(34% 70% at 100% 100%, #ffd9c6 0%, #ff5a48 28%, transparent 66%),
         linear-gradient(to top, rgb(214 6 12 / 1) 0%, transparent 44%),
         linear-gradient(to right, #f5312c 0%, #d8140f 26%, #a5040c 62%, #93030b 100%);
-    --cta-smoke-strength: 0.28;
+    --cta-smoke-strength: 0.24;
+    /* Contrast pass: the bloom is the hero CTA's alone now. This one keeps a
+       tight contact glow so the slab still sits on the tile, and drops the two
+       wide halos that had it competing for first look from halfway down the
+       page. */
     --cta-edge:
-        0 2px 6px -1px rgb(255 60 48 / 0.4),
-        0 6px 20px -5px rgb(225 22 22 / 0.45),
-        0 12px 36px -12px rgb(210 14 14 / 0.38);
+        0 1px 4px -1px rgb(255 60 48 / 0.22),
+        0 4px 14px -8px rgb(225 22 22 / 0.28);
 }
 
 /* Join row — "Create free account". Brightest and flattest: #d8 to #a6 only,
@@ -425,9 +430,10 @@
         radial-gradient(34% 70% at 100% 100%, #ffcdb8 0%, #ff5040 30%, transparent 68%),
         linear-gradient(to top, rgb(216 5 10 / 1) 0%, transparent 42%),
         linear-gradient(to right, #f22e26 0%, #db1c16 24%, #b4060e 60%, #a6040c 100%);
-    --cta-smoke-strength: 0.2;
+    --cta-smoke-strength: 0.18;
+    /* Same reasoning as `.cta-flare` — this one sits in card footers, where a
+       40px halo was the loudest thing on a quiet panel. */
     --cta-edge:
-        0 2px 8px -1px rgb(255 70 58 / 0.45),
-        0 6px 22px -5px rgb(232 24 24 / 0.48),
-        0 14px 40px -12px rgb(215 15 15 / 0.4);
+        0 1px 4px -1px rgb(255 70 58 / 0.24),
+        0 4px 14px -8px rgb(232 24 24 / 0.3);
 }
