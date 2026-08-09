@@ -215,6 +215,17 @@ function PathHex({ last, children }: { last: boolean; children: ReactNode }) {
 // Mid-row is a straight run from this hex's edge to the next one's, ending in a
 // chevron — the mock's dotted rule in light, a solid one in dark.
 function PathRailAcross({ cols, violet }: { cols: 2 | 3 | 6; violet?: boolean }) {
+  // The chevron sits mid-run with line either side, which is what the mock
+  // does — parked at the far end it read as a cursor arriving at the next hex
+  // rather than as direction of travel along the link. Two `flex-1` halves
+  // rather than one line plus an offset glyph, so it stays centred at every
+  // column width without a magic number.
+  const line = cn(
+    'h-0 flex-1 border-t light:border-dotted light:border-[#c9c4c2]',
+    // The run into the last step carries the violet the hexagon shifts to, so
+    // the payoff is signalled before you reach it — the mock does this too.
+    violet ? 'dark:border-violet-500/70' : 'dark:border-primary/70',
+  )
   return (
     <span
       aria-hidden="true"
@@ -225,20 +236,14 @@ function PathRailAcross({ cols, violet }: { cols: 2 | 3 | 6; violet?: boolean })
         cols === 6 && 'hidden md:flex',
       )}
     >
-      <span
-        className={cn(
-          'h-0 flex-1 border-t light:border-dotted light:border-[#c9c4c2]',
-          // The run into the last step carries the violet the hexagon shifts to,
-          // so the payoff is signalled before you reach it — the mock does this.
-          violet ? 'dark:border-violet-500/70' : 'dark:border-primary/70',
-        )}
-      />
+      <span className={line} />
       <ChevronRight
         className={cn(
           'size-3 shrink-0 light:text-[#9c9694]',
           violet ? 'dark:text-violet-400' : 'dark:text-primary',
         )}
       />
+      <span className={line} />
     </span>
   )
 }
