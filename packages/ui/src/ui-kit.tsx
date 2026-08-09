@@ -221,16 +221,27 @@ export function Tooltip({
           >
             {label}
           </span>
-          {/* The pointer: a square turned 45°, sitting half behind the bubble so
-              only the two outward edges show. Those two get a border and the
-              other two do not — a ring draws all four, which in dark outlined
-              the whole diamond and detached it from the bubble. Which pair is
+          {/* The pointer: a square turned 45°, overlapping the bubble so only
+              the two outward edges show. Those two get a border and the other
+              two do not — a ring draws all four, which in dark outlined the
+              whole diamond and detached it from the bubble. Which pair is
               outward flips with the side. No cast shadow either: offset by the
-              bubble's 3px it would trail a second diamond. */}
+              bubble's 3px it would trail a second diamond.
+
+              It paints *above* the bubble (z-51 vs z-50), which is what keeps
+              the two reading as one shape in dark. The bubble's outline is an
+              inset ring, so it draws on all four inner edges — including the
+              one the pointer meets. Underneath the bubble, that line ran
+              straight across the diamond's base and the pointer read as a
+              separate tab stuck to a bordered box. On top, the pointer's fill
+              hides that segment and its own two borders carry the outline
+              around the point. Light never showed the seam because its bubble
+              has no ring at all — only a shadow — which is why this looked like
+              a dark-only bug rather than a z-order one. */}
           <span
             aria-hidden="true"
             className={cn(
-              'pointer-events-none absolute left-1/2 z-40 size-2 -translate-x-1/2 rotate-45',
+              'pointer-events-none absolute left-1/2 z-[51] size-2 -translate-x-1/2 rotate-45',
               fill,
               'border-foreground dark:border-white/15',
               'opacity-0 transition-opacity duration-200 ease-out',

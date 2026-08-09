@@ -157,6 +157,7 @@ export function ThemeToggle({
       </Tooltip>
 
       {open && (
+        <>
         <div
           role="menu"
           aria-label="Theme"
@@ -226,6 +227,29 @@ export function ThemeToggle({
             </button>
           ))}
         </div>
+
+        {/* The pointer, same construction as the tooltip's: a square turned 45°
+            overlapping the panel, borders on only the two outward edges, and
+            painted above the panel so the panel's own edge cannot run across
+            its base. Without it the menu was a rectangle arriving from nowhere
+            — nothing tied it to the control that opened it.
+
+            Anchored to the root rather than to the panel, which is what aims
+            it: the root wraps the trigger and nothing else, so `left-1/2`
+            centres the point on the icon. The panel is `right-0` and much
+            wider, so centring on *that* would have pointed into empty bar. */}
+        <span
+          aria-hidden="true"
+          className={cn(
+            'pointer-events-none absolute left-1/2 z-[51] size-2 -translate-x-1/2 rotate-45',
+            'bg-card dark:bg-[#22262f]',
+            'border-border dark:border-white/[0.18]',
+            side === 'bottom'
+              ? 'top-full mt-1 border-t border-l'
+              : 'bottom-full mb-1 border-r border-b',
+          )}
+        />
+        </>
       )}
     </div>
   )
