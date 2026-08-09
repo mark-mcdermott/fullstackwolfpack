@@ -641,6 +641,7 @@
 .dark .cta-ember,
 .dark .cta-flare,
 .dark .cta-blaze {
+    --cta-hover: 1.28;
     /* So the smoke's `mix-blend-mode` sees the button's own face as its
        backdrop and not the page behind it. */
     isolation: isolate;
@@ -686,6 +687,7 @@
    truly reads as an ember: the face is all but out by 70% of the width
    (#1c0003), so the rim and the underside glow are doing the work. */
 .dark .cta-ember {
+    --cta-hover: 1.85;
     --cta-face:
         /* The bottom and top rims bleeding back into the face — in the mock
            the two rows inside each rule are visibly lifted. */
@@ -729,6 +731,7 @@
 /* Launcher — "Start mission". Mid exposure: #d2 down to #6c, so the falloff
    still reads but the slab stays plainly red. */
 .dark .cta-flare {
+    --cta-hover: 1.4;
     --cta-face:
         linear-gradient(to top, rgb(230 30 22 / 0.22) 0%, transparent 34%),
         linear-gradient(to bottom, rgb(255 80 70 / 0.14) 0%, transparent 22%),

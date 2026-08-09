@@ -53,7 +53,12 @@ export const raisedCtaClass = cn(
   // border would sit outside it and read as a sixth edge.
   'bg-[image:var(--cta-face)]',
   'shadow-[var(--cta-edge)]',
-  'transition-[filter,box-shadow,translate] hover:brightness-[1.06]',
+  // Hover amount is per-variant, not global. 1.06 is right in light, where the
+  // face is already bright red — but dark's faces are burnt down to near-black
+  // (ember bottoms out at #1c0003), and 6% of nearly nothing is nothing. Each
+  // `.cta-*` sets its own `--cta-hover` under `.dark`; the filter also lifts the
+  // box-shadow, so the edge glow comes up with the face.
+  'transition-[filter,box-shadow,translate] hover:brightness-[var(--cta-hover,1.06)]',
   'active:translate-y-px active:shadow-[inset_0_2px_3px_rgb(0_0_0/0.3),0_1px_2px_rgb(0_0_0/0.25)]',
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
 )
