@@ -1,11 +1,10 @@
-import { Lock, Send, Sparkles } from 'lucide-react'
+import { Send, Sparkles } from 'lucide-react'
 import { useState } from 'react'
-import { Link } from 'react-router'
 import { api } from '@/api-client'
-import { siteUrl } from '@/consts'
 import type { TutorMessage, TutorMode } from '@/core/tutor'
 import { cn } from '@/lib/utils'
 import { LessonMarkdown } from './lesson-markdown'
+import { raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
 
 // The AI tutor (`ai_tutor` Pro feature), grounded in the current segment. Free
 // users see an upsell; Pro users get a grounded chat with hint/explain/example
@@ -13,14 +12,16 @@ import { LessonMarkdown } from './lesson-markdown'
 export function TutorPanel({
   segmentId,
   canUse,
-  guest = false,
-  focusMode = false,
+  // `guest` and `focusMode` only ever fed the locked tile parked below, so
+  // nothing reads them today. They stay in the signature because every caller
+  // still passes them and the tile needs them the moment it comes back —
+  // removing them would make the restore a multi-file change.
 }: {
   segmentId: string
   canUse: boolean
   guest?: boolean
-  // In the mission's learn stage the tutor upsell reads as spam mid-session —
-  // suppress it there. Pro users still get the real tutor.
+  // In the mission's learn stage the tutor upsell read as spam mid-session —
+  // suppressed there. Pro users still get the real tutor.
   focusMode?: boolean
 }) {
   const [messages, setMessages] = useState<TutorMessage[]>([])
@@ -28,6 +29,15 @@ export function TutorPanel({
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Parked: the locked-tutor tile. Restoring it also needs `Lock` from
+  // lucide-react, `Link` from react-router and `siteUrl` from '@/consts', plus
+  // the two props above.
+  // It was a card inside the lesson whose only
+  // job was to sell an account (guest) or Pro (signed in) — a pitch sitting in
+  // the middle of the thing you came to read. Returning null matches what focus
+  // mode already did with it, so the lesson simply ends at its last segment.
+  if (!canUse) return null
+  /*
   if (!canUse) {
     if (focusMode) return null
     return (
@@ -57,6 +67,8 @@ export function TutorPanel({
       </div>
     )
   }
+  */
+
 
   async function ask(text: string, mode: TutorMode) {
     if (!text.trim() || pending) return
@@ -144,7 +156,7 @@ export function TutorPanel({
         <button
           type="submit"
           disabled={pending || input.trim() === ''}
-          className="inline-flex items-center gap-2 bg-primary px-4 py-2 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80 disabled:opacity-40"
+          className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-blaze disabled:opacity-40')}
         >
           <Send className="size-3.5" />
         </button>

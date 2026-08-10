@@ -1,10 +1,11 @@
 import { GraduationCap, Play } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { api } from '@/api-client'
-import { Panel, SectionLabel } from '@fw/ui'
+import { Panel, SectionLabel, raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
 import { getSessionTarget } from '@/lib/session-target'
 import { useAuth } from '@/hooks/auth-context'
 import { LessonRoute } from '@/pages/app/learn'
+import { cn } from '@/lib/utils'
 
 // The learn phase of a mission, rendered in place of the game in the center
 // stage (the game stays mounted + paused behind it). Resolves the session's
@@ -56,7 +57,7 @@ export function LessonStage({ onResume }: { onResume: () => void }) {
           <button
             type="button"
             onClick={onResume}
-            className="inline-flex items-center gap-2 bg-primary px-5 py-2.5 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+            className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-flare')}
           >
             <Play className="size-4" /> Resume game
           </button>

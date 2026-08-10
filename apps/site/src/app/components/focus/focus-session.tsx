@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Panel, ProgressMeter, SectionLabel } from '@fw/ui'
+import { Panel, ProgressMeter, SectionLabel, raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
 import {
   buildFocusPlan,
   DEFAULT_FOCUS_CONFIG,
@@ -173,7 +173,7 @@ export function FocusSession() {
             <button
               type="button"
               onClick={() => timer.start(config)}
-              className="inline-flex items-center gap-2 bg-primary px-5 py-2.5 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+              className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-blaze')}
             >
               <Play className="size-4" /> Start session
             </button>
@@ -220,7 +220,7 @@ export function FocusSession() {
             onClick={() =>
               navigate(timer.step?.phase === 'play' ? '/app/arcade' : '/app/topics')
             }
-            className="inline-flex items-center gap-2 bg-primary px-5 py-2.5 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+            className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-blaze')}
           >
             {timer.step.phase === 'play' ? (
               <>
@@ -316,7 +316,7 @@ export function FocusSession() {
           <button
             type="button"
             onClick={timer.dismiss}
-            className="inline-flex items-center gap-2 bg-primary px-5 py-2.5 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+            className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-blaze')}
           >
             <RotateCcw className="size-4" /> New session
           </button>

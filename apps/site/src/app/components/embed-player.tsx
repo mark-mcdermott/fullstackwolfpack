@@ -1,5 +1,5 @@
 import { GraduationCap, LogOut, Maximize, Minimize } from 'lucide-react'
-import { Panel, Pill, SectionLabel } from '@fw/ui'
+import { Panel, Pill, SectionLabel, raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
 import { FocusLessonOverlay } from '@/components/focus/focus-lesson-overlay'
 import { SessionTimerInline } from '@/components/focus/session-timer-inline'
 import { useFullscreen } from '@/hooks/use-fullscreen'
@@ -88,7 +88,7 @@ export function EmbedPlayer({
             <button
               type="button"
               onClick={timer.skip}
-              className="flex items-center justify-center gap-2 bg-primary px-4 py-2.5 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+              className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-flare')}
             >
               <GraduationCap className="size-4" /> Learn now
             </button>

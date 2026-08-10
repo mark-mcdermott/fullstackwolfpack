@@ -2,6 +2,7 @@ import { CheckCircle2, XCircle } from 'lucide-react'
 import { useState } from 'react'
 import type { AnswerFeedback, QuestionView } from '@/core/lesson-view'
 import { cn } from '@/lib/utils'
+import { raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
 
 // Grades one question: the client renders it, calls `onGrade` (which stands in for
 // POST /api/me/answer), and shows the feedback. The answer key only arrives back in
@@ -119,7 +120,7 @@ function McqQuestion({
           type="button"
           onClick={submit}
           disabled={selected === null || pending}
-          className="w-fit bg-primary px-5 py-2 font-mono text-xs tracking-widest text-primary-foreground uppercase disabled:opacity-40"
+          className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-blaze disabled:opacity-40')}
         >
           {pending ? 'Checking…' : 'Submit answer'}
         </button>
@@ -174,7 +175,7 @@ function ShortAnswerQuestion({
           type="button"
           onClick={submit}
           disabled={text.trim() === '' || pending}
-          className="w-fit bg-primary px-5 py-2 font-mono text-xs tracking-widest text-primary-foreground uppercase disabled:opacity-40"
+          className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-blaze disabled:opacity-40')}
         >
           {pending ? 'Grading…' : 'Submit answer'}
         </button>

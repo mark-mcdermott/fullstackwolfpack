@@ -6,7 +6,7 @@ import { useMemo, useState, type ReactNode } from 'react'
 // TEMP: `useId` belongs to the commented-out UploadPoster.
 // import { useId } from 'react'
 import { GamePoster, type PosterGame } from '@/components/arcade/game-poster'
-import { SectionLabel } from '@fw/ui'
+import { SectionLabel, raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
 import {
   type GamePlaytime,
   gameKey,
@@ -32,6 +32,7 @@ import {
   // TEMP: UploadedRom returns with the "Your library" lane.
   // type UploadedRom,
 } from '@/lib/rom-catalog'
+import { cn } from '@/lib/utils'
 
 export type PlayableGame = PlayableRom | EmbedEntry
 
@@ -329,7 +330,7 @@ export function RomGallery({
               <button
                 type="button"
                 onClick={confirmCover}
-                className="inline-flex items-center gap-2 bg-primary px-4 py-2.5 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+                className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-blaze')}
               >
                 <Check className="size-4" /> Use this cover
               </button>

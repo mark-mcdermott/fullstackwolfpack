@@ -1,11 +1,12 @@
 import { GraduationCap, Play } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { api } from '@/api-client'
-import { SectionLabel } from '@fw/ui'
+import { SectionLabel, raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
 import { getSessionTarget } from '@/lib/session-target'
 import { SessionTimerInline } from '@/components/focus/session-timer-inline'
 import { useAuth } from '@/hooks/auth-context'
 import { LessonRoute } from '@/pages/app/learn'
+import { cn } from '@/lib/utils'
 
 // The real lesson, shown full-screen over a paused game during a focus session's
 // learn phase (the game iframe stays mounted underneath, so state is preserved).
@@ -55,7 +56,7 @@ export function FocusLessonOverlay({ onResume }: { onResume: () => void }) {
             <button
               type="button"
               onClick={onResume}
-              className="inline-flex items-center gap-2 bg-primary px-5 py-2.5 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+              className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-flare')}
             >
               <Play className="size-4" /> Resume game
             </button>

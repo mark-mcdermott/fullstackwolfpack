@@ -8,7 +8,7 @@ import { LessonMarkdown } from '@/components/learn/lesson-markdown'
 import { QuizSegment } from '@/components/learn/quiz-segment'
 import { TutorPanel } from '@/components/learn/tutor-panel'
 import { AsyncView } from '@/components/layout/async-view'
-import { Panel, Pill, ProgressMeter, SectionLabel } from '@fw/ui'
+import { Panel, Pill, ProgressMeter, SectionLabel, raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
 import { can } from '@/core/access'
 import { lessonScore, xpForLesson } from '@/core/learning'
 import type {
@@ -326,7 +326,7 @@ function LessonPlayer({
           type="button"
           onClick={() => (isLast ? finish() : setIndex((i) => i + 1))}
           disabled={completing}
-          className="inline-flex items-center gap-2 bg-primary px-5 py-2 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80 disabled:opacity-50"
+          className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-flare disabled:opacity-50')}
         >
           {isLast ? (completing ? 'Saving…' : 'Complete lesson') : 'Next'}
           <ArrowRight className="size-4" />
@@ -421,7 +421,7 @@ function CompletionPanel({
             <button
               type="button"
               onClick={onExit}
-              className="inline-flex items-center gap-2 bg-primary px-5 py-2 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+              className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-flare')}
             >
               Back to game <ArrowRight className="size-4" />
             </button>
@@ -433,7 +433,7 @@ function CompletionPanel({
                   'inline-flex items-center gap-2 px-4 py-2 font-mono text-xs tracking-widest uppercase',
                   nextLessonId
                     ? 'border border-border hover:border-muted-foreground'
-                    : 'bg-primary px-5 text-primary-foreground hover:bg-primary/80',
+                    : cn(raisedCtaClass, raisedCtaCompactClass, 'cta-flare'),
                 )}
               >
                 Back to topics
@@ -442,7 +442,7 @@ function CompletionPanel({
               {nextLessonId && (
                 <Link
                   to={lessonHref(nextLessonId)}
-                  className="inline-flex items-center gap-2 bg-primary px-5 py-2 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+                  className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-flare')}
                 >
                   Continue course <ArrowRight className="size-4" />
                 </Link>
