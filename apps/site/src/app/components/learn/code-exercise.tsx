@@ -1,5 +1,11 @@
 import { CheckCircle2, Lightbulb, Play, RotateCcw, XCircle } from 'lucide-react'
-import { lazy, Suspense, useState } from 'react'
+import {
+  Component,
+  lazy,
+  Suspense,
+  useState,
+  type ReactNode,
+} from 'react'
 import { summarizeOutcomes, type TestOutcome } from '@/core/exercise'
 import type { JsExerciseView } from '@/core/lesson-view'
 import { runExercise } from '@/lib/run-exercise'
@@ -141,20 +147,67 @@ const CodeEditor = lazy(() =>
   import('./code-editor').then((m) => ({ default: m.CodeEditor })),
 )
 
+// A lazy chunk can fail to load for reasons that have nothing to do with this
+// component: a stale page after a deploy invalidates the old hashes, a flaky
+// connection drops the request, and in dev Vite re-optimizing mid-session hands
+// back a 504. React treats a rejected import as a render error, so without a
+// boundary here one missing chunk unmounts the entire app — a white screen for
+// a lesson whose text was already on the page.
+//
+// The fallback is a real textarea rather than a message, because the exercise
+// should still be answerable without syntax highlighting. Losing CodeMirror
+// should cost you colours, not the ability to do the work.
+class EditorBoundary extends Component<
+  { fallback: ReactNode; children: ReactNode },
+  { failed: boolean }
+> {
+  state = { failed: false }
+
+  static getDerivedStateFromError() {
+    return { failed: true }
+  }
+
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children
+  }
+}
+
+function PlainEditor({
+  value,
+  onChange,
+}: {
+  value: string
+  onChange: (v: string) => void
+}) {
+  return (
+    <textarea
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      spellCheck={false}
+      rows={Math.max(6, value.split('\n').length + 1)}
+      className="w-full resize-y overflow-x-auto border border-border bg-card p-4 font-mono text-sm outline-none focus:border-primary"
+    />
+  )
+}
+
 function CodeEditorLazy(props: {
   value: string
   onChange: (v: string) => void
   language?: 'js' | 'ts' | 'python'
 }) {
   return (
-    <Suspense
-      fallback={
-        <pre className="overflow-x-auto border border-border bg-card p-4 font-mono text-sm">
-          {props.value}
-        </pre>
-      }
+    <EditorBoundary
+      fallback={<PlainEditor value={props.value} onChange={props.onChange} />}
     >
-      <CodeEditor {...props} />
-    </Suspense>
+      <Suspense
+        fallback={
+          <pre className="overflow-x-auto border border-border bg-card p-4 font-mono text-sm">
+            {props.value}
+          </pre>
+        }
+      >
+        <CodeEditor {...props} />
+      </Suspense>
+    </EditorBoundary>
   )
 }
