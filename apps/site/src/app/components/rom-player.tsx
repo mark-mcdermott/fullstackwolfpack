@@ -14,7 +14,7 @@ import { ControlsReference } from '@/components/controls/controls-reference'
 import { TouchControls } from '@/components/controls/touch-controls'
 import { FocusLessonOverlay } from '@/components/focus/focus-lesson-overlay'
 import { SessionTimerInline } from '@/components/focus/session-timer-inline'
-import { Panel, Pill, SectionLabel } from '@fw/ui'
+import { Panel, Pill, SectionLabel, raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
 import { useTimer } from '@/hooks/timer-context'
 import { bindsToRetroarchConfig, type RetroButton } from '@/core/controls'
 import { useCoarsePointer } from '@/hooks/use-coarse-pointer'
@@ -52,10 +52,11 @@ function ControlButton({
       type="button"
       onClick={onClick}
       className={cn(
-        'flex items-center justify-center gap-2 px-4 py-2.5 font-mono text-xs tracking-widest uppercase',
         variant === 'primary'
-          ? 'bg-primary text-primary-foreground hover:bg-primary/80'
-          : 'border border-border hover:bg-muted',
+          ? cn(raisedCtaClass, raisedCtaCompactClass, 'cta-flare')
+          : // h-10 to sit level with the raised primary beside it (11 + 20 + 9),
+            // rather than the ~45px that px/py padding produced.
+            'flex h-10 items-center justify-center gap-2 border border-border px-4 font-mono text-xs tracking-widest uppercase hover:bg-muted',
       )}
     >
       <Icon className="size-4" />

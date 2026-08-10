@@ -101,7 +101,10 @@ const STEPS = [
   {
     icon: Timer,
     title: 'Pause',
-    body: 'Your play interval runs out (25 min by default) and the game pauses itself.',
+    // No number: the interval is the user's to set, and this quoted the old
+    // 25-minute default back at them long after it became 5. Same stale-copy
+    // shape as "The Wolf's Path" step 03 on the home page.
+    body: 'Your play interval runs out and the game pauses itself.',
   },
   {
     icon: BookOpen,

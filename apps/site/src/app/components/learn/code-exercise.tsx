@@ -12,6 +12,7 @@ import { runExercise } from '@/lib/run-exercise'
 import { runPython } from '@/lib/run-python'
 import { cn } from '@/lib/utils'
 import { LessonMarkdown } from './lesson-markdown'
+import { raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
 
 // Phase 4 in-browser code exercise: edit starter code, run hidden tests in a Web
 // Worker, and see pass/fail. Hint and solution are revealed only on request.
@@ -67,7 +68,7 @@ export function CodeExercise({
           type="button"
           onClick={run}
           disabled={running}
-          className="inline-flex items-center gap-2 bg-primary px-4 py-2 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80 disabled:opacity-50"
+          className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-flare disabled:opacity-50')}
         >
           <Play className="size-3.5" /> {running ? 'Running…' : 'Run tests'}
         </button>
