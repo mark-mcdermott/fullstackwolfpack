@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { linkifyParts, wikipediaUrl } from './glossary'
+import {
+  linkifyParts,
+  wikipediaUrl,
+  glossarySlug,
+  glossaryIssues,
+  termHref,
+} from './glossary'
 
 const linkify = (text: string, terms: string[]) =>
   linkifyParts(text, terms, new Set())
@@ -21,6 +27,7 @@ describe('linkifyParts', () => {
       {
         kind: 'link',
         value: 'closures',
+        term: 'closures',
         href: wikipediaUrl('closures'),
       },
       { kind: 'text', value: ' today' },
@@ -54,5 +61,48 @@ describe('linkifyParts', () => {
     expect(linkify('nothing here', ['hooks'])).toEqual([
       { kind: 'text', value: 'nothing here' },
     ])
+  })
+})
+
+describe('glossarySlug', () => {
+  it('folds casing and punctuation so one term has one id', () => {
+    expect(glossarySlug('Lexical scope')).toBe('lexical-scope')
+    expect(glossarySlug('  LEXICAL   SCOPE  ')).toBe('lexical-scope')
+    expect(glossarySlug('ReferenceError')).toBe('reference-error')
+    expect(glossarySlug('structuredClone')).toBe('structured-clone')
+    expect(glossarySlug('stack frame')).toBe('stack-frame')
+  })
+})
+
+describe('termHref', () => {
+  // Adding an entry has to upgrade every existing link without touching a
+  // single lesson body — the term text in the prose is the only join.
+  it('points in-app once an entry exists, and out to Wikipedia until then', () => {
+    expect(termHref('closure', true)).toBe('/glossary/closure')
+    expect(termHref('closure', false)).toContain('wikipedia.org')
+  })
+})
+
+describe('glossaryIssues', () => {
+  const e = (slug: string, term: string, see?: string[]) => ({
+    slug, term, short: 's', body: 'b', see,
+  })
+
+  it('passes a set whose cross-references all resolve', () => {
+    expect(
+      glossaryIssues([e('closure', 'closure', ['stack-frame']), e('stack-frame', 'stack frame')]),
+    ).toEqual([])
+  })
+
+  // This is the whole point of the rule: an entry that leans on a term with no
+  // entry is a dead end, which is the failure the lessons had, one level down.
+  it('catches a see that goes nowhere', () => {
+    const issues = glossaryIssues([e('closure', 'closure', ['stack-frame'])])
+    expect(issues.join(' ')).toMatch(/see "stack-frame" has no entry/)
+  })
+
+  it('catches a slug that does not match its own term', () => {
+    const issues = glossaryIssues([e('closures', 'closure')])
+    expect(issues.join(' ')).toMatch(/does not match term/)
   })
 })

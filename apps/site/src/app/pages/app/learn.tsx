@@ -12,6 +12,7 @@ import { Panel, Pill, ProgressMeter, SectionLabel, raisedCtaClass, raisedCtaComp
 import { can } from '@/core/access'
 import { lessonScore, xpForLesson } from '@/core/learning'
 import { segmentLabel } from '@/core/lesson-view'
+import { hasGlossaryEntry } from '@/content/glossary-entries'
 import type {
   AnswerFeedback,
   LessonCompletion,
@@ -143,8 +144,14 @@ function LessonPlayer({
   }, [focusMode, lesson, index, seen])
   useEffect(() => () => setMissionLessonToc(null), [])
 
-  // Hyperlink key terms only when the reader opted in (global lesson pref).
-  // Guests have no server prefs — default off.
+  // The preference governs *leaving*, not looking things up.
+  //
+  // It exists because a linked term used to mean a jump to Wikipedia mid-lesson,
+  // which is reasonably opt-in. A term we have written an entry for no longer
+  // does that — it opens in place and you stay in the paragraph — so those link
+  // unconditionally, and the pref now only decides whether the ones we have not
+  // written yet get their off-site fallback. Guests have no server prefs, so
+  // they get the in-place terms and nothing external.
   useEffect(() => {
     if (guest) return
     let active = true
@@ -284,7 +291,13 @@ function LessonPlayer({
             {segmentLabel(segment.type)} · {segment.estMinutes} min
           </Pill>
         </div>
-        <LessonMarkdown terms={linkify ? lesson.glossary : undefined}>
+        <LessonMarkdown
+          terms={
+            linkify
+              ? lesson.glossary
+              : lesson.glossary.filter(hasGlossaryEntry)
+          }
+        >
           {segment.markdown}
         </LessonMarkdown>
         {segment.exercise &&
