@@ -253,6 +253,16 @@ async function main() {
           ? `, ${bestKept} exercise(s)${bestDropped ? ` (+${bestDropped} broken dropped)` : ''}`
           : ''
       console.log(`ok (${best.lessons.length} lessons${exNote})`)
+      // Structural gate. The prose bar cannot be checked in code, but the shape
+      // can — and the shape is where the first run under the new prompt slipped
+      // (a predict with no reveal, resolved in a question footnote instead).
+      // Reported rather than fatal: the content is still worth reviewing, and
+      // the fix is usually a prompt tweak plus a re-run.
+      for (const lesson of best.lessons) {
+        for (const issue of lessonStructureIssues(lesson)) {
+          console.log(`    ! ${lesson.title}: ${issue}`)
+        }
+      }
     } else {
       failed.push(slug)
       console.log(

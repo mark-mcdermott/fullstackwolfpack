@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   averageEtaMs,
   buildGenerationPrompt,
+  lessonStructureIssues,
   COURSE_TARGET,
   DEFAULT_GENERATION_ETA_MS,
   parseGeneratedCourse,
@@ -372,5 +373,51 @@ describe('runAppend', () => {
     expect(orders).toEqual([5, 6]) // appended after the existing lessons
     expect(calls.ready).toBe(false) // append never re-marks the course
     expect(calls.failed).toBe(false)
+  })
+})
+
+describe('lessonStructureIssues', () => {
+  const seg = (type: string, title = type) => ({ type, title })
+  const lesson = (...types: string[]) => ({
+    title: 'L',
+    segments: types.map((t) => seg(t)),
+  })
+
+  it('passes a well-formed lesson', () => {
+    expect(
+      lessonStructureIssues(
+        lesson('hook', 'mechanism', 'predict', 'reveal', 'derive', 'check'),
+      ),
+    ).toEqual([])
+  })
+
+  // The exact shape the first regenerated closures lesson came back with: a
+  // predict whose answer only existed in its question's explanation.
+  it('catches a predict with no reveal after it', () => {
+    const issues = lessonStructureIssues(
+      lesson('hook', 'predict', 'derive', 'check'),
+    )
+    expect(issues.join(' ')).toMatch(/predict .* not followed by a reveal/)
+  })
+
+  it('catches a predict at the very end of a lesson', () => {
+    const issues = lessonStructureIssues(lesson('hook', 'check', 'predict'))
+    expect(issues.join(' ')).toMatch(/end of lesson/)
+  })
+
+  it('catches a reveal with nothing committed to before it', () => {
+    const issues = lessonStructureIssues(
+      lesson('hook', 'mechanism', 'reveal', 'check'),
+    )
+    expect(issues.join(' ')).toMatch(/no predict before it/)
+  })
+
+  it('catches a lesson that opens cold or never checks', () => {
+    expect(lessonStructureIssues(lesson('mechanism')).join(' ')).toMatch(
+      /no hook/,
+    )
+    expect(lessonStructureIssues(lesson('mechanism')).join(' ')).toMatch(
+      /no check/,
+    )
   })
 })

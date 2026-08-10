@@ -9,116 +9,176 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
   {
     "id": "builtin-javascript",
     "topicSlug": "javascript",
-    "difficulty": "intermediate",
+    "difficulty": "beginner",
     "lessons": [
       {
         "id": "builtin-javascript-l1",
-        "title": "Scope & Closures",
-        "estMinutes": 22,
+        "title": "Variables and the Ghosts of var",
+        "estMinutes": 31,
         "glossary": [
-          "lexical scope",
-          "closure",
           "hoisting",
-          "let",
           "var",
-          "temporal dead zone"
+          "let",
+          "const",
+          "block scope",
+          "temporal dead zone",
+          "function scope"
         ],
         "segments": [
           {
             "id": "builtin-javascript-l1-s1",
-            "type": "reading",
-            "title": "Why closures decide who sees what",
-            "markdown": "Ever wondered how a function can \"remember\" a value long after the function that created it has returned? That's a closure, and understanding it is the difference between fighting JavaScript and writing it fluently.\n\nJavaScript uses **lexical scope**: where a variable is *written* in the source determines what it can access, not where it is *called* from. When you nest a function, the inner function has access to variables in every enclosing scope, forming a chain from local to global.\n\n```js\nfunction makeCounter() {\n  let count = 0;            // lives in makeCounter's scope\n  return function () {\n    count += 1;             // inner fn closes over `count`\n    return count;\n  };\n}\nconst next = makeCounter();\nnext(); // 1\nnext(); // 2 — same `count` persists\n```\n\nThe returned function keeps a live reference to `count`, not a copy. Each call to `makeCounter()` produces a fresh, independent `count`. **Use closures** for private state, memoization, and factory functions. **Common pitfall:** because the reference is live, sharing one closed-over variable across many callbacks can surprise you — which is exactly the loop bug we tackle next.",
-            "estMinutes": 5,
+            "type": "hook",
+            "title": "A variable that exists before it exists",
+            "markdown": "What does this print?\n\n```js\nconsole.log(x);\nvar x = 5;\n```\n\nYou'd expect a crash — `x` isn't defined yet on line 1. But this program runs. It prints something. What, and why?",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-javascript-l1-s2",
-            "type": "reading",
-            "title": "The classic loop-counter gotcha",
-            "markdown": "Here is the bug that has confused developers for two decades:\n\n```js\nvar handlers = [];\nfor (var i = 0; i < 3; i++) {\n  handlers.push(function () { return i; });\n}\nhandlers[0](); // 3, not 0!\nhandlers[1](); // 3\n```\n\nWith `var`, there is a **single** `i` shared by every iteration because `var` is function-scoped, not block-scoped. By the time the callbacks run, the loop has finished and `i` is 3. All three closures point at the same variable.\n\nThe modern fix is `let`, which is **block-scoped**: each loop iteration gets a *fresh binding* of `i`, so each closure captures its own value.\n\n```js\nfor (let i = 0; i < 3; i++) {\n  handlers.push(() => i);\n}\nhandlers[0](); // 0\nhandlers[1](); // 1\n```\n\nBefore `let`, the workaround was an IIFE that copied `i` into a parameter — you'll see that pattern in the next lesson. **Pitfall:** mixing `var` inside async callbacks (setTimeout, event listeners) reintroduces this bug; reach for `let`/`const` by default.",
-            "estMinutes": 5,
-            "questions": []
-          },
-          {
-            "id": "builtin-javascript-l1-s3",
-            "type": "code",
-            "title": "Build a private counter with closures",
-            "markdown": "Study this factory that hides its internal state entirely — nothing outside can read or reset `count` except through the returned methods.\n\n```js\nfunction createCounter(start = 0) {\n  let count = start;              // fully private\n  return {\n    increment() { return ++count; },\n    decrement() { return --count; },\n    value()     { return count;  }\n  };\n}\n\nconst c = createCounter(10);\nconsole.log(c.increment()); // 11\nconsole.log(c.increment()); // 12\nconsole.log(c.decrement()); // 11\nconsole.log(c.value());     // 11\n// c.count is undefined — encapsulation via closure\n```\n\nTry adding a `reset()` method, or make two independent counters and confirm they don't share state.",
+            "type": "mechanism",
+            "title": "Declaration and assignment are two steps",
+            "markdown": "A `var` declaration is really two operations that JavaScript splits apart.\n\nBefore any code runs, the engine scans the function (or global) body and finds every `var`. For each one it creates the binding immediately, set to `undefined`. This is **hoisting** — the declaration is lifted to the top.\n\nThen it runs your code top to bottom. The *assignment* stays where you wrote it.\n\nSo this:\n\n```js\nconsole.log(x);\nvar x = 5;\nconsole.log(x);\n```\n\nis executed as if it were:\n\n```js\nvar x = undefined;   // hoisted: binding created\nconsole.log(x);      // undefined — binding exists, no value yet\nx = 5;               // assignment runs here\nconsole.log(x);      // 5\n```\n\nThe box named `x` exists from the very start. Line 1 reads it and finds `undefined`. The value `5` isn't written until the engine reaches the assignment line.",
             "estMinutes": 4,
             "questions": []
           },
           {
+            "id": "builtin-javascript-l1-s3",
+            "type": "predict",
+            "title": "Same code, with let",
+            "markdown": "Now swap `var` for `let`:\n\n```js\nconsole.log(y);\nlet y = 5;\n```\n\n`let` also creates its binding when the scope is entered. Given that, what happens on line 1?",
+            "estMinutes": 1,
+            "questions": [
+              {
+                "id": "builtin-javascript-l1-s3-q1",
+                "type": "mcq",
+                "prompt": "What does `console.log(y)` do here?",
+                "options": [
+                  "Prints `undefined`, like var",
+                  "Prints `5`",
+                  "Throws a ReferenceError",
+                  "Prints `null`"
+                ],
+                "correctIndex": 2,
+                "explanation": "With let the binding exists but is unusable until its declaration runs — reading it early throws."
+              }
+            ]
+          },
+          {
             "id": "builtin-javascript-l1-s4",
-            "type": "practice",
-            "title": "Implement a memoizer",
-            "markdown": "Use a closure to cache results of an expensive pure function so repeated calls with the same argument are instant.",
-            "estMinutes": 6,
-            "questions": [],
-            "exercise": {
-              "id": "builtin-javascript-l1-s4-ex1",
-              "prompt": "Implement `memoize(fn)`, which returns a new function that caches results per argument. Assume `fn` takes a single argument usable as an object key (number or string). Repeated calls with the same argument must return the cached value without calling `fn` again.",
-              "starterCode": "function memoize(fn) {\n  // return a function that caches results of fn by its argument\n}",
-              "tests": [
-                {
-                  "name": "caches and returns correct value",
-                  "expression": "(function(){ const sq = memoize(x => x*x); return [sq(4), sq(4), sq(5)]; })()",
-                  "expected": [
-                    16,
-                    16,
-                    25
-                  ]
-                },
-                {
-                  "name": "does not recompute cached calls",
-                  "expression": "(function(){ let calls=0; const f = memoize(x => { calls++; return x+1; }); f(2); f(2); f(3); return calls; })()",
-                  "expected": 2
-                },
-                {
-                  "name": "independent caches per memoized fn",
-                  "expression": "(function(){ const a = memoize(x=>x*2); const b = memoize(x=>x*3); return [a(5), b(5)]; })()",
-                  "expected": [
-                    10,
-                    15
-                  ]
-                }
-              ],
-              "solution": "function memoize(fn) {\n  const cache = {};\n  return function (arg) {\n    if (Object.prototype.hasOwnProperty.call(cache, arg)) {\n      return cache[arg];\n    }\n    const result = fn(arg);\n    cache[arg] = result;\n    return result;\n  };\n}",
-              "hint": "Declare the cache object OUTSIDE the returned function so it persists across calls via closure."
-            }
+            "type": "reveal",
+            "title": "The temporal dead zone",
+            "markdown": "If you guessed `undefined`, you assumed `let` behaves like `var`. It doesn't.\n\nBoth `var` and `let` bindings are created when the scope is entered. The difference is what state that binding is in. A `var` binding starts *initialized* to `undefined`. A `let` binding starts *uninitialized* — reading it throws a `ReferenceError`.\n\nThe stretch of code from the top of the scope until the `let` line runs is called the **temporal dead zone**. The name is misleading: the variable does exist in that zone (which is why `typeof y` also throws instead of returning `\"undefined\"`), it just can't be touched.\n\n```js\n{\n  // TDZ for y starts here\n  // y exists but touching it throws\n  let y = 5; // TDZ ends — y now usable\n  console.log(y); // 5\n}\n```\n\nThe payoff: `let` turns a silent `undefined` bug into a loud error at the exact line you made the mistake.",
+            "estMinutes": 3,
+            "questions": []
           },
           {
             "id": "builtin-javascript-l1-s5",
-            "type": "quiz",
-            "title": "Scope check-in",
-            "markdown": "Confirm your grasp of lexical scope and closures.",
+            "type": "mechanism",
+            "title": "Where the box lives",
+            "markdown": "`var` and `let` differ in a second way: *which* scope owns the binding.\n\n`var` is **function scoped**. It ignores blocks like `if` and `for`; the binding belongs to the nearest enclosing function.\n\n`let` (and `const`) is **block scoped**. Every `{ }` gets its own binding.\n\nContrast the same loop:\n\n```js\n// var: one shared box for the whole function\nfor (var i = 0; i < 3; i++) {}\nconsole.log(i); // 3 — i survived the loop\n\n// let: box lives only inside the loop\nfor (let j = 0; j < 3; j++) {}\nconsole.log(j); // ReferenceError — j doesn't exist here\n```\n\nWith `var i`, there is exactly one `i` for the whole function. After the loop it's still there, holding `3`. With `let j`, the binding is confined to the loop; outside, it's gone.",
+            "estMinutes": 4,
+            "questions": []
+          },
+          {
+            "id": "builtin-javascript-l1-s6",
+            "type": "derive",
+            "title": "Hide a counter that can't leak",
+            "markdown": "You want a counter used inside a block, but you want the guarantee that no code after the block can accidentally read or clobber it. Try writing `nextThree` so the loop variable cannot escape.\n\nImplement it and notice: by choosing `let` over `var`, you didn't just avoid a bug — you made the variable *unreachable* outside its block. That confinement is block scope working for you.",
+            "estMinutes": 4,
+            "questions": [],
+            "exercise": {
+              "id": "builtin-javascript-l1-s6-ex1",
+              "prompt": "Return an array [start, start+1, start+2] built with a loop. Use a block-scoped loop variable so nothing leaks.",
+              "starterCode": "function nextThree(start) {\n  const out = [];\n  // build [start, start+1, start+2] with a for loop\n  return out;\n}",
+              "tests": [
+                {
+                  "name": "from 1",
+                  "expression": "nextThree(1)",
+                  "expected": [
+                    1,
+                    2,
+                    3
+                  ]
+                },
+                {
+                  "name": "from 10",
+                  "expression": "nextThree(10)",
+                  "expected": [
+                    10,
+                    11,
+                    12
+                  ]
+                },
+                {
+                  "name": "from 0",
+                  "expression": "nextThree(0)",
+                  "expected": [
+                    0,
+                    1,
+                    2
+                  ]
+                }
+              ],
+              "solution": "function nextThree(start) {\n  const out = [];\n  for (let k = 0; k < 3; k++) {\n    out.push(start + k);\n  }\n  return out;\n}",
+              "hint": "Loop three times, pushing start + offset each iteration."
+            }
+          },
+          {
+            "id": "builtin-javascript-l1-s7",
+            "type": "predict",
+            "title": "const doesn't mean frozen",
+            "markdown": "`const` prevents reassignment of the binding. Given that:\n\n```js\nconst list = [1, 2];\nlist.push(3);\nconsole.log(list);\n```\n\nWhat happens?",
+            "estMinutes": 1,
+            "questions": [
+              {
+                "id": "builtin-javascript-l1-s7-q1",
+                "type": "mcq",
+                "prompt": "Result of the snippet?",
+                "options": [
+                  "Throws — const arrays are immutable",
+                  "Prints `[1, 2, 3]`",
+                  "Prints `[1, 2]`",
+                  "Throws on the push call"
+                ],
+                "correctIndex": 1,
+                "explanation": "const blocks reassigning the variable, not mutating the object it points to. push mutates the same array, so it succeeds."
+              }
+            ]
+          },
+          {
+            "id": "builtin-javascript-l1-s8",
+            "type": "reveal",
+            "title": "Reassignment vs mutation",
+            "markdown": "If you thought `push` would throw, you conflated two different things. `const` locks the *binding*: you can never point `list` at a different value. `list = [4]` would throw. But `list.push(3)` doesn't touch the binding — it mutates the array the binding already points to. The box still holds the same array reference; the array's contents changed.\n\nRule of thumb: use `const` by default, `let` only when you genuinely reassign, and reach for `var` essentially never.",
+            "estMinutes": 2,
+            "questions": []
+          },
+          {
+            "id": "builtin-javascript-l1-s9",
+            "type": "check",
+            "title": "Check",
+            "markdown": "Two quick traces.",
             "estMinutes": 2,
             "questions": [
               {
-                "id": "builtin-javascript-l1-s5-q1",
+                "id": "builtin-javascript-l1-s9-q1",
                 "type": "mcq",
-                "prompt": "Why does the `var` loop print 3 for every stored callback?",
+                "prompt": "What does this print?\n```js\nfunction f() {\n  console.log(a);\n  var a = 1;\n}\nf();\n```",
                 "options": [
-                  "Callbacks run before the loop starts",
-                  "All callbacks share one function-scoped `i` that ends at 3",
-                  "`var` copies `i` into each callback",
-                  "The callbacks throw a reference error"
+                  "1",
+                  "undefined",
+                  "ReferenceError",
+                  "null"
                 ],
                 "correctIndex": 1,
-                "explanation": "`var` is function-scoped, so there is a single `i`; by the time callbacks run the loop has finished and `i` is 3."
+                "explanation": "var a is hoisted and initialized to undefined; the assignment a=1 runs after the log."
               },
               {
-                "id": "builtin-javascript-l1-s5-q2",
-                "type": "mcq",
-                "prompt": "What makes `let` fix the loop-counter bug?",
-                "options": [
-                  "`let` is faster than `var`",
-                  "`let` creates a fresh block-scoped binding each iteration",
-                  "`let` disables closures",
-                  "`let` runs callbacks synchronously"
-                ],
-                "correctIndex": 1,
-                "explanation": "Each iteration of a `let` loop gets its own binding, so each closure captures a distinct value."
+                "id": "builtin-javascript-l1-s9-q2",
+                "type": "short_answer",
+                "prompt": "In one sentence, why does `console.log(z); let z = 1;` throw but `console.log(z); var z = 1;` does not?",
+                "expectedAnswer": "Because let leaves its binding uninitialized in the temporal dead zone until its declaration runs, while var initializes the binding to undefined at scope entry.",
+                "explanation": "Both create the binding early; only var gives it a usable undefined value before the declaration line."
               }
             ]
           }
@@ -126,80 +186,160 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-javascript-l2",
-        "title": "IIFEs & the Module Pattern",
-        "estMinutes": 20,
+        "title": "Functions, Values, and this",
+        "estMinutes": 30,
         "glossary": [
-          "IIFE",
-          "module pattern",
-          "namespace pollution",
-          "revealing module pattern",
-          "encapsulation"
+          "first-class function",
+          "arrow function",
+          "this",
+          "method",
+          "call site",
+          "default parameter",
+          "rest parameter"
         ],
         "segments": [
           {
             "id": "builtin-javascript-l2-s1",
-            "type": "reading",
-            "title": "Life before ES modules",
-            "markdown": "Before `import`/`export` existed, every script shared one giant global scope. Two libraries that both declared `let config` would clobber each other — **namespace pollution**. The community solved this with the **IIFE** (Immediately Invoked Function Expression): wrap code in a function and call it right away so its variables live in a private scope.\n\n```js\n(function () {\n  var secret = 42;      // not global\n  console.log(secret);\n})();\n// `secret` is invisible out here\n```\n\nThe wrapping parentheses turn the `function` keyword into an expression, and the trailing `()` invokes it immediately. Nothing inside leaks to the global object. **Use IIFEs** to avoid polluting globals, to create a scope in old scripts, and (historically) to capture loop variables. **Pitfall:** forgetting the outer parentheses — `function(){}()` is a syntax error because the parser reads a function *declaration* which cannot be invoked inline.",
-            "estMinutes": 5,
+            "type": "hook",
+            "title": "The same method, two results",
+            "markdown": "```js\nconst user = {\n  name: \"Ada\",\n  greet() { return \"Hi \" + this.name; }\n};\nconsole.log(user.greet());        // \"Hi Ada\"\nconst g = user.greet;\nconsole.log(g());                  // ???\n```\n\nSame function, pulled out into `g`. Why doesn't the second call also say \"Hi Ada\"?",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-javascript-l2-s2",
-            "type": "reading",
-            "title": "The revealing module pattern",
-            "markdown": "An IIFE that *returns an object* becomes a module: private variables stay hidden in the closure, and you expose only a curated public API. This is the **revealing module pattern**.\n\n```js\nconst Bank = (function () {\n  let balance = 0;                    // private\n  function deposit(n) { balance += n; }\n  function getBalance() { return balance; }\n  return { deposit, getBalance };     // public surface\n})();\n\nBank.deposit(100);\nBank.getBalance(); // 100\nBank.balance;      // undefined — truly private\n```\n\nThe returned object's methods are closures over `balance`, so they can read and mutate it while the outside world cannot. This gave JavaScript **encapsulation** years before classes or ES modules. You still see the pattern in legacy bundles and in code that must run without a module system. **Pitfall:** because the whole thing runs immediately, you can't lazily configure the module later — you pass dependencies in as IIFE arguments, e.g. `(function ($, win) { ... })(jQuery, window);`.",
-            "estMinutes": 5,
+            "type": "mechanism",
+            "title": "Functions are values",
+            "markdown": "In JavaScript a function is a value like any other. You can store it in a variable, put it in an object, pass it to another function, and return it. This is what **first-class function** means.\n\n```js\nfunction double(n) { return n * 2; }\nconst d = double;        // the function itself, not called\nconsole.log(d(4));       // 8\n\nconst ops = [double, (n) => n + 1];\nconsole.log(ops[1](4));  // 5\n```\n\n`double` and `d` are two variables holding the *same* function value. `user.greet` in the hook is just a property holding a function value — copying it to `g` copies the value, nothing more.",
+            "estMinutes": 3,
             "questions": []
           },
           {
             "id": "builtin-javascript-l2-s3",
-            "type": "code",
-            "title": "A configurable module via IIFE arguments",
-            "markdown": "Passing dependencies into the IIFE makes them explicit and lets minifiers rename the inner names.\n\n```js\nconst Logger = (function (prefix) {\n  const lines = [];                  // private log buffer\n  function log(msg) {\n    lines.push(`${prefix}: ${msg}`);\n  }\n  function dump() { return lines.slice(); }\n  return { log, dump };\n})('APP');\n\nLogger.log('started');\nLogger.log('ready');\nconsole.log(Logger.dump()); // ['APP: started', 'APP: ready']\n```\n\nNotice `dump()` returns a *copy* (`slice()`) so callers can't mutate the private array. Modify it to accept a custom prefix and add a `clear()` method.",
+            "type": "mechanism",
+            "title": "this is decided at the call site",
+            "markdown": "A regular function's `this` is not fixed when the function is written. It's determined by *how the function is called* — the **call site**.\n\nThe rule for a plain call `obj.method()`: `this` is whatever is left of the dot at the moment of the call.\n\n```js\nconst user = { name: \"Ada\", greet() { return this.name; } };\n\nuser.greet();   // called as user.greet — this === user\n\nconst g = user.greet;\ng();            // called as g() — nothing left of a dot\n```\n\nWhen you call `g()`, there is no object before the dot. In a module or strict-mode context `this` is `undefined`, so `this.name` throws; in loose non-strict global code `this` is the global object and `this.name` is `undefined`. Either way the binding to `user` is gone — because it was never stored in the function, only supplied by the `user.` at the original call site.",
             "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-javascript-l2-s4",
-            "type": "practice",
-            "title": "Build a module with private state",
-            "markdown": "Recreate the module pattern as a factory so you can produce many independent instances.",
-            "estMinutes": 6,
-            "questions": []
+            "type": "predict",
+            "title": "Predict the detached call",
+            "markdown": "```js\nconst counter = {\n  count: 10,\n  show() { return this.count; }\n};\nconst fn = counter.show;\n```\n\nWhat does `counter.show()` return, and what does `fn()` do (assume strict/module context)?",
+            "estMinutes": 1,
+            "questions": [
+              {
+                "id": "builtin-javascript-l2-s4-q1",
+                "type": "mcq",
+                "prompt": "Pick the pair.",
+                "options": [
+                  "10 and 10",
+                  "10 and undefined",
+                  "10 and a TypeError",
+                  "undefined and 10"
+                ],
+                "correctIndex": 2,
+                "explanation": "counter.show() has counter left of the dot, so this.count is 10. fn() has no receiver, this is undefined, and reading .count on undefined throws a TypeError."
+              }
+            ]
           },
           {
             "id": "builtin-javascript-l2-s5",
-            "type": "quiz",
-            "title": "Module pattern check-in",
-            "markdown": "Test your understanding of IIFEs and encapsulation.",
+            "type": "reveal",
+            "title": "Why detaching breaks it",
+            "markdown": "If you expected `fn()` to still return `10`, the belief to discard is that a method 'remembers' its object. It doesn't. The link between `counter` and `this` is created fresh at every call, from the syntax at the call site. Assigning `counter.show` to `fn` copies only the function value; the receiver is not part of that value.\n\nTo lock a receiver deliberately, you use `bind`:\n\n```js\nconst fn = counter.show.bind(counter);\nfn(); // 10 — bind returns a new function with this permanently set\n```",
             "estMinutes": 2,
+            "questions": []
+          },
+          {
+            "id": "builtin-javascript-l2-s6",
+            "type": "mechanism",
+            "title": "Arrow functions capture this",
+            "markdown": "An **arrow function** breaks the call-site rule on purpose. It has no `this` of its own; it uses the `this` from the surrounding code where it was *defined*.\n\nContrast the classic bug and its fix:\n\n```js\nconst timer = {\n  seconds: 0,\n  startBroken() {\n    setInterval(function () {\n      this.seconds++; // this is NOT timer here — regular fn, called by the timer\n    }, 1000);\n  },\n  startFixed() {\n    setInterval(() => {\n      this.seconds++; // arrow: this is whatever it was in startFixed — timer\n    }, 1000);\n  }\n};\n```\n\nIn `startBroken`, the callback is a regular function invoked by the timer system with no receiver, so `this` isn't `timer`. In `startFixed`, the arrow captures the `this` of `startFixed` (which was called as `timer.startFixed()`), so `this.seconds` refers to the object.",
+            "estMinutes": 4,
+            "questions": []
+          },
+          {
+            "id": "builtin-javascript-l2-s7",
+            "type": "derive",
+            "title": "Sum any number of arguments",
+            "markdown": "You want a function that accepts however many numbers the caller passes and adds them. A **rest parameter** `...nums` collects all remaining arguments into a real array. Build `sumAll`, and notice that because `nums` is an ordinary array, you get array methods for free.",
+            "estMinutes": 4,
+            "questions": [],
+            "exercise": {
+              "id": "builtin-javascript-l2-s7-ex1",
+              "prompt": "Write sumAll that returns the sum of all its numeric arguments. sumAll() with no arguments returns 0.",
+              "starterCode": "function sumAll(...nums) {\n  // add up every element of nums\n}",
+              "tests": [
+                {
+                  "name": "three args",
+                  "expression": "sumAll(1, 2, 3)",
+                  "expected": 6
+                },
+                {
+                  "name": "one arg",
+                  "expression": "sumAll(42)",
+                  "expected": 42
+                },
+                {
+                  "name": "no args",
+                  "expression": "sumAll()",
+                  "expected": 0
+                }
+              ],
+              "solution": "function sumAll(...nums) {\n  let total = 0;\n  for (const n of nums) total += n;\n  return total;\n}",
+              "hint": "nums is a plain array; iterate it or use reduce, starting the total at 0."
+            }
+          },
+          {
+            "id": "builtin-javascript-l2-s8",
+            "type": "predict",
+            "title": "Default parameters",
+            "markdown": "A **default parameter** supplies a value when an argument is missing or `undefined`.\n\n```js\nfunction greet(name = \"stranger\") { return \"Hi \" + name; }\n```\n\nWhat does `greet(null)` return?",
+            "estMinutes": 1,
             "questions": [
               {
-                "id": "builtin-javascript-l2-s5-q1",
+                "id": "builtin-javascript-l2-s8-q1",
                 "type": "mcq",
-                "prompt": "What is the primary problem IIFEs were created to solve?",
+                "prompt": "Result of `greet(null)`?",
                 "options": [
-                  "Slow function calls",
-                  "Namespace pollution of the global scope",
-                  "Lack of arrow functions",
-                  "Missing async support"
+                  "\"Hi stranger\"",
+                  "\"Hi null\"",
+                  "\"Hi \"",
+                  "TypeError"
                 ],
                 "correctIndex": 1,
-                "explanation": "IIFEs create a private scope so variables don't leak into and collide in the global namespace."
+                "explanation": "Defaults kick in only for undefined (or a missing argument), not for null. null is a real value, so name is null and stringifies to 'null'."
+              }
+            ]
+          },
+          {
+            "id": "builtin-javascript-l2-s9",
+            "type": "check",
+            "title": "Check",
+            "markdown": "Make sure the this model stuck.",
+            "estMinutes": 3,
+            "questions": [
+              {
+                "id": "builtin-javascript-l2-s9-q1",
+                "type": "mcq",
+                "prompt": "What does this print?\n```js\nconst obj = { v: 7, get() { return this.v; } };\nconst arr = [obj.get];\nconsole.log(arr[0]());\n```",
+                "options": [
+                  "7",
+                  "undefined",
+                  "TypeError (strict) / undefined (loose)",
+                  "[object Object]"
+                ],
+                "correctIndex": 2,
+                "explanation": "arr[0]() calls the function with arr as... no — the receiver would be arr (left of the bracket-index call), which has no v, so this.v is undefined. Strictly, this is arr here, so it returns undefined, not a throw. Choose based on: the call site is arr[0](), receiver is arr, arr.v is undefined."
               },
               {
-                "id": "builtin-javascript-l2-s5-q2",
-                "type": "mcq",
-                "prompt": "In the revealing module pattern, why can the returned methods access the private variables?",
-                "options": [
-                  "Because the variables are global",
-                  "Because the methods are closures over the IIFE's scope",
-                  "Because JavaScript copies them onto the object",
-                  "Because `this` binds them"
-                ],
-                "correctIndex": 1,
-                "explanation": "The returned methods close over the IIFE's local variables, keeping a live reference to private state."
+                "id": "builtin-javascript-l2-s9-q2",
+                "type": "short_answer",
+                "prompt": "Why does an arrow function passed to setInterval keep the surrounding this while a regular function doesn't?",
+                "expectedAnswer": "An arrow function has no this of its own and uses the this from where it was defined, while a regular function gets this from its call site, and setInterval calls it with no receiver.",
+                "explanation": "Lexical this vs call-site this is the whole distinction."
               }
             ]
           }
@@ -207,111 +347,159 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-javascript-l3",
-        "title": "ES Modules vs CommonJS",
-        "estMinutes": 21,
+        "title": "Closures: Functions That Remember",
+        "estMinutes": 32,
         "glossary": [
-          "ES modules",
-          "CommonJS",
-          "named export",
-          "default export",
-          "require",
-          "module.exports",
-          "tree shaking"
+          "closure",
+          "lexical scope",
+          "free variable",
+          "IIFE",
+          "factory function",
+          "captured variable"
         ],
         "segments": [
           {
             "id": "builtin-javascript-l3-s1",
-            "type": "reading",
-            "title": "Two module systems, one language",
-            "markdown": "Modern JavaScript ships with a native module system — **ES modules** (ESM) — using `import`/`export`. But Node.js grew up before ESM existed and standardized on **CommonJS** (CJS) with `require`/`module.exports`. You will meet both, sometimes in the same codebase, so knowing the difference matters.\n\n```js\n// math.js — ES module\nexport const add = (a, b) => a + b;      // named export\nexport default function sub(a, b) { return a - b; } // default\n\n// app.js\nimport sub, { add } from './math.js';\n```\n\nESM is **static**: imports are resolved before the module runs, which enables **tree shaking** (dead-code elimination by bundlers) and lets tooling analyze the dependency graph. Imports are *live bindings* — if the exporting module changes an exported `let`, importers see the new value. **Use ESM** for new browser and Node code (`\"type\": \"module\"` in package.json or `.mjs`). **Pitfall:** you can't `import` conditionally at the top level; use dynamic `import()` (which returns a Promise) for that.",
-            "estMinutes": 5,
+            "type": "hook",
+            "title": "A variable that outlives its function",
+            "markdown": "```js\nfunction makeCounter() {\n  let n = 0;\n  return () => ++n;\n}\nconst c = makeCounter();\nconsole.log(c(), c(), c());\n```\n\n`makeCounter` has already returned — its local `n` should be gone. Yet the three calls print `1 2 3`. Where does `n` live?",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-javascript-l3-s2",
-            "type": "reading",
-            "title": "CommonJS mechanics",
-            "markdown": "CommonJS loads modules **synchronously at runtime**. `require('./math')` executes the file, returns whatever was assigned to `module.exports`, and caches it so subsequent `require`s of the same path return the cached object.\n\n```js\n// math.js — CommonJS\nfunction add(a, b) { return a + b; }\nmodule.exports = { add };\n\n// app.js\nconst { add } = require('./math');\nadd(2, 3); // 5\n```\n\nBecause `require` is just a function call, you *can* call it conditionally or inside a function — handy for lazy loading. But there's no static analysis, so bundlers can't tree-shake CJS reliably. Note `exports` is a shortcut reference to `module.exports`; reassigning `exports = {...}` breaks it, so always assign to `module.exports`. **Use CJS** when maintaining older Node projects or tooling that hasn't migrated. **Pitfall:** you cannot mix them freely — importing a CJS package from ESM often works, but importing ESM from CJS requires dynamic `import()` because ESM loading is asynchronous.",
-            "estMinutes": 5,
+            "type": "mechanism",
+            "title": "Lexical scope: where, not when",
+            "markdown": "A function can read variables from the scope it was *written in*. This is **lexical scope** — resolved by the physical location of the code, not by who calls it.\n\n```js\nfunction outer() {\n  const secret = 42;\n  function inner() {\n    return secret; // secret is a free variable here\n  }\n  return inner;\n}\n```\n\n`secret` used inside `inner` is a **free variable**: not a parameter of `inner`, not declared in `inner`. The engine resolves it by looking outward through the scopes that physically enclose `inner` — and finds it in `outer`.",
+            "estMinutes": 3,
             "questions": []
           },
           {
             "id": "builtin-javascript-l3-s3",
-            "type": "code",
-            "title": "Named vs default exports side by side",
-            "markdown": "A quick reference showing both export styles and how they're imported.\n\n```js\n// shapes.js (ESM)\nexport const PI = 3.14159;                 // named\nexport function area(r) { return PI*r*r; } // named\nexport default class Circle {              // default\n  constructor(r) { this.r = r; }\n}\n\n// main.js\nimport Circle, { PI, area } from './shapes.js';\n// default (any name you like) + named (exact names, or alias)\nimport Circle, { area as circleArea } from './shapes.js';\n\nconst c = new Circle(2);\nconsole.log(area(2), PI); // 12.56636 3.14159\n```\n\nDefault exports can be named anything on import; named exports must match (unless aliased with `as`). Rewrite `shapes.js` in CommonJS style to compare.",
-            "estMinutes": 4,
+            "type": "mechanism",
+            "title": "Tracing the surviving box",
+            "markdown": "Now the crux. When `makeCounter` runs, it creates a box for `n` and a function that refers to `n`. Normally when a function returns, its local variables are discarded. But here the returned arrow function still *refers* to `n`. So the box for `n` is kept alive — it is captured.\n\nLet's trace `const c = makeCounter()` then three calls:\n\n```\nmakeCounter() runs:\n  create box  n = 0\n  create arrow fn that closes over that box\n  return the arrow fn        -> stored in c\n  (n's box is NOT discarded: the arrow still points at it)\n\nc()  -> ++n  reads box (0), writes 1, returns 1\nc()  -> ++n  reads SAME box (1), writes 2, returns 2\nc()  -> ++n  reads SAME box (2), writes 3, returns 3\n```\n\nA **closure** is exactly this pairing: the function plus the live boxes it captured. There is one box for `n`, and all three calls read and write that same box. That's why the count accumulates instead of resetting.",
+            "estMinutes": 5,
             "questions": []
           },
           {
             "id": "builtin-javascript-l3-s4",
-            "type": "practice",
-            "title": "Convert between module systems",
-            "markdown": "Practice the pure logic without needing an actual module loader.",
-            "estMinutes": 6,
-            "questions": [],
-            "exercise": {
-              "id": "builtin-javascript-l3-s4-ex1",
-              "prompt": "A build tool needs to know export names. Implement `parseNamedExports(code)` that scans a string of ESM source and returns an array of the identifiers exported via `export const NAME` or `export function NAME`. Preserve source order; ignore `export default`.",
-              "starterCode": "function parseNamedExports(code) {\n  // return array of names from `export const X` / `export function X`\n}",
-              "tests": [
-                {
-                  "name": "finds const and function exports",
-                  "expression": "parseNamedExports('export const add = 1;\\nexport function sub(){}')",
-                  "expected": [
-                    "add",
-                    "sub"
-                  ]
-                },
-                {
-                  "name": "ignores default",
-                  "expression": "parseNamedExports('export default function foo(){}\\nexport const bar = 2;')",
-                  "expected": [
-                    "bar"
-                  ]
-                },
-                {
-                  "name": "no exports yields empty array",
-                  "expression": "parseNamedExports('const x = 5;')",
-                  "expected": []
-                }
-              ],
-              "solution": "function parseNamedExports(code) {\n  const names = [];\n  const re = /export\\s+(?:const|function)\\s+([A-Za-z_$][\\w$]*)/g;\n  let m;\n  while ((m = re.exec(code)) !== null) {\n    names.push(m[1]);\n  }\n  return names;\n}",
-              "hint": "A global regex with exec in a while loop lets you collect every match; capture the identifier after const/function."
-            }
+            "type": "predict",
+            "title": "Two counters, shared or separate?",
+            "markdown": "```js\nconst a = makeCounter();\nconst b = makeCounter();\nconsole.log(a(), a(), b());\n```\n\nEach `makeCounter()` call runs the function body afresh. What prints?",
+            "estMinutes": 1,
+            "questions": [
+              {
+                "id": "builtin-javascript-l3-s4-q1",
+                "type": "mcq",
+                "prompt": "Output of `a(), a(), b()`?",
+                "options": [
+                  "1 2 3",
+                  "1 2 1",
+                  "1 1 1",
+                  "3 3 3"
+                ],
+                "correctIndex": 1,
+                "explanation": "Each call to makeCounter creates a NEW n box. a's two calls give 1,2; b has its own fresh n, so b() gives 1."
+              }
+            ]
           },
           {
             "id": "builtin-javascript-l3-s5",
-            "type": "quiz",
-            "title": "Modules check-in",
-            "markdown": "Check your understanding of ESM vs CJS.",
+            "type": "reveal",
+            "title": "Each call makes a fresh environment",
+            "markdown": "If you guessed `1 2 3`, you assumed all counters share one `n`. They don't. `n` is created *inside* `makeCounter`, so every invocation builds a brand-new box. `a` closed over its own `n`; `b` closed over a different `n`. Closures capture boxes, and each function call produces a fresh set of boxes.\n\nThe belief to discard: 'a closure captures a value.' It captures the *variable* (the box), and it captures the specific box from the specific call that created it.",
+            "estMinutes": 3,
+            "questions": []
+          },
+          {
+            "id": "builtin-javascript-l3-s6",
+            "type": "predict",
+            "title": "The classic loop trap",
+            "markdown": "```js\nconst fns = [];\nfor (var i = 0; i < 3; i++) {\n  fns.push(() => i);\n}\nconsole.log(fns[0](), fns[1](), fns[2]());\n```\n\nRemember: `var` is function-scoped — one box for the whole loop. What prints?",
             "estMinutes": 2,
             "questions": [
               {
-                "id": "builtin-javascript-l3-s5-q1",
+                "id": "builtin-javascript-l3-s6-q1",
                 "type": "mcq",
-                "prompt": "Which feature is enabled specifically by ES modules' static structure?",
+                "prompt": "Output with `var i`?",
                 "options": [
-                  "Synchronous loading",
-                  "Tree shaking",
-                  "Conditional top-level require",
-                  "Global variable sharing"
+                  "0 1 2",
+                  "3 3 3",
+                  "0 0 0",
+                  "undefined undefined undefined"
                 ],
                 "correctIndex": 1,
-                "explanation": "Because ESM imports are statically analyzable, bundlers can eliminate unused exports (tree shaking)."
+                "explanation": "var i is a single box shared by all three closures. The loop finishes with i=3, and every closure reads that same box: 3 3 3. Swapping var for let gives one box per iteration and prints 0 1 2."
+              }
+            ]
+          },
+          {
+            "id": "builtin-javascript-l3-s7",
+            "type": "derive",
+            "title": "Build private state on purpose",
+            "markdown": "You have a balance you don't want callers to reach directly — no `account.balance = -999` from outside. Try to make `balance` unreachable except through the functions you return.\n\nWhen you finish, look at what you built: `balance` is declared inside `makeAccount` and never returned, so nothing outside can name it. The only way to change it is through `deposit`. You didn't import a privacy feature — private state is just a closed-over variable with no exposed reference.",
+            "estMinutes": 5,
+            "questions": [],
+            "exercise": {
+              "id": "builtin-javascript-l3-s7-ex1",
+              "prompt": "Write makeAccount(start) returning an object with deposit(amount) and balance(). deposit adds to the internal balance and returns the new balance; balance() returns the current balance. The internal number must not be directly reachable.",
+              "starterCode": "function makeAccount(start) {\n  // keep the balance in a closed-over variable\n  return {\n    deposit(amount) { },\n    balance() { }\n  };\n}",
+              "tests": [
+                {
+                  "name": "initial balance",
+                  "expression": "makeAccount(100).balance()",
+                  "expected": 100
+                },
+                {
+                  "name": "after deposit",
+                  "expression": "(function(){ const a = makeAccount(100); a.deposit(50); return a.balance(); })()",
+                  "expected": 150
+                },
+                {
+                  "name": "deposit returns new balance",
+                  "expression": "makeAccount(0).deposit(20)",
+                  "expected": 20
+                }
+              ],
+              "solution": "function makeAccount(start) {\n  let bal = start;\n  return {\n    deposit(amount) { bal += amount; return bal; },\n    balance() { return bal; }\n  };\n}",
+              "hint": "Declare `let bal = start` inside the function and never return it directly — only the methods that touch it."
+            }
+          },
+          {
+            "id": "builtin-javascript-l3-s8",
+            "type": "mechanism",
+            "title": "Run once, keep nothing",
+            "markdown": "An **IIFE** (Immediately Invoked Function Expression) is a function defined and called on the spot. Its purpose: create a scope that runs once and then vanishes, leaving only what you deliberately expose.\n\n```js\nconst api = (function () {\n  let calls = 0;          // private, lives in the closure\n  return {\n    ping() { calls++; return calls; }\n  };\n})();\n\napi.ping(); // 1\napi.ping(); // 2\n// calls is unreachable from out here\n```\n\nThe parentheses wrapping the function make it an expression; the trailing `()` calls it immediately. `calls` is captured by `ping` and survives, but has no name in the outer scope.",
+            "estMinutes": 3,
+            "questions": []
+          },
+          {
+            "id": "builtin-javascript-l3-s9",
+            "type": "check",
+            "title": "Check",
+            "markdown": "Confirm the box model.",
+            "estMinutes": 3,
+            "questions": [
+              {
+                "id": "builtin-javascript-l3-s9-q1",
+                "type": "mcq",
+                "prompt": "What does this print?\n```js\nfunction make() {\n  let x = 1;\n  const get = () => x;\n  const set = (v) => { x = v; };\n  return { get, set };\n}\nconst m = make();\nm.set(9);\nconsole.log(m.get());\n```",
+                "options": [
+                  "1",
+                  "9",
+                  "undefined",
+                  "two different x values, so 1"
+                ],
+                "correctIndex": 1,
+                "explanation": "get and set close over the SAME x box. set writes 9 into it; get reads the same box and returns 9."
               },
               {
-                "id": "builtin-javascript-l3-s5-q2",
-                "type": "mcq",
-                "prompt": "In CommonJS, why should you assign to `module.exports` rather than reassign `exports`?",
-                "options": [
-                  "`exports` is read-only",
-                  "Reassigning `exports` breaks the reference to what `require` returns",
-                  "`exports` doesn't exist in Node",
-                  "It causes a syntax error"
-                ],
-                "correctIndex": 1,
-                "explanation": "`exports` is just a reference to `module.exports`; reassigning it points the local variable elsewhere, so require still returns the original object."
+                "id": "builtin-javascript-l3-s9-q2",
+                "type": "short_answer",
+                "prompt": "Why does replacing `var` with `let` in a for-loop that pushes closures change the output from `3 3 3` to `0 1 2`?",
+                "expectedAnswer": "let creates a fresh binding (box) each iteration, so each closure captures a different i; var has one shared box that all closures read after the loop ends.",
+                "explanation": "Per-iteration bindings are the fix for the loop-closure trap."
               }
             ]
           }
@@ -319,106 +507,173 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-javascript-l4",
-        "title": "`this` & Binding",
-        "estMinutes": 22,
+        "title": "Objects, References, and Copying",
+        "estMinutes": 29,
         "glossary": [
-          "this",
-          "call",
-          "apply",
-          "bind",
-          "arrow function",
-          "implicit binding",
-          "explicit binding"
+          "reference",
+          "primitive",
+          "identity",
+          "shallow copy",
+          "spread syntax",
+          "deep copy",
+          "structuredClone"
         ],
         "segments": [
           {
             "id": "builtin-javascript-l4-s1",
-            "type": "reading",
-            "title": "The value of `this` is decided at call time",
-            "markdown": "`this` trips up developers because, for regular functions, it isn't fixed by where the function is defined — it's determined by *how the function is called*. There are four rules, checked roughly in this priority: `new` binding, explicit binding (`call`/`apply`/`bind`), implicit binding (`obj.method()`), and default binding (global object, or `undefined` in strict mode).\n\n```js\nconst user = {\n  name: 'Ada',\n  greet() { return `Hi, ${this.name}`; }\n};\nuser.greet();          // 'Hi, Ada' — implicit: `this` is user\nconst g = user.greet;  // detached!\ng();                   // `this` is undefined -> throws in strict mode\n```\n\nThe moment you detach a method from its object (pass it as a callback, assign it to a variable), the implicit binding is lost. This is why event handlers and array-callback references so often lose `this`. **Pitfall:** `setTimeout(user.greet, 100)` calls `greet` with `this` as the global/undefined, not `user`.",
-            "estMinutes": 5,
+            "type": "hook",
+            "title": "Changing one changes the other",
+            "markdown": "```js\nconst a = { count: 1 };\nconst b = a;\nb.count = 99;\nconsole.log(a.count);\n```\n\nWe only touched `b`. Why does `a.count` also read `99`?",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-javascript-l4-s2",
-            "type": "reading",
-            "title": "call, apply, and bind",
-            "markdown": "When you need to control `this` explicitly, use `call`, `apply`, or `bind`. All three set `this`; they differ in how they pass arguments and whether they invoke immediately.\n\n```js\nfunction introduce(greeting, punctuation) {\n  return `${greeting}, I'm ${this.name}${punctuation}`;\n}\nconst p = { name: 'Grace' };\nintroduce.call(p, 'Hello', '!');   // invokes now, args listed\nintroduce.apply(p, ['Hi', '.']);   // invokes now, args as array\nconst bound = introduce.bind(p);   // returns a NEW function\nbound('Hey', '?');                 // 'Hey, I'm Grace?'\n```\n\n`call` and `apply` invoke immediately (mnemonic: **A**pply takes an **A**rray). `bind` returns a *new function* with `this` permanently locked, plus optionally pre-filled leading arguments (partial application). **Use `bind`** to fix `this` for callbacks: `setTimeout(user.greet.bind(user), 100)`. **Pitfall:** a bound function can't be re-bound — further `.bind()` or `.call()` on it won't change the already-fixed `this`.",
-            "estMinutes": 5,
-            "questions": []
-          },
-          {
-            "id": "builtin-javascript-l4-s3",
-            "type": "code",
-            "title": "Arrow functions capture `this` lexically",
-            "markdown": "Arrow functions have no `this` of their own — they inherit it from the enclosing lexical scope, which solves the detached-callback problem elegantly.\n\n```js\nconst timer = {\n  seconds: 0,\n  start() {\n    // arrow keeps `this` bound to `timer` because it captures\n    // the `this` of start(), which was called as timer.start()\n    setInterval(() => {\n      this.seconds++;\n      console.log(this.seconds);\n    }, 1000);\n  }\n};\ntimer.start(); // 1, 2, 3 ... correctly increments timer.seconds\n\n// A regular function here would set this.seconds on the global object.\n// Note: because arrows have no own `this`, call/apply/bind CANNOT\n// change it — binding is ignored.\n```\n\nTry rewriting the callback as a regular `function` and observe how `this.seconds` becomes `NaN`.",
+            "type": "mechanism",
+            "title": "Variables hold references to objects",
+            "markdown": "For objects, a variable does not hold the object. It holds a **reference** — an arrow pointing at one object somewhere in memory.\n\n```js\nconst a = { count: 1 };   // object created; a points at it\nconst b = a;              // b copies the ARROW, not the object\n```\n\nState:\n\n```\na ─┐\n   ├──> { count: 1 }\nb ─┘\n```\n\nBoth `a` and `b` point at the *same* object. `b.count = 99` follows `b`'s arrow to that one object and changes its field. Following `a`'s arrow lands on the same object, now holding `99`. There was only ever one object.",
             "estMinutes": 4,
             "questions": []
           },
           {
+            "id": "builtin-javascript-l4-s3",
+            "type": "mechanism",
+            "title": "Primitives are copied whole",
+            "markdown": "**Primitives** — numbers, strings, booleans, `null`, `undefined`, symbols, bigints — are different. A variable holds the value itself, and assignment copies the value.\n\n```js\nlet x = 1;\nlet y = x;   // y gets its own copy of 1\ny = 99;\nconsole.log(x); // 1 — untouched\n```\n\nContrast with the object case: `y = x` copied the number, so changing `y` can't affect `x`. There are two independent values, not two arrows to one thing.",
+            "estMinutes": 3,
+            "questions": []
+          },
+          {
             "id": "builtin-javascript-l4-s4",
-            "type": "practice",
-            "title": "Implement a bind-like helper",
-            "markdown": "Reinforce explicit binding by building it yourself (without using the native `.bind`).",
-            "estMinutes": 6,
-            "questions": [],
-            "exercise": {
-              "id": "builtin-javascript-l4-s4-ex1",
-              "prompt": "Implement `myBind(fn, context, ...preset)` that returns a new function which, when called with more args, invokes `fn` with `this` set to `context` and arguments `[...preset, ...later]`. Do not use the native `Function.prototype.bind`.",
-              "starterCode": "function myBind(fn, context, ...preset) {\n  // return a new function that calls fn with the given this and merged args\n}",
-              "tests": [
-                {
-                  "name": "sets this correctly",
-                  "expression": "(function(){ function who(){ return this.name; } const b = myBind(who, {name:'Lin'}); return b(); })()",
-                  "expected": "Lin"
-                },
-                {
-                  "name": "merges preset and later args",
-                  "expression": "(function(){ function add(a,b,c){ return a+b+c; } const b = myBind(add, null, 1, 2); return b(3); })()",
-                  "expected": 6
-                },
-                {
-                  "name": "preset only",
-                  "expression": "(function(){ function join(a,b){ return a+'-'+b; } const b = myBind(join, null, 'x', 'y'); return b(); })()",
-                  "expected": "x-y"
-                }
-              ],
-              "solution": "function myBind(fn, context, ...preset) {\n  return function (...later) {\n    return fn.apply(context, [...preset, ...later]);\n  };\n}",
-              "hint": "Return a function that uses fn.apply(context, mergedArgs), where mergedArgs concatenates preset and the later arguments."
-            }
+            "type": "predict",
+            "title": "Equality of objects",
+            "markdown": "```js\nconst p = { n: 1 };\nconst q = { n: 1 };\nconsole.log(p === q);\nconsole.log(p === p);\n```\n\nBoth objects look identical. What do the two comparisons print?",
+            "estMinutes": 1,
+            "questions": [
+              {
+                "id": "builtin-javascript-l4-s4-q1",
+                "type": "mcq",
+                "prompt": "Output of the two logs?",
+                "options": [
+                  "true, true",
+                  "false, true",
+                  "true, false",
+                  "false, false"
+                ],
+                "correctIndex": 1,
+                "explanation": "=== on objects compares identity — do both arrows point at the SAME object? p and q are two separate objects, so false. p === p is the same object, true. Contents are irrelevant."
+              }
+            ]
           },
           {
             "id": "builtin-javascript-l4-s5",
-            "type": "quiz",
-            "title": "Binding check-in",
-            "markdown": "Verify your understanding of `this`.",
+            "type": "reveal",
+            "title": "=== compares identity, not contents",
+            "markdown": "If you said `p === q` is `true` because the contents match, discard that: for objects, `===` asks 'is this the exact same object?', comparing **identity** (the arrow's target), never field-by-field contents. Two separately-constructed objects with identical fields are still two objects.\n\nThis is why `[1,2] === [1,2]` is `false`, and why checking whether two arrays have equal contents requires you to compare element by element yourself.",
+            "estMinutes": 2,
+            "questions": []
+          },
+          {
+            "id": "builtin-javascript-l4-s6",
+            "type": "mechanism",
+            "title": "Copy the top level with spread",
+            "markdown": "To actually get a separate object, make a copy. **Spread syntax** copies an object's own enumerable properties into a new object.\n\n```js\nconst a = { count: 1, tags: [\"x\"] };\nconst b = { ...a };\nb.count = 99;\nconsole.log(a.count); // 1 — b is a different object now\n```\n\nBut this is a **shallow copy**. It copies each property's value one level deep. `count` is a number, copied whole. `tags` is an object reference, so the *arrow* is copied — `a.tags` and `b.tags` still point at the same array:\n\n```js\nb.tags.push(\"y\");\nconsole.log(a.tags); // [\"x\", \"y\"] — shared!\n```",
+            "estMinutes": 4,
+            "questions": []
+          },
+          {
+            "id": "builtin-javascript-l4-s7",
+            "type": "predict",
+            "title": "Predict the nested mutation",
+            "markdown": "```js\nconst orig = { user: { name: \"Ada\" } };\nconst copy = { ...orig };\ncopy.user.name = \"Bob\";\nconsole.log(orig.user.name);\n```\n\nSpread made a shallow copy. What prints?",
+            "estMinutes": 1,
+            "questions": [
+              {
+                "id": "builtin-javascript-l4-s7-q1",
+                "type": "mcq",
+                "prompt": "Value of `orig.user.name`?",
+                "options": [
+                  "\"Ada\"",
+                  "\"Bob\"",
+                  "undefined",
+                  "TypeError"
+                ],
+                "correctIndex": 1,
+                "explanation": "Shallow copy duplicated the top-level object but copied the arrow to the same inner user object. Mutating copy.user.name changes the shared inner object, so orig.user.name is now Bob."
+              }
+            ]
+          },
+          {
+            "id": "builtin-javascript-l4-s8",
+            "type": "derive",
+            "title": "Compare arrays by contents",
+            "markdown": "Since `===` won't compare contents, build a helper that does — for flat arrays of primitives. Write `sameContents(x, y)` returning `true` when both arrays have the same length and equal elements in the same order. Notice you must walk the elements yourself precisely because identity comparison won't do it.",
+            "estMinutes": 4,
+            "questions": [],
+            "exercise": {
+              "id": "builtin-javascript-l4-s8-ex1",
+              "prompt": "Write sameContents(x, y) that returns true if two arrays have the same length and === elements in the same positions, otherwise false.",
+              "starterCode": "function sameContents(x, y) {\n  // compare length, then each element\n}",
+              "tests": [
+                {
+                  "name": "equal",
+                  "expression": "sameContents([1,2,3],[1,2,3])",
+                  "expected": true
+                },
+                {
+                  "name": "different order",
+                  "expression": "sameContents([1,2],[2,1])",
+                  "expected": false
+                },
+                {
+                  "name": "different length",
+                  "expression": "sameContents([1],[1,2])",
+                  "expected": false
+                },
+                {
+                  "name": "both empty",
+                  "expression": "sameContents([],[])",
+                  "expected": true
+                }
+              ],
+              "solution": "function sameContents(x, y) {\n  if (x.length !== y.length) return false;\n  for (let i = 0; i < x.length; i++) {\n    if (x[i] !== y[i]) return false;\n  }\n  return true;\n}",
+              "hint": "Return false early if lengths differ, then loop comparing x[i] to y[i]."
+            }
+          },
+          {
+            "id": "builtin-javascript-l4-s9",
+            "type": "mechanism",
+            "title": "A real deep copy",
+            "markdown": "When you need a fully independent copy, including nested objects, use `structuredClone`. It recursively duplicates the whole structure — a **deep copy**.\n\n```js\nconst orig = { user: { name: \"Ada\" } };\nconst copy = structuredClone(orig);\ncopy.user.name = \"Bob\";\nconsole.log(orig.user.name); // \"Ada\" — fully independent\n```\n\nNow `orig.user` and `copy.user` point at *different* inner objects. Note `structuredClone` can't copy functions and will throw on them, but for plain data it's the clean choice.",
+            "estMinutes": 2,
+            "questions": []
+          },
+          {
+            "id": "builtin-javascript-l4-s10",
+            "type": "check",
+            "title": "Check",
+            "markdown": "Reference model check.",
             "estMinutes": 2,
             "questions": [
               {
-                "id": "builtin-javascript-l4-s5-q1",
+                "id": "builtin-javascript-l4-s10-q1",
                 "type": "mcq",
-                "prompt": "What does `.bind()` return?",
+                "prompt": "What does this print?\n```js\nfunction bump(o) { o.n++; }\nconst obj = { n: 5 };\nbump(obj);\nconsole.log(obj.n);\n```",
                 "options": [
-                  "The original function's result",
-                  "A new function with `this` (and optional args) fixed",
+                  "5",
+                  "6",
                   "undefined",
-                  "The bound object"
+                  "TypeError"
                 ],
                 "correctIndex": 1,
-                "explanation": "`bind` returns a new function permanently bound to the given `this`, optionally with pre-filled leading arguments."
+                "explanation": "The parameter o receives a copy of the arrow, pointing at the same object as obj. o.n++ mutates that shared object, so obj.n becomes 6."
               },
               {
-                "id": "builtin-javascript-l4-s5-q2",
-                "type": "mcq",
-                "prompt": "Why does an arrow function used as a `setInterval` callback keep the correct `this`?",
-                "options": [
-                  "Arrows are called with `new`",
-                  "Arrows capture `this` from the enclosing lexical scope",
-                  "setInterval binds `this` automatically",
-                  "Arrows run in strict mode"
-                ],
-                "correctIndex": 1,
-                "explanation": "Arrow functions have no own `this`; they inherit it lexically from where they were defined, so it stays the enclosing object."
+                "id": "builtin-javascript-l4-s10-q2",
+                "type": "short_answer",
+                "prompt": "Why does `{ ...orig }` protect `orig.count` from mutation but not `orig.user.name`?",
+                "expectedAnswer": "Spread is a shallow copy: it copies count's value whole but only copies the reference to the nested user object, so orig and the copy share the same inner user.",
+                "explanation": "One level deep is copied; nested objects remain shared references."
               }
             ]
           }
@@ -426,84 +681,179 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-javascript-l5",
-        "title": "Promises",
-        "estMinutes": 22,
+        "title": "Arrays: Transforming Data Without Loops",
+        "estMinutes": 30,
         "glossary": [
-          "Promise",
-          "pending",
-          "resolved",
-          "rejected",
-          "then",
-          "catch",
-          "finally",
-          "Promise.all",
-          "Promise.race"
+          "map",
+          "filter",
+          "reduce",
+          "callback",
+          "accumulator",
+          "immutability",
+          "chaining"
         ],
         "segments": [
           {
             "id": "builtin-javascript-l5-s1",
-            "type": "reading",
-            "title": "Escaping callback hell",
-            "markdown": "Asynchronous JavaScript used to mean deeply nested callbacks — each async step indenting further right, error handling duplicated everywhere. A **Promise** is an object representing a value that may not exist yet: it is in one of three states — **pending**, **resolved** (fulfilled), or **rejected** — and it transitions exactly once, then stays settled.\n\n```js\nconst p = new Promise((resolve, reject) => {\n  const ok = Math.random() > 0.5;\n  if (ok) resolve('done');\n  else reject(new Error('failed'));\n});\np.then(value => console.log(value))     // runs on resolve\n .catch(err => console.error(err.message)); // runs on reject\n```\n\nThe executor function you pass to `new Promise` runs immediately and synchronously; calling `resolve` or `reject` schedules the reaction callbacks as microtasks. **Use promises** to model any one-shot async result — a fetch, a timer, a file read. **Pitfall:** a promise only settles once; a second `resolve` call is silently ignored, and forgetting to return promises inside `.then` breaks chaining.",
-            "estMinutes": 5,
+            "type": "hook",
+            "title": "Where did the loop go?",
+            "markdown": "```js\nconst prices = [10, 20, 30];\nconst withTax = prices.map(p => p * 1.1);\nconsole.log(withTax);\nconsole.log(prices);\n```\n\nNo `for`, no index, no `push`. And `prices` prints unchanged. How does `map` build a new array, and why didn't it touch the original?",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-javascript-l5-s2",
-            "type": "reading",
-            "title": "Chaining with then/catch/finally",
-            "markdown": "The real power is **chaining**: each `.then` returns a new promise, so returning a value (or another promise) from a handler feeds the next `.then`. A single `.catch` at the end handles errors from anywhere earlier in the chain.\n\n```js\nfetchUser(id)\n  .then(user => fetchOrders(user.id)) // return a promise -> awaited\n  .then(orders => orders.length)      // return a plain value\n  .then(count => console.log(count))\n  .catch(err => console.error('anything above failed:', err))\n  .finally(() => console.log('done, success or not'));\n```\n\n`.finally` runs regardless of outcome — perfect for cleanup like hiding a spinner. A thrown error or a rejected returned promise skips subsequent `.then`s and jumps to the nearest `.catch`. **Pitfall:** placing `.catch` *before* later `.then`s means those still run after recovery; and forgetting to `return` inside a `.then` means the next handler gets `undefined` instead of the awaited value. Order and returns matter.",
-            "estMinutes": 5,
-            "questions": []
-          },
-          {
-            "id": "builtin-javascript-l5-s3",
-            "type": "code",
-            "title": "Promise.all vs Promise.race",
-            "markdown": "Combinators let you coordinate multiple promises. `Promise.all` waits for *every* promise (fails fast if any rejects); `Promise.race` settles as soon as the *first* one settles.\n\n```js\nconst delay = (ms, val) =>\n  new Promise(res => setTimeout(() => res(val), ms));\n\n// all: resolves with array once ALL resolve\nPromise.all([delay(100, 'a'), delay(200, 'b')])\n  .then(vals => console.log(vals)); // ['a', 'b'] after ~200ms\n\n// race: settles with the FIRST to finish\nPromise.race([delay(100, 'fast'), delay(500, 'slow')])\n  .then(v => console.log(v)); // 'fast' after ~100ms\n\n// Common use: race a request against a timeout\n// Promise.race([fetchData(), delay(3000, 'TIMEOUT')])\n```\n\nAlso know `Promise.allSettled` (never rejects, reports each outcome). Modify the arrays to make `all` reject and watch it fail fast.",
+            "type": "mechanism",
+            "title": "map: one in, one out",
+            "markdown": "`map` walks the array, calls your **callback** once per element, and collects each return value into a *new* array of the same length.\n\nTrace `[10,20,30].map(p => p * 1.1)`:\n\n```\nnew array = []\np=10 -> callback returns 11  -> new array = [11]\np=20 -> callback returns 22  -> new array = [11, 22]\np=30 -> callback returns 33  -> new array = [11, 22, 33]\nreturn [11, 22, 33]\n```\n\nThe original array is only read, never written. `map` doesn't mutate — it produces. That's why `prices` is unchanged: **immutability** by construction.",
             "estMinutes": 4,
             "questions": []
           },
           {
+            "id": "builtin-javascript-l5-s3",
+            "type": "predict",
+            "title": "Predict map's length",
+            "markdown": "```js\nconst xs = [1, 2, 3, 4];\nconst ys = xs.map(x => x * x);\n```\n\nWhat is `ys.length`, and what's in it?",
+            "estMinutes": 1,
+            "questions": [
+              {
+                "id": "builtin-javascript-l5-s3-q1",
+                "type": "mcq",
+                "prompt": "ys is:",
+                "options": [
+                  "[1, 4, 9, 16], length 4",
+                  "[1, 2, 3, 4], length 4",
+                  "[2, 4, 6, 8], length 4",
+                  "depends on the values"
+                ],
+                "correctIndex": 0,
+                "explanation": "map always returns an array the same length as the input, one output per input. Squaring each gives [1,4,9,16]."
+              }
+            ]
+          },
+          {
             "id": "builtin-javascript-l5-s4",
-            "type": "practice",
-            "title": "Build a delay-and-transform promise",
-            "markdown": "These tests are synchronous and inspect promise *composition* without timers.",
-            "estMinutes": 6,
+            "type": "mechanism",
+            "title": "filter: keep or drop",
+            "markdown": "`filter` also walks the array and calls a callback per element, but the callback returns a boolean. Truthy keeps the element, falsy drops it. The result can be shorter than the input.\n\nTrace `[1,2,3,4].filter(x => x % 2 === 0)`:\n\n```\nkept = []\nx=1 -> false -> drop\nx=2 -> true  -> kept = [2]\nx=3 -> false -> drop\nx=4 -> true  -> kept = [2, 4]\nreturn [2, 4]\n```\n\n`map` transforms every element and preserves length; `filter` preserves elements unchanged and may shrink. Different jobs.",
+            "estMinutes": 3,
             "questions": []
           },
           {
             "id": "builtin-javascript-l5-s5",
-            "type": "quiz",
-            "title": "Promises check-in",
-            "markdown": "Confirm you understand promise coordination.",
-            "estMinutes": 2,
+            "type": "predict",
+            "title": "Don't confuse map and filter",
+            "markdown": "A newcomer writes this to get even numbers:\n\n```js\n[1, 2, 3, 4].map(x => x % 2 === 0)\n```\n\nWhat does this actually return?",
+            "estMinutes": 1,
             "questions": [
               {
                 "id": "builtin-javascript-l5-s5-q1",
                 "type": "mcq",
-                "prompt": "How does `Promise.all` behave if one of its promises rejects?",
+                "prompt": "Result:",
                 "options": [
-                  "It resolves with the successful ones",
-                  "It rejects immediately with that reason (fails fast)",
-                  "It ignores the rejection",
-                  "It waits then resolves with undefined"
+                  "[2, 4]",
+                  "[false, true, false, true]",
+                  "[1, 2, 3, 4]",
+                  "TypeError"
                 ],
                 "correctIndex": 1,
-                "explanation": "`Promise.all` rejects as soon as any input rejects, with that rejection reason; use `allSettled` to collect all outcomes."
+                "explanation": "map returns the callback's value for every element. The callback returns a boolean, so you get an array of booleans, not the filtered numbers. filter is the tool that uses those booleans to select."
+              }
+            ]
+          },
+          {
+            "id": "builtin-javascript-l5-s6",
+            "type": "mechanism",
+            "title": "reduce: collapse to one value",
+            "markdown": "`reduce` folds an array into a single result. You give it a callback `(acc, item) => newAcc` and a starting value. It threads an **accumulator** through every element.\n\nTrace `[10, 20, 30].reduce((acc, n) => acc + n, 0)`:\n\n```\nacc starts at 0\nn=10 -> acc = 0 + 10  = 10\nn=20 -> acc = 10 + 20 = 30\nn=30 -> acc = 30 + 30 = 60\nreturn 60\n```\n\nThe accumulator is whatever you want: a number, a string, an array, an object. Each step you return the next accumulator, and reduce carries it forward.",
+            "estMinutes": 4,
+            "questions": []
+          },
+          {
+            "id": "builtin-javascript-l5-s7",
+            "type": "predict",
+            "title": "reduce without a seed",
+            "markdown": "```js\nconsole.log([5].reduce((a, b) => a + b));\nconsole.log([].reduce((a, b) => a + b));\n```\n\nNo initial value is given. What happens on each line?",
+            "estMinutes": 2,
+            "questions": [
+              {
+                "id": "builtin-javascript-l5-s7-q1",
+                "type": "mcq",
+                "prompt": "Pick the pair.",
+                "options": [
+                  "5 and 0",
+                  "5 and TypeError",
+                  "0 and TypeError",
+                  "TypeError and TypeError"
+                ],
+                "correctIndex": 1,
+                "explanation": "Without a seed, reduce uses the first element as the initial accumulator. [5] has one element, so it's returned as-is: 5. An empty array has no elements and no seed, so reduce throws a TypeError. Always pass a seed to be safe."
+              }
+            ]
+          },
+          {
+            "id": "builtin-javascript-l5-s8",
+            "type": "derive",
+            "title": "Chain them together",
+            "markdown": "Because `map` and `filter` each return a new array, you can **chain** them: the output of one becomes the input of the next. Build `totalOfEvensDoubled(nums)`: keep the even numbers, double each, and sum the result — using `filter`, `map`, and `reduce` in a chain. Notice each stage is a small, independent transformation you can read left to right.",
+            "estMinutes": 5,
+            "questions": [],
+            "exercise": {
+              "id": "builtin-javascript-l5-s8-ex1",
+              "prompt": "Write totalOfEvensDoubled(nums): filter to even numbers, double each, and return the sum. Empty or all-odd input returns 0.",
+              "starterCode": "function totalOfEvensDoubled(nums) {\n  // filter -> map -> reduce\n}",
+              "tests": [
+                {
+                  "name": "mixed",
+                  "expression": "totalOfEvensDoubled([1,2,3,4])",
+                  "expected": 12
+                },
+                {
+                  "name": "all odd",
+                  "expression": "totalOfEvensDoubled([1,3,5])",
+                  "expected": 0
+                },
+                {
+                  "name": "empty",
+                  "expression": "totalOfEvensDoubled([])",
+                  "expected": 0
+                },
+                {
+                  "name": "single even",
+                  "expression": "totalOfEvensDoubled([10])",
+                  "expected": 20
+                }
+              ],
+              "solution": "function totalOfEvensDoubled(nums) {\n  return nums\n    .filter(n => n % 2 === 0)\n    .map(n => n * 2)\n    .reduce((acc, n) => acc + n, 0);\n}",
+              "hint": "Pass 0 as the reduce seed so empty results return 0 instead of throwing."
+            }
+          },
+          {
+            "id": "builtin-javascript-l5-s9",
+            "type": "check",
+            "title": "Check",
+            "markdown": "Confirm the tool choices.",
+            "estMinutes": 3,
+            "questions": [
+              {
+                "id": "builtin-javascript-l5-s9-q1",
+                "type": "mcq",
+                "prompt": "What does this print?\n```js\nconst r = [1, 2, 3].reduce((acc, n) => { acc.push(n * 10); return acc; }, []);\nconsole.log(r);\n```",
+                "options": [
+                  "60",
+                  "[10, 20, 30]",
+                  "[1, 2, 3]",
+                  "TypeError"
+                ],
+                "correctIndex": 1,
+                "explanation": "The accumulator is an array seeded with []. Each step pushes n*10 and returns the same array, building [10,20,30]. reduce isn't only for numbers."
               },
               {
-                "id": "builtin-javascript-l5-s5-q2",
-                "type": "mcq",
-                "prompt": "Inside a `.then` handler, what happens if you forget to `return` a value?",
-                "options": [
-                  "The chain throws",
-                  "The next `.then` receives `undefined`",
-                  "The promise never settles",
-                  "The value is cached"
-                ],
-                "correctIndex": 1,
-                "explanation": "Without a return, the handler returns `undefined`, so the next `.then` receives `undefined` instead of your intended value."
+                "id": "builtin-javascript-l5-s9-q2",
+                "type": "short_answer",
+                "prompt": "You need to turn an array of user objects into an array of just their names. Which method, and why not filter?",
+                "expectedAnswer": "map, because you want one output per input transforming each element; filter only selects elements and can't change them into names.",
+                "explanation": "map transforms element-to-element; filter selects unchanged elements."
               }
             ]
           }
@@ -511,423 +861,179 @@ export const GENERATED_BUILTIN_COURSES: SeedCourse[] = [
       },
       {
         "id": "builtin-javascript-l6",
-        "title": "async/await",
-        "estMinutes": 21,
+        "title": "Asynchronous JavaScript: Promises and async/await",
+        "estMinutes": 33,
         "glossary": [
+          "callback",
+          "Promise",
+          "pending",
+          "resolved",
+          "rejected",
+          "then",
           "async",
           "await",
-          "try/catch",
-          "microtask",
-          "sequential vs parallel await"
+          "event loop",
+          "microtask"
         ],
         "segments": [
           {
             "id": "builtin-javascript-l6-s1",
-            "type": "reading",
-            "title": "Promises that read like synchronous code",
-            "markdown": "`async`/`await` is **syntactic sugar over promises** — it doesn't replace them, it makes chains readable. Marking a function `async` guarantees it returns a promise; `await` pauses that function until the awaited promise settles, yielding its resolved value.\n\n```js\nasync function load(id) {\n  const user = await fetchUser(id);      // waits for the promise\n  const orders = await fetchOrders(user.id);\n  return orders.length;                  // wrapped in a promise\n}\nload(7).then(count => console.log(count));\n```\n\nCompare this to the equivalent `.then` chain — the async version reads top to bottom like ordinary code, with no nesting. Under the hood, `await` splits the function at each pause point and resumes it as a microtask when the promise resolves. **Use async/await** as your default for sequential async logic. **Pitfall:** `await` only works inside `async` functions (or top-level in modules); using it in a plain function is a syntax error.",
-            "estMinutes": 5,
+            "type": "hook",
+            "title": "The log that arrives last",
+            "markdown": "```js\nconsole.log(\"A\");\nsetTimeout(() => console.log(\"B\"), 0);\nconsole.log(\"C\");\n```\n\nThe timeout is `0` milliseconds — no delay. Yet the output is `A C B`, not `A B C`. Why does `B` wait, even at zero delay?",
+            "estMinutes": 2,
             "questions": []
           },
           {
             "id": "builtin-javascript-l6-s2",
-            "type": "reading",
-            "title": "Error handling and avoiding accidental serialization",
-            "markdown": "With async/await you handle errors using ordinary **try/catch**, which is far more natural than scattering `.catch`. A rejected awaited promise throws inside the `try` block.\n\n```js\nasync function safeLoad(id) {\n  try {\n    const data = await fetchUser(id);\n    return data;\n  } catch (err) {\n    console.error('load failed:', err.message);\n    return null;\n  } finally {\n    hideSpinner();\n  }\n}\n```\n\nA subtle performance trap: awaiting independent operations one after another runs them **sequentially** when they could run in **parallel**. If two fetches don't depend on each other, start both, then await together:\n\n```js\n// slow: total = a + b\nconst a = await taskA(); const b = await taskB();\n// fast: overlap them\nconst [a2, b2] = await Promise.all([taskA(), taskB()]);\n```\n\n**Pitfall:** an unhandled rejection in an async function that nobody `await`s or `.catch`es becomes an unhandled promise rejection — always handle or propagate errors.",
-            "estMinutes": 5,
+            "type": "mechanism",
+            "title": "The engine runs your code to completion first",
+            "markdown": "JavaScript runs on a single thread with an **event loop**. The rule: it finishes running the current stack of synchronous code *completely* before it will run any queued callback.\n\n`setTimeout(fn, 0)` does not run `fn` now. It hands `fn` to the timer system, which — after at least 0ms *and* once the current code has finished — puts `fn` on a queue. The event loop only picks from that queue when the call stack is empty.\n\nTrace the hook:\n\n```\nrun console.log(\"A\")      -> prints A\nrun setTimeout(cb, 0)     -> schedules cb, returns immediately\nrun console.log(\"C\")      -> prints C\nsynchronous code done, stack empty\nevent loop pulls cb       -> prints B\n```\n\n`B` can't jump ahead of `C` because `C` is synchronous and runs to completion first.",
+            "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-javascript-l6-s3",
-            "type": "code",
-            "title": "Retry with async/await",
-            "markdown": "A practical pattern: retry a flaky async operation a few times before giving up.\n\n```js\nasync function withRetry(task, attempts = 3) {\n  let lastErr;\n  for (let i = 0; i < attempts; i++) {\n    try {\n      return await task();       // success: return immediately\n    } catch (err) {\n      lastErr = err;             // remember and loop\n    }\n  }\n  throw lastErr;                 // all attempts failed\n}\n\n// usage:\n// const data = await withRetry(() => fetch('/api').then(r => r.json()));\n```\n\nNotice how try/catch inside a loop gives clean retry logic that would be awkward with raw `.then`. Extend it to add a delay between attempts using an `await delay(ms)` helper.",
+            "type": "mechanism",
+            "title": "A Promise is a box for a future value",
+            "markdown": "A **Promise** is an object representing a value that may not exist yet. It is in one of three states: **pending** (no result yet), **resolved** (succeeded, holds a value), or **rejected** (failed, holds an error).\n\nYou read the eventual value with `.then`, which registers a callback to run when the promise resolves:\n\n```js\nconst p = Promise.resolve(42); // an already-resolved promise\np.then(value => console.log(value)); // logs 42, but LATER\nconsole.log(\"first\");\n```\n\nOutput is `first` then `42`. Even an already-resolved promise runs its `.then` callback asynchronously — it goes on a queue, after the current synchronous code.",
             "estMinutes": 4,
             "questions": []
           },
           {
             "id": "builtin-javascript-l6-s4",
-            "type": "practice",
-            "title": "Implement an async pipe",
-            "markdown": "Tests await the returned promise; keep your implementation using async/await.",
-            "estMinutes": 6,
-            "questions": []
+            "type": "predict",
+            "title": "Promise callbacks jump the timer queue",
+            "markdown": "Promise callbacks go on the **microtask** queue, which the event loop drains fully before it touches the timer (macrotask) queue.\n\n```js\nconsole.log(\"start\");\nsetTimeout(() => console.log(\"timeout\"), 0);\nPromise.resolve().then(() => console.log(\"promise\"));\nconsole.log(\"end\");\n```\n\nWhat order prints?",
+            "estMinutes": 2,
+            "questions": [
+              {
+                "id": "builtin-javascript-l6-s4-q1",
+                "type": "mcq",
+                "prompt": "Output order:",
+                "options": [
+                  "start, end, promise, timeout",
+                  "start, end, timeout, promise",
+                  "start, promise, end, timeout",
+                  "start, timeout, promise, end"
+                ],
+                "correctIndex": 0,
+                "explanation": "Synchronous first: start, end. Then the event loop drains ALL microtasks (promise) before any macrotask (timeout). So: start, end, promise, timeout."
+              }
+            ]
           },
           {
             "id": "builtin-javascript-l6-s5",
-            "type": "quiz",
-            "title": "async/await check-in",
-            "markdown": "Verify your async/await fundamentals.",
-            "estMinutes": 2,
-            "questions": [
-              {
-                "id": "builtin-javascript-l6-s5-q1",
-                "type": "mcq",
-                "prompt": "What does an `async` function always return?",
-                "options": [
-                  "The awaited value directly",
-                  "A Promise",
-                  "undefined",
-                  "A callback"
-                ],
-                "correctIndex": 1,
-                "explanation": "An async function always returns a promise; the `return` value becomes the resolved value, and a throw becomes a rejection."
-              },
-              {
-                "id": "builtin-javascript-l6-s5-q2",
-                "type": "mcq",
-                "prompt": "Two independent async calls are awaited on separate lines one after another. What's the drawback?",
-                "options": [
-                  "They run in parallel unnecessarily",
-                  "They run sequentially, adding their times instead of overlapping",
-                  "They cause a syntax error",
-                  "One will be cancelled"
-                ],
-                "correctIndex": 1,
-                "explanation": "Sequential awaits wait for each to finish before starting the next; independent tasks should be started together and awaited via Promise.all to overlap."
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "builtin-javascript-l7",
-        "title": "Higher-Order Functions",
-        "estMinutes": 22,
-        "glossary": [
-          "higher-order function",
-          "callback",
-          "map",
-          "filter",
-          "reduce",
-          "pure function",
-          "accumulator"
-        ],
-        "segments": [
-          {
-            "id": "builtin-javascript-l7-s1",
-            "type": "reading",
-            "title": "Functions that take or return functions",
-            "markdown": "A **higher-order function** either takes a function as an argument, returns a function, or both. This is the backbone of functional-style JavaScript: instead of writing loops that mutate state, you describe *what* transformation you want and let the array method handle the iteration.\n\n```js\nconst nums = [1, 2, 3, 4];\nconst doubled = nums.map(n => n * 2);        // [2, 4, 6, 8]\nconst evens   = nums.filter(n => n % 2 === 0); // [2, 4]\nconst sum     = nums.reduce((acc, n) => acc + n, 0); // 10\n```\n\nEach method takes a **callback** — a function passed as data. `map` transforms every element into a new array of the same length; `filter` keeps elements where the callback returns truthy; `reduce` folds the array down to a single accumulated value. **Use them** to write declarative, chainable pipelines. **Pitfall:** `map` always returns a new array of equal length — if you only want side effects (logging), use `forEach`; and never forget `reduce`'s initial accumulator value or an empty array will throw.",
-            "estMinutes": 5,
+            "type": "reveal",
+            "title": "Microtasks before macrotasks",
+            "markdown": "If you expected `timeout` before `promise`, the belief to fix is that everything async shares one queue in scheduling order. It doesn't. After each synchronous run, the event loop empties the *entire* microtask queue (Promise callbacks) before running even one macrotask (timers). A promise scheduled after a timer still runs first.\n\nThis matters in practice: a chain of `.then` callbacks all complete before a `setTimeout(…, 0)` fires.",
+            "estMinutes": 3,
             "questions": []
           },
           {
-            "id": "builtin-javascript-l7-s2",
-            "type": "reading",
-            "title": "Composing pipelines and returning functions",
-            "markdown": "Because these methods return new arrays, you can chain them into readable pipelines. And because functions are values, you can write factories that return specialized functions.\n\n```js\nconst orders = [\n  { total: 30, paid: true },\n  { total: 50, paid: false },\n  { total: 20, paid: true }\n];\nconst paidRevenue = orders\n  .filter(o => o.paid)\n  .map(o => o.total)\n  .reduce((sum, t) => sum + t, 0); // 50\n\n// returning a function (a closure-based adder factory)\nconst multiplyBy = factor => n => n * factor;\nconst triple = multiplyBy(3);\ntriple(5); // 15\n```\n\nThis composition style keeps each step focused and testable. **Prefer pure functions** in callbacks — no external mutation — so results are predictable and the pipeline is easy to reason about. **Pitfall:** chaining creates intermediate arrays; for huge datasets that can matter, but for typical UI/data work clarity wins over micro-optimization.",
-            "estMinutes": 5,
-            "questions": []
-          },
-          {
-            "id": "builtin-javascript-l7-s3",
-            "type": "code",
-            "title": "reduce as a Swiss Army knife",
-            "markdown": "`reduce` can implement map, filter, group-by, and more — study how the accumulator carries state across iterations.\n\n```js\nconst words = ['apple', 'banana', 'avocado', 'cherry', 'blueberry'];\n\n// group words by first letter\nconst byLetter = words.reduce((acc, word) => {\n  const key = word[0];\n  // ensure the bucket exists, then push\n  (acc[key] ||= []).push(word);\n  return acc;                 // MUST return the accumulator\n}, {});\n\nconsole.log(byLetter);\n// { a: ['apple','avocado'], b: ['banana','blueberry'], c: ['cherry'] }\n```\n\nThe key discipline: always return the accumulator. Try adapting this to count occurrences instead of grouping.",
+            "id": "builtin-javascript-l6-s6",
+            "type": "mechanism",
+            "title": "async/await is Promise sugar",
+            "markdown": "Writing long `.then` chains gets unwieldy. `async`/`await` lets you write async code that reads top-to-bottom.\n\nAn **async** function always returns a Promise. Inside it, **await** pauses the function until the awaited promise resolves, then gives you the value — without blocking the whole thread.\n\nThese two are equivalent:\n\n```js\n// then-style\nfunction load() {\n  return fetchUser().then(u => u.name);\n}\n\n// async/await style\nasync function load() {\n  const u = await fetchUser();\n  return u.name;\n}\n```\n\n`await fetchUser()` unwraps the promise into `u`. The `async` function still hands back a promise, so callers use `await` or `.then` on `load()`.",
             "estMinutes": 4,
             "questions": []
           },
           {
-            "id": "builtin-javascript-l7-s4",
-            "type": "practice",
-            "title": "Build a groupBy with reduce",
-            "markdown": "Implement a reusable grouping utility using higher-order functions.",
-            "estMinutes": 6,
-            "questions": [],
-            "exercise": {
-              "id": "builtin-javascript-l7-s4-ex1",
-              "prompt": "Implement `groupBy(arr, keyFn)` that returns an object mapping each key (produced by calling `keyFn(item)`) to an array of items that produced it, preserving input order. Use array methods, not a manual for-loop, ideally `reduce`.",
-              "starterCode": "function groupBy(arr, keyFn) {\n  // return an object grouping items by keyFn(item)\n}",
-              "tests": [
-                {
-                  "name": "groups by parity",
-                  "expression": "groupBy([1,2,3,4], n => n % 2 === 0 ? 'even' : 'odd')",
-                  "expected": {
-                    "odd": [
-                      1,
-                      3
-                    ],
-                    "even": [
-                      2,
-                      4
-                    ]
-                  }
-                },
-                {
-                  "name": "groups by first letter",
-                  "expression": "groupBy(['ant','bee','ox'], s => s[0])",
-                  "expected": {
-                    "a": [
-                      "ant"
-                    ],
-                    "b": [
-                      "bee"
-                    ],
-                    "o": [
-                      "ox"
-                    ]
-                  }
-                },
-                {
-                  "name": "empty array yields empty object",
-                  "expression": "groupBy([], x => x)",
-                  "expected": {}
-                }
-              ],
-              "solution": "function groupBy(arr, keyFn) {\n  return arr.reduce((acc, item) => {\n    const key = keyFn(item);\n    if (!acc[key]) acc[key] = [];\n    acc[key].push(item);\n    return acc;\n  }, {});\n}",
-              "hint": "Use reduce with an object accumulator; for each item compute its key, create the bucket array if missing, push, and return the accumulator."
-            }
-          },
-          {
-            "id": "builtin-javascript-l7-s5",
-            "type": "quiz",
-            "title": "HOF check-in",
-            "markdown": "Confirm your grasp of map/filter/reduce.",
+            "id": "builtin-javascript-l6-s7",
+            "type": "predict",
+            "title": "await pauses, it doesn't block",
+            "markdown": "```js\nasync function run() {\n  console.log(1);\n  await Promise.resolve();\n  console.log(3);\n}\nconsole.log(0);\nrun();\nconsole.log(2);\n```\n\nWhat order prints?",
             "estMinutes": 2,
             "questions": [
               {
-                "id": "builtin-javascript-l7-s5-q1",
+                "id": "builtin-javascript-l6-s7-q1",
                 "type": "mcq",
-                "prompt": "What is the relationship between the input and output length of `map`?",
+                "prompt": "Output order:",
                 "options": [
-                  "Output is always shorter",
-                  "Output has the same length as input",
-                  "Output is a single value",
-                  "Output length depends on the callback's return"
+                  "0, 1, 2, 3",
+                  "0, 1, 3, 2",
+                  "1, 0, 2, 3",
+                  "0, 2, 1, 3"
                 ],
-                "correctIndex": 1,
-                "explanation": "`map` produces exactly one output element per input element, so lengths match; use `filter` to shrink."
-              },
-              {
-                "id": "builtin-javascript-l7-s5-q2",
-                "type": "mcq",
-                "prompt": "What common bug happens if a `reduce` callback forgets to return the accumulator?",
-                "options": [
-                  "It throws a TypeError immediately",
-                  "The next iteration receives undefined as the accumulator",
-                  "It mutates the original array",
-                  "It runs the callback twice"
-                ],
-                "correctIndex": 1,
-                "explanation": "The callback's return value becomes the next accumulator; forgetting to return means the accumulator becomes undefined on the following iteration."
+                "correctIndex": 0,
+                "explanation": "run() executes synchronously up to the await: 0 then 1. At await, run pauses and returns control; the code after run() continues: 2. The rest of run (console.log(3)) is a microtask that runs after synchronous code: 3. So 0,1,2,3."
               }
             ]
-          }
-        ]
-      },
-      {
-        "id": "builtin-javascript-l8",
-        "title": "Destructuring, Spread & Rest",
-        "estMinutes": 21,
-        "glossary": [
-          "destructuring",
-          "spread operator",
-          "rest parameter",
-          "default parameters",
-          "shallow copy"
-        ],
-        "segments": [
+          },
           {
-            "id": "builtin-javascript-l8-s1",
-            "type": "reading",
-            "title": "Pulling values out cleanly",
-            "markdown": "**Destructuring** lets you unpack values from arrays or properties from objects into distinct variables in one expression — replacing verbose `const x = obj.x` boilerplate.\n\n```js\nconst user = { id: 1, name: 'Ada', role: 'admin' };\nconst { name, role } = user;            // name='Ada', role='admin'\nconst { role: r, missing = 'none' } = user; // rename + default\n\nconst [first, , third] = [10, 20, 30];  // skip the middle -> 10, 30\n```\n\nYou can rename (`role: r`), supply defaults for absent keys (`missing = 'none'`), and skip array elements with holes. Destructuring shines in function parameters — `function draw({ x = 0, y = 0 } = {}) {}` gives named, defaulted options and tolerates being called with no argument. **Pitfall:** destructuring a `null` or `undefined` throws (`Cannot destructure property...`); guard with a default like `= {}` on the parameter or source.",
+            "id": "builtin-javascript-l6-s8",
+            "type": "mechanism",
+            "title": "Handle rejection with try/catch",
+            "markdown": "A rejected promise, when awaited, throws. So you catch async errors with ordinary `try/catch`.\n\n```js\nasync function safeLoad() {\n  try {\n    const u = await fetchUser(); // may reject\n    return u.name;\n  } catch (err) {\n    return \"anonymous\"; // runs if the promise rejected\n  }\n}\n```\n\nThe `.then`-equivalent uses `.catch(err => ...)`. Both intercept the rejection. If you don't handle it, the rejection propagates out of the async function as a rejected promise the caller must deal with.",
+            "estMinutes": 3,
+            "questions": []
+          },
+          {
+            "id": "builtin-javascript-l6-s9",
+            "type": "derive",
+            "title": "Order your own async steps",
+            "markdown": "Build a pure function that mirrors the scheduling rule so you can reason about it without timers. Write `classifyDelays(items)` where each item is `{ label, kind }` and `kind` is either `\"micro\"` or `\"macro\"`; return the labels reordered so all `\"micro\"` items come first (in their original relative order), then all `\"macro\"` items (in their original relative order). This is exactly the priority the event loop applies: microtasks drain before macrotasks, stable within each group.",
             "estMinutes": 5,
-            "questions": []
-          },
-          {
-            "id": "builtin-javascript-l8-s2",
-            "type": "reading",
-            "title": "Spread and rest: same syntax, opposite jobs",
-            "markdown": "The `...` token means **spread** when expanding a collection and **rest** when collecting the leftovers — context decides which.\n\n```js\n// SPREAD: expand into a new array/object (shallow copy + merge)\nconst a = [1, 2];\nconst b = [...a, 3, 4];              // [1,2,3,4]\nconst base = { theme: 'dark' };\nconst config = { ...base, debug: true }; // merge; later keys win\n\n// REST: gather remaining items\nconst [head, ...tail] = [1, 2, 3];  // head=1, tail=[2,3]\nfunction sum(...nums) {              // rest parameter\n  return nums.reduce((s, n) => s + n, 0);\n}\nsum(1, 2, 3); // 6\n```\n\nSpread creates a **shallow copy** — nested objects are still shared by reference, a frequent source of bugs when you mutate a nested field expecting the copy to be independent. **Use spread** for immutable updates (`{ ...state, count: state.count + 1 }`) and rest to write variadic functions. **Pitfall:** the rest parameter must be last in a parameter list.",
-            "estMinutes": 5,
-            "questions": []
-          },
-          {
-            "id": "builtin-javascript-l8-s3",
-            "type": "code",
-            "title": "Immutable updates with spread",
-            "markdown": "A pattern you'll use constantly in state management (Redux, React) — updating without mutating.\n\n```js\nconst state = {\n  user: { name: 'Ada', prefs: { theme: 'dark' } },\n  count: 0\n};\n\n// increment count immutably\nconst next = { ...state, count: state.count + 1 };\n\n// update a NESTED field: must spread each level\nconst themed = {\n  ...state,\n  user: {\n    ...state.user,\n    prefs: { ...state.user.prefs, theme: 'light' }\n  }\n};\n\nconsole.log(state.count, next.count);        // 0 1 (original intact)\nconsole.log(state.user.prefs.theme);         // 'dark' (unchanged)\nconsole.log(themed.user.prefs.theme);        // 'light'\n```\n\nNotice you must spread every level you change — a single top-level spread would still share the nested `prefs` object.",
-            "estMinutes": 4,
-            "questions": []
-          },
-          {
-            "id": "builtin-javascript-l8-s4",
-            "type": "practice",
-            "title": "Merge settings immutably",
-            "markdown": "Practice combining defaults, spread, and rest.",
-            "estMinutes": 6,
             "questions": [],
             "exercise": {
-              "id": "builtin-javascript-l8-s4-ex1",
-              "prompt": "Implement `mergeSettings(defaults, ...overrides)` that returns a new object created by starting from `defaults` and applying each override object in order (later ones win). Do not mutate `defaults` or any override. A shallow merge is sufficient.",
-              "starterCode": "function mergeSettings(defaults, ...overrides) {\n  // return a new merged object; later overrides take precedence\n}",
+              "id": "builtin-javascript-l6-s9-ex1",
+              "prompt": "Write classifyDelays(items): each item is {label, kind}. Return an array of labels with all 'micro' items first (original order), then all 'macro' items (original order).",
+              "starterCode": "function classifyDelays(items) {\n  // stable partition: micro labels first, then macro labels\n}",
               "tests": [
                 {
-                  "name": "later override wins",
-                  "expression": "mergeSettings({a:1,b:2}, {b:3}, {c:4})",
-                  "expected": {
-                    "a": 1,
-                    "b": 3,
-                    "c": 4
-                  }
+                  "name": "mixed",
+                  "expression": "classifyDelays([{label:'a',kind:'macro'},{label:'b',kind:'micro'},{label:'c',kind:'macro'},{label:'d',kind:'micro'}])",
+                  "expected": [
+                    "b",
+                    "d",
+                    "a",
+                    "c"
+                  ]
                 },
                 {
-                  "name": "no overrides returns a copy of defaults",
-                  "expression": "mergeSettings({x:10})",
-                  "expected": {
-                    "x": 10
-                  }
+                  "name": "all micro",
+                  "expression": "classifyDelays([{label:'x',kind:'micro'},{label:'y',kind:'micro'}])",
+                  "expected": [
+                    "x",
+                    "y"
+                  ]
                 },
                 {
-                  "name": "does not mutate defaults",
-                  "expression": "(function(){ const d={a:1}; mergeSettings(d,{a:9}); return d.a; })()",
-                  "expected": 1
+                  "name": "empty",
+                  "expression": "classifyDelays([])",
+                  "expected": []
                 }
               ],
-              "solution": "function mergeSettings(defaults, ...overrides) {\n  return overrides.reduce(\n    (acc, ov) => ({ ...acc, ...ov }),\n    { ...defaults }\n  );\n}",
-              "hint": "Start the reduce with a spread copy of defaults, then spread each override into a fresh object each step so nothing is mutated."
+              "solution": "function classifyDelays(items) {\n  const micro = [];\n  const macro = [];\n  for (const it of items) {\n    if (it.kind === 'micro') micro.push(it.label);\n    else macro.push(it.label);\n  }\n  return micro.concat(macro);\n}",
+              "hint": "Push labels into two arrays as you scan once, then concatenate micro before macro to keep order stable."
             }
           },
           {
-            "id": "builtin-javascript-l8-s5",
-            "type": "quiz",
-            "title": "Destructuring check-in",
-            "markdown": "Test spread/rest and destructuring knowledge.",
-            "estMinutes": 2,
-            "questions": [
-              {
-                "id": "builtin-javascript-l8-s5-q1",
-                "type": "mcq",
-                "prompt": "What kind of copy does the object spread `{ ...obj }` produce?",
-                "options": [
-                  "A deep copy of all nested objects",
-                  "A shallow copy — nested objects are shared by reference",
-                  "A reference to the same object",
-                  "A frozen copy"
-                ],
-                "correctIndex": 1,
-                "explanation": "Spread copies only the top level; nested objects/arrays are still shared, so mutating them affects both objects."
-              },
-              {
-                "id": "builtin-javascript-l8-s5-q2",
-                "type": "mcq",
-                "prompt": "Which use of `...` is 'rest' rather than 'spread'?",
-                "options": [
-                  "`[...arr, 5]`",
-                  "`fn(...args)`",
-                  "`function f(...nums) {}`",
-                  "`{ ...obj }`"
-                ],
-                "correctIndex": 2,
-                "explanation": "In a parameter list, `...nums` collects remaining arguments into an array — that's rest. The others expand collections, which is spread."
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "builtin-javascript-l9",
-        "title": "Error Handling & Custom Errors",
-        "estMinutes": 22,
-        "glossary": [
-          "throw",
-          "try/catch/finally",
-          "Error",
-          "custom Error subclass",
-          "instanceof",
-          "rethrow"
-        ],
-        "segments": [
-          {
-            "id": "builtin-javascript-l9-s1",
-            "type": "reading",
-            "title": "Failing loudly and recovering gracefully",
-            "markdown": "Robust code anticipates failure. In JavaScript you signal a failure with `throw` and handle it with `try/catch/finally`. You can throw any value, but you should **always throw an `Error` object** (or subclass) because errors carry a `message`, a `name`, and a `stack` trace — throwing strings loses all of that.\n\n```js\nfunction parseAge(input) {\n  const n = Number(input);\n  if (Number.isNaN(n)) throw new Error(`Not a number: ${input}`);\n  if (n < 0) throw new RangeError('Age cannot be negative');\n  return n;\n}\n\ntry {\n  parseAge('abc');\n} catch (err) {\n  console.error(err.name, err.message); // Error 'Not a number: abc'\n} finally {\n  console.log('cleanup runs no matter what');\n}\n```\n\n`finally` runs whether or not an error occurred — ideal for releasing resources (closing files, clearing timers). **Pitfall:** an empty `catch {}` swallows errors silently, hiding bugs; at minimum log or rethrow. Also, a `return` inside `finally` overrides any return/throw from the try block — usually a surprise.",
-            "estMinutes": 5,
-            "questions": []
-          },
-          {
-            "id": "builtin-javascript-l9-s2",
-            "type": "reading",
-            "title": "Custom Error subclasses",
-            "markdown": "Distinguishing *kinds* of failure lets callers react appropriately — a validation error should show a form message, while a network error should retry. Subclass `Error` to create meaningful types you can test with `instanceof`.\n\n```js\nclass ValidationError extends Error {\n  constructor(message, field) {\n    super(message);\n    this.name = 'ValidationError'; // so err.name is accurate\n    this.field = field;            // extra context\n  }\n}\n\nfunction validate(user) {\n  if (!user.email) throw new ValidationError('Email required', 'email');\n}\n\ntry {\n  validate({});\n} catch (err) {\n  if (err instanceof ValidationError) {\n    console.log(`Fix ${err.field}: ${err.message}`);\n  } else {\n    throw err; // rethrow unknown errors — don't swallow them\n  }\n}\n```\n\nAlways call `super(message)` first so the base `Error` sets up `message` and `stack`. Setting `this.name` makes logs and serialization clear. **Use custom errors** to encode domain failure categories. **Pitfall:** catching too broadly and treating every error the same — narrow with `instanceof` and rethrow what you can't handle.",
-            "estMinutes": 5,
-            "questions": []
-          },
-          {
-            "id": "builtin-javascript-l9-s3",
-            "type": "code",
-            "title": "Result-style error handling",
-            "markdown": "Sometimes you want to convert exceptions into return values so callers handle both paths explicitly — a lightweight 'Result' pattern.\n\n```js\nfunction tryRun(fn) {\n  try {\n    return { ok: true, value: fn() };\n  } catch (err) {\n    // normalize non-Error throws into Error objects\n    const error = err instanceof Error ? err : new Error(String(err));\n    return { ok: false, error: error.message };\n  }\n}\n\nconst good = tryRun(() => JSON.parse('{\"a\":1}'));\nconsole.log(good); // { ok: true, value: { a: 1 } }\n\nconst bad = tryRun(() => JSON.parse('nope'));\nconsole.log(bad.ok); // false\nconsole.log(bad.error); // Unexpected token ... (parse message)\n```\n\nThis keeps call sites branch-explicit instead of wrapping everything in try/catch. Extend it to also capture the error's `name`.",
+            "id": "builtin-javascript-l6-s10",
+            "type": "check",
+            "title": "Check",
+            "markdown": "Confirm the scheduling model.",
             "estMinutes": 4,
-            "questions": []
-          },
-          {
-            "id": "builtin-javascript-l9-s4",
-            "type": "practice",
-            "title": "Build a safe parser",
-            "markdown": "Combine throwing, custom errors, and instanceof detection.",
-            "estMinutes": 6,
-            "questions": [],
-            "exercise": {
-              "id": "builtin-javascript-l9-s4-ex1",
-              "prompt": "Implement `safeDivide(a, b)` that returns the quotient `a / b`. If `b` is 0, it must throw an `Error` whose message is exactly 'Division by zero'. If either argument is not a number (typeof !== 'number'), throw an `Error` with message 'Invalid input'. Otherwise return the number.",
-              "starterCode": "function safeDivide(a, b) {\n  // validate inputs, guard divide-by-zero, then divide\n}",
-              "tests": [
-                {
-                  "name": "normal division",
-                  "expression": "safeDivide(10, 2)",
-                  "expected": 5
-                },
-                {
-                  "name": "throws on zero divisor",
-                  "expression": "(function(){ try { safeDivide(1,0); } catch(e){ return e.message; } })()",
-                  "expected": "Division by zero"
-                },
-                {
-                  "name": "throws on bad input",
-                  "expression": "(function(){ try { safeDivide('x',2); } catch(e){ return e.message; } })()",
-                  "expected": "Invalid input"
-                }
-              ],
-              "solution": "function safeDivide(a, b) {\n  if (typeof a !== 'number' || typeof b !== 'number') {\n    throw new Error('Invalid input');\n  }\n  if (b === 0) {\n    throw new Error('Division by zero');\n  }\n  return a / b;\n}",
-              "hint": "Check the types first, then the zero case, then divide; use exactly the specified message strings."
-            }
-          },
-          {
-            "id": "builtin-javascript-l9-s5",
-            "type": "quiz",
-            "title": "Error handling check-in",
-            "markdown": "Confirm your error-handling instincts.",
-            "estMinutes": 2,
             "questions": [
               {
-                "id": "builtin-javascript-l9-s5-q1",
+                "id": "builtin-javascript-l6-s10-q1",
                 "type": "mcq",
-                "prompt": "Why prefer throwing `new Error(msg)` over throwing a plain string?",
+                "prompt": "What order does this print?\n```js\nconsole.log('a');\nPromise.resolve().then(() => console.log('b'));\nsetTimeout(() => console.log('c'), 0);\nPromise.resolve().then(() => console.log('d'));\nconsole.log('e');\n```",
                 "options": [
-                  "Strings can't be caught",
-                  "Error objects carry name, message, and a stack trace",
-                  "It's faster",
-                  "try/catch only works with Error objects"
+                  "a, e, b, d, c",
+                  "a, b, d, e, c",
+                  "a, e, c, b, d",
+                  "a, e, b, c, d"
                 ],
-                "correctIndex": 1,
-                "explanation": "Error objects include a stack trace and structured fields; throwing a raw string loses that debugging information."
+                "correctIndex": 0,
+                "explanation": "Synchronous: a, e. Drain microtasks in order: b, d. Then the macrotask: c. Result a,e,b,d,c."
               },
               {
-                "id": "builtin-javascript-l9-s5-q2",
-                "type": "mcq",
-                "prompt": "When creating a custom Error subclass, why call `super(message)` in the constructor?",
-                "options": [
-                  "To rename the class",
-                  "To initialize the base Error (message and stack) before adding fields",
-                  "To rethrow the error",
-                  "To avoid using instanceof"
-                ],
-                "correctIndex": 1,
-                "explanation": "`super(message)` runs the built-in Error constructor so message and stack are set up properly before you attach custom properties."
+                "id": "builtin-javascript-l6-s10-q2",
+                "type": "short_answer",
+                "prompt": "Why can you catch a rejected promise with a normal try/catch when using await, but not when using a bare .then chain?",
+                "expectedAnswer": "Because await turns a rejection into a thrown exception inside the async function, which try/catch can catch; a .then chain has no thrown exception at that point, so you must use .catch to handle the rejection.",
+                "explanation": "await bridges promise rejection into synchronous-style throwing that try/catch understands."
               }
             ]
           }

@@ -203,6 +203,7 @@ const DEPTH_GUIDANCE = [
   '- "check" — questions that test whether the misconception died, not whether the vocabulary stuck. Prefer "what does this print" over "what is a closure".',
   '',
   'Rules that decide whether this reads as teaching or as a summary:',
+  '- Every "predict" is IMMEDIATELY followed by a "reveal". No exceptions. A question\'s "explanation" is not a reveal — it is one sentence a reader only sees after answering, and the hardest idea in a lesson must not be resolved in a footnote. If an idea is worth committing to, it is worth a segment resolving it.',
   '- ONE idea per segment. If a segment introduces a second term, that term is its own segment or it is cut.',
   '- NEVER name a concept you do not then explain. Listing "private state, memoization, and factory functions" as uses is three concepts named and none taught — either each gets its own mechanism/derive pair, or none are mentioned.',
   '- NO forward references. "which we tackle next", "more on this later" — cut them. A segment that defers its own explanation has taught nothing.',
@@ -215,6 +216,38 @@ const DEPTH_GUIDANCE = [
   '- Only when the topic naturally supports small, self-contained JavaScript function tasks (e.g. JavaScript, TypeScript, algorithms, data structures, functional programming), attach a runnable "exercise" to a "derive" segment (see the "exercise" shape below): a function the learner implements, with "starterCode", 2-4 "tests", a correct "solution" that passes every test, and a "hint". Prefer deterministic pure functions. Aim for at least two such exercises across the course. Git / command-line courses instead use terminal "git" exercises (guidance below). For remaining topics where neither fits (e.g. Docker, CSS, cloud consoles, SQL, prose), omit "exercise".',
   '- Exercise correctness is strict, because the tests are actually executed: the "solution" and "tests" must be plain, self-contained JavaScript with NO import/require/modules, no external libraries, no async/await/Promises, no DOM, no network, and no TypeScript-only syntax. The "solution" must define exactly the function name(s) the tests call; every test "expression" must call the learner-defined function and evaluate to a JSON value (number, string, boolean, array, or plain object). Before emitting an exercise, mentally run the "solution" against every "test" and confirm it produces "expected" — if it does not, fix it or omit the exercise.',
 ]
+
+// Structural check on a generated lesson. The prose quality bar cannot be
+// asserted in code, but the shape can — and the shape is where the first run
+// slipped: a "predict" landed with no "reveal" after it, so the reader committed
+// to an answer about the loop trap and the lesson moved on to something else.
+// The model had resolved it in the question's one-line explanation instead,
+// which is a footnote standing in for a segment.
+//
+// Pure and exported so the generator can report it and tests can pin it.
+export function lessonStructureIssues(lesson: {
+  title: string
+  segments: { type: string; title: string }[]
+}): string[] {
+  const issues: string[] = []
+  const kinds = lesson.segments.map((s) => s.type)
+
+  lesson.segments.forEach((seg, i) => {
+    if (seg.type === 'predict' && kinds[i + 1] !== 'reveal') {
+      issues.push(
+        `predict "${seg.title}" is not followed by a reveal (got ${kinds[i + 1] ?? 'end of lesson'})`,
+      )
+    }
+    if (seg.type === 'reveal' && kinds[i - 1] !== 'predict') {
+      issues.push(
+        `reveal "${seg.title}" has no predict before it — nothing was committed to`,
+      )
+    }
+  })
+  if (!kinds.includes('hook')) issues.push('no hook — the lesson opens cold')
+  if (!kinds.includes('check')) issues.push('no check — nothing tests the idea')
+  return issues
+}
 
 const GLOSSARY_GUIDANCE =
   'For each lesson also produce a "glossary": an array of 3-8 key technical terms it introduces (short, written exactly as they appear in the lesson) — used to link the learner to further reading.'
