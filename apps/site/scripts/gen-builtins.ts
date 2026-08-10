@@ -1,4 +1,6 @@
+import { existsSync } from 'node:fs'
 import { rename, writeFile } from 'node:fs/promises'
+import { dirname } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { solutionPassesTests } from '../src/app/core/exercise'
@@ -96,8 +98,12 @@ async function pruneExercises(
 // claude-opus-4-8) / OPENAI_MODEL (default gpt-4o). This content ships to every
 // user and is generated once, so it uses the strongest model, not the cheap tier.
 
+// Must match the module this script imports GENERATED_BUILTIN_COURSES from at
+// the top. It did not: the app moved from apps/web/src to apps/site/src/app and
+// the import came with it while this path stayed on the old shape, so a run
+// would generate a whole course and then fail writing it.
 const OUT_PATH = fileURLToPath(
-  new URL('../src/db/seed-content.generated.ts', import.meta.url),
+  new URL('../src/app/db/seed-content.generated.ts', import.meta.url),
 )
 
 const HEADER = `/* eslint-disable */
@@ -109,7 +115,21 @@ import type { SeedCourse } from './seed-content'
 
 export const GENERATED_BUILTIN_COURSES: SeedCourse[] = `
 
+// Check the write target before spending a generation on it. The path bug this
+// guards cost a full 7-lesson run against the strongest model before throwing.
+async function assertWritable(): Promise<void> {
+  const dir = dirname(OUT_PATH)
+  if (!existsSync(dir)) {
+    throw new Error(
+      `Output directory does not exist: ${dir}\n` +
+        `OUT_PATH in this script is out of step with the repo layout — fix it ` +
+        `before generating, or the run is wasted.`,
+    )
+  }
+}
+
 async function main() {
+  await assertWritable()
   // Prefer Claude — it's far stronger at emitting correct runnable exercises
   // (gpt-4o's were ~57% broken here). Falls back to OpenAI; force either with
   // GEN_PROVIDER=anthropic|openai. Models override via ANTHROPIC_GEN_MODEL /
