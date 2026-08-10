@@ -14,6 +14,29 @@ import { gitGoalSchema } from './git-sim'
 
 // The first four are the original vocabulary, kept for content already stored
 // against them; the rest are the teaching roles new lessons are built from.
+// What the learner sees on a segment's badge. The kinds above are the names the
+// *generator* works in — "mechanism" and "derive" describe the job a segment
+// has to do, which is exactly right in a prompt and wrong on a page. A reader
+// mid-lesson should be told what this screen is, not which pedagogical slot it
+// fills, so the internal vocabulary stops at the badge.
+const SEGMENT_LABELS: Record<string, string> = {
+  hook: 'Setup',
+  mechanism: 'Concept',
+  predict: 'Predict',
+  reveal: 'Answer',
+  derive: 'Practice',
+  check: 'Check',
+  // The original four already read as themselves.
+  reading: 'Reading',
+  code: 'Code',
+  practice: 'Practice',
+  quiz: 'Quiz',
+}
+
+export function segmentLabel(kind: string): string {
+  return SEGMENT_LABELS[kind] ?? kind
+}
+
 export const segmentKinds = [
   'reading',
   'code',

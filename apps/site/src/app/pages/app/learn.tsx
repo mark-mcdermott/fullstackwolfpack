@@ -11,6 +11,7 @@ import { AsyncView } from '@/components/layout/async-view'
 import { Panel, Pill, ProgressMeter, SectionLabel, raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
 import { can } from '@/core/access'
 import { lessonScore, xpForLesson } from '@/core/learning'
+import { segmentLabel } from '@/core/lesson-view'
 import type {
   AnswerFeedback,
   LessonCompletion,
@@ -280,7 +281,7 @@ function LessonPlayer({
         <div className="flex items-start justify-between gap-4">
           <h2 className="text-lg font-bold uppercase">{segment.title}</h2>
           <Pill>
-            {segment.type} · {segment.estMinutes} min
+            {segmentLabel(segment.type)} · {segment.estMinutes} min
           </Pill>
         </div>
         <LessonMarkdown terms={linkify ? lesson.glossary : undefined}>

@@ -7,6 +7,8 @@ import {
   lessonViewSchema,
   parseLessonView,
   questionViewSchema,
+  segmentLabel,
+  segmentKinds,
 } from './lesson-view'
 
 const validLesson = {
@@ -125,5 +127,26 @@ describe('learning-loop request/response DTOs', () => {
       xp: 65,
     })
     expect(c.score).toBe(80)
+  })
+})
+
+describe('segmentLabel', () => {
+  // The generator's vocabulary describes the job a segment does — right in a
+  // prompt, wrong on a badge a learner reads mid-lesson.
+  it('translates the teaching roles into learner-facing words', () => {
+    expect(segmentLabel('mechanism')).toBe('Concept')
+    expect(segmentLabel('derive')).toBe('Practice')
+    expect(segmentLabel('reveal')).toBe('Answer')
+    expect(segmentLabel('hook')).toBe('Setup')
+  })
+
+  it('covers every kind the schema allows, so nothing leaks raw', () => {
+    for (const kind of segmentKinds) {
+      expect(segmentLabel(kind)).not.toBe(kind === 'quiz' ? 'quiz' : kind)
+    }
+  })
+
+  it('falls back to the raw kind rather than blanking on something unknown', () => {
+    expect(segmentLabel('something-new')).toBe('something-new')
   })
 })
