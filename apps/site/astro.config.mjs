@@ -39,7 +39,18 @@ export default defineConfig({
       // this game" in both the Arcade and Mission lanes. Pre-bundling it at
       // startup means the hash is stable before anyone can click Play.
       // Dev-only: the production build bundles the dynamic chunk normally.
-      include: ['nostalgist'],
+      // CodeMirror is the same shape of problem: `code-exercise.tsx` reaches the
+      // editor through `lazy(() => import('./code-editor'))`, and Vite's scanner
+      // does not follow a lazy chunk's own imports — so the three packages below
+      // were only discovered when a lesson with an exercise first rendered. The
+      // re-optimize left the loaded page on a stale `?v=` hash and the dynamic
+      // import 504'd, which took the whole lesson down with it.
+      include: [
+        'nostalgist',
+        'codemirror',
+        '@codemirror/lang-javascript',
+        '@codemirror/lang-python',
+      ],
     },
   },
 })

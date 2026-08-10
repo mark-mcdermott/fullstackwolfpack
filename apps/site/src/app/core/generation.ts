@@ -65,7 +65,20 @@ export const generatedExerciseSchema = z.union([
 
 export const generatedSegmentSchema = z.object({
   title: z.string(),
-  type: lenientEnum(['reading', 'code', 'practice', 'quiz']),
+  // Only the teaching roles are emitted now. The old vocabulary stays valid in
+  // the database (content already sits on it) but nothing new is written to it.
+  type: lenientEnum([
+    'hook',
+    'mechanism',
+    'predict',
+    'reveal',
+    'derive',
+    'check',
+    'reading',
+    'code',
+    'practice',
+    'quiz',
+  ]),
   // A quiz segment usually has no prose body — the questions carry it. Coerce a
   // missing/null/non-string body to '' so one bodyless segment can't reject an
   // otherwise-valid (paid) course.
@@ -143,8 +156,8 @@ export interface CourseStore {
 export const COURSE_TARGET = {
   minLessons: 6,
   maxLessons: 8,
-  minSegments: 3,
-  maxSegments: 5,
+  minSegments: 6,
+  maxSegments: 12,
   minQuizPerLesson: 2,
 } as const
 
@@ -165,25 +178,83 @@ export function averageEtaMs(
 
 // Shared quality bar for both a fresh course and an append. Kept in one place so
 // tailored/appended lessons are held to the same depth as generated ones.
+// Shared quality bar for both a fresh course and an append. Kept in one place so
+// tailored/appended lessons are held to the same depth as generated ones.
+//
+// This used to be a word floor — "at least 120 words" — and the floor became the
+// target: the JavaScript closures segment came out at 182 words and introduced
+// nine concepts (lexical scope, the scope chain, closing over, live reference vs
+// copy, fresh bindings, private state, memoization, factories, a deferred
+// pitfall) without explaining any of them. Every sentence opened a loop and none
+// closed, which is exactly what "I left with more questions than I started"
+// means. You cannot fix that by raising the minimum; a bigger floor just buys
+// more shallow words.
+//
+// So segments have jobs instead. Each role below states what it owes the reader
+// and how to tell it is finished. Length falls out of the job.
 const DEPTH_GUIDANCE = [
-  'Depth is the priority — this must NOT read like flash cards or a glossary:',
-  '- Open each lesson with a short hook that motivates why the concept matters or what problem it solves — never a bare dictionary definition.',
-  '- Every "reading" segment must actually teach: at least 120 words (2-4 substantial paragraphs) that explain the concept, include a concrete inline example (a short code snippet or a worked scenario), and note when/why you would use it plus a common pitfall. One- or two-sentence "X is a tool that does Y" segments are unacceptable.',
-  '- "code" segments must include a real, runnable, commented snippet the learner can study and modify — not pseudocode.',
-  '- "practice" segments pose an applied task tied to the reading.',
-  '- Only when the topic naturally supports small, self-contained JavaScript function tasks (e.g. JavaScript, TypeScript, algorithms, data structures, functional programming), attach a runnable "exercise" to a "practice" segment (see the "exercise" shape below): a function the learner implements, with "starterCode", 2-4 "tests", a correct "solution" that passes every test, and a "hint". Prefer deterministic pure functions. Aim for at least two such exercises across the course. Git / command-line courses instead use terminal "git" exercises (guidance below). For remaining topics where neither fits (e.g. Docker, CSS, cloud consoles, SQL, prose), omit "exercise".',
+  'A lesson is a sequence of SMALL segments, one idea each, in this order — repeat the mechanism/predict/reveal group once per idea:',
+  '',
+  '- "hook" — a question the reader cannot yet answer, or a two-line snippet whose behaviour is surprising. It sets the debt the lesson pays off. It must NOT contain the answer.',
+  '- "mechanism" — ONE idea, shown rather than asserted. If the idea is stateful, draw the state: what exists in memory, what points at what, what survives the function returning. "X keeps a live reference to Y" is an assertion; a step-by-step trace of the two calls, showing the same box being read twice, is the mechanism. Done when the reader could re-derive the behaviour without you.',
+  '- "predict" — a question the reader commits to BEFORE seeing the answer. Its body poses the situation; the answer lives only in the questions array. Never reveal the outcome in a predict body.',
+  '- "reveal" — what actually happens, and specifically why the intuitive answer fails. Address the wrong answer by name: a reader who guessed it needs to know which belief to discard.',
+  '- "derive" — arrive at a use case by building it, not by naming it. Do not write "closures are used for private state"; have the reader try to hide a variable, and let private state be what they notice they just did. Carries the runnable "exercise" when the topic supports one.',
+  '- "check" — questions that test whether the misconception died, not whether the vocabulary stuck. Prefer "what does this print" over "what is a closure".',
+  '',
+  'Rules that decide whether this reads as teaching or as a summary:',
+  '- Every "predict" is IMMEDIATELY followed by a "reveal". No exceptions. A question\'s "explanation" is not a reveal — it is one sentence a reader only sees after answering, and the hardest idea in a lesson must not be resolved in a footnote. If an idea is worth committing to, it is worth a segment resolving it.',
+  '- ONE idea per segment. If a segment introduces a second term, that term is its own segment or it is cut.',
+  '- NEVER name a concept you do not then explain. Listing "private state, memoization, and factory functions" as uses is three concepts named and none taught — either each gets its own mechanism/derive pair, or none are mentioned.',
+  '- NO forward references. "which we tackle next", "more on this later" — cut them. A segment that defers its own explanation has taught nothing.',
+  '- Prefer showing state over describing it, contrast pairs over prose (the same code with var and with let, side by side, is worth a paragraph about binding), and a worked trace over a claim.',
+  '- Assume a developer reader: correct terminology, real APIs, realistic scenarios. Honour the difficulty — go deeper and skip hand-holding for intermediate/advanced.',
+  '- Length is whatever the job takes. A mechanism segment that needs 400 words to trace the state properly should use them; a predict segment might be 40. Do not pad, and do not compress a mechanism to hit a size.',
+  '- Set each segment estMinutes to honestly reflect its own length, and the lesson estMinutes to the sum. A thorough lesson may run well past five minutes — that is correct, not a problem to design around.',
+  '',
+  'Exercises:',
+  '- Only when the topic naturally supports small, self-contained JavaScript function tasks (e.g. JavaScript, TypeScript, algorithms, data structures, functional programming), attach a runnable "exercise" to a "derive" segment (see the "exercise" shape below): a function the learner implements, with "starterCode", 2-4 "tests", a correct "solution" that passes every test, and a "hint". Prefer deterministic pure functions. Aim for at least two such exercises across the course. Git / command-line courses instead use terminal "git" exercises (guidance below). For remaining topics where neither fits (e.g. Docker, CSS, cloud consoles, SQL, prose), omit "exercise".',
   '- Exercise correctness is strict, because the tests are actually executed: the "solution" and "tests" must be plain, self-contained JavaScript with NO import/require/modules, no external libraries, no async/await/Promises, no DOM, no network, and no TypeScript-only syntax. The "solution" must define exactly the function name(s) the tests call; every test "expression" must call the learner-defined function and evaluate to a JSON value (number, string, boolean, array, or plain object). Before emitting an exercise, mentally run the "solution" against every "test" and confirm it produces "expected" — if it does not, fix it or omit the exercise.',
-  '- "quiz" segments carry a lesson check-in; give each a short one-line body introducing it, plus its questions.',
-  '- Assume the reader is a developer: use correct terminology, real commands/APIs, and realistic scenarios. Honor the difficulty — go deeper and skip hand-holding for intermediate/advanced.',
-  '- Set each segment estMinutes to honestly reflect its length (a 3-minute reading is several substantial paragraphs, not one line).',
 ]
+
+// Structural check on a generated lesson. The prose quality bar cannot be
+// asserted in code, but the shape can — and the shape is where the first run
+// slipped: a "predict" landed with no "reveal" after it, so the reader committed
+// to an answer about the loop trap and the lesson moved on to something else.
+// The model had resolved it in the question's one-line explanation instead,
+// which is a footnote standing in for a segment.
+//
+// Pure and exported so the generator can report it and tests can pin it.
+export function lessonStructureIssues(lesson: {
+  title: string
+  segments: { type: string; title: string }[]
+}): string[] {
+  const issues: string[] = []
+  const kinds = lesson.segments.map((s) => s.type)
+
+  lesson.segments.forEach((seg, i) => {
+    if (seg.type === 'predict' && kinds[i + 1] !== 'reveal') {
+      issues.push(
+        `predict "${seg.title}" is not followed by a reveal (got ${kinds[i + 1] ?? 'end of lesson'})`,
+      )
+    }
+    if (seg.type === 'reveal' && kinds[i - 1] !== 'predict') {
+      issues.push(
+        `reveal "${seg.title}" has no predict before it — nothing was committed to`,
+      )
+    }
+  })
+  if (!kinds.includes('hook')) issues.push('no hook — the lesson opens cold')
+  if (!kinds.includes('check')) issues.push('no check — nothing tests the idea')
+  return issues
+}
 
 const GLOSSARY_GUIDANCE =
   'For each lesson also produce a "glossary": an array of 3-8 key technical terms it introduces (short, written exactly as they appear in the lesson) — used to link the learner to further reading.'
 
 const LESSON_JSON_SHAPE = [
   '{ "topic", "difficulty", "lessons": [{ "title", "estMinutes", "glossary": ["term", ...], "segments": [{ "title", "type", "body", "estMinutes", "questions": [{ "type", "prompt", "options"?, "correctIndex"?, "expectedAnswer"?, "explanation"? }], "exercise"?: { "prompt", "starterCode", "language"?, "tests": [{ "name", "expression", "expected" }], "solution", "hint" } }] }] }',
-  'segment.type is one of: reading | code | practice | quiz. question.type is one of: mcq | short_answer. "body" is markdown.',
+  'segment.type is one of: hook | mechanism | predict | reveal | derive | check. question.type is one of: mcq | short_answer. "body" is markdown.',
   'An "exercise" is a runnable JavaScript task: "starterCode" is a function stub the learner completes; each test\'s "expression" is JavaScript evaluated in the learner\'s scope (it may call a function the learner defines) whose result is deep-compared to "expected" (a JSON value). "solution" must be a correct implementation that passes every test; "hint" nudges without giving it away.',
   'Set "language" to "ts" ONLY for a TypeScript course, where the "starterCode" and "solution" use TypeScript type annotations (the runner type-strips them to JS before running; the "tests" stay plain JS expressions). For every other topic omit "language" (defaults to "js").',
 ]
