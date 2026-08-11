@@ -49,6 +49,39 @@ export const segmentKinds = [
   'derive',
   'check',
 ] as const
+
+// Segment kinds whose questions are asked but not graded.
+//
+// `predict` is the whole list, and it is there by design rather than by
+// leniency. A predict exists to be answered *wrong*: its paired `reveal` is
+// required to name the wrong answer and say which belief to discard, so the
+// format only works if the reader commits to a guess honestly. Scoring that
+// guess punishes exactly that — and rewards skipping ahead to read the reveal
+// first, or picking the safe-looking option — which dismantles the mechanism
+// the lesson is built on. The attempt is still recorded and still earns XP; it
+// just doesn't decide mastery.
+//
+// Stated as an exclusion so a new segment kind is scored by default.
+export const unscoredSegmentKinds: readonly string[] = ['predict']
+
+export function isScoredSegment(kind: string): boolean {
+  return !unscoredSegmentKinds.includes(kind)
+}
+
+// Repair a question prompt whose code fence was written inline.
+//
+// Markdown only treats ``` as a fence when it sits on its own line, so a prompt
+// generated as "What does this print? ```js f() ```" renders the backticks
+// literally. Normalising at read time rather than regenerating keeps existing
+// content correct and is idempotent: a fence that already spans lines can't
+// match, because the body pattern stops at a newline.
+export function normalizeQuestionPrompt(prompt: string): string {
+  return prompt.replace(
+    /```(\w*)[ \t]*([^\n]*?)[ \t]*```/g,
+    (whole, lang: string, code: string) =>
+      code.trim() === '' ? whole : `\n\n\`\`\`${lang}\n${code.trim()}\n\`\`\`\n\n`,
+  )
+}
 export const questionKinds = ['mcq', 'short_answer'] as const
 
 export const questionViewSchema = z.object({

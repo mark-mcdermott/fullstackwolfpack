@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowRight, RotateCcw, Settings, TrendingDown, TrendingUp, Trophy } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { api } from '@/api-client'
 import { CodeExercise } from '@/components/learn/code-exercise'
@@ -11,7 +11,7 @@ import { AsyncView } from '@/components/layout/async-view'
 import { Panel, Pill, ProgressMeter, SectionLabel, raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
 import { can } from '@/core/access'
 import { lessonScore, xpForLesson } from '@/core/learning'
-import { segmentLabel } from '@/core/lesson-view'
+import { isScoredSegment, segmentLabel } from '@/core/lesson-view'
 import { hasGlossaryEntry } from '@/content/glossary-entries'
 import type {
   AnswerFeedback,
@@ -164,9 +164,26 @@ function LessonPlayer({
     }
   }, [guest])
 
-  const totalQuestions = useMemo(
-    () => lesson.segments.reduce((n, s) => n + s.questions.length, 0),
-    [lesson],
+  // Only graded questions count toward the score — see `isScoredSegment`. A
+  // predict is meant to be missed, so counting it would mean a reader who
+  // committed honestly to four guesses and learned from all four reveals still
+  // finished the lesson "unmastered".
+  const scoredQuestionIds = useMemo(() => {
+    const ids = new Set<string>()
+    for (const s of lesson.segments) {
+      if (!isScoredSegment(s.type)) continue
+      for (const q of s.questions) ids.add(q.id)
+    }
+    return ids
+  }, [lesson])
+  const totalQuestions = scoredQuestionIds.size
+
+  const correctCount = useCallback(
+    () =>
+      Object.entries(correctById).filter(
+        ([id, ok]) => ok && scoredQuestionIds.has(id),
+      ).length,
+    [correctById, scoredQuestionIds],
   )
 
   function recordAnswer(fb: AnswerFeedback) {
@@ -180,7 +197,7 @@ function LessonPlayer({
     if (completing) return
     setCompleting(true)
     try {
-      const correct = Object.values(correctById).filter(Boolean).length
+      const correct = correctCount()
       if (guest) {
         // Guests: compute + persist to localStorage (same core math as the server).
         setCompletion(
@@ -191,7 +208,7 @@ function LessonPlayer({
       }
     } catch {
       // Fallback so the learner still sees a result if the write fails.
-      const correct = Object.values(correctById).filter(Boolean).length
+      const correct = correctCount()
       const score = lessonScore(correct, totalQuestions)
       setCompletion({
         score,
