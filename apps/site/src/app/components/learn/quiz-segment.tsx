@@ -224,7 +224,11 @@ function ShortAnswerQuestion({
           disabled={text.trim() === '' || pending}
           className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-blaze disabled:opacity-40')}
         >
-          {pending ? 'Grading…' : 'Submit answer'}
+          {/* Named, because this one really is slow and the reason is worth
+              saying. An MCQ is graded by a lookup in ~50ms; a written answer is
+              read by a model, which takes seconds. Identical buttons made the
+              two feel like one flaky control. */}
+          {pending ? 'Akela is reading your answer…' : 'Submit answer'}
         </button>
       )}
       {feedback && <Feedback feedback={feedback} />}

@@ -4,7 +4,12 @@ import { dirname } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { solutionPassesTests } from '../src/app/core/exercise'
-import { COURSE_TARGET, type Difficulty } from '../src/app/core/generation'
+import {
+  COURSE_TARGET,
+  type Difficulty,
+  lessonStructureIssues,
+  lessonVocabularyIssues,
+} from '../src/app/core/generation'
 import { gitSolutionSatisfiesGoals } from '../src/app/core/git-sim'
 import { pythonSolutionPasses } from '../src/app/server/python-gate'
 import { generatedToSeedCourse } from '../src/app/db/generated-to-seed'
@@ -259,7 +264,10 @@ async function main() {
       // Reported rather than fatal: the content is still worth reviewing, and
       // the fix is usually a prompt tweak plus a re-run.
       for (const lesson of best.lessons) {
-        for (const issue of lessonStructureIssues(lesson)) {
+        for (const issue of [
+          ...lessonStructureIssues(lesson),
+          ...lessonVocabularyIssues(lesson, slug),
+        ]) {
           console.log(`    ! ${lesson.title}: ${issue}`)
         }
       }

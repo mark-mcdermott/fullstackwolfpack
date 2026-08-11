@@ -18,7 +18,7 @@ export const GLOSSARY_ENTRIES: GlossaryEntry[] = [
     slug: 'stack-frame',
     term: 'stack frame',
     short: `The private workspace JavaScript makes for one call — it holds that call’s parameters and locals, and it normally disappears when the call returns.`,
-    see: ['reference-error', 'function-value', 'closure'],
+    see: ['reference-error', 'function-value', 'closure', 'heap'],
     body: `Calling a function creates a **frame**: a small private workspace for that one call. Its parameters and its local variables live there, and nothing outside can reach them.
 
 \`\`\`js
@@ -172,6 +172,82 @@ console.log(y);   // ReferenceError: y is not defined
 The distinction matters most just after a call returns. A call's locals live in its frame, and the frame is discarded when the call ends — so those names are gone, not emptied. Reaching for one afterwards is a ReferenceError, not \`undefined\`.
 
 Guessing \`undefined\` there is the common mistake, and it is worth correcting deliberately: \`undefined\` is a *value*, and a variable has to exist in order to hold it.`,
+  },
+  {
+    slug: 'call-stack',
+    term: 'call stack',
+    short: `The pile of frames for the calls that are currently running — the top one is the call happening right now.`,
+    see: ['stack-frame', 'heap'],
+    body: `Calls do not happen side by side. When one function calls another, the first is not finished — it is waiting. So the frames pile up, and the pile is the **call stack**.
+
+\`\`\`js
+function outer() {
+  return inner();      // outer is not done; it is waiting on inner
+}
+function inner() {
+  return 1;
+}
+outer();
+\`\`\`
+
+While \`inner\` runs, both frames exist: \`outer\` underneath, \`inner\` on top. It is a stack because only the top one can finish next — \`inner\` returns, its frame is popped, and \`outer\` resumes with the answer.
+
+This is also what a stack trace is. The list of function names in an error is a photograph of the stack at the moment things went wrong, read top-down: the call that threw, then whoever called it, all the way to the bottom.
+
+Two things follow from the shape. Only one thing runs at a time, so nothing on the stack is happening "simultaneously". And an unbounded chain of calls — a recursion with no base case — never pops anything, which is a stack overflow: the pile has a size limit.`,
+  },
+  {
+    slug: 'heap',
+    term: 'heap',
+    short: `The other place values live — the one with no fixed lifetime, where anything that has to outlive the call that made it is kept.`,
+    see: ['stack-frame', 'call-stack', 'reference', 'closure'],
+    body: `A frame disappears when its call returns. So there has to be somewhere else — otherwise no value could ever outlive the function that created it, and \`return\` would be useless.
+
+That somewhere is the **heap**. Where the stack is strictly ordered (the top frame finishes next, always), the heap has no order and no schedule: things stay as long as something can still reach them, and are cleaned up when nothing can.
+
+\`\`\`js
+function makeUser() {
+  const u = { name: 'ada' };   // the object goes on the heap
+  return u;                    // the frame is discarded; the object is not
+}
+const user = makeUser();       // still here
+\`\`\`
+
+The frame for \`makeUser\` held \`u\`, and \`u\` held a reference to the object. The frame is gone. The object is not, because \`user\` still reaches it.
+
+This is the missing half of how closures work. Saying "the frame is kept alive" sounds like an exception carved out for closures, and it is fairer to say the variables that a surviving function still needs are kept on the heap, so returning does not take them with it. Nothing is being rescued from the stack — it was never only on the stack.
+
+Worth being precise about one thing: none of this involves a fixed memory address you could write down. A JavaScript engine moves heap values around as it collects garbage. What you hold is a reference, and the engine keeps it pointing at the right thing.`,
+  },
+  {
+    slug: 'reference',
+    term: 'reference',
+    short: `What a variable actually holds when the value is an object, an array, or a function — a way to reach the thing, not the thing itself.`,
+    see: ['heap', 'stack-frame', 'closure', 'free-variable'],
+    body: `A variable holding a number holds the number. A variable holding an object holds a **reference** — a way to reach an object that lives on the heap. Two variables can hold references to the same object, and then they are two names for one thing.
+
+\`\`\`js
+const a = { n: 1 };
+const b = a;      // b holds a reference to the same object
+b.n = 2;
+console.log(a.n); // 2 — one object, reached two ways
+\`\`\`
+
+Nothing was copied. \`b = a\` copied the reference, not the object.
+
+This is the idea that makes the \`var\` loop make sense. A closure captures the variable, not a snapshot of its value — which is to say it keeps a way to reach the slot rather than a copy of what was in it:
+
+\`\`\`js
+const fns = [];
+for (var i = 0; i < 3; i++) {
+  fns.push(function () { return i; });   // creating a function, not running it
+}
+fns[0]();   // 3
+\`\`\`
+
+There is one \`i\` here, in one slot, and all three functions reach the same slot. The loop runs to completion first — pushing a function is not calling it, so none of those bodies have executed yet — and it leaves \`3\` behind. Later, all three read that slot and all three see \`3\`.
+
+Swap \`var\` for \`let\` and each iteration gets its own slot to reach, so the three functions reach three different ones and return \`0\`, \`1\`, \`2\`.`,
   },
 ]
 
