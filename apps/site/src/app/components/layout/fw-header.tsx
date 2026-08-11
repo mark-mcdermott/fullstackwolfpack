@@ -45,16 +45,20 @@ const NAV: {
 // has nothing to review and the link would funnel to /login. That changes if
 // guest cards ever land in localStorage the way guest progress already does.
 //
+// Shown to everyone now that guests have a review queue of their own
+// (lib/guest-review), so it no longer dead-ends at /login — the reason the
+// Community item above is still parked.
+//
 // `lg`, not `md`, and that is measured rather than guessed. `md` is where the
 // bar goes roomy (72px cells, 36px gaps, plus the health readout and its
 // divider), so a fourth item there overflows the viewport by 32px at exactly
 // 768px — the horizontal-scroll bug this bar has already been fixed for once.
 // The parked Leaderboard item above sits at `lg` for the same reason.
-const REVIEW_ITEM = {
-  to: '/app/review',
+const reviewItem = (signedIn: boolean) => ({
+  to: signedIn ? '/app/review' : '/review',
   label: 'Review',
   minWidth: 'hidden lg:flex',
-}
+})
 
 // The active underline is a fixed width — roughly the width of "ARCADE" — so it
 // reads as a consistent marker rather than shrink-wrapping each label. Every
@@ -79,7 +83,7 @@ export function FwHeader() {
   const timer = useTimer()
   const onMission = timer.active && !!timer.step
   const { user } = useAuth()
-  const nav = user ? [...NAV, REVIEW_ITEM] : NAV
+  const nav = [...NAV, reviewItem(!!user)]
   return (
     // Transparent so the page grain/glow (index.css `body::before`) runs behind
     // it unbroken; the layout wrapper supplies the base color.

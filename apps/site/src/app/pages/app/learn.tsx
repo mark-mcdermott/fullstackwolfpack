@@ -24,6 +24,7 @@ import {
   completeLessonGuest,
   guestCompletedLessonIds,
 } from '@/lib/guest-progress'
+import { seedGuestReviewCard } from '@/lib/guest-review'
 import {
   clearLessonProgress,
   loadLessonProgress,
@@ -191,6 +192,18 @@ function LessonPlayer({
       fb.questionId in prev ? prev : { ...prev, [fb.questionId]: fb.correct },
     )
     setQuizXp((xp) => xp + fb.xp)
+
+    // Guests get a review queue too, seeded here rather than server-side: the
+    // account path does this inside submitAnswer, but a guest's answer never
+    // reaches a table. The prompt and options come from the lesson we already
+    // hold, so the stored card can render itself later without a lookup a guest
+    // has no route for.
+    if (guest) {
+      const q = lesson.segments
+        .flatMap((s) => s.questions)
+        .find((x) => x.id === fb.questionId)
+      if (q) seedGuestReviewCard(q.id, q.prompt, q.options, fb.correct)
+    }
   }
 
   async function finish() {
