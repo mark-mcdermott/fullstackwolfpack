@@ -3,6 +3,7 @@ import remarkGfm from 'remark-gfm'
 import { cn } from '@/lib/utils'
 import { rehypeLinkifyTerms } from '@/lib/rehype-linkify-terms'
 import { CodeBlock } from './code-block'
+import { GlossaryTerm } from './glossary-term'
 
 // Renders a lesson segment's markdown body in the app's design language.
 //
@@ -26,9 +27,20 @@ const components: Components = {
   ol: ({ node: _n, ...p }) => (
     <ol className="ml-5 list-decimal space-y-1 text-muted-foreground" {...p} />
   ),
-  a: ({ node: _n, ...p }) => (
-    <a className="text-primary underline underline-offset-2" {...p} />
-  ),
+  // A glossary anchor becomes a term the reader can open in place. Everything
+  // else stays an ordinary link. The rehype plugin marks them; nothing in the
+  // lesson body knows this is happening.
+  a: ({ node: _n, ...p }) => {
+    const term = (p as { 'data-term'?: string })['data-term']
+    if ((p as { 'data-glossary'?: string })['data-glossary'] && term) {
+      return (
+        <GlossaryTerm term={term} href={p.href ?? '#'}>
+          {p.children}
+        </GlossaryTerm>
+      )
+    }
+    return <a className="text-primary underline underline-offset-2" {...p} />
+  },
   strong: ({ node: _n, ...p }) => (
     <strong className="font-semibold text-foreground" {...p} />
   ),

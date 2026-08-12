@@ -1,4 +1,5 @@
-import { linkifyParts, type LinkPart } from '@/core/glossary'
+import { glossarySlug, linkifyParts, termHref, type LinkPart } from '@/core/glossary'
+import { glossaryEntry } from '@/content/glossary-entries'
 
 // Minimal HAST shapes (avoids pulling @types/hast just for this).
 type HastText = { type: 'text'; value: string }
@@ -15,14 +16,20 @@ const SKIP_TAGS = new Set(['a', 'code', 'pre'])
 
 function partToNode(part: LinkPart): HastChild {
   if (part.kind === 'text') return { type: 'text', value: part.value }
+  // A term we have written an entry for becomes an in-app link the renderer
+  // upgrades to a popover; anything else keeps the Wikipedia fallback and opens
+  // in a new tab, so adding an entry later changes the link without touching a
+  // single lesson body.
+  const slug = glossarySlug(part.term)
+  const known = glossaryEntry(slug) !== undefined
   return {
     type: 'element',
     tagName: 'a',
     properties: {
-      href: part.href,
-      target: '_blank',
-      rel: 'noopener noreferrer',
+      href: termHref(part.term, known),
       'data-glossary': 'true',
+      'data-term': part.term,
+      ...(known ? {} : { target: '_blank', rel: 'noopener noreferrer' }),
     },
     children: [{ type: 'text', value: part.value }],
   }

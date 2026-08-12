@@ -20,6 +20,7 @@ import { TopicSettingsPage } from '@/pages/app/topic-settings'
 import { TopicsPage } from '@/pages/app/topics'
 import { GuestHome } from '@/pages/public/guest-home'
 import { GuestLeaderboard } from '@/pages/public/guest-leaderboard'
+import { GlossaryPage } from '@/pages/public/glossary'
 import { GuestLearn } from '@/pages/public/guest-learn'
 import { LearnBrowse } from '@/pages/public/learn-browse'
 import { AdminUsersPage } from '@/pages/admin/users'
@@ -47,6 +48,9 @@ function App() {
         <Route path="/play" element={<ArcadePage />} />
         <Route path="/skill" element={<LearnBrowse />} />
         <Route path="/skill/:lessonId" element={<GuestLearn />} />
+        {/* Public on purpose: a term's page is where "read more" lands from a
+            lesson a guest can already read, and it is a URL worth sharing. */}
+        <Route path="/glossary/:slug" element={<GlossaryPage />} />
         <Route path="/leaderboard" element={<GuestLeaderboard />} />
       </Route>
 
