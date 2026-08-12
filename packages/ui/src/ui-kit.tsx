@@ -33,9 +33,13 @@ import { cn } from './utils'
 // sits outside it, and a sheen runs along the top edge. The black drops stay,
 // since these surfaces often overhang lighter art.
 //
-// Deliberately carries no radius or padding — callers own those.
+// Deliberately carries no radius, padding or text colour — callers own those.
+// Text colour especially: a popover anchored inside body copy inherits that
+// copy's colour, and forcing `text-foreground` here quietly brightened every
+// uncoloured child (inline code chips most visibly), which reads as heavier
+// type rather than as elevation.
 export const popoverSurfaceClass = cn(
-  'border border-border bg-card text-foreground',
+  'border border-border bg-card',
   'light:shadow-[0_20px_50px_rgb(0_0_0/0.18),0_4px_12px_rgb(0_0_0/0.08)]',
   'dark:border-white/[0.18] dark:bg-[#22262f]',
   'dark:shadow-[0_18px_40px_rgb(0_0_0/0.55),0_2px_8px_rgb(0_0_0/0.35),0_0_0_1px_rgb(255_255_255/0.08)]',

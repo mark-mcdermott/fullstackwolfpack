@@ -170,6 +170,7 @@ export function ThemeToggle({
             // floating-surface treatment — see `popoverSurfaceClass` for why
             // the two themes separate by opposite means.
             popoverSurfaceClass,
+            'text-foreground',
           )}
         >
           <p className="px-2 pt-1.5 pb-2 font-mono text-[9px] tracking-[0.2em] text-primary uppercase">
