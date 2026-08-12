@@ -74,7 +74,7 @@ describe('schedule — ease factor updates', () => {
 })
 
 describe("schedule — lapses on 'again'", () => {
-  it('resets the streak, reschedules for tomorrow, and counts a lapse', () => {
+  it('resets the streak, counts a lapse, and relearns in minutes not days', () => {
     const learned = schedule(
       schedule(newCard(day0), 'good', day0).card,
       'good',
@@ -85,8 +85,25 @@ describe("schedule — lapses on 'again'", () => {
     const { card } = schedule(learned, 'again', day0)
     expect(card.repetitions).toBe(0)
     expect(card.lapses).toBe(1)
-    expect(daysBetween(card.due, day0.toISOString())).toBe(1)
     expect(card.reps).toBe(learned.reps + 1)
+
+    // The point of the change: a missed card returns in the same sitting.
+    // Textbook SM-2 resets to a day, which made a wrong answer schedule
+    // identically to a correct first answer.
+    const minutes =
+      (new Date(card.due).getTime() - day0.getTime()) / 60_000
+    expect(minutes).toBeGreaterThan(0)
+    expect(minutes).toBeLessThanOrEqual(15)
+    // 0 means "sooner than a day" — the integer column can't hold a fraction,
+    // so `due` carries the precision.
+    expect(card.interval).toBe(0)
+  })
+
+  it('goes back to whole days once the card is passed again', () => {
+    const lapsed = schedule(newCard(day0), 'again', day0).card
+    const recovered = schedule(lapsed, 'good', day0).card
+    expect(recovered.interval).toBe(1)
+    expect(daysBetween(recovered.due, day0.toISOString())).toBe(1)
   })
 })
 

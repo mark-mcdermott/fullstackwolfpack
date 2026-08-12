@@ -32,13 +32,22 @@ describe('guest review cards', () => {
     expect(guestNextDueAt()).toBe(first)
   })
 
-  // The finding that made the account version look broken: the scheduler's
-  // shortest interval is a whole day, so nothing is ever due on the day you
-  // learn it. Pinned here so a future relearning-steps change is deliberate.
-  it('schedules a fresh card for tomorrow, not today', () => {
-    seedGuestReviewCard('q1', 'What prints?', ['a', 'b'], false, now)
+  // A first answer that was CORRECT waits a day — you don't need to re-see
+  // what you just got right.
+  it('schedules a correct first answer for tomorrow, not today', () => {
+    seedGuestReviewCard('q1', 'What prints?', ['a', 'b'], true, now)
     expect(guestDueReviews(now).dueCount).toBe(0)
     expect(guestDueReviews(later(1)).dueCount).toBe(1)
+  })
+
+  // A WRONG one comes back inside the session. This is what makes the queue
+  // non-empty for a guest on their first visit — with a one-day floor, a first
+  // session could only ever end with "nothing due".
+  it('brings a missed question back within the same session', () => {
+    seedGuestReviewCard('q1', 'What prints?', ['a', 'b'], false, now)
+    const inTenMinutes = new Date(now.getTime() + 10 * 60_000)
+    expect(guestDueReviews(now).dueCount).toBe(0)
+    expect(guestDueReviews(inTenMinutes).dueCount).toBe(1)
   })
 
   it('returns due cards in the shape the page renders', () => {
