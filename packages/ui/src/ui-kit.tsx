@@ -15,6 +15,34 @@ import { cn } from './utils'
 // `--cta-face` / `--cta-edge`. Exported as a class as well as a component:
 // CTAs are as often anchors or router <Link>s as they are <button>s, and a
 // shared class dresses any of them without a polymorphic wrapper.
+// A surface that floats above the page — a menu, a term popover, anything that
+// opens over content and has to read as being *in front of* it.
+//
+// Extracted because the two themes need opposite mechanisms here, and the
+// reasoning is easy to lose. Light separates with a cast shadow: every surface
+// in this theme is white (`--background`, `--card` and `--popover` are all
+// oklch(1 0 0)), so fill cannot carry elevation and the shadow has to. A wide
+// soft drop over a tight contact layer, rather than a hard offset, which reads
+// as a sticker on a page this light.
+//
+// Dark cannot borrow that. A drop shadow separates by darkening a backdrop
+// lighter than the shadow, and there is nothing left to darken — a plate at
+// #101114 measured 1.05:1 against the header. So dark separates with *light*:
+// the plate steps up to a clearly lighter surface than the card behind it, the
+// hairline goes to 18% white so the frame reads on its own, a 1px white ring
+// sits outside it, and a sheen runs along the top edge. The black drops stay,
+// since these surfaces often overhang lighter art.
+//
+// Deliberately carries no radius or padding — callers own those.
+export const popoverSurfaceClass = cn(
+  'border border-border bg-card text-foreground',
+  'light:shadow-[0_20px_50px_rgb(0_0_0/0.18),0_4px_12px_rgb(0_0_0/0.08)]',
+  'dark:border-white/[0.18] dark:bg-[#22262f]',
+  'dark:shadow-[0_18px_40px_rgb(0_0_0/0.55),0_2px_8px_rgb(0_0_0/0.35),0_0_0_1px_rgb(255_255_255/0.08)]',
+  'dark:before:pointer-events-none dark:before:absolute dark:before:inset-x-0 dark:before:top-0 dark:before:h-px',
+  'dark:before:bg-gradient-to-r dark:before:from-transparent dark:before:via-white/25 dark:before:to-transparent',
+)
+
 export const raisedCtaClass = cn(
   // Teko's metrics are rebalanced at the @font-face (theme.css), so its
   // capitals centre in the *box* on their own. The padding is uneven anyway,

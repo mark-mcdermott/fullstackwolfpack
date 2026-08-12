@@ -61,7 +61,7 @@ Getting there needs two things almost no JavaScript tutorial teaches directly: *
       estMinutes: 3,
       markdown: `Start with the boring case, because the interesting one is built from it.
 
-JavaScript runs your statements one at a time, top to bottom. After each one, something is true about memory that was not true before. Watch it line by line — the right-hand column is *everything that exists* at that moment.
+JavaScript runs your statements one at a time, top to bottom. After each one, something is true about memory that was not true before. Watch it line by line — the right-hand column (the comments) is *everything that exists* at that moment.
 
 \`\`\`js
 const price = 10;        // price = 10

@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { Link } from 'react-router'
+import { popoverSurfaceClass } from '@fw/ui'
 import { glossarySlug } from '@/core/glossary'
 import { glossaryEntry } from '@/content/glossary-entries'
 import { cn } from '@/lib/utils'
@@ -131,7 +132,12 @@ export function GlossaryTerm({
           style={{ left: box?.left ?? 0, width: box?.width }}
           className={cn(
             'absolute z-50 mt-2 block cursor-auto',
-            'rounded-lg border border-border bg-card p-4 text-left shadow-[var(--panel-lift)]',
+            'rounded-lg p-4 text-left',
+            // It opens over a lesson Panel, which is `bg-card` — the same fill
+            // this used to have, so the two surfaces were identical and only a
+            // hairline told them apart. The kit's floating-surface treatment
+            // separates it properly in both themes.
+            popoverSurfaceClass,
           )}
         >
           <span className="mb-2 block font-mono text-[10px] tracking-widest text-primary uppercase">

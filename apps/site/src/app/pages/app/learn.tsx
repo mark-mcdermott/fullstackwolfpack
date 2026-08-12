@@ -315,9 +315,15 @@ function LessonPlayer({
       </div>
 
       <Panel className="flex flex-col gap-4">
-        <div className="flex items-start justify-between gap-4">
+        {/* The badge is one atomic label — "SETUP · 2 MIN" only reads as a unit
+            whole. So it never breaks internally; when the row runs out of room
+            the *row* wraps and the whole pill drops under the title instead.
+            That is what stops "MIN" stranding on its own line beneath a
+            dangling separator, and it needs no way to detect a line break,
+            which CSS has none. */}
+        <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
           <h2 className="text-lg font-bold uppercase">{segment.title}</h2>
-          <Pill>
+          <Pill className="shrink-0 whitespace-nowrap">
             {segmentLabel(segment.type)} · {segment.estMinutes} min
           </Pill>
         </div>
