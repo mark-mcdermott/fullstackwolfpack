@@ -141,7 +141,13 @@ export function HomeHero() {
             </div>
           </div>
 
-          <a href="#start-session" className={cn(raisedCtaClass, 'cta-ember group')}>
+          {/* Base only. Above `sm` the mission builder sits directly below the
+              fold and this jump link is redundant — the hero is left to the
+              headline and the art. */}
+          <a
+            href="#start-session"
+            className={cn(raisedCtaClass, 'cta-ember group sm:hidden')}
+          >
             Build your session
             {/* Red in dark, matching the mock — this is the only one of the
                 three CTAs whose arrow is not white. */}
