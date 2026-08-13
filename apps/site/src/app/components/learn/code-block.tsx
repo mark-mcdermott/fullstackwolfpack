@@ -27,7 +27,22 @@ export function CodeBlock({ code, lang }: { code: string; lang: string }) {
     // so injecting it is safe here.
     return (
       <div
-        className="my-1 overflow-x-auto border border-border text-sm [&>pre]:p-4"
+        className={
+          // `w-max min-w-full` on the <pre> is what keeps the dark surface under
+          // the code when the block is scrolled sideways.
+          //
+          // Shiki puts the background on the <pre>, and a block element is as
+          // wide as its container, not its content — while the code inside is
+          // `white-space: pre` and overflows it. So scrolling right ran the text
+          // off the end of its own background and onto whatever was behind the
+          // block: the white card in light, the popover in a term panel.
+          // `max-content` sizes the <pre> to the longest line; `min-w-full`
+          // keeps it filling the block when the code is shorter than the width.
+          //
+          // It also restores the trailing padding, which used to collapse at the
+          // right-hand end of a scroll for the same reason.
+          'my-1 overflow-x-auto border border-border text-sm [&>pre]:w-max [&>pre]:min-w-full [&>pre]:p-4'
+        }
         dangerouslySetInnerHTML={{ __html: html }}
       />
     )
