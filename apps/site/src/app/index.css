@@ -379,6 +379,31 @@
    contrast alone, which is what made dark feel louder than light. */
 .dark body::before {
   background:
+    /* The atmospheric haze, moved here from `.fw-dot-field::before`.
+       It lived on <main>, inset to the content column — and because it reaches
+       up behind the header, which is deliberately transparent so the page runs
+       behind it unbroken, it painted a column-width lighter rectangle *inside*
+       the header band. The transparency was achieving the opposite of its
+       purpose: instead of continuous atmosphere you saw a lit panel with darker
+       gutters either side, and the seam landed exactly on the column edge.
+       It could not simply be widened again: it used to be 132% and centred,
+       and since <main> does not clip, the overhang became document scroll — 16%
+       of the viewport draggable sideways on a phone.
+       This layer has neither problem. It is `position: fixed; inset: 0`, so it
+       spans the viewport by construction and cannot overflow anything.
+       Sized in rem rather than percentages so the light source is a fixed
+       physical size instead of growing with the window, and anchored near the
+       top so it still reads as light entering from above. */
+    radial-gradient(
+      45rem 24rem at 24% 4rem,
+      oklch(0.55 0.13 285 / 0.1) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      40rem 20rem at 80% 0rem,
+      oklch(0.58 0.1 248 / 0.075) 0%,
+      transparent 72%
+    ),
     linear-gradient(to bottom, #11151e 0%, #0d1320 46%, #090b12 100%);
 }
 
@@ -574,32 +599,9 @@ body[data-immersive] main {
    own `isolate` puts it under the content but over the page gradient.
    Deliberately below the threshold where you would call it blue — take the
    opacities up and it stops being atmosphere and becomes a backdrop. */
-.dark .fw-dot-field::before {
-  content: '';
-  position: absolute;
-  /* Inset to <main> rather than 132% wide and centred on it. The wider box was
-     meant to let the haze bleed past the content column, but `main` does not
-     clip — so half of that 32% hung off the right edge and became document
-     scroll at every width. It is why the page could be dragged sideways on a
-     phone: 16% of the viewport, on every page, in both orientations.
-     The spread is back in the gradients instead, which cost nothing. */
-  inset-inline: 0;
-  top: -7rem;
-  z-index: -1;
-  height: 48rem;
-  pointer-events: none;
-  background-image:
-    radial-gradient(
-      ellipse 62% 46% at 22% 26%,
-      oklch(0.55 0.13 285 / 0.11) 0%,
-      transparent 68%
-    ),
-    radial-gradient(
-      ellipse 56% 40% at 80% 12%,
-      oklch(0.58 0.1 248 / 0.08) 0%,
-      transparent 70%
-    );
-}
+/* The haze that used to live here now paints on `body::before`, which is
+   fixed to the viewport — see the note there. Kept as a no-op anchor so the
+   light-mode rules below still read as a pair with a dark counterpart. */
 
 :root:not(.dark) .fw-dot-field::before,
 :root:not(.dark) .fw-dot-field::after {
@@ -798,15 +800,27 @@ body[data-immersive] main {
    still reads but the slab stays plainly red. */
 .dark .cta-flare {
     --cta-hover: 1.4;
+    /* Lit in fixed units. This class wears both the launcher's ~230px "Start
+       mission" and the course card's ~470px "Continue: <lesson title>", and
+       percentage lighting cannot serve both: at 78% of the width the hotspot
+       doubled in size between them, while the 96deg base ramp travelled
+       #a8020c → #690107 nearly horizontally, so the long button showed the
+       whole sweep and read as a colour changing across it rather than a slab
+       under a light. Light mode never had this — its face is `to bottom` only,
+       so width cannot touch it.
+       Fixed extents instead: one light source of one physical size at the left
+       end, a vertical slab beneath it, and rim stops in rem so the frame does
+       its colour travel in the first 22rem and holds after. A short button is
+       mostly hotspot; a long one is hotspot then more slab. */
     --cta-face:
         linear-gradient(to top, rgb(230 30 22 / 0.22) 0%, transparent 34%),
         linear-gradient(to bottom, rgb(255 80 70 / 0.14) 0%, transparent 22%),
-        radial-gradient(78% 150% at 0% 42%, rgb(224 16 14 / 0.9) 0%, rgb(168 6 10 / 0.36) 36%, transparent 76%),
-        linear-gradient(96deg, #a8020c 0%, #920109 40%, #7d0108 70%, #690107 100%);
+        radial-gradient(17rem 8rem at -1rem 42%, rgb(224 16 14 / 0.9) 0%, rgb(168 6 10 / 0.36) 52%, transparent 80%),
+        linear-gradient(to bottom, #a8020c 0%, #96010a 55%, #870109 100%);
     --cta-rim:
-        radial-gradient(34% 70% at 100% 100%, #ffd9c6 0%, #ff5a48 28%, transparent 66%),
+        radial-gradient(5rem 2.4rem at 100% 100%, #ffd9c6 0%, #ff5a48 28%, transparent 66%),
         linear-gradient(to top, rgb(214 6 12 / 1) 0%, transparent 44%),
-        linear-gradient(to right, #f5312c 0%, #d8140f 26%, #a5040c 62%, #93030b 100%);
+        linear-gradient(to right, #f5312c 0, #d8140f 6rem, #a5040c 14rem, #93030b 22rem);
     --cta-smoke-strength: 0.24;
     /* Contrast pass: the bloom is the hero CTA's alone now. This one keeps a
        tight contact glow so the slab still sits on the tile, and drops the two
@@ -821,13 +835,30 @@ body[data-immersive] main {
    and lit from the top rather than raked across, so it reads as a solid
    slab with the haze barely on it. */
 .dark .cta-blaze {
+    /* Lit in fixed units, unlike its two siblings, because this is the one
+       class that runs at wildly different widths — a 150px "Next" and a 450px
+       "Continue: <lesson title>" wear the same face.
+       Percentage lighting cannot survive that. At 64% of the width the hotspot
+       was 96px on the short button and 288px on the long one, and the 98deg
+       base ramp travelled nearly horizontally, so the long button unrolled the
+       whole gradient and read as a colour that changes across it rather than a
+       lit object. Light never had the problem: its face is `to bottom` only, so
+       width cannot affect it — which is part of why light reads as the more
+       solid of the two.
+       So: the light source is a fixed size at the left end, and the slab under
+       it is vertical. A short button is mostly hotspot; a long one is a hotspot
+       and then more slab, which is how a real object under a real light behaves.
+       `.cta-ember` and `.cta-flare` keep their percentage lighting — both were
+       sampled from the mock and both sit at a stable width. */
     --cta-face:
         linear-gradient(to bottom, rgb(255 70 58 / 0.16) 0%, transparent 26%),
         linear-gradient(to top, rgb(80 0 4 / 0.20) 0%, transparent 40%),
-        radial-gradient(64% 140% at 0% 40%, rgb(236 22 16 / 0.62) 0%, transparent 72%),
-        linear-gradient(98deg, #bc010c 0%, #ae010b 42%, #a5010a 74%, #ad010b 100%);
+        radial-gradient(15rem 7rem at -1rem 42%, rgb(236 22 16 / 0.62) 0%, transparent 74%),
+        linear-gradient(to bottom, #bc010c 0%, #b2010b 54%, #a7010a 100%);
     --cta-rim:
-        radial-gradient(34% 70% at 100% 100%, #ffcdb8 0%, #ff5040 30%, transparent 68%),
+        /* The corner bloom is a fixed size for the same reason — as a
+           percentage it grew into a third of a long button's underside. */
+        radial-gradient(5rem 2.4rem at 100% 100%, #ffcdb8 0%, #ff5040 30%, transparent 68%),
         linear-gradient(to top, rgb(216 5 10 / 1) 0%, transparent 42%),
         linear-gradient(to right, #f22e26 0%, #db1c16 24%, #b4060e 60%, #a6040c 100%);
     --cta-smoke-strength: 0.18;
