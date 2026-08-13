@@ -38,11 +38,22 @@ Two of those matter.
 
 **SRAM is the supported path.** 8KB, returned by a public method, and its layout belongs to the *game*, not the emulator — so it does not drift when the core is upgraded. Whatever the game writes there it will keep writing there forever.
 
+## Does the game even have a score?
+
+Worth asking, because the first version of this spike **inferred** one from the presence of a battery, which is a guess dressed as a finding. Checked afterwards:
+
+- The itch.io listing carries an explicit **"High Score"** tag and describes an arcade platformer with few-minute sessions.
+- The developer, in the itch comments: *"Your progress should automatically be saved between session regardless of which console you're playing on."*
+
+So: a score exists, and something persists to the battery. Note the build matters — the header reads `TOBUDX`, which is **Tobu Tobu Girl Deluxe**, not the 2017 original. The original's own page describes no scoring at all, so anyone reasoning from that release would reasonably conclude there is none.
+
+Still unconfirmed: whether there is a **game over** as such. The description is "racing against the clock… before it is too late", so the fail state is likely a timer rather than lives, but no source says so plainly.
+
 ## What is not yet proven
 
 The spike stopped short of the actual byte offset.
 
-- The score is *very likely* in SRAM — the battery says so — but that was not observed, because reaching a game-over means genuinely playing.
+- The score is *probably* in SRAM — the battery, the "High Score" tag and the developer's note all point that way — but it was not observed, because reaching a fail state means genuinely playing. "Progress saved" could also mean unlocked stages rather than a score.
 - Programmatic mashing (`press('start')` / `press('a')` in a tight loop) crashed the emulator: `saveSRAM()` then threw `RuntimeError: memory access out of bounds`. So **reading SRAM while the core is running is not safe under load** — a real implementation should pause first, or read on a game-over / exit event rather than polling.
 
 ## If this is picked up
