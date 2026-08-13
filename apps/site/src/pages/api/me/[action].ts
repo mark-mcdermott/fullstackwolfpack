@@ -362,6 +362,7 @@ export const POST: APIRoute = async ({ request: req }) => {
           userId,
           parsed.data.entries,
           parsed.data.playXp,
+          parsed.data.reviews,
         ),
       )
     }

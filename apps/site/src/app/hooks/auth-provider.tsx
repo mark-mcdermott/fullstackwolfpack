@@ -12,6 +12,7 @@ import {
   guestPlayXp,
   guestProgressEntries,
 } from '@/lib/guest-progress'
+import { clearGuestReviews, guestReviewEntries } from '@/lib/guest-review'
 import { AuthContext } from './auth-context'
 
 // Thin state shell over the shared api-client. All transport + WebAuthn
@@ -35,10 +36,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const migrateGuestProgress = useCallback(async () => {
     const entries = guestProgressEntries()
     const playXp = guestPlayXp()
-    if (entries.length === 0 && playXp === 0) return
+    // Review cards go over with the rest. Signing up used to *empty* the queue
+    // a guest had just built, which is backwards: a queue of cards coming due
+    // is the honest reason to make an account.
+    const reviews = guestReviewEntries()
+    if (entries.length === 0 && playXp === 0 && reviews.length === 0) return
     try {
-      await api.data.importProgress(entries, playXp)
+      await api.data.importProgress(entries, playXp, reviews)
       clearGuestProgress()
+      clearGuestReviews()
     } catch {
       /* keep localStorage for a later retry */
     }

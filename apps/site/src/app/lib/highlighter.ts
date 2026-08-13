@@ -24,6 +24,15 @@ const LANGS = [
   'python',
   'sql',
   'markdown',
+  // Added after an audit found these three silently rendering as plain text:
+  // `c` in the machine lesson's C comparison, and `dockerfile` / `yaml`
+  // throughout the Docker course. An unknown fence is not an error — it falls
+  // back to `text` — so the only symptom is a block of flat, uncoloured code.
+  // highlighter.test.ts now asserts every language the content actually uses
+  // is loaded, since the content is generated and can introduce new ones.
+  'c',
+  'dockerfile',
+  'yaml',
 ] as const
 const LOADED = new Set<string>(LANGS)
 
@@ -36,6 +45,8 @@ const ALIAS: Record<string, string> = {
   zsh: 'bash',
   py: 'python',
   md: 'markdown',
+  yml: 'yaml',
+  docker: 'dockerfile',
 }
 
 
@@ -62,6 +73,9 @@ function getHighlighter(): Promise<HighlighterCore> {
         import('shiki/langs/python.mjs'),
         import('shiki/langs/sql.mjs'),
         import('shiki/langs/markdown.mjs'),
+        import('shiki/langs/c.mjs'),
+        import('shiki/langs/dockerfile.mjs'),
+        import('shiki/langs/yaml.mjs'),
       ],
     })
   }
@@ -70,7 +84,7 @@ function getHighlighter(): Promise<HighlighterCore> {
 
 // Resolve a fence language to one we actually loaded (unknown → plain text, which
 // Shiki always supports without a grammar).
-function resolveLang(lang: string): string {
+export function resolveLang(lang: string): string {
   const l = (ALIAS[lang] ?? lang).toLowerCase()
   return LOADED.has(l) ? l : 'text'
 }
