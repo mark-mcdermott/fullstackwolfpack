@@ -56,6 +56,7 @@ import {
   importProgressResult,
   publicTopicsSchema,
   type GuestProgressEntry,
+  type GuestReviewCard,
   type ImportProgressResult,
   type PublicTopicsView,
 } from '@/core/public-content'
@@ -261,11 +262,12 @@ export function createApi({ http, passkeys }: Adapters) {
     async importProgress(
       entries: GuestProgressEntry[],
       playXp = 0,
+      reviews: GuestReviewCard[] = [],
     ): Promise<ImportProgressResult> {
       return importProgressResult.parse(
         await http.request('/api/me/import-progress', {
           method: 'POST',
-          body: JSON.stringify({ entries, playXp }),
+          body: JSON.stringify({ entries, playXp, reviews }),
         }),
       )
     },

@@ -371,38 +371,53 @@ A function value, when created, keeps a link to the frame it was **written insid
 So if a function value *outlives* the call that created it, the frame it points at cannot be thrown away. Something still needs it.
 
 \`\`\`js
-function makeCounter() {
+function makeCounter() {      // makeCounter's body starts here
   let n = 0;
-  return function () {
+  return function () {        // the INNER function's body starts here
     n = n + 1;
     return n;
-  };
-}
+  };                          // the inner body ends here
+}                             // makeCounter's body ends here
 
 const next = makeCounter();
 next(); // 1
 next(); // 2
 \`\`\`
 
-Line by line:
+There are **two bodies** here, and keeping them apart is the whole thing. \`next\` is the *inner* function — that is what \`makeCounter\` returned. So calling \`next()\` runs the inner body, and only the inner body.
 
 \`\`\`
-makeCounter() called
+makeCounter()  runs makeCounter's body — once, and only once
   ┌─ frame A ─────────────────────┐
-  │ n = 0                         │
+  │ let n = 0     → n is 0        │  this line runs HERE
   │ create a function value       │  it links back to frame A
   │ return that function value    │
   └───────────────────────────────┘
   frame A is NOT discarded — the returned
   function still links to it
 
-next  -> the returned function (linked to frame A)
+next  ->  the inner function (linked to frame A)
 
-next()  runs the body: reads n from frame A (0), writes 1, returns 1
-next()  runs the body: reads n from frame A (1), writes 2, returns 2
+next()  runs the inner body:  n = n + 1  → reads 0, writes 1, returns 1
+next()  runs the inner body:  n = n + 1  → reads 1, writes 2, returns 2
 \`\`\`
 
-Both calls read and write **the same \`n\`**, because both go through the same link, to the same frame.
+So \`let n = 0\` is not *skipped* on the second call. It is not in the function being called. It belongs to \`makeCounter\`, which ran once — back when \`next\` was made — and has been finished ever since.
+
+The two calls to \`next()\` are not two runs of the code you read top to bottom. They are two runs of a two-line function that happens to reach outward for \`n\`.
+
+If you want \`n\` back at 0, you do not call \`next()\` differently — you call \`makeCounter()\` again, which runs its body again and builds a *second* frame:
+
+\`\`\`js
+const a = makeCounter();
+const b = makeCounter();
+
+a(); // 1
+a(); // 2
+b(); // 1  ← its own frame, its own n, still at 0 until now
+\`\`\`
+
+Both calls to \`next()\` read and write **the same \`n\`**, because both go through the same link, to the same frame. \`a\` and \`b\` do not, because they link to different frames.
 
 That pairing — a function value plus the frame it links to — is what the word **closure** names. There is nothing extra to it: it is a frame that outlived its call because something still points at it.
 
@@ -566,7 +581,7 @@ When it passes, look at what changed: you did not change when the functions run.
 export const AUTHORED_JS_MACHINE: SeedLesson = {
   id: 'authored-js-engine',
   title: 'What Actually Runs Your JavaScript',
-  estMinutes: 37,
+  estMinutes: 38,
   glossary: [
     'machine frame',
     'context allocation',
@@ -627,10 +642,25 @@ V8 runs on a real stack like this. When the first lesson said a frame is opened 
       id: 'authored-js-engine-s3',
       type: 'mechanism',
       title: 'Some variables never go on the stack',
-      estMinutes: 5,
+      estMinutes: 6,
       markdown: `Here is where JavaScript departs from C, and it departs *before your program runs*.
 
-A frame's space is reclaimed when the call returns. So a variable that an inner function will still read cannot live only there. The engine has to know which variables those are — and it works it out while **parsing**, by reading the source and seeing which inner functions mention which outer names.
+Start with a sentence that should bother you, because the last lesson said the opposite:
+
+**A machine frame is always reclaimed when its call returns.** Always — no condition, no exception, nothing survives it. The stack pointer moves back and the space is gone, whatever else in the program happens to be pointing anywhere.
+
+The last lesson said a frame someone still points at is *not* discarded. Both are true, because they are not describing the same object. "Frame" there is the model — a call's workspace, which behaves as though it can outlive the call. "Machine frame" here is the actual stack memory, which never does. The gap between those two is exactly what this segment is about.
+
+So follow it through. Suppose a variable that an inner function will read later lived *only* in the machine frame:
+
+1. the outer call returns
+2. its machine frame is reclaimed — unconditionally, per above
+3. the inner function runs some time after that, and reads the variable
+4. …but there is nothing left to read
+
+Step 4 does not happen. Counters work; closures work. So one of the assumptions was wrong, and the only one available is the first: a variable an inner function will read **cannot live only in the machine frame**. It has to be somewhere that returning does not touch.
+
+The engine has to know which variables those are — and it works it out while **parsing**, by reading the source and seeing which inner functions mention which outer names.
 
 Variables that are mentioned get put on the heap instead, in an object V8 calls a Context. Everything else stays in the frame. The name for that decision is **context allocation**.
 

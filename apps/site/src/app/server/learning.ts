@@ -1,6 +1,6 @@
-import { and, eq, inArray, notInArray, sql, sum } from 'drizzle-orm'
+import { and, eq, inArray, isNull, notInArray, sql, sum } from 'drizzle-orm'
 import type { CourseOutline } from '../core/app-data'
-import type { GuestProgressEntry } from '../core/public-content'
+import type { GuestProgressEntry, GuestReviewCard } from '../core/public-content'
 import { parseExerciseTests } from '../core/exercise'
 import { gitGoalSchema } from '../core/git-sim'
 import {
@@ -549,7 +549,8 @@ export async function importGuestProgress(
   userId: string,
   entries: GuestProgressEntry[],
   playXp = 0,
-): Promise<{ imported: number; xp: number }> {
+  reviews: GuestReviewCard[] = [],
+): Promise<{ imported: number; xp: number; reviews: number }> {
   const now = new Date()
   let imported = 0
   let xpTotal = 0
@@ -608,5 +609,67 @@ export async function importGuestProgress(
     imported++
     xpTotal += e.xp
   }
-  return { imported, xp: xpTotal }
+
+  const reviewsImported = await importGuestReviewCards(userId, reviews)
+  return { imported, xp: xpTotal, reviews: reviewsImported }
+}
+
+// Carry a guest's review queue into their new account.
+//
+// Without this, signing up *emptied* the queue the guest had just built —
+// exactly backwards, since a queue of cards coming due is the honest reason to
+// make an account in the first place.
+//
+// The cards arrive already scheduled: the SM-2 scheduler is pure and runs
+// client-side for guests, so re-deriving a schedule here would only risk
+// disagreeing with the intervals they were already shown.
+//
+// Two guards. Built-in questions only, matching the progress import above — a
+// guest can only have answered public content, so anything else is forged. And
+// `onConflictDoNothing`, so importing can never overwrite a card the account
+// already has: an existing card reflects real reviews on this account, which
+// beats a guest's device-local one.
+async function importGuestReviewCards(
+  userId: string,
+  cards: GuestReviewCard[],
+): Promise<number> {
+  if (cards.length === 0) return 0
+
+  const ids = [...new Set(cards.map((c) => c.questionId))]
+  const builtIn = new Set(
+    (
+      await db
+        .select({ id: quizQuestions.id })
+        .from(quizQuestions)
+        .innerJoin(lessonSegments, eq(lessonSegments.id, quizQuestions.segmentId))
+        .innerJoin(lessons, eq(lessons.id, lessonSegments.lessonId))
+        .innerJoin(courses, eq(courses.id, lessons.courseId))
+        .where(and(inArray(quizQuestions.id, ids), isNull(courses.ownerUserId)))
+    ).map((r) => r.id),
+  )
+
+  const rows = cards
+    .filter((c) => builtIn.has(c.questionId))
+    .map((c) => ({
+      userId,
+      itemType: 'quiz_question' as const,
+      itemId: c.questionId,
+      interval: c.interval,
+      repetitions: c.repetitions,
+      efactor: c.efactor,
+      reps: c.reps,
+      lapses: c.lapses,
+      due: new Date(c.due),
+      lastReviewedAt: c.lastReviewedAt ? new Date(c.lastReviewedAt) : null,
+    }))
+  if (rows.length === 0) return 0
+
+  const inserted = await db
+    .insert(reviewCards)
+    .values(rows)
+    .onConflictDoNothing({
+      target: [reviewCards.userId, reviewCards.itemType, reviewCards.itemId],
+    })
+    .returning({ id: reviewCards.id })
+  return inserted.length
 }

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
   clearGuestReviews,
+  guestReviewEntries,
   guestDueReviews,
   guestNextDueAt,
   guestReviewCardCount,
@@ -94,5 +95,28 @@ describe('guest review cards', () => {
 
   it('reports no next-due when there are no cards', () => {
     expect(guestNextDueAt()).toBeNull()
+  })
+
+  // The signup handoff. Without it, making an account emptied the queue the
+  // guest had just built — the opposite of the reason to make one.
+  describe('signup migration', () => {
+    it('flattens each card to the wire shape the import takes', () => {
+      seedGuestReviewCard('q1', 'p', ['a'], false, now)
+      const [entry] = guestReviewEntries()
+      expect(entry).toMatchObject({ questionId: 'q1', repetitions: 0, lapses: 1 })
+      expect(typeof entry.due).toBe('string')
+      expect(entry.efactor).toBeGreaterThanOrEqual(1.3)
+    })
+
+    it('hands over every card, due or not', () => {
+      seedGuestReviewCard('q1', 'p', undefined, false, now) // due in minutes
+      seedGuestReviewCard('q2', 'p', undefined, true, now) // due tomorrow
+      expect(guestReviewEntries()).toHaveLength(2)
+      expect(guestDueReviews(now).dueCount).toBe(0)
+    })
+
+    it('is empty when there is nothing to migrate', () => {
+      expect(guestReviewEntries()).toEqual([])
+    })
   })
 })

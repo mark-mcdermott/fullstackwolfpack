@@ -136,6 +136,15 @@ export function guestNextDueAt(): string | null {
   )
 }
 
+// The stored cards flattened for the signup migration — the wire shape the
+// import endpoint takes, which is the card plus the question it belongs to.
+export function guestReviewEntries(): (ReviewCard & { questionId: string })[] {
+  return Object.entries(read()).map(([questionId, stored]) => ({
+    questionId,
+    ...stored.card,
+  }))
+}
+
 export function clearGuestReviews(): void {
   try {
     localStorage.removeItem(KEY)
