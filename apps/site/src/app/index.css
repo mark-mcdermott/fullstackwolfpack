@@ -469,15 +469,15 @@
   --hero-glow-sub: 28% 42%;
   background-image:
     radial-gradient(
-      ellipse 60% 68% at var(--hero-glow-title),
+      ellipse 20% 138% at var(--hero-glow-title),
       oklch(0 0 0 / 0.5) 0%,
-      oklch(0 0 0 / 0.24) 42%,
-      transparent 72%
+      oklch(0 0 0 / 0.24) 52%,
+      transparent 82%
     ),
     radial-gradient(
-      ellipse 48% 44% at var(--hero-glow-sub),
+      ellipse 8% 94% at var(--hero-glow-sub),
       oklch(0 0 0 / 0.27) 0%,
-      transparent 72%
+      transparent 92%
     );
 }
 
