@@ -371,38 +371,53 @@ A function value, when created, keeps a link to the frame it was **written insid
 So if a function value *outlives* the call that created it, the frame it points at cannot be thrown away. Something still needs it.
 
 \`\`\`js
-function makeCounter() {
+function makeCounter() {      // makeCounter's body starts here
   let n = 0;
-  return function () {
+  return function () {        // the INNER function's body starts here
     n = n + 1;
     return n;
-  };
-}
+  };                          // the inner body ends here
+}                             // makeCounter's body ends here
 
 const next = makeCounter();
 next(); // 1
 next(); // 2
 \`\`\`
 
-Line by line:
+There are **two bodies** here, and keeping them apart is the whole thing. \`next\` is the *inner* function — that is what \`makeCounter\` returned. So calling \`next()\` runs the inner body, and only the inner body.
 
 \`\`\`
-makeCounter() called
+makeCounter()  runs makeCounter's body — once, and only once
   ┌─ frame A ─────────────────────┐
-  │ n = 0                         │
+  │ let n = 0     → n is 0        │  this line runs HERE
   │ create a function value       │  it links back to frame A
   │ return that function value    │
   └───────────────────────────────┘
   frame A is NOT discarded — the returned
   function still links to it
 
-next  -> the returned function (linked to frame A)
+next  ->  the inner function (linked to frame A)
 
-next()  runs the body: reads n from frame A (0), writes 1, returns 1
-next()  runs the body: reads n from frame A (1), writes 2, returns 2
+next()  runs the inner body:  n = n + 1  → reads 0, writes 1, returns 1
+next()  runs the inner body:  n = n + 1  → reads 1, writes 2, returns 2
 \`\`\`
 
-Both calls read and write **the same \`n\`**, because both go through the same link, to the same frame.
+So \`let n = 0\` is not *skipped* on the second call. It is not in the function being called. It belongs to \`makeCounter\`, which ran once — back when \`next\` was made — and has been finished ever since.
+
+The two calls to \`next()\` are not two runs of the code you read top to bottom. They are two runs of a two-line function that happens to reach outward for \`n\`.
+
+If you want \`n\` back at 0, you do not call \`next()\` differently — you call \`makeCounter()\` again, which runs its body again and builds a *second* frame:
+
+\`\`\`js
+const a = makeCounter();
+const b = makeCounter();
+
+a(); // 1
+a(); // 2
+b(); // 1  ← its own frame, its own n, still at 0 until now
+\`\`\`
+
+Both calls to \`next()\` read and write **the same \`n\`**, because both go through the same link, to the same frame. \`a\` and \`b\` do not, because they link to different frames.
 
 That pairing — a function value plus the frame it links to — is what the word **closure** names. There is nothing extra to it: it is a frame that outlived its call because something still points at it.
 
