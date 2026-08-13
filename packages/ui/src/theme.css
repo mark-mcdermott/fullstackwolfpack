@@ -201,7 +201,12 @@
        stop, with body::before painting #11151E → this → #090B12. */
     --background: #090b10;
     --foreground: oklch(0.94 0.005 268);
-    --card: #1a202b;
+    /* Weight, deliberately. Lifting the face to #1a202b bought less than it
+       cost: a brighter, flatter card starts losing the sense of a contained
+       object sitting in space. This is ~30% back toward the darker value, with
+       the chroma held flat (0.0229 → 0.0230) so it is weight returning and not
+       the blue. Page contrast 1.205 → 1.191. */
+    --card: #191f2a;
     --card-foreground: oklch(0.94 0.005 268);
     --popover: #222834;
     --popover-foreground: oklch(0.985 0 0);
@@ -222,7 +227,7 @@
     --chart-3: oklch(0.439 0 0);
     --chart-4: oklch(0.371 0 0);
     --chart-5: oklch(0.269 0 0);
-    --sidebar: #1a202b;
+    --sidebar: #191f2a;
     --sidebar-foreground: oklch(0.985 0 0);
     --sidebar-primary: oklch(0.62 0.223 27.3);
     --sidebar-primary-foreground: oklch(0.985 0 0);
