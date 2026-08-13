@@ -91,6 +91,16 @@ export const raisedCtaClass = cn(
   // `.cta-*` sets its own `--cta-hover` under `.dark`; the filter also lifts the
   // box-shadow, so the edge glow comes up with the face.
   'transition-[filter,box-shadow,translate] hover:brightness-[var(--cta-hover,1.06)]',
+  // Light takes its hover from lift rather than brightness — a saturated red
+  // has nowhere to go on a filter, but a raised object can still come toward
+  // you. Dark keeps brightness alone: its faces are dark enough that a filter
+  // reads clearly, and lifting a button that already sits in a glow reads as
+  // the glow moving rather than the button.
+  // `:hover:not(:active)` rather than plain `:hover`, or the lift and the press
+  // tie on specificity and the button stops depressing — you are always hovering
+  // at the moment you click, so the press feedback simply disappears.
+  'light:[&:hover:not(:active)]:-translate-y-px',
+  'light:[&:hover:not(:active)]:shadow-[var(--cta-edge),0_7px_16px_-5px_rgb(0_0_0/0.32)]',
   'active:translate-y-px active:shadow-[inset_0_2px_3px_rgb(0_0_0/0.3),0_1px_2px_rgb(0_0_0/0.25)]',
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
 )
