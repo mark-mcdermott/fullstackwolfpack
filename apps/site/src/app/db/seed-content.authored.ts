@@ -649,7 +649,7 @@ Start with a sentence that should bother you, because the last lesson said the o
 
 **A machine frame is always reclaimed when its call returns.** Always — no condition, no exception, nothing survives it. The stack pointer moves back and the space is gone, whatever else in the program happens to be pointing anywhere.
 
-The last lesson said a frame someone still points at is *not* discarded. Both are true, because they are not describing the same object. "Frame" there is the model — a call's workspace, which behaves as though it can outlive the call. "Machine frame" here is the actual stack memory, which never does. The gap between those two is exactly what this segment is about.
+The last lesson said a frame someone still points at is *not* discarded. Both are true, because they are not describing the same object. "Frame" there is the model — a call's workspace, which behaves as though it can outlive the call. "Machine frame" here is the real memory it occupies on the call stack, which never does. The gap between those two is exactly what this segment is about.
 
 So follow it through. Suppose a variable that an inner function will read later lived *only* in the machine frame:
 
@@ -672,9 +672,13 @@ function counter() {
 }
 \`\`\`
 
-Read that again with the first lesson in mind, because it quietly rewrites the usual story about closures. "The frame is kept alive when a function escapes" sounds like a rescue performed at \`return\`. Nothing is rescued. \`n\` was never in the frame to begin with — the decision was made before \`counter\` ran even once, and returning just left the heap object still reachable.
+Read that again with the first lesson in mind, because it quietly corrects the usual account of closures.
 
-The rescue story and this one predict the same behaviour, which is why you can go years without noticing the difference. This one also predicts the cost: capturing is not free, because it moves a variable off the one-instruction allocation and onto the heap.`,
+That account says: **the frame is kept alive when a function escapes.** It describes something happening at \`return\` — the call finishes, the engine notices a function got away, and spares the frame it would otherwise have discarded.
+
+Nothing like that happens. By \`return\` it is far too late: the stack pointer moves back regardless, and no inspection takes place. \`n\` was never in that memory to begin with. The decision was made while the source was being *read*, before \`counter\` ran once, and returning simply left a heap object that was always separate still reachable.
+
+Both accounts predict the same behaviour, which is why you can hold the wrong one for years without it ever failing you. This one predicts one more thing: capturing is not free. It moves a variable off a one-instruction stack allocation and onto the heap.`,
       questions: [],
     },
     {
@@ -793,7 +797,7 @@ The listener is kept alive by the button for as long as the button is on the pag
       estMinutes: 4,
       markdown: `\`id\` only. \`rows\` is never mentioned inside the listener, so it is not context-allocated, nothing refers to it once \`attach\` returns, and the collector takes it.
 
-If you guessed **both**, that is the rescue story again — the idea that a closure holds its whole birth frame. It is the single most common way people reason about this, and it is why closures get a reputation for leaking everything in sight.
+If you guessed **both**, that is the belief from two segments ago showing up again: that a closure holds on to the whole frame it was born in. It is the single most common way people reason about this, and it is why closures get a reputation for leaking everything in sight. Storage is decided per *variable*, not per call.
 
 Now make it leak, by changing one line:
 
