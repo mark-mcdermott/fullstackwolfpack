@@ -135,6 +135,17 @@
         inset -1px 0 0 #a41314, inset -2px 0 0 #f94548,
         inset 0 -1px 0 #a9070a, inset 0 -2px 0 #cb0a12,
         0 2px 5px rgb(0 0 0 / 0.28);
+    /* Light never set this, so it fell through to the 1.06 default while dark
+       sets 1.28–1.85. Measured, 1.06 moved the face from (215,22,27) to
+       (229,23,29) — 14 points on red and nothing else, which is why the hover
+       read as barely there.
+       It cannot be fixed by turning the number up. `brightness()` on a
+       near-saturated red just pushes R toward clipping; dark has room to move
+       because its base is dark (#a8020c), light does not. So light gets a small
+       honest bump and takes its feedback from *lift* instead — see the
+       `light:hover` rules on `raisedCtaClass`, where the button rises 1px onto a
+       deeper shadow. That is the affordance a raised button actually has. */
+    --cta-hover: 1.09;
     /* The raised CTA's face. */
     --cta-face: linear-gradient(to bottom, #e62327, #ca0a0f);
     --background: oklch(1 0 0);

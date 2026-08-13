@@ -589,6 +589,7 @@ export const AUTHORED_JS_MACHINE: SeedLesson = {
     'heap',
     'call stack',
     'reference',
+    'V8',
   ],
   segments: [
     {
@@ -909,7 +910,302 @@ V8 is smarter than that in many cases, and will split contexts when it can prove
   ],
 }
 
+// The third authored lesson: when things run, once "one at a time" is not
+// enough on its own.
+//
+// The first two lessons build a machine that does exactly one thing at a time,
+// and the `call stack` entry closes on that fact. This is the lesson that
+// question demands: if there is one stack and one thing running, how is any of
+// this asynchronous? The answer needs no new mechanism, only one more place
+// work can wait — which is why it belongs after the machine lesson and not in
+// the middle of it.
+export const AUTHORED_JS_ASYNC: SeedLesson = {
+  id: 'authored-js-async',
+  title: 'How Nothing Runs at the Same Time',
+  estMinutes: 30,
+  glossary: [
+    'event loop',
+    'task queue',
+    'microtask',
+    'blocking',
+    'call stack',
+    'function value',
+  ],
+  segments: [
+    {
+      id: 'authored-js-async-s1',
+      type: 'hook',
+      title: 'Zero does not mean now',
+      estMinutes: 2,
+      markdown: `You ask for something to happen in zero milliseconds. It happens last.
+
+\`\`\`js
+console.log('one');
+setTimeout(() => console.log('two'), 0);
+console.log('three');
+\`\`\`
+
+\`\`\`
+one
+three
+two
+\`\`\`
+
+Not "two arrives a fraction late". Two arrives **after everything else**, and it would still arrive after everything else if the rest of the program took a minute.
+
+The usual explanation is that JavaScript is "asynchronous" or "non-blocking", which names the behaviour instead of explaining it. By the end of this you will be able to predict the order of any of these, including the ones that trip up people who have written JavaScript for years — and you will not need a new machine to do it. The one from the last two lessons is enough, plus one place for work to wait.`,
+      questions: [],
+    },
+    {
+      id: 'authored-js-async-s2',
+      type: 'mechanism',
+      title: 'One stack, one thing, no exceptions',
+      estMinutes: 4,
+      markdown: `Start from what you already have.
+
+There is one call stack. A call pushes a frame; returning pops it. While a function runs, it is the only thing running — nothing interleaves, nothing pre-empts it, no other line of your JavaScript executes until it returns.
+
+\`\`\`js
+function outer() { return inner(); }
+function inner() { return 1; }
+outer();
+\`\`\`
+
+Nothing about that is negotiable, and it stays true for the whole lesson. **JavaScript never runs two pieces of your code at the same time.**
+
+Which should immediately bother you, because \`setTimeout\` plainly does something later, and a click handler plainly runs when you click. If nothing interrupts, and nothing runs in parallel, when does any of it happen?
+
+There is only one gap available: **the moment the stack goes empty.** Every call has returned, nothing is running, and the machine has nothing to do.
+
+That gap is where all of async JavaScript lives. Everything else in this lesson is detail about what gets to use it, and in what order.`,
+      questions: [],
+    },
+    {
+      id: 'authored-js-async-s3',
+      type: 'mechanism',
+      title: 'setTimeout does not run your function',
+      estMinutes: 5,
+      markdown: `Here is the line that does the damage: it looks like \`setTimeout\` runs your function, and it does not.
+
+\`setTimeout(fn, 0)\` does two things, neither of them "run fn":
+
+1. it hands \`fn\` to the browser
+2. it returns immediately
+
+You already know that handing over a function is not running it — that is the function-value idea from the first lesson, and this is the same move. \`fn\` is a value being stored somewhere for later.
+
+The browser starts a timer. When the timer expires, the browser does not run \`fn\` either — it cannot, because your code might be mid-stack, and interrupting it would break the one rule that never breaks. Instead it puts \`fn\` in a **task queue**: a line of functions waiting for a turn.
+
+The turn comes from the **event loop**, which is this and nothing more:
+
+\`\`\`
+forever:
+  if the stack is not empty  → keep running it
+  else                       → take one job from the queue and run it
+\`\`\`
+
+So trace the opening example properly:
+
+\`\`\`
+console.log('one')          runs, prints "one", returns
+setTimeout(fn, 0)           hands fn over, returns immediately
+                            → browser: timer expires ~instantly, fn joins the queue
+console.log('three')        runs, prints "three", returns
+                            → the script finishes; the stack is finally EMPTY
+                            → the loop takes fn from the queue and runs it
+fn                          prints "two"
+\`\`\`
+
+The zero was honest. \`fn\` was eligible almost instantly. It still had to wait for the stack, because everything does.`,
+      questions: [],
+    },
+    {
+      id: 'authored-js-async-s4',
+      type: 'predict',
+      title: 'How long is a zero-millisecond wait?',
+      estMinutes: 1,
+      markdown: `Commit before reading on.
+
+\`\`\`js
+setTimeout(() => console.log('timer'), 0);
+
+const start = Date.now();
+while (Date.now() - start < 3000) {}   // three seconds of busy work
+
+console.log('done waiting');
+\`\`\``,
+      questions: [
+        {
+          id: 'authored-js-async-s4-q1',
+          type: 'mcq',
+          prompt: 'When does `timer` print?',
+          options: [
+            'Almost immediately — the loop is still running, but 0ms has passed',
+            'After about three seconds, once `done waiting` has printed',
+            'After about three seconds, just before `done waiting`',
+            'Never — the busy loop discards it',
+          ],
+          correctIndex: 1,
+          explanation:
+            'The callback became eligible within a millisecond and has been sitting in the queue ever since. The loop cannot reach the queue while the stack is busy, and the stack stays busy until the script finishes — which is after `done waiting`.',
+        },
+      ],
+    },
+    {
+      id: 'authored-js-async-s5',
+      type: 'reveal',
+      title: 'The queue cannot interrupt anything',
+      estMinutes: 4,
+      markdown: `After about three seconds, and **after** \`done waiting\`.
+
+The callback was eligible within a millisecond. It then sat in the queue for the whole three seconds, because the loop only looks at the queue when the stack is empty, and the stack held a \`while\` loop.
+
+If you guessed **almost immediately**, the belief to discard is that a timer can interrupt. Nothing can. There is no mechanism in JavaScript for one piece of your code to stop another mid-run — which is exactly why you never have to think about a variable changing underneath you between two lines.
+
+If you guessed **just before \`done waiting\`**, that is the same belief in a gentler form: it would still mean the loop got a turn while the script was running. It never does.
+
+This is what **blocking** means, and why it matters more in a browser than it looks on paper. That \`while\` loop is not merely slow — for three seconds nothing queued can run at all. Clicks, timers, rendering, a spinner you started: all of it waits, because the page's interface shares the one stack your code is sitting on.
+
+\`\`\`js
+button.addEventListener('click', () => console.log('clicked'));
+// during a three-second block, clicking does nothing visible —
+// the clicks are queued, and arrive all at once when the stack clears
+\`\`\`
+
+The clicks were not lost. They were queued, correctly, behind you.`,
+      questions: [],
+    },
+    {
+      id: 'authored-js-async-s6',
+      type: 'mechanism',
+      title: 'Promises use a faster queue',
+      estMinutes: 5,
+      markdown: `One more piece, and it is the one that decides most real ordering questions.
+
+There is not one queue. There are two, and promise callbacks use the one with priority.
+
+When the stack empties, the loop:
+
+1. drains the **microtask** queue *completely* — including microtasks added while draining
+2. then takes **one** job from the ordinary task queue
+3. then repeats
+
+Promise callbacks (\`.then\`, and everything after an \`await\`) are microtasks. Timers, clicks and network events are ordinary tasks.
+
+\`\`\`js
+console.log('one');
+setTimeout(() => console.log('timer'), 0);
+Promise.resolve().then(() => console.log('promise'));
+console.log('two');
+\`\`\`
+
+\`\`\`
+one
+two
+promise    ← microtask queue drains first
+timer      ← ordinary task, after
+\`\`\`
+
+Both were waiting before the stack emptied. \`promise\` did not win by being registered first — it was registered *second* — and not by being faster. It won because its queue is emptied before the loop will consider a timer at all.
+
+"Completely" is not a detail. A microtask that queues another microtask, which queues another, never lets the loop move on: timers stop firing, clicks stop arriving, the page freezes — with no infinite loop anywhere in your source.`,
+      questions: [],
+    },
+    {
+      id: 'authored-js-async-s7',
+      type: 'predict',
+      title: 'Four lines, one order',
+      estMinutes: 2,
+      markdown: `Everything you need is now on the table. Work it out before you look.
+
+\`\`\`js
+console.log('A');
+
+setTimeout(() => console.log('B'), 0);
+
+Promise.resolve()
+  .then(() => console.log('C'))
+  .then(() => console.log('D'));
+
+console.log('E');
+\`\`\``,
+      questions: [
+        {
+          id: 'authored-js-async-s7-q1',
+          type: 'mcq',
+          prompt: 'What is the output order?',
+          options: ['A E C D B', 'A E B C D', 'A B C D E', 'A E C B D'],
+          correctIndex: 0,
+          explanation:
+            'A and E run on the stack. Then the microtask queue drains *completely* — C, and the D that C queues — before the loop takes B from the ordinary task queue.',
+        },
+      ],
+    },
+    {
+      id: 'authored-js-async-s8',
+      type: 'reveal',
+      title: 'Drain, then one task',
+      estMinutes: 4,
+      markdown: `**A E C D B.**
+
+\`\`\`
+A                     stack
+E                     stack — the script ends here, stack empties
+C                     microtask; running it queues the next .then
+D                     microtask, added *during* the drain, so it runs in this drain
+B                     ordinary task — only now, with microtasks exhausted
+\`\`\`
+
+The trap is **D**. It did not exist when the stack emptied — it was created by C. And it still runs before B, because the loop drains microtasks until there are none left rather than taking a snapshot of what was waiting.
+
+If you answered **A E B C D**, the belief to discard is that queued work runs in the order it was queued. There are two queues with a priority between them, and registration order only decides ties inside one of them.
+
+If you answered **A B C D E**, that is the interrupt belief from earlier — B cannot run before E, because E is on the stack and nothing queued interrupts a running stack.
+
+Everything in this lesson is that one picture: a stack that must empty, a fast queue drained to nothing, then a single slow-queue job. \`await\` changes none of it — the code after an \`await\` is a promise callback, so it is a microtask, and it lines up exactly where C and D did.`,
+      questions: [],
+    },
+    {
+      id: 'authored-js-async-s9',
+      type: 'check',
+      title: 'Check',
+      estMinutes: 3,
+      markdown: `Two on the mechanism.`,
+      questions: [
+        {
+          id: 'authored-js-async-s9-q1',
+          type: 'mcq',
+          prompt: 'Why can a click handler not run while a `while` loop is spinning?',
+          options: [
+            'The click is discarded while the page is busy',
+            'Handlers run only when the call stack is empty, and the loop keeps it busy',
+            'Clicks have lower priority than loops',
+            'The browser pauses event listeners during long tasks',
+          ],
+          correctIndex: 1,
+          explanation:
+            'The click is queued immediately and correctly. The event loop only takes from a queue when the stack is empty, and the `while` loop is a frame on that stack.',
+        },
+        {
+          id: 'authored-js-async-s9-q2',
+          type: 'mcq',
+          prompt: 'A `.then` callback and a `setTimeout(…, 0)` callback are both waiting when the stack empties. Which runs first, and why?',
+          options: [
+            'The timer, because 0ms has already elapsed',
+            'Whichever was registered first',
+            'The `.then`, because microtasks are drained before any ordinary task',
+            'They alternate, one from each queue per turn',
+          ],
+          correctIndex: 2,
+          explanation:
+            'Registration order decides ties within one queue, not between the two. The microtask queue is drained to empty before the loop takes a single ordinary task.',
+        },
+      ],
+    },
+  ],
+}
+
 // Keyed by topic slug: lessons to prepend to that topic's generated course.
 export const AUTHORED_LESSONS: Record<string, SeedLesson[]> = {
-  javascript: [AUTHORED_JS_EXECUTION_MODEL, AUTHORED_JS_MACHINE],
+  javascript: [AUTHORED_JS_EXECUTION_MODEL, AUTHORED_JS_MACHINE, AUTHORED_JS_ASYNC],
 }

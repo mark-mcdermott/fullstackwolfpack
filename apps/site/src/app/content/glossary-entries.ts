@@ -322,6 +322,117 @@ That is the reason there is no address to speak of. In C an object sits at an ad
 
 So "the variable holds a memory address" is the one hardware-flavoured sentence to avoid: it is close enough to feel right, and wrong in a way that stops making sense the moment you learn the collector moves things.`,
   },
+  {
+    slug: 'v8',
+    term: 'V8',
+    short: `Google's JavaScript engine — the C++ program that actually parses, compiles and runs your code in Chrome, Node and Deno.`,
+    see: ['machine-frame', 'context-allocation', 'garbage-collection', 'heap'],
+    body: `**V8** is a program. Your JavaScript is data that it reads.
+
+That is worth saying plainly, because "the engine" gets used as though it were an abstraction. It is not: it is roughly a million lines of C++ that takes your source text, parses it, compiles it to bytecode, interprets that, watches which parts run hot, and recompiles those to machine code. Every decision these lessons describe — which variables get context-allocated, when a frame's space is reclaimed, when the collector moves an object — is code in that program making a choice.
+
+It runs in Chrome, Edge, Node, Deno and Electron, which is most of the places you will run JavaScript.
+
+- Source: [github.com/v8/v8](https://github.com/v8/v8)
+- The team's own writing, which is unusually good: [v8.dev/blog](https://v8.dev/blog)
+
+**It is not the only engine, and that matters here.** Safari runs JavaScriptCore; Firefox runs SpiderMonkey. When these lessons name V8 it is because a detail is specific enough that pretending otherwise would be hand-waving — the nursery, the exact tiering, the name "Context" for the object holding captured variables.
+
+The *shape* is shared. Every modern engine parses ahead of running, decides storage before execution, collects garbage by reachability, moves surviving objects, and recompiles hot code on type assumptions it can withdraw. So the mental model transfers; the vocabulary and the tuning do not. If you read that some pattern is "fast", the honest question is always *in which engine, at which version* — the answer changes, and code written to yesterday's answer is how most JavaScript folklore starts.`,
+  },
+  {
+    slug: 'event-loop',
+    term: 'event loop',
+    short: `The rule that decides what runs next: finish what is on the stack, then take one waiting job from a queue, and repeat forever.`,
+    see: ['call-stack', 'task-queue', 'microtask', 'blocking'],
+    body: `The **event loop** is not a thing that runs your code in parallel. It is a rule about ordering, and it is almost embarrassingly simple:
+
+\`\`\`
+forever:
+  if the call stack is not empty   → keep running it
+  else                             → take one job from the queue and run it
+\`\`\`
+
+That is the whole mechanism. Everything that feels mysterious about async JavaScript follows from those two lines and one consequence of them: **a job only starts when the stack is empty.**
+
+So \`setTimeout(fn, 0)\` does not mean "run \`fn\` now". It means "put \`fn\` in the queue". If the code that called it is still running, the stack is not empty, and \`fn\` waits — no matter that you asked for zero.
+
+\`\`\`js
+console.log('one');
+setTimeout(() => console.log('two'), 0);
+console.log('three');
+
+// one
+// three
+// two
+\`\`\`
+
+\`two\` is last, and not by a millisecond. It is last because \`console.log('three')\` had to finish, and then the function it was inside had to finish, before the loop was ever free to look at the queue.
+
+The word "loop" is doing honest work: this is a program that never exits, checking a stack and a queue, forever, at the bottom of every browser tab.`,
+  },
+  {
+    slug: 'task-queue',
+    term: 'task queue',
+    short: `Where a callback waits until the stack is empty — a line, not a schedule.`,
+    see: ['event-loop', 'microtask', 'call-stack'],
+    body: `When you hand a function to \`setTimeout\`, a click listener, or a network response, it does not run then. It is put in a **queue** to run later, and the event loop takes from that queue only when the call stack is empty.
+
+The delay you pass is a *minimum*, not an appointment:
+
+\`\`\`js
+setTimeout(() => console.log('later'), 10);
+// 10ms passes — the callback becomes eligible, and joins the queue
+// but if the stack is busy at that moment, it waits its turn
+\`\`\`
+
+This is why "\`setTimeout\` is inaccurate" is the wrong complaint. It is perfectly accurate about what it promises: *not before* 10ms. It promises nothing about *at* 10ms, because it cannot — the thing running when the timer fires has to finish first, and \`setTimeout\` has no way to interrupt it.
+
+The queue is also why order between different sources is not something to rely on casually. A timer, a click and a message each arrive from their own source; what they share is the single door they must all queue at.`,
+  },
+  {
+    slug: 'microtask',
+    term: 'microtask',
+    short: `A promise's callback — it jumps ahead of the task queue and runs as soon as the stack empties, before any timer.`,
+    see: ['event-loop', 'task-queue', 'call-stack'],
+    body: `There is not one queue, there are two, and promises use the faster one.
+
+After the stack empties, the loop first drains the **microtask** queue *completely* — including any microtasks those microtasks add — and only then takes a single job from the ordinary task queue.
+
+\`\`\`js
+console.log('one');
+setTimeout(() => console.log('timer'), 0);
+Promise.resolve().then(() => console.log('promise'));
+console.log('two');
+
+// one
+// two
+// promise   ← microtask: runs first
+// timer     ← task: runs after
+\`\`\`
+
+Both were queued while the stack was busy. \`promise\` wins because its queue is drained before the loop will look at a timer at all — not because it was registered earlier, and not because it was faster.
+
+The "drain completely" part has teeth. A microtask that queues another microtask, forever, will hold the loop there forever: timers never fire, clicks never arrive, and the page hangs — with no infinite loop anywhere in your code. That is a rarer failure than a blocking loop, and a stranger one to find.`,
+  },
+  {
+    slug: 'blocking',
+    term: 'blocking',
+    short: `Occupying the call stack long enough that nothing queued can run — which in a browser means the page stops responding.`,
+    see: ['event-loop', 'call-stack', 'task-queue'],
+    body: `One stack, one thing at a time. So any code that runs for a long stretch is not merely slow — it is **blocking**, and while it runs nothing queued can start.
+
+\`\`\`js
+button.addEventListener('click', () => console.log('clicked'));
+
+const start = Date.now();
+while (Date.now() - start < 5000) {}   // five seconds of arithmetic
+\`\`\`
+
+Click during those five seconds and nothing happens — not even a button press animation. The click was not lost: it went into the queue, correctly, and the loop could not reach the queue because the stack was busy. When the loop finishes, every click you made arrives at once.
+
+This is the whole reason async exists in JavaScript. Not because waiting is slow, but because there is a single stack shared by your code *and* the interface, so anything that occupies it holds the page hostage. "Don't block the main thread" is not a style rule; it is a description of the one place the page can be interacted with.`,
+  },
 ]
 
 const BY_SLUG = new Map(GLOSSARY_ENTRIES.map((e) => [e.slug, e]))
