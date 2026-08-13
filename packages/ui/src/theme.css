@@ -199,11 +199,11 @@
 .dark {
     /* Synced with apps/site/src/app/index.css: the midnight ramp's middle
        stop, with body::before painting #11151E → this → #090B12. */
-    --background: #0d1320;
+    --background: #090b10;
     --foreground: oklch(0.94 0.005 268);
-    --card: #171e2c;
+    --card: #181d27;
     --card-foreground: oklch(0.94 0.005 268);
-    --popover: #222a38;
+    --popover: #222834;
     --popover-foreground: oklch(0.985 0 0);
     --primary: oklch(0.62 0.223 27.3);
     --primary-foreground: oklch(0.985 0 0);
@@ -214,15 +214,15 @@
     --accent: oklch(0.269 0 0);
     --accent-foreground: oklch(0.985 0 0);
     --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 7%);
-    --input: oklch(1 0 0 / 11%);
+    --border: oklch(1 0 0 / 4.5%);
+    --input: oklch(1 0 0 / 9%);
     --ring: oklch(0.556 0 0);
     --chart-1: oklch(0.87 0 0);
     --chart-2: oklch(0.556 0 0);
     --chart-3: oklch(0.439 0 0);
     --chart-4: oklch(0.371 0 0);
     --chart-5: oklch(0.269 0 0);
-    --sidebar: #171e2c;
+    --sidebar: #181d27;
     --sidebar-foreground: oklch(0.985 0 0);
     --sidebar-primary: oklch(0.62 0.223 27.3);
     --sidebar-primary-foreground: oklch(0.985 0 0);
