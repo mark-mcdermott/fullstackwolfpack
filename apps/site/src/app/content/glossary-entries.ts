@@ -200,7 +200,7 @@ Two things follow from the shape. Only one thing runs at a time, so nothing on t
     slug: 'heap',
     term: 'heap',
     short: `The other place values live — the one with no fixed lifetime, where anything that has to outlive the call that made it is kept.`,
-    see: ['stack-frame', 'call-stack', 'reference', 'closure'],
+    see: ['stack-frame', 'call-stack', 'reference', 'closure', 'garbage-collection'],
     body: `A frame disappears when its call returns. So there has to be somewhere else — otherwise no value could ever outlive the function that created it, and \`return\` would be useless.
 
 That somewhere is the **heap**. Where the stack is strictly ordered (the top frame finishes next, always), the heap has no order and no schedule: things stay as long as something can still reach them, and are cleaned up when nothing can.
@@ -248,6 +248,61 @@ fns[0]();   // 3
 There is one \`i\` here, in one slot, and all three functions reach the same slot. The loop runs to completion first — pushing a function is not calling it, so none of those bodies have executed yet — and it leaves \`3\` behind. Later, all three read that slot and all three see \`3\`.
 
 Swap \`var\` for \`let\` and each iteration gets its own slot to reach, so the three functions reach three different ones and return \`0\`, \`1\`, \`2\`.`,
+  },
+  {
+    slug: 'machine-frame',
+    term: 'machine frame',
+    short: `The real block of stack memory a call gets from the CPU — what a stack frame is once you stop speaking in models.`,
+    see: ['stack-frame', 'call-stack', 'context-allocation', 'heap'],
+    body: `A **machine frame** is the concrete version of a stack frame: an actual region of stack memory the processor sets aside for one call.
+
+In a language like C the mechanics are visible. The call stack is a block of memory with a pointer to its top; making a call moves that pointer down by however many bytes the call needs, and returning moves it back. Nothing is erased on return — the pointer just moves, and the next call writes over what was there. The frame holds the parameters, the locals, and the address to jump back to when the call finishes.
+
+That is where the name in these lessons comes from, and for most JavaScript calls it is literally what happens: V8 runs on a real stack with real frames.
+
+Two things break the analogy, though, and both matter.
+
+The first is that a variable a closure captures is not in the machine frame at all — see context allocation. The engine works out while parsing which variables an inner function still refers to, and puts those somewhere that outlives the call.
+
+The second is that you cannot take the address of anything. In C, \`&x\` is a number you can keep. JavaScript has no such operator, and could not have one: the garbage collector relocates objects as it works, so any address you wrote down would go stale. What you hold is a reference the engine keeps pointing at the right thing.
+
+So: same shape, same lifetime, same reason a returned local would be gone — but no addresses, and an escape hatch for anything captured.`,
+  },
+  {
+    slug: 'context-allocation',
+    term: 'context allocation',
+    short: `The engine's decision, made while parsing, to store a variable on the heap instead of in the call's frame — because an inner function still needs it.`,
+    see: ['machine-frame', 'heap', 'closure', 'free-variable'],
+    body: `A stack frame is discarded when its call returns. So a variable that some inner function will still read *cannot* live only in the frame, and the engine has to know that before it runs anything.
+
+It works it out while **parsing**. Reading the source, it can already see which inner functions refer to which outer variables. Those variables get **context allocated**: placed in a heap object (V8 calls it a Context) that the inner function keeps a reference to. Everything else stays in the frame, where it is cheaper.
+
+\`\`\`js
+function counter() {
+  const label = 'hits';   // nobody inner reads it — stays in the frame
+  let n = 0;              // the returned function reads it — goes to the heap
+  return function () { return ++n; };
+}
+\`\`\`
+
+This is worth knowing because it quietly corrects how closures are usually described. "The frame is kept alive" sounds like a special rescue performed at \`return\`. Nothing is rescued: \`n\` was never only in the frame. The decision was made before the function ran, and returning simply left the heap object still reachable.
+
+It also explains why closures are not free. Capturing a variable moves it to the heap, and the whole Context stays reachable as long as any function created there is reachable — which is how one small callback held onto by an event listener can keep a much larger object alive.`,
+  },
+  {
+    slug: 'garbage-collection',
+    term: 'garbage collection',
+    short: `The engine reclaiming memory nothing can reach any more — and moving what survives, which is why a JavaScript value has no fixed address.`,
+    see: ['heap', 'reference', 'context-allocation'],
+    body: `Nothing in JavaScript is freed by hand. The engine periodically works out which heap values are still **reachable** — traceable from variables currently in scope, and from anything those refer to — and reclaims the rest.
+
+Reachability, not usefulness, is the whole rule. An object you will never touch again survives as long as something still points at it, which is what a memory leak in JavaScript actually is: not a failure to free, but a reference you forgot you were holding.
+
+The part that changes how you think about the machine is that collection **moves things**. V8 allocates new objects in a small nursery and, when it fills, copies the survivors somewhere else — most objects die young, so copying the few survivors is cheaper than tracking the many dead. A long-lived object can be relocated several times.
+
+That is the reason there is no address to speak of. In C an object sits at an address until you free it, so \`&x\` is a number worth keeping. Here the same object may be at a different place after the next collection, and every reference to it is updated. What you hold is a reference the engine maintains.
+
+So "the variable holds a memory address" is the one hardware-flavoured sentence to avoid: it is close enough to feel right, and wrong in a way that stops making sense the moment you learn the collector moves things.`,
   },
 ]
 
