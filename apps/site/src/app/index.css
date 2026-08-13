@@ -202,6 +202,24 @@
     --chart-3: oklch(0.439 0 0);
     --chart-4: oklch(0.371 0 0);
     --chart-5: oklch(0.269 0 0);
+    /* Syntax palette — one source for both highlighters.
+       Shiki bakes its two themes into per-token custom properties at highlight
+       time (see lib/code-theme.ts); CodeMirror highlights by Lezer tag and
+       cannot share that theme object, so it reads these instead. Declared in
+       both modes so the editor re-colours on a theme switch with no JS.
+       code-theme.test.ts asserts these match the palette. */
+    --code-surface: #f4f5f8;
+    --code-comment: #636b79;
+    --code-keyword: #c2352c;
+    --code-string: #1a7a52;
+    --code-number: #96590a;
+    --code-function: #0f6d99;
+    --code-type: #1b5e8a;
+    --code-variable: #1f2430;
+    --code-param: #8a5a00;
+    --code-punctuation: #5a6472;
+    --code-tag: #b03a30;
+    --code-invalid: #c2352c;
     --radius: 0.625rem;
     --sidebar: oklch(0.985 0 0);
     --sidebar-foreground: oklch(0.145 0 0);
@@ -285,6 +303,25 @@
     --chart-3: oklch(0.439 0 0);
     --chart-4: oklch(0.371 0 0);
     --chart-5: oklch(0.269 0 0);
+    /* Syntax palette — one source for both highlighters.
+       Shiki bakes its two themes into per-token custom properties at highlight
+       time (see lib/code-theme.ts); CodeMirror highlights by Lezer tag and
+       cannot share that theme object, so it reads these instead. Declared in
+       both modes so the editor re-colours on a theme switch with no JS.
+       code-theme.test.ts asserts these match the palette. */
+
+    --code-surface: #10151f;
+    --code-comment: #7d879c;
+    --code-keyword: #ff6b6b;
+    --code-string: #7fd8a0;
+    --code-number: #f0b866;
+    --code-function: #6fc7e8;
+    --code-type: #9ad9f5;
+    --code-variable: #dfe3ea;
+    --code-param: #e5c07b;
+    --code-punctuation: #9aa4b6;
+    --code-tag: #ff8f8f;
+    --code-invalid: #ff6b6b;
     --sidebar: #171e2c;
     --sidebar-foreground: oklch(0.94 0.005 268);
     --sidebar-primary: oklch(0.62 0.223 27.3);
@@ -865,3 +902,23 @@ body[data-immersive] main {
 }
 
 
+
+/* Syntax highlighting — pick one of the two colours Shiki emitted per token.
+   `highlightToHtml` runs with `defaultColor: false`, so every token carries
+   both `--shiki-light` and `--shiki-dark` and neither is applied by default.
+   Choosing here rather than in the component is what keeps the theme switch
+   CSS-only: nothing re-highlights, and no component reads the theme.
+
+   `.shiki span` needs the same rule as `.shiki` because Shiki writes the
+   colour onto each token span inline. */
+.shiki,
+.shiki span {
+    color: var(--shiki-light);
+    background-color: var(--shiki-light-bg);
+}
+
+.dark .shiki,
+.dark .shiki span {
+    color: var(--shiki-dark);
+    background-color: var(--shiki-dark-bg);
+}
