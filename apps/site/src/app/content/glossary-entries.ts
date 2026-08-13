@@ -38,9 +38,27 @@ The one exception is the whole point of closures: if a function value created in
   {
     slug: 'function-value',
     term: 'function value',
-    short: `A function is a value, like a number or a string — writing one creates it and stores it; it does not run it.`,
-    see: ['stack-frame', 'closure'],
-    body: `Writing a function produces a **value** you can store, pass around, and put in an array. Running it is a separate event that happens later, when something calls it.
+    short: `An object the engine builds when the definition line runs — the code, plus a link to where it was written. Not the source text, and not the result of running it.`,
+    see: ['stack-frame', 'closure', 'heap', 'reference', 'context-allocation'],
+    body: `Writing a function produces a **value** you can store, pass around, and put in an array. But it is worth being exact about what that value *is*, because the natural guess is "the code I just wrote", and it is not.
+
+The value is an **object** the engine builds when the definition line runs. It bundles two things:
+
+1. the code — the parameters and the body, ready to run later
+2. a link to the place it was written, so it can find the names it uses
+
+The quickest way to see it is not the text is to write the same text twice:
+
+\`\`\`js
+const a = function () { return 1 };
+const b = function () { return 1 };
+
+a === b;   // false
+\`\`\`
+
+Identical source, two different values. If the value *were* the text, those would be equal. They are not, because each \`function\` expression **created an object** when its line ran — two lines, two objects.
+
+That second ingredient, the link, is the whole of closures. It is why a function can still read a variable from a call that finished long ago, and why two functions built in the same place share what they see.
 
 \`\`\`js
 console.log('one');
@@ -52,9 +70,9 @@ const shout = function () {
 console.log('three');
 \`\`\`
 
-This prints \`one\` then \`three\`. Never \`two\` — the body was written, not executed. It runs only at \`shout()\`.
+This prints \`one\` then \`three\`. Never \`two\` — a value was created and stored, and creating is not running. It runs only at \`shout()\`.
 
-That gap is where most surprising JavaScript lives. A function pushed into an array during a loop is *created* on each iteration, but none of the bodies run until something calls them, possibly long after the loop has finished. If you expect the body to run where you see it written, the behaviour of deferred callbacks is unexplainable.
+That gap is where most surprising JavaScript lives. A function pushed into an array during a loop is *created* on each iteration, but none of the bodies run until something calls them, possibly long after the loop has finished. If you expect the body to run where you see it written, deferred callbacks are unexplainable.
 
 Two separate moments, and they can be far apart: **created** when the definition line runs, **executed** each time it is called.`,
   },
