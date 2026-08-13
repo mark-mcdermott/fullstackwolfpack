@@ -9,7 +9,12 @@ import {
 } from 'lucide-react'
 import { useId, type ReactNode } from 'react'
 import { Link } from 'react-router'
-import { WolfMark, raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
+import {
+  WolfMark,
+  cardSurfaceClass,
+  raisedCtaClass,
+  raisedCtaCompactClass,
+} from '@fw/ui'
 import { cn } from '@/lib/utils'
 
 // Akela's creed + the terminal readout, as a bordered card that sits under the
@@ -22,7 +27,7 @@ export function CreedBand() {
     // Pulls 8px back off the page stack's 24px gap-6, leaving 16px above the
     // band so it sits closer to the launcher than to the sections below. Same
     // trick as HomeHero's `-mb-6`, which cancels that gap outright.
-    <div className="relative -mt-2 overflow-hidden rounded-2xl border border-border bg-card light:bg-[#f8f6f4] light:shadow-[var(--tile-shadow)]">
+    <div className={cn("relative -mt-2 overflow-hidden rounded-2xl border border-border bg-card light:bg-[#f8f6f4] light:shadow-[var(--tile-shadow)]", cardSurfaceClass)}>
       {/* Decorative, so the art rides on a background rather than an <img>: the
           theme picks the plate via `--creed-image` (index.css), which keeps one
           DOM tree across themes and fetches only the matching file — light's
@@ -113,7 +118,7 @@ export function CreedBand() {
 
 // The Wolf's Path — the six-step loop, laid out as a connected chain. Light
 // draws it as pale hexagons on a dotted rail; dark lights the outlines up and
-// runs a solid rail between them, with the final step shifting to violet as the
+// runs a solid rail between them, with only the final step lit as the
 // "level up" payoff. Same markup either way; only the strokes change.
 const PATH_STEPS: {
   icon?: LucideIcon
@@ -198,7 +203,11 @@ function PathHex({
   children: ReactNode
 }) {
   const fillId = useId()
-  const accent = last ? 'var(--color-violet-400)' : 'var(--primary)'
+  // One accent in the UI. The final step used to be violet, which put a second
+  // dominant hue on the page competing with the brand red — and violet is a
+  // colour the artwork already owns. The last step still reads as the payoff,
+  // but through *light* rather than hue: it is the only node that blooms.
+  const accent = 'var(--primary)'
   return (
     <span className="relative flex size-[62px] shrink-0 items-center justify-center sm:size-[70px]">
       <svg
@@ -207,11 +216,13 @@ function PathHex({
         className={cn(
           'absolute inset-0 size-full',
           'light:drop-shadow-[0_1px_2px_rgb(0_0_0/0.10)]',
-          // The three-pass bloom. Tuned per hue: violet carries further at the
-          // same alpha, so its wide pass is pulled back rather than matched.
+          // Glow is a budget, and six glowing nodes spend it on nothing. Only
+          // the final step blooms now; the five before it are crisp. The row
+          // reads as five quiet steps leading to one lit one, which is the
+          // story the section is telling anyway.
           last
-            ? 'dark:[filter:drop-shadow(0_0_1.5px_color-mix(in_oklab,var(--color-violet-200)_90%,transparent))_drop-shadow(0_0_5px_color-mix(in_oklab,var(--color-violet-400)_75%,transparent))_drop-shadow(0_0_13px_color-mix(in_oklab,var(--color-violet-500)_55%,transparent))_drop-shadow(0_0_30px_color-mix(in_oklab,var(--color-violet-600)_38%,transparent))]'
-            : 'dark:[filter:drop-shadow(0_0_1.5px_color-mix(in_oklab,#ffc0a8_88%,transparent))_drop-shadow(0_0_5px_color-mix(in_oklab,#ff5a3c_80%,transparent))_drop-shadow(0_0_13px_color-mix(in_oklab,var(--primary)_58%,transparent))_drop-shadow(0_0_32px_color-mix(in_oklab,var(--primary)_36%,transparent))]',
+            ? 'dark:[filter:drop-shadow(0_0_1.5px_color-mix(in_oklab,#ffc0a8_85%,transparent))_drop-shadow(0_0_5px_color-mix(in_oklab,#ff5a3c_72%,transparent))_drop-shadow(0_0_14px_color-mix(in_oklab,var(--primary)_50%,transparent))]'
+            : 'dark:[filter:drop-shadow(0_0_1px_color-mix(in_oklab,var(--primary)_28%,transparent))]',
         )}
       >
         <defs>
@@ -223,7 +234,7 @@ function PathHex({
             <stop
               offset="100%"
               stopColor={accent}
-              stopOpacity={last ? 0.3 : 0.26}
+              stopOpacity={last ? 0.3 : 0.2}
             />
           </radialGradient>
         </defs>
@@ -232,7 +243,9 @@ function PathHex({
           strokeWidth="2.6"
           className={cn(
             'light:fill-white light:stroke-[#dad7d6]',
-            last ? 'dark:stroke-violet-400' : 'dark:stroke-primary',
+            'dark:stroke-primary',
+            // The unlit steps sit back a little so the last one leads.
+            last ? '' : 'dark:opacity-80',
           )}
           // Light keeps its flat white; dark takes the lit interior. Set as an
           // attribute rather than a class so the gradient id can reach it, and
@@ -249,13 +262,8 @@ function PathHex({
             r={top ? 2.4 : 1.7}
             className={cn(
               'light:hidden',
-              top
-                ? last
-                  ? 'dark:fill-violet-100'
-                  : 'dark:fill-[#ffd9c8]'
-                : last
-                  ? 'dark:fill-violet-300'
-                  : 'dark:fill-[#ff7a55]',
+              top ? 'dark:fill-[#ffd9c8]' : 'dark:fill-[#ff7a55]',
+              last ? '' : 'dark:opacity-70',
             )}
           />
         ))}
@@ -263,7 +271,7 @@ function PathHex({
       <span
         className={cn(
           'relative flex items-center justify-center',
-          last ? 'text-foreground dark:text-violet-200' : 'text-foreground',
+          'text-foreground',
         )}
       >
         {children}
@@ -276,7 +284,10 @@ function PathHex({
 // 2 / 3 / 6 across: what is a mid-row link at one width is a line wrap at
 // another, so each step renders every variant it might need and the breakpoint
 // picks one. `cols` is which grid this variant belongs to.
-function PathRailAcross({ cols, violet }: { cols: 2 | 3 | 6; violet?: boolean }) {
+// One rail treatment, not two. The final segment used to shift to violet to
+// match the old violet end-node; with the accent unified, the distinction it
+// was drawing no longer exists.
+function PathRailAcross({ cols }: { cols: 2 | 3 | 6 }) {
   // The rule runs the whole span and the chevron sits *over* it — the mock's
   // line does not break for the arrowhead, and splitting it into two halves
   // (which is what the last pass did) left a gap either side of the glyph that
@@ -284,15 +295,15 @@ function PathRailAcross({ cols, violet }: { cols: 2 | 3 | 6; violet?: boolean })
   const line = cn(
     'pointer-events-none absolute inset-x-0 top-1/2 h-0 border-t',
     'light:border-dotted light:border-[#8a888a]',
-    violet
-      ? 'dark:border-violet-400/80 dark:shadow-[0_0_6px_color-mix(in_oklab,var(--color-violet-500)_60%,transparent)]'
-      : 'dark:border-primary/85 dark:shadow-[0_0_6px_color-mix(in_oklab,var(--primary)_55%,transparent)]',
+    // The rail is connective tissue, not a focal point: it keeps its colour and
+    // loses its bloom, so the glow budget goes to the node it leads to.
+    'dark:border-primary/70',
   )
   // Each segment is capped at both ends, as the mock is — the caps are what
   // stop the rule dying into the bloom and make each link read as its own run.
   const cap = cn(
     'pointer-events-none absolute top-1/2 size-[3.5px] -translate-y-1/2 rounded-full light:hidden',
-    violet ? 'dark:bg-violet-200' : 'dark:bg-[#ffb499]',
+    'dark:bg-[#ffb499] dark:opacity-80',
   )
   return (
     <span
@@ -313,9 +324,7 @@ function PathRailAcross({ cols, violet }: { cols: 2 | 3 | 6; violet?: boolean })
         className={cn(
           'relative size-[18px] shrink-0 dark:size-6',
           'light:text-[#1e222b]',
-          violet
-            ? 'dark:text-violet-200 dark:[filter:drop-shadow(0_0_5px_color-mix(in_oklab,var(--color-violet-400)_75%,transparent))]'
-            : 'dark:text-[#ffb499] dark:[filter:drop-shadow(0_0_5px_color-mix(in_oklab,var(--primary)_75%,transparent))]',
+          'dark:text-[#ffb499]',
         )}
         strokeWidth={2.25}
       />
@@ -386,12 +395,12 @@ export function WolfPath() {
               {!last && (i + 1) % 2 === 0 && <PathRailTurn cols={2} />}
               {i % 2 === 0 && i > 0 && <PathRailEnter cols={2} />}
               {!last && (i + 1) % 3 !== 0 && (
-                <PathRailAcross cols={3} violet={i === PATH_STEPS.length - 2} />
+                <PathRailAcross cols={3} />
               )}
               {!last && (i + 1) % 3 === 0 && <PathRailTurn cols={3} />}
               {i % 3 === 0 && i > 0 && <PathRailEnter cols={3} />}
               {!last && (
-                <PathRailAcross cols={6} violet={i === PATH_STEPS.length - 2} />
+                <PathRailAcross cols={6} />
               )}
               <PathHex last={last}>
                 {Icon && <Icon className="size-8" strokeWidth={2} />}
@@ -474,7 +483,7 @@ export function PathBanner() {
   return (
     <div
       aria-hidden="true"
-      className="-mx-5 h-[120px] rounded-2xl bg-[image:var(--path-banner)] bg-cover bg-top sm:-mx-7 sm:h-[150px] md:h-[178px] dark:mx-[calc(50%-50vw)] dark:brightness-[0.85] dark:saturate-[0.88] dark:aspect-[var(--banner-aspect)] dark:h-auto dark:max-h-[17.5rem] dark:min-h-[120px] dark:rounded-none dark:bg-[position:50%_31%] sm:dark:min-h-[150px] md:dark:min-h-[178px]"
+      className="-mx-5 h-[120px] rounded-2xl bg-[image:var(--path-banner)] bg-cover bg-top sm:-mx-7 sm:h-[150px] md:h-[178px] dark:mx-[calc(50%-50vw)] dark:brightness-[0.78] dark:saturate-[0.74] dark:relative dark:after:pointer-events-none dark:after:absolute dark:after:inset-0 dark:after:bg-[linear-gradient(to_bottom,color-mix(in_oklab,var(--background)_44%,transparent)_0%,color-mix(in_oklab,var(--background)_8%,transparent)_45%,color-mix(in_oklab,var(--background)_50%,transparent)_100%)] dark:aspect-[var(--banner-aspect)] dark:h-auto dark:max-h-[17.5rem] dark:min-h-[120px] dark:rounded-none dark:bg-[position:50%_31%] sm:dark:min-h-[150px] md:dark:min-h-[178px]"
     />
   )
 }

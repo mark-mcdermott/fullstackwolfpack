@@ -115,7 +115,18 @@ export function FwHeader() {
             form needs ~633px, so it covers the whole 640–767 band with room
             over. Only the bar row moves; the light card's own `sm:` padding on
             the wrapper above stays, since it is pinned to <main>'s. */}
-        <div className="flex items-center justify-between gap-2 px-3 py-2 md:gap-4 md:px-9 md:py-4 light:rounded-xl light:border light:border-border light:bg-[#f7f3f2] light:shadow-[var(--card-shadow)]">
+        <div
+          className={cn(
+            'flex items-center justify-between gap-2 px-3 py-2 md:gap-4 md:px-9 md:py-4',
+            'light:rounded-xl light:border light:border-border light:bg-[#f7f3f2] light:shadow-[var(--card-shadow)]',
+            // Dark: separate the bar with *light*, not darkness. It used to be
+            // transparent over the darkest part of the page, which read as a
+            // heavy band with the wordmark sinking into it. A surface a hair
+            // above the page, plus a hairline of light along the bottom edge,
+            // makes it belong to the page instead of sitting on top of it.
+            'dark:bg-white/[0.022] dark:shadow-[inset_0_-1px_0_rgb(255_255_255/0.05)]',
+          )}
+        >
           {/* Brand. `flex-1` on the two outer cells (basis 0, equal grow) is what
               centres the nav in the bar; `justify-between` alone would let the
               wider brand push it off-centre. */}

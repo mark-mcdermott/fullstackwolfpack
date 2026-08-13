@@ -38,6 +38,35 @@ Two of those matter.
 
 **SRAM is the supported path.** 8KB, returned by a public method, and its layout belongs to the *game*, not the emulator — so it does not drift when the core is upgraded. Whatever the game writes there it will keep writing there forever.
 
+## Correction: the score may not exist at all
+
+**2026-08-13, after the above was written.** Mark, who has played the game,
+reports that Tobu Tobu Girl Deluxe gives **infinite lives, has no score, and
+will not fail you in normal play**. That is first-hand experience against an
+itch.io tag, and the tag loses: tags are author-supplied and routinely describe
+a genre rather than a mechanic.
+
+If that is right, the spike's central conclusion is dead. The battery is real —
+the cartridge header is not in doubt — but it would be saving unlocked stages,
+settings or progress rather than a high score, and there is no score to read
+into XP.
+
+What survives regardless, because it was observed rather than inferred:
+
+- `saveSRAM()` returns an 8KB Blob and is a workable read path for *whatever*
+  the game persists
+- there is no memory-map API — no `_retro_*` exports — so heap scanning was
+  never available as a fallback anyway
+- reading SRAM under load crashes the core
+
+**Do not build on this without confirming what the game actually stores.** The
+one run that settles it is unchanged in shape but different in purpose: play,
+reach whatever the game's end state is, dump SRAM, and see what moved off
+`0xFF`. That tells you what is in there, rather than assuming.
+
+The section below is left as written, as the record of an inference that ran
+ahead of its evidence twice.
+
 ## Does the game even have a score?
 
 Worth asking, because the first version of this spike **inferred** one from the presence of a battery, which is a guess dressed as a finding. Checked afterwards:

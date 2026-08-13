@@ -178,6 +178,26 @@ function Brackets() {
   )
 }
 
+// Makes a dark card read as machined rather than as a floating rectangle.
+//
+// Two effects, both dark-only, and both deliberately *not* box-shadows: a
+// caller that sets its own shadow (cardLiftClass, say) would silently remove
+// them, and the whole point is that they are the surface rather than decoration
+// on top of it.
+//
+// - a hairline of light along the top edge, where a milled face catches the
+//   room light, drawn as a pseudo-element so nothing can override it
+// - a face fractionally brighter at the top than the bottom, as a background
+//   *image* layered over `bg-card`'s colour
+//
+// Nothing here should be consciously visible. Together they are the difference
+// between a panel that sits on the page and one that feels cut from it.
+export const cardSurfaceClass = cn(
+  'dark:bg-[linear-gradient(to_bottom,rgb(255_255_255/0.032)_0%,rgb(255_255_255/0)_44%)]',
+  'dark:before:pointer-events-none dark:before:absolute dark:before:inset-x-0 dark:before:top-0 dark:before:z-[1] dark:before:h-px',
+  'dark:before:bg-gradient-to-r dark:before:from-transparent dark:before:via-white/[0.075] dark:before:to-transparent',
+)
+
 export function Panel({
   className,
   children,
@@ -186,7 +206,11 @@ export function Panel({
 }: ComponentProps<'div'> & { brackets?: boolean }) {
   return (
     <div
-      className={cn('relative border border-border bg-card p-5', className)}
+      className={cn(
+        'relative border border-border bg-card p-5',
+        cardSurfaceClass,
+        className,
+      )}
       {...props}
     >
       {brackets && <Brackets />}

@@ -278,13 +278,17 @@
     --banner-aspect: 2320 / 384;
     --eyes-image: url('/images/eyes-dark.webp');
     /* Dark keeps the plain foreground it already used. */
-    --hero-title: oklch(0.985 0 0);
+    /* Not pure white. A heading at 0.985 is the brightest thing on the page
+       and reads as a shout; professional dark themes reserve full white for
+       deliberate emphasis. 0.965 with a trace of warmth is imperceptible on
+       its own and stops the headline competing with the art behind it. */
+    --hero-title: oklch(0.965 0.006 85);
     /* The midnight ramp's middle stop. `body::before` paints the full
        gradient (#11151E → this → #090B12); this value is what anything
        using `bg-background` lands on, so the two agree. Lighter and cooler
        than the near-black it replaced — the page should read as an unlit
        room, not as a void. */
-    --background: #0d1320;
+    --background: #090b10;
     /* Not pure white. Body copy at 0.985 is what had every label competing
        with the headline; near-white reads identically and stops shouting.
        Major headings opt back up to #fff explicitly (`--hero-title`, the
@@ -293,9 +297,14 @@
     /* A clear step above the page. Depth comes from this step rather than
        from heavier borders or shadows, which is what kept dark reading as
        high-contrast panels on black. */
-    --card: #171e2c;
+    /* Weight, deliberately. Lifting the face to #1a202b bought less than it
+       cost: a brighter, flatter card starts losing the sense of a contained
+       object sitting in space. This is ~30% back toward the darker value, with
+       the chroma held flat (0.0229 → 0.0230) so it is weight returning and not
+       the blue. Page contrast 1.205 → 1.191. */
+    --card: #191f2a;
     --card-foreground: oklch(0.94 0.005 268);
-    --popover: #222a38;
+    --popover: #222834;
     --popover-foreground: oklch(0.985 0 0);
     --primary: oklch(0.62 0.223 27.3);
     --primary-foreground: oklch(0.985 0 0);
@@ -306,8 +315,8 @@
     --accent: oklch(0.249 0.03 267);
     --accent-foreground: oklch(0.985 0 0);
     --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 7%);
-    --input: oklch(1 0 0 / 11%);
+    --border: oklch(1 0 0 / 4.5%);
+    --input: oklch(1 0 0 / 9%);
     --ring: oklch(0.556 0 0);
     --chart-1: oklch(0.87 0 0);
     --chart-2: oklch(0.556 0 0);
@@ -333,7 +342,7 @@
     --code-punctuation: #9aa4b6;
     --code-tag: #ff8f8f;
     --code-invalid: #ff6b6b;
-    --sidebar: #171e2c;
+    --sidebar: #191f2a;
     --sidebar-foreground: oklch(0.94 0.005 268);
     --sidebar-primary: oklch(0.62 0.223 27.3);
     --sidebar-primary-foreground: oklch(0.985 0 0);
@@ -415,7 +424,7 @@
       oklch(0.58 0.1 248 / 0.075) 0%,
       transparent 72%
     ),
-    linear-gradient(to bottom, #11151e 0%, #0d1320 46%, #090b12 100%);
+    linear-gradient(to bottom, #0d1017 0%, #090b10 46%, #050609 100%);
 }
 
 .dark body::after {
