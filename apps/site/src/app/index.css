@@ -278,7 +278,11 @@
     --banner-aspect: 2320 / 384;
     --eyes-image: url('/images/eyes-dark.webp');
     /* Dark keeps the plain foreground it already used. */
-    --hero-title: oklch(0.985 0 0);
+    /* Not pure white. A heading at 0.985 is the brightest thing on the page
+       and reads as a shout; professional dark themes reserve full white for
+       deliberate emphasis. 0.965 with a trace of warmth is imperceptible on
+       its own and stops the headline competing with the art behind it. */
+    --hero-title: oklch(0.965 0.006 85);
     /* The midnight ramp's middle stop. `body::before` paints the full
        gradient (#11151E → this → #090B12); this value is what anything
        using `bg-background` lands on, so the two agree. Lighter and cooler
@@ -293,7 +297,7 @@
     /* A clear step above the page. Depth comes from this step rather than
        from heavier borders or shadows, which is what kept dark reading as
        high-contrast panels on black. */
-    --card: #181d27;
+    --card: #1a202b;
     --card-foreground: oklch(0.94 0.005 268);
     --popover: #222834;
     --popover-foreground: oklch(0.985 0 0);
@@ -333,7 +337,7 @@
     --code-punctuation: #9aa4b6;
     --code-tag: #ff8f8f;
     --code-invalid: #ff6b6b;
-    --sidebar: #181d27;
+    --sidebar: #1a202b;
     --sidebar-foreground: oklch(0.94 0.005 268);
     --sidebar-primary: oklch(0.62 0.223 27.3);
     --sidebar-primary-foreground: oklch(0.985 0 0);

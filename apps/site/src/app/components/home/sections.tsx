@@ -9,7 +9,12 @@ import {
 } from 'lucide-react'
 import { useId, type ReactNode } from 'react'
 import { Link } from 'react-router'
-import { WolfMark, raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
+import {
+  WolfMark,
+  cardSurfaceClass,
+  raisedCtaClass,
+  raisedCtaCompactClass,
+} from '@fw/ui'
 import { cn } from '@/lib/utils'
 
 // Akela's creed + the terminal readout, as a bordered card that sits under the
@@ -22,7 +27,7 @@ export function CreedBand() {
     // Pulls 8px back off the page stack's 24px gap-6, leaving 16px above the
     // band so it sits closer to the launcher than to the sections below. Same
     // trick as HomeHero's `-mb-6`, which cancels that gap outright.
-    <div className="relative -mt-2 overflow-hidden rounded-2xl border border-border bg-card light:bg-[#f8f6f4] light:shadow-[var(--tile-shadow)]">
+    <div className={cn("relative -mt-2 overflow-hidden rounded-2xl border border-border bg-card light:bg-[#f8f6f4] light:shadow-[var(--tile-shadow)]", cardSurfaceClass)}>
       {/* Decorative, so the art rides on a background rather than an <img>: the
           theme picks the plate via `--creed-image` (index.css), which keeps one
           DOM tree across themes and fetches only the matching file — light's
@@ -478,7 +483,7 @@ export function PathBanner() {
   return (
     <div
       aria-hidden="true"
-      className="-mx-5 h-[120px] rounded-2xl bg-[image:var(--path-banner)] bg-cover bg-top sm:-mx-7 sm:h-[150px] md:h-[178px] dark:mx-[calc(50%-50vw)] dark:brightness-[0.72] dark:saturate-[0.7] dark:relative dark:after:pointer-events-none dark:after:absolute dark:after:inset-0 dark:after:bg-[linear-gradient(to_bottom,color-mix(in_oklab,var(--background)_55%,transparent)_0%,color-mix(in_oklab,var(--background)_18%,transparent)_45%,color-mix(in_oklab,var(--background)_60%,transparent)_100%)] dark:aspect-[var(--banner-aspect)] dark:h-auto dark:max-h-[17.5rem] dark:min-h-[120px] dark:rounded-none dark:bg-[position:50%_31%] sm:dark:min-h-[150px] md:dark:min-h-[178px]"
+      className="-mx-5 h-[120px] rounded-2xl bg-[image:var(--path-banner)] bg-cover bg-top sm:-mx-7 sm:h-[150px] md:h-[178px] dark:mx-[calc(50%-50vw)] dark:brightness-[0.78] dark:saturate-[0.74] dark:relative dark:after:pointer-events-none dark:after:absolute dark:after:inset-0 dark:after:bg-[linear-gradient(to_bottom,color-mix(in_oklab,var(--background)_44%,transparent)_0%,color-mix(in_oklab,var(--background)_8%,transparent)_45%,color-mix(in_oklab,var(--background)_50%,transparent)_100%)] dark:aspect-[var(--banner-aspect)] dark:h-auto dark:max-h-[17.5rem] dark:min-h-[120px] dark:rounded-none dark:bg-[position:50%_31%] sm:dark:min-h-[150px] md:dark:min-h-[178px]"
     />
   )
 }
