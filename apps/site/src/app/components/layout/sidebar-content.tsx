@@ -3,6 +3,7 @@ import { Link, NavLink } from 'react-router'
 import { Panel, ThemeToggle, WolfMark } from '@fw/ui'
 import { can } from '@/core/access'
 import { useAuth } from '@/hooks/auth-context'
+import { useDueReviewCount } from '@/hooks/use-due-reviews'
 import { cn } from '@/lib/utils'
 import { useSignOut } from '@/lib/use-sign-out'
 import { NAV, navItemClass } from './nav'
@@ -26,6 +27,7 @@ function Barcode({ className }: { className?: string }) {
 // `onNavigate` lets the drawer close itself when a nav link is tapped.
 export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const { user } = useAuth()
+  const dueReviews = useDueReviewCount()
   const signOut = useSignOut()
   return (
     <>
@@ -69,6 +71,17 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           >
             <item.icon className="size-4" />
             {item.label}
+            {/* Count of what is waiting, pushed to the far end so the labels
+                stay aligned. Same rule as the site header: only shown when the
+                queue is actually openable. */}
+            {item.to === '/app/review' && dueReviews > 0 && (
+              <span
+                aria-label={`${dueReviews} review${dueReviews === 1 ? '' : 's'} due`}
+                className="ml-auto inline-flex min-w-[18px] items-center justify-center rounded-full bg-primary px-1 py-px font-mono text-[10px]/[14px] font-bold text-primary-foreground tabular-nums"
+              >
+                {dueReviews > 9 ? '9+' : dueReviews}
+              </span>
+            )}
           </NavLink>
         ))}
         {user && can(user, 'admin.access') && (

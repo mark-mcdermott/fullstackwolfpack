@@ -5,6 +5,7 @@ import { NavLink } from 'react-router'
 import { ThemeToggle, WolfMark } from '@fw/ui'
 import { formatClock } from '@/core/focus-session'
 import { useAuth } from '@/hooks/auth-context'
+import { useDueReviewCount } from '@/hooks/use-due-reviews'
 import { useTimer } from '@/hooks/timer-context'
 import { useMissionExit } from '@/lib/mission-exit-store'
 import { cn } from '@/lib/utils'
@@ -22,6 +23,7 @@ const NAV: {
   label: string
   end?: boolean
   minWidth?: string
+  badge?: number
 }[] = [
   // "Mission" is the launcher at the root, not `/play` — `/play` is Arcade's.
   { to: '/', label: 'Mission', end: true },
@@ -54,10 +56,11 @@ const NAV: {
 // divider), so a fourth item there overflows the viewport by 32px at exactly
 // 768px — the horizontal-scroll bug this bar has already been fixed for once.
 // The parked Leaderboard item above sits at `lg` for the same reason.
-const reviewItem = (signedIn: boolean) => ({
+const reviewItem = (signedIn: boolean, due: number) => ({
   to: signedIn ? '/app/review' : '/review',
   label: 'Review',
   minWidth: 'hidden lg:flex',
+  badge: due,
 })
 
 // The active underline is a fixed width — roughly the width of "ARCADE" — so it
@@ -83,7 +86,8 @@ export function FwHeader() {
   const timer = useTimer()
   const onMission = timer.active && !!timer.step
   const { user } = useAuth()
-  const nav = [...NAV, reviewItem(!!user)]
+  const dueReviews = useDueReviewCount()
+  const nav = [...NAV, reviewItem(!!user, dueReviews)]
   return (
     // Transparent so the page grain/glow (index.css `body::before`) runs behind
     // it unbroken; the layout wrapper supplies the base color.
@@ -163,7 +167,7 @@ export function FwHeader() {
           {/* The tighter gap rides the same 400px threshold as the wordmark: it
               is the last 8px that gets a 320px viewport under the line. */}
           <nav className={cn('flex items-center gap-3 min-[400px]:gap-4', NAV_GAP)}>
-            {nav.map(({ to, label, end, minWidth }) => (
+            {nav.map(({ to, label, end, minWidth, badge }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -178,6 +182,17 @@ export function FwHeader() {
               >
                 {({ isActive }) => (
                   <>
+                    {/* Count of what is waiting. Absolutely positioned so it
+                        cannot widen the fixed-width cell and throw the nav's
+                        centre-to-centre spacing out. */}
+                    {!!badge && (
+                      <span
+                        aria-label={`${badge} review${badge === 1 ? '' : 's'} due`}
+                        className="absolute -top-1 -right-0.5 z-10 inline-flex min-w-[17px] items-center justify-center rounded-full bg-primary px-1 py-px font-mono text-[10px]/[13px] font-bold text-primary-foreground tabular-nums shadow-[0_1px_3px_rgb(0_0_0/0.35)]"
+                      >
+                        {badge > 9 ? '9+' : badge}
+                      </span>
+                    )}
                     {/* The active label is plain foreground, not primary — only
                         the underline carries the accent. */}
                     <span
