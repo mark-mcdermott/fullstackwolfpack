@@ -3,10 +3,11 @@ import {
   LayoutDashboard,
   Layers,
   type LucideIcon,
+  Repeat,
   Timer,
   Users,
   // Temporarily hidden while we tighten the core flow (see NAV below):
-  // BarChart3, LineChart, Medal, Repeat, Settings, ShieldCheck, Trophy,
+  // BarChart3, LineChart, Medal, Settings, ShieldCheck, Trophy,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -24,10 +25,10 @@ export const NAV: NavItem[] = [
   { to: '/app/arcade', label: 'Arcade', icon: Gamepad2 },
   { to: '/app/friends', label: 'Friends', icon: Users },
   { to: '/app/topics', label: 'Topics', icon: Layers },
+  { to: '/app/review', label: 'Review', icon: Repeat },
   // Hidden for now — zooming in on the core flow (Dashboard → Sessions →
-  // Arcade → Friends → Topics). The routes still exist; only the nav links are
-  // out. Restore by uncommenting these (and their icon imports above).
-  // { to: '/app/review', label: 'Review', icon: Repeat },
+  // Arcade → Friends → Topics → Review). The routes still exist; only the nav
+  // links are out. Restore by uncommenting these (and their icon imports).
   // { to: '/app/progress', label: 'Progress', icon: BarChart3 },
   // { to: '/app/stats', label: 'Stats', icon: LineChart },
   // { to: '/app/achievements', label: 'Achievements', icon: Trophy },

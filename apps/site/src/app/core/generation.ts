@@ -196,7 +196,7 @@ const DEPTH_GUIDANCE = [
   'A lesson is a sequence of SMALL segments, one idea each, in this order — repeat the mechanism/predict/reveal group once per idea:',
   '',
   '- "hook" — a question the reader cannot yet answer, or a two-line snippet whose behaviour is surprising. It sets the debt the lesson pays off. It must NOT contain the answer.',
-  '- "mechanism" — ONE idea, shown rather than asserted. If the idea is stateful, draw the state: what exists in memory, what points at what, what survives the function returning. "X keeps a live reference to Y" is an assertion; a step-by-step trace of the two calls, showing the same box being read twice, is the mechanism. Done when the reader could re-derive the behaviour without you.',
+  '- "mechanism" — ONE idea, shown rather than asserted. If the idea is stateful, draw the state: what exists in memory, what points at what, what survives the function returning. "X keeps a live reference to Y" is an assertion; a step-by-step trace of the two calls, showing the same slot being read twice, is the mechanism. Done when the reader could re-derive the behaviour without you.',
   '- "predict" — a question the reader commits to BEFORE seeing the answer. Its body poses the situation; the answer lives only in the questions array. Never reveal the outcome in a predict body.',
   '- "reveal" — what actually happens, and specifically why the intuitive answer fails. Address the wrong answer by name: a reader who guessed it needs to know which belief to discard.',
   '- "derive" — arrive at a use case by building it, not by naming it. Do not write "closures are used for private state"; have the reader try to hide a variable, and let private state be what they notice they just did. Carries the runnable "exercise" when the topic supports one.',
@@ -209,6 +209,8 @@ const DEPTH_GUIDANCE = [
   '- NO forward references. "which we tackle next", "more on this later" — cut them. A segment that defers its own explanation has taught nothing.',
   '- Prefer showing state over describing it, contrast pairs over prose (the same code with var and with let, side by side, is worth a paragraph about binding), and a worked trace over a claim.',
   '- Assume a developer reader: correct terminology, real APIs, realistic scenarios. Honour the difficulty — go deeper and skip hand-holding for intermediate/advanced.',
+  '- ONE vocabulary for the machine, and it is the real one: a call gets a "frame" on the "call stack"; a variable is a "slot" in a frame; values that outlive their call live on the "heap"; a variable pointing at one holds a "reference". Never invent a soft synonym — no "box", no "container", no "bucket". A reader moving between lessons should not have to guess that two words are the same thing, which is exactly what happens when each lesson picks its own metaphor.',
+  '- Do NOT say a JavaScript variable has a "memory address". It is false in a way that costs the reader later: the engine relocates heap values as it collects garbage, so what is held is a reference, not an address. Say "reference" and "slot". Being concrete about the machine is right; being concrete about the wrong machine is not.',
   '- Length is whatever the job takes. A mechanism segment that needs 400 words to trace the state properly should use them; a predict segment might be 40. Do not pad, and do not compress a mechanism to hit a size.',
   '- Set each segment estMinutes to honestly reflect its own length, and the lesson estMinutes to the sum. A thorough lesson may run well past five minutes — that is correct, not a problem to design around.',
   '',
@@ -216,6 +218,54 @@ const DEPTH_GUIDANCE = [
   '- Only when the topic naturally supports small, self-contained JavaScript function tasks (e.g. JavaScript, TypeScript, algorithms, data structures, functional programming), attach a runnable "exercise" to a "derive" segment (see the "exercise" shape below): a function the learner implements, with "starterCode", 2-4 "tests", a correct "solution" that passes every test, and a "hint". Prefer deterministic pure functions. Aim for at least two such exercises across the course. Git / command-line courses instead use terminal "git" exercises (guidance below). For remaining topics where neither fits (e.g. Docker, CSS, cloud consoles, SQL, prose), omit "exercise".',
   '- Exercise correctness is strict, because the tests are actually executed: the "solution" and "tests" must be plain, self-contained JavaScript with NO import/require/modules, no external libraries, no async/await/Promises, no DOM, no network, and no TypeScript-only syntax. The "solution" must define exactly the function name(s) the tests call; every test "expression" must call the learner-defined function and evaluate to a JSON value (number, string, boolean, array, or plain object). Before emitting an exercise, mentally run the "solution" against every "test" and confirm it produces "expected" — if it does not, fix it or omit the exercise.',
 ]
+
+// Words the lessons must not use, and what to use instead.
+//
+// Not style policing — a vocabulary audit found the generated lessons saying
+// "box" 38 times and "frame" zero, while the hand-authored lesson said "frame"
+// 36 times and "box" zero. Both were describing the same machine, so a reader
+// going from one lesson to the next had to work out unaided that a box and a
+// slot in a frame were the same thing. Nobody ever says so, and the reader
+// concludes the explanation is hand-wavey — correctly.
+//
+// "memory address" is here for a different reason: it is wrong. The engine
+// moves heap values when it collects garbage, so a variable holds a reference,
+// not an address.
+const BANNED_VOCABULARY: { pattern: RegExp; use: string }[] = [
+  { pattern: /\bboxe?s?\b/gi, use: 'slot (in a frame) or reference' },
+  { pattern: /\bmemory address(es)?\b/gi, use: 'reference' },
+]
+
+// Only the topics that actually teach the execution model.
+//
+// Scoped because the first version of this check was global and was wrong
+// almost everywhere it fired: "bucket" is an S3 bucket in the AWS course, and
+// "box" is a search box in React, a Windows box in Docker, and the box model in
+// Tailwind. All twenty-odd hits outside JavaScript were false positives and all
+// the true ones were inside it. A linter that cries wolf gets ignored, so this
+// would rather miss a stray metaphor in a React lesson than flag a real term.
+const EXECUTION_MODEL_SLUGS = new Set(['javascript', 'typescript'])
+
+export function lessonVocabularyIssues(
+  lesson: {
+    title: string
+    segments: { title: string; markdown: string }[]
+  },
+  topicSlug = 'javascript',
+): string[] {
+  if (!EXECUTION_MODEL_SLUGS.has(topicSlug)) return []
+  const issues: string[] = []
+  for (const seg of lesson.segments) {
+    for (const { pattern, use } of BANNED_VOCABULARY) {
+      const hits = seg.markdown.match(pattern)
+      if (!hits) continue
+      issues.push(
+        `"${seg.title}" uses ${hits.length === 1 ? '' : `${hits.length}× `}"${hits[0]}" — say ${use} instead`,
+      )
+    }
+  }
+  return issues
+}
 
 // Structural check on a generated lesson. The prose quality bar cannot be
 // asserted in code, but the shape can — and the shape is where the first run

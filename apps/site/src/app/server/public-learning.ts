@@ -92,7 +92,25 @@ export async function getPublicLessonView(
     .innerJoin(courses, eq(courses.id, lessons.courseId))
     .where(eq(lessons.id, lessonId))
   if (!row || row.owner !== null) return null
-  return getLessonView(lessonId)
+
+  const view = await getLessonView(lessonId)
+  if (!view) return null
+
+  // Written answers are graded by a model, which is an account feature — so for
+  // a guest they were a trap: type a real answer, submit, and get told to sign
+  // in. Worse, that response came back `correct: false`, so a question they
+  // were never able to answer also counted against their score.
+  //
+  // Filtered here rather than hidden in the player because the guest lesson
+  // view is also what the score is computed from: removing the question removes
+  // it from the denominator too, which a UI-level hide would not.
+  return {
+    ...view,
+    segments: view.segments.map((s) => ({
+      ...s,
+      questions: s.questions.filter((q) => q.type !== 'short_answer'),
+    })),
+  }
 }
 
 // Grade a single MCQ from a built-in course — no logging, no XP grant, no review

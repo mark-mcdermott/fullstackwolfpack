@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { Link } from 'react-router'
+import { popoverSurfaceClass } from '@fw/ui'
 import { glossarySlug } from '@/core/glossary'
 import { glossaryEntry } from '@/content/glossary-entries'
 import { cn } from '@/lib/utils'
@@ -131,7 +132,24 @@ export function GlossaryTerm({
           style={{ left: box?.left ?? 0, width: box?.width }}
           className={cn(
             'absolute z-50 mt-2 block cursor-auto',
-            'rounded-lg border border-border bg-card p-4 text-left shadow-[var(--panel-lift)]',
+            // Reset the typography it would otherwise inherit. The panel is a
+            // DOM descendant of the term it hangs off, and these terms are
+            // bolded in the lesson copy — so the whole entry was rendering at
+            // the surrounding <strong>'s weight (600). A floating panel should
+            // read as its own surface, not as a continuation of the word that
+            // opened it.
+            'font-normal',
+            'rounded-lg p-4 text-left',
+            // It opens over a lesson Panel, which is `bg-card` — the same fill
+            // this used to have, so the two surfaces were identical and only a
+            // hairline told them apart. The kit's floating-surface treatment
+            // separates it properly in both themes.
+            popoverSurfaceClass,
+            // A heavier drop than the shared default. This one overhangs body
+            // copy on a pure-white page rather than opening off a header, so it
+            // needs more shadow to sit convincingly in front of the text it is
+            // covering. Overrides the class above via tailwind-merge.
+            'light:shadow-[0_28px_70px_rgb(0_0_0/0.34),0_10px_24px_rgb(0_0_0/0.22),0_2px_6px_rgb(0_0_0/0.12)]',
           )}
         >
           <span className="mb-2 block font-mono text-[10px] tracking-widest text-primary uppercase">

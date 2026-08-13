@@ -1,4 +1,4 @@
-import { and, eq, inArray, sql, sum } from 'drizzle-orm'
+import { and, eq, inArray, notInArray, sql, sum } from 'drizzle-orm'
 import type { CourseOutline } from '../core/app-data'
 import type { GuestProgressEntry } from '../core/public-content'
 import { parseExerciseTests } from '../core/exercise'
@@ -18,6 +18,7 @@ import type {
   QuestionView,
   SegmentView,
 } from '../core/lesson-view'
+import { unscoredSegmentKinds } from '../core/lesson-view'
 import { db } from '../db'
 import {
   courses,
@@ -330,13 +331,23 @@ export async function completeLesson(
     .where(eq(lessons.id, lessonId))
   if (!lesson) return null
 
-  // Score = the user's correct answers over this lesson's quiz questions.
+  // Score = the user's correct answers over this lesson's *graded* questions.
+  //
+  // Questions in an unscored segment (`predict`) are excluded here, not just in
+  // the client, because this is the authoritative score for signed-in users —
+  // filtering only in the player would leave the number the server writes to
+  // progress still counting the guesses a predict is designed to elicit.
   const questionIds = (
     await db
       .select({ id: quizQuestions.id })
       .from(quizQuestions)
       .innerJoin(lessonSegments, eq(lessonSegments.id, quizQuestions.segmentId))
-      .where(eq(lessonSegments.lessonId, lessonId))
+      .where(
+        and(
+          eq(lessonSegments.lessonId, lessonId),
+          notInArray(lessonSegments.type, [...unscoredSegmentKinds]),
+        ),
+      )
   ).map((r) => r.id)
 
   let correct = 0

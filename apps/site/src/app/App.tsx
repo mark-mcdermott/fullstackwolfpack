@@ -22,6 +22,7 @@ import { GuestHome } from '@/pages/public/guest-home'
 import { GuestLeaderboard } from '@/pages/public/guest-leaderboard'
 import { GlossaryPage } from '@/pages/public/glossary'
 import { GuestLearn } from '@/pages/public/guest-learn'
+import { GuestReview } from '@/pages/public/guest-review'
 import { LearnBrowse } from '@/pages/public/learn-browse'
 import { AdminUsersPage } from '@/pages/admin/users'
 import { SignInPage } from '@/pages/auth/sign-in'
@@ -52,6 +53,9 @@ function App() {
             lesson a guest can already read, and it is a URL worth sharing. */}
         <Route path="/glossary/:slug" element={<GlossaryPage />} />
         <Route path="/leaderboard" element={<GuestLeaderboard />} />
+        {/* Spaced repetition without an account — cards live in localStorage
+            and the scheduler is the same pure core/review the server uses. */}
+        <Route path="/review" element={<GuestReview />} />
       </Route>
 
       {/* Private */}

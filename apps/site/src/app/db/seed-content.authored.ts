@@ -61,7 +61,7 @@ Getting there needs two things almost no JavaScript tutorial teaches directly: *
       estMinutes: 3,
       markdown: `Start with the boring case, because the interesting one is built from it.
 
-JavaScript runs your statements one at a time, top to bottom. After each one, something is true about memory that was not true before. Watch it line by line — the right-hand column is *everything that exists* at that moment.
+JavaScript runs your statements one at a time, top to bottom. After each one, something is true about memory that was not true before. Watch it line by line — the right-hand column (the comments) is *everything that exists* at that moment.
 
 \`\`\`js
 const price = 10;        // price = 10
@@ -551,7 +551,331 @@ When it passes, look at what changed: you did not change when the functions run.
   ],
 }
 
+// The second authored lesson: the machine underneath the model.
+//
+// The first lesson teaches frames, slots and when lines run, and deliberately
+// stops at the model — "a frame is discarded when the call returns" is true and
+// sufficient for closures. This one answers the question that model provokes in
+// anyone who has written C: is a frame a real block of memory, and if so, where
+// is the address? The answers (parse-time storage decisions, a moving collector,
+// a JIT that recompiles hot code) are interesting on their own and are also the
+// ground the async lesson stands on.
+//
+// Prerequisite-ordered after the execution model and before the generated
+// lessons — seed.ts takes orderIndex from array position.
+export const AUTHORED_JS_MACHINE: SeedLesson = {
+  id: 'authored-js-engine',
+  title: 'What Actually Runs Your JavaScript',
+  estMinutes: 37,
+  glossary: [
+    'machine frame',
+    'context allocation',
+    'garbage collection',
+    'heap',
+    'call stack',
+    'reference',
+  ],
+  segments: [
+    {
+      id: 'authored-js-engine-s1',
+      type: 'hook',
+      title: 'Where is the address?',
+      estMinutes: 2,
+      markdown: `You now know that calling a function opens a frame, and that the frame is discarded when the call returns.
+
+If you have written C, that description is familiar enough to be suspicious. There, a call really does take memory:
+
+\`\`\`c
+int addTax(int price) {
+    int tax = price / 5;   // tax is at a real address
+    return price + tax;    // &tax is a number you could print
+}
+\`\`\`
+
+So the obvious question: is a JavaScript frame the same thing? Real memory, at a real address, with the parameters and locals laid out inside it?
+
+Mostly yes. And the exceptions are where every strange thing about JavaScript performance and closures comes from.`,
+      questions: [],
+    },
+    {
+      id: 'authored-js-engine-s2',
+      type: 'mechanism',
+      title: 'The stack is a pointer that moves',
+      estMinutes: 4,
+      markdown: `Start with the part that is exactly what you think.
+
+The call stack is a block of memory with a pointer to its top. Calling a function moves that pointer down to make room; returning moves it back up. That is the whole mechanism.
+
+\`\`\`
+       stack pointer ──▶ ┌──────────────┐  ← top
+                         │  addTax      │  price, tax, return address
+                         ├──────────────┤
+                         │  main        │  total
+                         └──────────────┘
+\`\`\`
+
+Two consequences fall straight out of it.
+
+**Nothing is erased on return.** The pointer moves up, and the bytes sit there untouched until the next call writes over them. "The frame is discarded" means the space is no longer claimed — not that anything was cleaned.
+
+**It is fast because it is one instruction.** Allocating a frame costs a single subtraction. This is why the stack is where things go by default, and why the alternative has to justify itself.
+
+V8 runs on a real stack like this. When the first lesson said a frame is opened and discarded, that was not a simplification of something else — for most calls the frame really is a **machine frame**, and this is literally what the processor does.`,
+      questions: [],
+    },
+    {
+      id: 'authored-js-engine-s3',
+      type: 'mechanism',
+      title: 'Some variables never go on the stack',
+      estMinutes: 5,
+      markdown: `Here is where JavaScript departs from C, and it departs *before your program runs*.
+
+A frame's space is reclaimed when the call returns. So a variable that an inner function will still read cannot live only there. The engine has to know which variables those are — and it works it out while **parsing**, by reading the source and seeing which inner functions mention which outer names.
+
+Variables that are mentioned get put on the heap instead, in an object V8 calls a Context. Everything else stays in the frame. The name for that decision is **context allocation**.
+
+\`\`\`js
+function counter() {
+  const label = 'hits';   // no inner function mentions it → stays in the frame
+  let n = 0;              // the returned function mentions it → heap
+  return function () { return ++n; };
+}
+\`\`\`
+
+Read that again with the first lesson in mind, because it quietly rewrites the usual story about closures. "The frame is kept alive when a function escapes" sounds like a rescue performed at \`return\`. Nothing is rescued. \`n\` was never in the frame to begin with — the decision was made before \`counter\` ran even once, and returning just left the heap object still reachable.
+
+The rescue story and this one predict the same behaviour, which is why you can go years without noticing the difference. This one also predicts the cost: capturing is not free, because it moves a variable off the one-instruction allocation and onto the heap.`,
+      questions: [],
+    },
+    {
+      id: 'authored-js-engine-s4',
+      type: 'predict',
+      title: 'Which variable goes where?',
+      estMinutes: 1,
+      markdown: `Given what decides the storage:
+
+\`\`\`js
+function makeGreeter(name) {
+  const greeting = 'Hello';
+  const punctuation = '!';
+  return function () {
+    return greeting + ', ' + name;
+  };
+}
+\`\`\`
+
+Three names exist in the call: \`name\`, \`greeting\`, \`punctuation\`. Commit to an answer before reading on.`,
+      questions: [
+        {
+          id: 'authored-js-engine-s4-q1',
+          prompt: 'Which of them are context-allocated (put on the heap)?',
+          options: [
+            'All three — they are all locals of a call that returns a function',
+            '`greeting` and `name` only',
+            'None — they are all in the frame until the call returns',
+            '`greeting` only, because it is a `const`',
+          ],
+          correctIndex: 1,
+          explanation:
+            'Only the names the inner function actually mentions. `punctuation` is never read by it, so it stays in the frame and goes away with the call.',
+        },
+      ],
+    },
+    {
+      id: 'authored-js-engine-s5',
+      type: 'reveal',
+      title: 'Only what is mentioned escapes',
+      estMinutes: 3,
+      markdown: `\`greeting\` and \`name\`. Not \`punctuation\`.
+
+The inner function's body names \`greeting\` and \`name\`, so those two are context-allocated. \`punctuation\` is never mentioned inside it, so it stays in the frame and its space is reclaimed like any other local.
+
+If you guessed **all three**, the belief to discard is that capturing works per *call* — that returning a function drags the whole frame along with it. It does not. It is per *variable*, and the list is fixed while parsing.
+
+If you guessed **none**, you are applying the C rule, where a local is a local and escaping is your problem. That rule is what makes returning a pointer to a local a bug in C. JavaScript removes the bug by deciding storage for you, which is the trade: no dangling references, and no control over where things live.
+
+The \`const\` guess is worth naming too, because \`const\` says nothing about storage. It controls whether the binding can be reassigned. Where the binding *lives* is a separate question, decided by who reads it.`,
+      questions: [],
+    },
+    {
+      id: 'authored-js-engine-s6',
+      type: 'mechanism',
+      title: 'Why there is no address to take',
+      estMinutes: 5,
+      markdown: `Now the part with no C equivalent at all.
+
+Nothing here is freed by hand. **Garbage collection** periodically works out which heap values are still **reachable** — traceable from what is currently in scope, and from anything those refer to — and reclaims the rest. Reachability is the entire rule, which is why a leak in JavaScript is never a missing \`free\`; it is a reference you forgot you were holding.
+
+The part that matters for your mental model is that collecting **moves things**. V8 allocates new objects in a small nursery, and when it fills, copies the survivors elsewhere. Most objects die young, so copying the few survivors is cheaper than tracking the many dead. A long-lived object may be relocated several times in its life.
+
+So consider what an address would be worth:
+
+\`\`\`js
+const user = { name: 'ada' };
+// if you could write down where this object is...
+// ...the next collection may well have moved it somewhere else
+\`\`\`
+
+Every reference to a moved object is updated as part of the collection. What you hold is a **reference** — something the engine guarantees keeps pointing at the right object — not a number describing a location.
+
+This is why these lessons never say a variable "holds a memory address." It is close enough to feel right, and it stops making sense the moment you learn the collector relocates things. "Reference" is not a softer word for address; it is a different guarantee.`,
+      questions: [],
+    },
+    {
+      id: 'authored-js-engine-s7',
+      type: 'predict',
+      title: 'What keeps this alive?',
+      estMinutes: 1,
+      markdown: `A common shape, and a common leak:
+
+\`\`\`js
+function attach(button) {
+  const rows = loadTenThousandRows();   // large
+  const id = button.id;                 // small
+
+  button.addEventListener('click', function () {
+    console.log(id);
+  });
+}
+\`\`\`
+
+The listener is kept alive by the button for as long as the button is on the page. Commit before reading on.`,
+      questions: [
+        {
+          id: 'authored-js-engine-s7-q1',
+          prompt: 'After `attach` returns, what is still reachable through the listener?',
+          options: [
+            'Both `id` and `rows` — the listener closed over the whole call',
+            '`id` only — `rows` is not mentioned inside the listener',
+            'Neither — the call returned, so its variables are gone',
+            '`rows` only, because it is the larger allocation',
+          ],
+          correctIndex: 1,
+          explanation:
+            'Storage is decided per variable, by what the inner function mentions. `rows` is never named inside the listener, so it is not context-allocated and nothing keeps it reachable.',
+        },
+      ],
+    },
+    {
+      id: 'authored-js-engine-s8',
+      type: 'reveal',
+      title: 'Per variable, which is why the leak is subtle',
+      estMinutes: 4,
+      markdown: `\`id\` only. \`rows\` is never mentioned inside the listener, so it is not context-allocated, nothing refers to it once \`attach\` returns, and the collector takes it.
+
+If you guessed **both**, that is the rescue story again — the idea that a closure holds its whole birth frame. It is the single most common way people reason about this, and it is why closures get a reputation for leaking everything in sight.
+
+Now make it leak, by changing one line:
+
+\`\`\`js
+button.addEventListener('click', function () {
+  console.log(id, rows.length);   // now rows is mentioned
+});
+\`\`\`
+
+One word, and ten thousand rows are context-allocated and reachable for as long as the button exists. Nothing warns you, and the listener still looks small.
+
+That is the practical payoff of knowing where things live. The question to ask is never "does this closure leak" — it is **which names does this function mention**, because that list is exactly what it keeps alive.`,
+      questions: [],
+    },
+    {
+      id: 'authored-js-engine-s9',
+      type: 'mechanism',
+      title: 'Compiled, interpreted, or both',
+      estMinutes: 5,
+      markdown: `One more layer, since it is the thing people mean when they ask whether JavaScript is compiled.
+
+It is both, in stages, and the reason is a constraint C does not have: the engine receives your source *at the moment it is needed*. Time spent compiling is time the page is blank, so it cannot afford to optimise everything up front.
+
+So V8 hedges:
+
+1. **Parse** to an internal form, working out scopes — this is where the context-allocation decision is made.
+2. **Compile to bytecode** and start interpreting immediately. Slower per operation, but running almost at once.
+3. **Watch what gets hot.** A function called many times, or a loop running many times, is worth more effort.
+4. **Recompile the hot parts to machine code**, optimised using the types actually seen so far.
+
+Step 4 is the interesting one, because that optimisation is a *bet*. If \`add(a, b)\` has only ever been handed numbers, V8 compiles a version that assumes numbers and skips the checks. Hand it a string later and the bet is off: it **deoptimises**, throws the machine code away, and drops back to bytecode.
+
+\`\`\`js
+function add(a, b) { return a + b; }
+
+for (let i = 0; i < 100000; i++) add(i, i);   // hot; compiled for numbers
+add('x', 'y');                                 // bet lost; deoptimised
+\`\`\`
+
+This is the real content of the folk advice about "monomorphic" code. Functions handed one consistent shape of input let the bet stand; functions handed anything and everything keep losing it. Not a rule to obey blindly — just what is actually happening underneath.`,
+      questions: [],
+    },
+    {
+      id: 'authored-js-engine-s10',
+      type: 'derive',
+      title: 'Read a leak',
+      estMinutes: 4,
+      markdown: `You have everything needed to do this without being told the answer.
+
+\`\`\`js
+function makeHandlers(config) {
+  const cache = new Map();            // large, fills over time
+  const name = config.name;
+
+  return {
+    log() { console.log(name); },
+    reset() { cache.clear(); },
+  };
+}
+
+const handlers = makeHandlers({ name: 'panel' });
+// only handlers.log is kept; handlers.reset is dropped
+\`\`\`
+
+Work through it with the one question that decides everything: **which names does each function mention?**
+
+Then answer for yourself — is \`cache\` collectable here?
+
+The honest answer is *it depends on the engine*, and it is worth knowing why. \`log\` mentions only \`name\`. \`reset\` mentions \`cache\`, but \`reset\` itself has been dropped. Both functions were created in the same call, so they may share one Context containing both variables — in which case keeping \`log\` keeps \`cache\` too, even though \`log\` never mentions it.
+
+V8 is smarter than that in many cases, and will split contexts when it can prove it is safe. But this is exactly the shape where "closures only keep what they mention" stops being reliably true, and where a heap snapshot beats reasoning. The model gets you to the right question; the profiler settles it.`,
+      questions: [],
+    },
+    {
+      id: 'authored-js-engine-s11',
+      type: 'check',
+      title: 'Check',
+      estMinutes: 3,
+      markdown: `Two on the machine, not the vocabulary.`,
+      questions: [
+        {
+          id: 'authored-js-engine-s11-q1',
+          prompt: 'When is it decided that a variable will live on the heap rather than in the frame?',
+          options: [
+            'While parsing, before the function has run at all',
+            'When the function returns and something still refers to it',
+            'When the garbage collector next runs',
+            'When the variable is first assigned a value',
+          ],
+          correctIndex: 0,
+          explanation:
+            'The engine can see which inner functions mention which outer names by reading the source, so the storage decision is made up front — not rescued at return time.',
+        },
+        {
+          id: 'authored-js-engine-s11-q2',
+          prompt: 'Why does JavaScript have no operator for taking the address of a value?',
+          options: [
+            'Because addresses are a security risk in a browser',
+            'Because the garbage collector relocates objects, so an address would go stale',
+            'Because everything is stored on the stack, which has no addresses',
+            'Because the language is interpreted rather than compiled',
+          ],
+          correctIndex: 1,
+          explanation:
+            'Collection moves surviving objects and updates every reference to them. A raw address you held would not be updated, so it could not be kept valid — which is why what you hold is a reference instead.',
+        },
+      ],
+    },
+  ],
+}
+
 // Keyed by topic slug: lessons to prepend to that topic's generated course.
 export const AUTHORED_LESSONS: Record<string, SeedLesson[]> = {
-  javascript: [AUTHORED_JS_EXECUTION_MODEL],
+  javascript: [AUTHORED_JS_EXECUTION_MODEL, AUTHORED_JS_MACHINE],
 }

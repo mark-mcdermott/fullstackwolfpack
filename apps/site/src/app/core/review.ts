@@ -34,6 +34,8 @@ export type ReviewLog = {
 const MIN_EFACTOR = 1.3
 const DEFAULT_EFACTOR = 2.5
 const DAY_MS = 24 * 60 * 60 * 1000
+// How soon a missed card comes back — short enough to land in the same sitting.
+const RELEARN_MS = 10 * 60 * 1000
 
 // SM-2 quality grade (0–5) for each button. Anything < 3 is a lapse.
 const GRADE: Record<ReviewRating, number> = {
@@ -75,7 +77,22 @@ export function schedule(
     repetitions += 1
   } else {
     repetitions = 0
-    interval = 1
+    // A missed card comes back in the same sitting, not tomorrow.
+    //
+    // Textbook SM-2 resets to a 1-day interval, and that is what this did — so
+    // a wrong answer and a correct first answer scheduled identically, and the
+    // one thing a learner most needs to see again was the thing they had to
+    // wait a day for. Every practical implementation (Anki, FSRS) uses short
+    // relearning steps instead, and it matters most for someone who has just
+    // started: with a one-day floor, a first session can only ever end with an
+    // empty review queue, which reads as the feature being broken.
+    //
+    // `interval` stays in whole days because the column is an integer — 0 means
+    // "sooner than a day". The exact moment lives in `due`, which is a real
+    // timestamp, so this needs no migration and no change to isDue/dueQueue.
+    // Nothing multiplies by `interval` while it is 0: the next pass has
+    // repetitions === 0, which assigns 1 outright.
+    interval = 0
     lapses += 1
   }
 
@@ -87,7 +104,9 @@ export function schedule(
 
   reps += 1
   const reviewedAt = now.toISOString()
-  const due = new Date(now.getTime() + interval * DAY_MS).toISOString()
+  const due = new Date(
+    now.getTime() + (interval === 0 ? RELEARN_MS : interval * DAY_MS),
+  ).toISOString()
 
   return {
     card: { interval, repetitions, efactor, reps, lapses, due, lastReviewedAt: reviewedAt },

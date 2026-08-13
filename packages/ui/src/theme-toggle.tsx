@@ -1,6 +1,6 @@
 import { Monitor, Moon, Sun, SunMoon, type LucideIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { Tooltip } from './ui-kit'
+import { Tooltip, popoverSurfaceClass } from './ui-kit'
 import { cn } from './utils'
 
 // What the user picked, which is not the same as which theme is showing:
@@ -166,30 +166,11 @@ export function ThemeToggle({
             side === 'bottom' ? 'top-full mt-2' : 'bottom-full mb-2',
             // Square and ruled: the kit's panels have hard edges, and a
             // `rounded-md` + `shadow-lg` popover would be the generic look
-            // rather than this one.
-            'border border-border bg-card text-foreground',
-            // A real cast shadow — wide and soft over a tight contact layer —
-            // instead of the 4px hard offset it used to carry. That offset read
-            // as a sticker on a page this light, so the menu had almost no
-            // separation from what it opened over.
-            'light:shadow-[0_20px_50px_rgb(0_0_0/0.18),0_4px_12px_rgb(0_0_0/0.08)]',
-            // Dark cannot borrow light's approach, and the reason is worth
-            // stating: a drop shadow separates by darkening a backdrop that is
-            // lighter than the shadow. Measured against this page there is
-            // nothing left to darken — the header sits at #090909, so a #101114
-            // plate came out at 1.05:1 against it and the black shadow landed
-            // invisibly. (The old `bg-card/75` over a backdrop blur was worse
-            // still: thinning the surface is what let the page through it.)
-            //
-            // So dark separates with light instead. The plate steps up to a
-            // clearly lighter surface than the page, the hairline goes to 18%
-            // white so the frame reads on its own, and a 1px white ring sits
-            // outside it. The black drops stay — they are not wasted, since the
-            // menu overhangs the hero art and Akela's card, which are lighter.
-            'dark:border-white/[0.18] dark:bg-[#22262f]',
-            'dark:shadow-[0_18px_40px_rgb(0_0_0/0.55),0_2px_8px_rgb(0_0_0/0.35),0_0_0_1px_rgb(255_255_255/0.08)]',
-            'dark:before:pointer-events-none dark:before:absolute dark:before:inset-x-0 dark:before:top-0 dark:before:h-px',
-            'dark:before:bg-gradient-to-r dark:before:from-transparent dark:before:via-white/25 dark:before:to-transparent',
+            // rather than this one. The elevation itself is the kit's shared
+            // floating-surface treatment — see `popoverSurfaceClass` for why
+            // the two themes separate by opposite means.
+            popoverSurfaceClass,
+            'text-foreground',
           )}
         >
           <p className="px-2 pt-1.5 pb-2 font-mono text-[9px] tracking-[0.2em] text-primary uppercase">

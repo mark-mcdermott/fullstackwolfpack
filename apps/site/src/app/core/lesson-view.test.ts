@@ -8,6 +8,8 @@ import {
   parseLessonView,
   questionViewSchema,
   segmentLabel,
+  isScoredSegment,
+  normalizeQuestionPrompt,
   segmentKinds,
 } from './lesson-view'
 
@@ -148,5 +150,53 @@ describe('segmentLabel', () => {
 
   it('falls back to the raw kind rather than blanking on something unknown', () => {
     expect(segmentLabel('something-new')).toBe('something-new')
+  })
+})
+
+describe('isScoredSegment', () => {
+  // The rule that keeps the predict/reveal pair honest. A predict is written to
+  // be answered wrong — its reveal is required to name the wrong answer — so
+  // grading it would punish the commitment the format runs on and reward
+  // skipping ahead to read the reveal first.
+  it('excludes predict, so an honest wrong guess costs nothing', () => {
+    expect(isScoredSegment('predict')).toBe(false)
+  })
+
+  it('scores everything that actually tests the idea', () => {
+    for (const kind of segmentKinds) {
+      if (kind === 'predict') continue
+      expect(isScoredSegment(kind)).toBe(true)
+    }
+  })
+
+  // Stated as an exclusion on purpose: a role added later grades by default
+  // rather than silently vanishing from every learner's score.
+  it('scores an unknown kind by default', () => {
+    expect(isScoredSegment('something-new')).toBe(true)
+  })
+})
+
+describe('normalizeQuestionPrompt', () => {
+  it('puts an inline fence on its own lines so it renders as code', () => {
+    const out = normalizeQuestionPrompt(
+      'What does this print? ```js function f() { var a = 1 } f() ```',
+    )
+    expect(out).toContain('\n```js\nfunction f() { var a = 1 } f()\n```')
+    expect(out.startsWith('What does this print?')).toBe(true)
+  })
+
+  it('leaves a well-formed fence alone, so it is safe to always apply', () => {
+    const already = 'Trace it:\n\n```js\nconst a = 1\nconsole.log(a)\n```\n'
+    expect(normalizeQuestionPrompt(already)).toBe(already)
+  })
+
+  it('is idempotent — normalizing twice changes nothing', () => {
+    const once = normalizeQuestionPrompt('Print? ```js f() ```')
+    expect(normalizeQuestionPrompt(once)).toBe(once)
+  })
+
+  it('leaves inline code spans untouched', () => {
+    const p = 'Why does `let z` throw but `var z` not?'
+    expect(normalizeQuestionPrompt(p)).toBe(p)
   })
 })

@@ -4,6 +4,7 @@
 import { NavLink } from 'react-router'
 import { ThemeToggle, WolfMark } from '@fw/ui'
 import { formatClock } from '@/core/focus-session'
+import { useAuth } from '@/hooks/auth-context'
 import { useTimer } from '@/hooks/timer-context'
 import { useMissionExit } from '@/lib/mission-exit-store'
 import { cn } from '@/lib/utils'
@@ -36,6 +37,29 @@ const NAV: {
   // { to: '/leaderboard', label: 'Leaderboard', minWidth: 'hidden lg:flex' },
 ]
 
+// Signed-in only, appended to NAV below.
+//
+// The review page has existed and worked for a while behind /app/review with
+// nothing linking to it. It stays off the bar for guests for the same reason
+// Community is parked above: review cards are keyed to a user id, so a guest
+// has nothing to review and the link would funnel to /login. That changes if
+// guest cards ever land in localStorage the way guest progress already does.
+//
+// Shown to everyone now that guests have a review queue of their own
+// (lib/guest-review), so it no longer dead-ends at /login — the reason the
+// Community item above is still parked.
+//
+// `lg`, not `md`, and that is measured rather than guessed. `md` is where the
+// bar goes roomy (72px cells, 36px gaps, plus the health readout and its
+// divider), so a fourth item there overflows the viewport by 32px at exactly
+// 768px — the horizontal-scroll bug this bar has already been fixed for once.
+// The parked Leaderboard item above sits at `lg` for the same reason.
+const reviewItem = (signedIn: boolean) => ({
+  to: signedIn ? '/app/review' : '/review',
+  label: 'Review',
+  minWidth: 'hidden lg:flex',
+})
+
 // The active underline is a fixed width — roughly the width of "ARCADE" — so it
 // reads as a consistent marker rather than shrink-wrapping each label. Every
 // item reserves it (transparent when inactive) to keep the row from reflowing.
@@ -58,6 +82,8 @@ export function FwHeader() {
   // screen while the session is live.
   const timer = useTimer()
   const onMission = timer.active && !!timer.step
+  const { user } = useAuth()
+  const nav = [...NAV, reviewItem(!!user)]
   return (
     // Transparent so the page grain/glow (index.css `body::before`) runs behind
     // it unbroken; the layout wrapper supplies the base color.
@@ -137,7 +163,7 @@ export function FwHeader() {
           {/* The tighter gap rides the same 400px threshold as the wordmark: it
               is the last 8px that gets a 320px viewport under the line. */}
           <nav className={cn('flex items-center gap-3 min-[400px]:gap-4', NAV_GAP)}>
-            {NAV.map(({ to, label, end, minWidth }) => (
+            {nav.map(({ to, label, end, minWidth }) => (
               <NavLink
                 key={to}
                 to={to}

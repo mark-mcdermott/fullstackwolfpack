@@ -3,6 +3,7 @@ import {
   averageEtaMs,
   buildGenerationPrompt,
   lessonStructureIssues,
+  lessonVocabularyIssues,
   COURSE_TARGET,
   DEFAULT_GENERATION_ETA_MS,
   parseGeneratedCourse,
@@ -419,5 +420,62 @@ describe('lessonStructureIssues', () => {
     expect(lessonStructureIssues(lesson('mechanism')).join(' ')).toMatch(
       /no check/,
     )
+  })
+})
+
+describe('lessonVocabularyIssues', () => {
+  const lesson = (markdown: string) => ({
+    title: 'Closures',
+    segments: [{ title: 'Where it lives', markdown }],
+  })
+
+  // The audit that motivated this: the generated lessons said "box" 38 times
+  // and "frame" zero, the authored lesson the exact reverse. Same machine, two
+  // metaphors, and nothing anywhere saying they were the same thing.
+  it('flags the soft synonym the generator kept inventing', () => {
+    const issues = lessonVocabularyIssues(lesson('The box named `x` is kept alive.'))
+    expect(issues).toHaveLength(1)
+    expect(issues[0]).toContain('box')
+    expect(issues[0]).toContain('slot')
+  })
+
+  it('counts repeats so a whole lesson written in the wrong vocabulary stands out', () => {
+    const issues = lessonVocabularyIssues(
+      lesson('A box holds a value. Each box has a name. Boxes disappear.'),
+    )
+    expect(issues[0]).toContain('3×')
+  })
+
+  // Not style — this one is factually wrong, and wrong in a way that costs the
+  // reader later when they learn the collector relocates heap values.
+  it('flags "memory address", which is false for a JS variable', () => {
+    const issues = lessonVocabularyIssues(
+      lesson('The closure stores the memory address of `i`.'),
+    )
+    expect(issues[0]).toContain('reference')
+  })
+
+  // The first version of this check fired on every course and was wrong nearly
+  // everywhere: an S3 bucket, a search box, a Windows box and the CSS box model
+  // are all real terms. Scoping it is what keeps the true positives credible.
+  it('stays out of topics that do not teach the execution model', () => {
+    expect(lessonVocabularyIssues(lesson('Upload it to the box.'), 'aws')).toEqual([])
+    expect(
+      lessonVocabularyIssues(lesson('A search box that debounces.'), 'react'),
+    ).toEqual([])
+    expect(
+      lessonVocabularyIssues(lesson('Confirm the box model.'), 'tailwind'),
+    ).toEqual([])
+  })
+
+  it('passes prose written in the real vocabulary', () => {
+    expect(
+      lessonVocabularyIssues(
+        lesson(
+          'The call gets a frame on the call stack; `i` is a slot in it, and the ' +
+            'function holds a reference to that slot, which is why the value lives on the heap.',
+        ),
+      ),
+    ).toEqual([])
   })
 })

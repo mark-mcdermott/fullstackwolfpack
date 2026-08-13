@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowRight, RotateCcw, Settings, TrendingDown, TrendingUp, Trophy } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { api } from '@/api-client'
 import { CodeExercise } from '@/components/learn/code-exercise'
@@ -11,7 +11,7 @@ import { AsyncView } from '@/components/layout/async-view'
 import { Panel, Pill, ProgressMeter, SectionLabel, raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
 import { can } from '@/core/access'
 import { lessonScore, xpForLesson } from '@/core/learning'
-import { segmentLabel } from '@/core/lesson-view'
+import { isScoredSegment, segmentLabel } from '@/core/lesson-view'
 import { hasGlossaryEntry } from '@/content/glossary-entries'
 import type {
   AnswerFeedback,
@@ -24,6 +24,7 @@ import {
   completeLessonGuest,
   guestCompletedLessonIds,
 } from '@/lib/guest-progress'
+import { seedGuestReviewCard } from '@/lib/guest-review'
 import {
   clearLessonProgress,
   loadLessonProgress,
@@ -164,9 +165,26 @@ function LessonPlayer({
     }
   }, [guest])
 
-  const totalQuestions = useMemo(
-    () => lesson.segments.reduce((n, s) => n + s.questions.length, 0),
-    [lesson],
+  // Only graded questions count toward the score — see `isScoredSegment`. A
+  // predict is meant to be missed, so counting it would mean a reader who
+  // committed honestly to four guesses and learned from all four reveals still
+  // finished the lesson "unmastered".
+  const scoredQuestionIds = useMemo(() => {
+    const ids = new Set<string>()
+    for (const s of lesson.segments) {
+      if (!isScoredSegment(s.type)) continue
+      for (const q of s.questions) ids.add(q.id)
+    }
+    return ids
+  }, [lesson])
+  const totalQuestions = scoredQuestionIds.size
+
+  const correctCount = useCallback(
+    () =>
+      Object.entries(correctById).filter(
+        ([id, ok]) => ok && scoredQuestionIds.has(id),
+      ).length,
+    [correctById, scoredQuestionIds],
   )
 
   function recordAnswer(fb: AnswerFeedback) {
@@ -174,13 +192,25 @@ function LessonPlayer({
       fb.questionId in prev ? prev : { ...prev, [fb.questionId]: fb.correct },
     )
     setQuizXp((xp) => xp + fb.xp)
+
+    // Guests get a review queue too, seeded here rather than server-side: the
+    // account path does this inside submitAnswer, but a guest's answer never
+    // reaches a table. The prompt and options come from the lesson we already
+    // hold, so the stored card can render itself later without a lookup a guest
+    // has no route for.
+    if (guest) {
+      const q = lesson.segments
+        .flatMap((s) => s.questions)
+        .find((x) => x.id === fb.questionId)
+      if (q) seedGuestReviewCard(q.id, q.prompt, q.options, fb.correct)
+    }
   }
 
   async function finish() {
     if (completing) return
     setCompleting(true)
     try {
-      const correct = Object.values(correctById).filter(Boolean).length
+      const correct = correctCount()
       if (guest) {
         // Guests: compute + persist to localStorage (same core math as the server).
         setCompletion(
@@ -191,7 +221,7 @@ function LessonPlayer({
       }
     } catch {
       // Fallback so the learner still sees a result if the write fails.
-      const correct = Object.values(correctById).filter(Boolean).length
+      const correct = correctCount()
       const score = lessonScore(correct, totalQuestions)
       setCompletion({
         score,
@@ -285,9 +315,15 @@ function LessonPlayer({
       </div>
 
       <Panel className="flex flex-col gap-4">
-        <div className="flex items-start justify-between gap-4">
+        {/* The badge is one atomic label — "SETUP · 2 MIN" only reads as a unit
+            whole. So it never breaks internally; when the row runs out of room
+            the *row* wraps and the whole pill drops under the title instead.
+            That is what stops "MIN" stranding on its own line beneath a
+            dangling separator, and it needs no way to detect a line break,
+            which CSS has none. */}
+        <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
           <h2 className="text-lg font-bold uppercase">{segment.title}</h2>
-          <Pill>
+          <Pill className="shrink-0 whitespace-nowrap">
             {segmentLabel(segment.type)} · {segment.estMinutes} min
           </Pill>
         </div>
