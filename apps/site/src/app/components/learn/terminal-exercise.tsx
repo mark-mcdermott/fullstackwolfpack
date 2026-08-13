@@ -128,7 +128,7 @@ export function TerminalExercise({
         <button
           type="button"
           onClick={reset}
-          className="inline-flex items-center gap-2 border border-border px-3 py-2 font-mono text-[10px] tracking-widest uppercase hover:border-muted-foreground"
+          className={secondaryCtaClass}
         >
           <RotateCcw className="size-3.5" /> Reset
         </button>
@@ -136,7 +136,7 @@ export function TerminalExercise({
           <button
             type="button"
             onClick={() => setShowHint((v) => !v)}
-            className="inline-flex items-center gap-2 border border-border px-3 py-2 font-mono text-[10px] tracking-widest uppercase hover:border-muted-foreground"
+            className={secondaryCtaClass}
           >
             <Lightbulb className="size-3.5" /> {showHint ? 'Hide hint' : 'Hint'}
           </button>
@@ -144,7 +144,7 @@ export function TerminalExercise({
         <button
           type="button"
           onClick={showSolution}
-          className="border border-border px-3 py-2 font-mono text-[10px] tracking-widest text-muted-foreground uppercase hover:border-muted-foreground"
+          className={secondaryCtaClass}
         >
           Show solution
         </button>

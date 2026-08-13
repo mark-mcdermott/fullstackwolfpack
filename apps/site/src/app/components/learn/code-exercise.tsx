@@ -12,7 +12,7 @@ import { runExercise } from '@/lib/run-exercise'
 import { runPython } from '@/lib/run-python'
 import { cn } from '@/lib/utils'
 import { LessonMarkdown } from './lesson-markdown'
-import { raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
+import { raisedCtaClass, raisedCtaCompactClass, secondaryCtaClass } from '@fw/ui'
 
 // Phase 4 in-browser code exercise: edit starter code, run hidden tests in a Web
 // Worker, and see pass/fail. Hint and solution are revealed only on request.
@@ -75,7 +75,7 @@ export function CodeExercise({
         <button
           type="button"
           onClick={reset}
-          className="inline-flex items-center gap-2 border border-border px-3 py-2 font-mono text-[10px] tracking-widest uppercase hover:border-muted-foreground"
+          className={secondaryCtaClass}
         >
           <RotateCcw className="size-3.5" /> Reset
         </button>
@@ -83,7 +83,7 @@ export function CodeExercise({
           <button
             type="button"
             onClick={() => setShowHint((v) => !v)}
-            className="inline-flex items-center gap-2 border border-border px-3 py-2 font-mono text-[10px] tracking-widest uppercase hover:border-muted-foreground"
+            className={secondaryCtaClass}
           >
             <Lightbulb className="size-3.5" /> {showHint ? 'Hide hint' : 'Hint'}
           </button>
@@ -95,7 +95,7 @@ export function CodeExercise({
               setShowSolution(true)
               setCode(exercise.solution ?? code)
             }}
-            className="border border-border px-3 py-2 font-mono text-[10px] tracking-widest text-muted-foreground uppercase hover:border-muted-foreground"
+            className={secondaryCtaClass}
           >
             Show solution
           </button>

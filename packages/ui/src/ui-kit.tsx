@@ -104,6 +104,37 @@ export const raisedCtaClass = cn(
 // a compact button that only restated the light padding would silently grow
 // back to 52px in dark. Same 20px total either way, split evenly here because
 // dark's rim is even top and bottom where light's bevel sits a pixel low.
+// The companion to `raisedCtaClass` — the other half of a button pair.
+//
+// It exists because there wasn't one. Primaries had a shared class; every
+// secondary was hand-rolled `border border-border px-… py-…`, a dozen times
+// over in the learn surface alone, and they had drifted into a different design
+// system from the button beside them. Measured against Next on the lesson nav,
+// Back differed on six axes: 34px vs 40px tall, 0 vs 10px radius, Geist Mono vs
+// Teko, 12 vs 20px, and no shared elevation language.
+//
+// A pair should differ on *emphasis* and agree on *shape*. So this matches the
+// compact CTA's box exactly — same height, radius, family and size — and
+// differs only in the ways that carry hierarchy: no raised face, no cast
+// shadow, a hairline instead of a fill. It presses the same 1px on :active, so
+// the two feel like the same physical object at different weights.
+export const secondaryCtaClass = cn(
+  'relative inline-flex w-fit items-center justify-center gap-2.5 rounded-lg',
+  // A pixel less top and bottom than the compact CTA's 11/9. That button has no
+  // border — its edge is the first inset of `--cta-edge` — so the hairline here
+  // is extra height the padding has to give back, or the pair sits 42 to 40.
+  'px-4 pt-[10px] pb-[8px] text-[20px]/[20px]',
+  // `font-variation-settings: normal` for the same reason raisedCtaClass needs
+  // it: theme.css pins Teko's weight axis at 400, and a `font-light` without
+  // the escape is silently ignored.
+  'font-heading font-light tracking-wide uppercase [font-variation-settings:normal]',
+  'border border-border bg-transparent text-muted-foreground',
+  'transition-[color,border-color,background-color,translate]',
+  'hover:border-muted-foreground hover:text-foreground light:hover:bg-black/[0.03] dark:hover:bg-white/[0.04]',
+  'active:translate-y-px',
+  'disabled:opacity-40 disabled:hover:border-border disabled:hover:text-muted-foreground',
+)
+
 export const raisedCtaCompactClass = cn(
   'px-4 pt-[11px] pb-[9px] text-[20px]/[20px]',
   'dark:pt-[10.5px] dark:pb-[9.5px]',
