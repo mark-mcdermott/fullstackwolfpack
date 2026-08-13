@@ -581,7 +581,7 @@ When it passes, look at what changed: you did not change when the functions run.
 export const AUTHORED_JS_MACHINE: SeedLesson = {
   id: 'authored-js-engine',
   title: 'What Actually Runs Your JavaScript',
-  estMinutes: 37,
+  estMinutes: 38,
   glossary: [
     'machine frame',
     'context allocation',
@@ -642,10 +642,25 @@ V8 runs on a real stack like this. When the first lesson said a frame is opened 
       id: 'authored-js-engine-s3',
       type: 'mechanism',
       title: 'Some variables never go on the stack',
-      estMinutes: 5,
+      estMinutes: 6,
       markdown: `Here is where JavaScript departs from C, and it departs *before your program runs*.
 
-A frame's space is reclaimed when the call returns. So a variable that an inner function will still read cannot live only there. The engine has to know which variables those are — and it works it out while **parsing**, by reading the source and seeing which inner functions mention which outer names.
+Start with a sentence that should bother you, because the last lesson said the opposite:
+
+**A machine frame is always reclaimed when its call returns.** Always — no condition, no exception, nothing survives it. The stack pointer moves back and the space is gone, whatever else in the program happens to be pointing anywhere.
+
+The last lesson said a frame someone still points at is *not* discarded. Both are true, because they are not describing the same object. "Frame" there is the model — a call's workspace, which behaves as though it can outlive the call. "Machine frame" here is the actual stack memory, which never does. The gap between those two is exactly what this segment is about.
+
+So follow it through. Suppose a variable that an inner function will read later lived *only* in the machine frame:
+
+1. the outer call returns
+2. its machine frame is reclaimed — unconditionally, per above
+3. the inner function runs some time after that, and reads the variable
+4. …but there is nothing left to read
+
+Step 4 does not happen. Counters work; closures work. So one of the assumptions was wrong, and the only one available is the first: a variable an inner function will read **cannot live only in the machine frame**. It has to be somewhere that returning does not touch.
+
+The engine has to know which variables those are — and it works it out while **parsing**, by reading the source and seeing which inner functions mention which outer names.
 
 Variables that are mentioned get put on the heap instead, in an object V8 calls a Context. Everything else stays in the frame. The name for that decision is **context allocation**.
 
