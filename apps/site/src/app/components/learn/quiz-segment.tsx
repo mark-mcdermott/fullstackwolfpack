@@ -143,7 +143,12 @@ function McqQuestion({
               className={cn(
                 'flex items-center gap-3 border px-4 py-3 text-left font-mono text-xs transition-colors',
                 !answered && !isChosen && 'border-border hover:border-muted-foreground',
-                isChecking && 'border-primary',
+                // Neutral while the answer is in flight. `primary` is the
+                // brand red, so the option you clicked flashed red for the
+                // length of the round trip and then turned green if you were
+                // right — a wrong-answer signal shown before the answer was
+                // known. Nothing here should carry a verdict until there is one.
+                isChecking && 'border-muted-foreground',
                 // Green for right, red for wrong. `primary` is the brand red, so
                 // marking the correct answer with it made both outcomes read as
                 // the same colour — which matters more now that the colour *is*

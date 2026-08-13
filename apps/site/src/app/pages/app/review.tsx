@@ -192,7 +192,8 @@ function ReviewCard({
                 !answered &&
                   !isChosen &&
                   'border-border hover:border-muted-foreground',
-                isChecking && 'border-primary',
+                // Neutral while in flight — see quiz-segment.tsx.
+                isChecking && 'border-muted-foreground',
                 isAnswer &&
                   'border-emerald-600/60 bg-emerald-500/10 dark:border-emerald-400/50',
                 isWrongPick && 'border-red-500 bg-red-500/10',
@@ -295,7 +296,7 @@ function CaughtUp({ reviewed, guest }: { reviewed: number; guest: boolean }) {
         </p>
         <Link
           to={guest ? '/skill' : '/app'}
-          className="mt-2 inline-flex items-center gap-2 bg-primary px-5 py-2 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+          className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-blaze mt-2')}
         >
           {guest ? 'Back to lessons' : 'Back to dashboard'}{' '}
           <ArrowRight className="size-4" />
@@ -320,7 +321,7 @@ function ProUpsell() {
         </p>
         <a
           href={siteUrl('/pricing')}
-          className="mt-2 inline-flex items-center gap-2 bg-primary px-5 py-2 font-mono text-xs tracking-widest text-primary-foreground uppercase hover:bg-primary/80"
+          className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-blaze mt-2')}
         >
           See Pro <ArrowRight className="size-4" />
         </a>
