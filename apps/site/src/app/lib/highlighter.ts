@@ -1,5 +1,6 @@
 import { createHighlighterCore, type HighlighterCore } from 'shiki/core'
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
+import { FW_DARK, FW_LIGHT } from './code-theme'
 
 // A lazily-created, dependency-light syntax highlighter for lesson code blocks.
 //
@@ -37,7 +38,6 @@ const ALIAS: Record<string, string> = {
   md: 'markdown',
 }
 
-const THEME = 'github-dark'
 
 let singleton: Promise<HighlighterCore> | null = null
 
@@ -47,7 +47,9 @@ function getHighlighter(): Promise<HighlighterCore> {
       // `forgiving` keeps a grammar the JS engine can't fully model from throwing —
       // it degrades to a partial highlight instead of erroring.
       engine: createJavaScriptRegexEngine({ forgiving: true }),
-      themes: [import('shiki/themes/github-dark.mjs')],
+      // Bundled objects rather than dynamic imports: they are a few hundred
+      // bytes of our own palette, not a theme to fetch.
+      themes: [FW_LIGHT, FW_DARK],
       langs: [
         import('shiki/langs/typescript.mjs'),
         import('shiki/langs/tsx.mjs'),
@@ -75,7 +77,17 @@ function resolveLang(lang: string): string {
 
 // Highlight code to a Shiki `<pre>` HTML string. The markup is produced entirely by
 // Shiki from tokenised, escaped source — safe to inject (see CodeBlock).
+//
+// Emits BOTH themes at once. With `defaultColor: false`, Shiki writes each
+// token's two colours as `--shiki-light` / `--shiki-dark` custom properties
+// instead of picking one, and index.css chooses between them. That is what
+// keeps the light/dark difference CSS-only, per the project rule: no component
+// reads the theme, and nothing re-highlights when it changes.
 export async function highlightToHtml(code: string, lang: string): Promise<string> {
   const highlighter = await getHighlighter()
-  return highlighter.codeToHtml(code, { lang: resolveLang(lang), theme: THEME })
+  return highlighter.codeToHtml(code, {
+    lang: resolveLang(lang),
+    themes: { light: 'fw-light', dark: 'fw-dark' },
+    defaultColor: false,
+  })
 }

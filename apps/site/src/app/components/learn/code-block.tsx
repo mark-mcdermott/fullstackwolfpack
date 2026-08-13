@@ -49,7 +49,10 @@ export function CodeBlock({ code, lang }: { code: string; lang: string }) {
   }
 
   return (
-    <pre className="my-1 overflow-x-auto border border-border bg-card p-4 font-mono text-sm">
+    // Same surface as the highlighted block, so the swap when Shiki finishes
+    // is a colouring-in rather than the block changing colour underneath the
+    // reader — `bg-card` is pure white in light, where the code surface is not.
+    <pre className="my-1 overflow-x-auto border border-border bg-[var(--code-surface)] p-4 font-mono text-sm text-[var(--code-variable)]">
       <code>{code}</code>
     </pre>
   )
