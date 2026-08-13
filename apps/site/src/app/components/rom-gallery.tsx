@@ -6,7 +6,7 @@ import { useMemo, useState, type ReactNode } from 'react'
 // TEMP: `useId` belongs to the commented-out UploadPoster.
 // import { useId } from 'react'
 import { GamePoster, type PosterGame } from '@/components/arcade/game-poster'
-import { SectionLabel, raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
+import { SectionLabel, raisedCtaClass, raisedCtaCompactClass, secondaryCtaClass } from '@fw/ui'
 import {
   type GamePlaytime,
   gameKey,
@@ -337,7 +337,7 @@ export function RomGallery({
               <button
                 type="button"
                 onClick={cancelCover}
-                className="inline-flex items-center gap-2 border border-border px-4 py-2.5 font-mono text-xs tracking-widest uppercase hover:bg-muted"
+                className={secondaryCtaClass}
               >
                 <X className="size-4" /> Cancel
               </button>

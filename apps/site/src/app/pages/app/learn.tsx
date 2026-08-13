@@ -8,7 +8,15 @@ import { LessonMarkdown } from '@/components/learn/lesson-markdown'
 import { QuizSegment } from '@/components/learn/quiz-segment'
 import { TutorPanel } from '@/components/learn/tutor-panel'
 import { AsyncView } from '@/components/layout/async-view'
-import { Panel, Pill, ProgressMeter, SectionLabel, raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
+import {
+  Panel,
+  Pill,
+  ProgressMeter,
+  SectionLabel,
+  raisedCtaClass,
+  raisedCtaCompactClass,
+  secondaryCtaClass,
+} from '@fw/ui'
 import { can } from '@/core/access'
 import { lessonScore, xpForLesson } from '@/core/learning'
 import { isScoredSegment, segmentLabel } from '@/core/lesson-view'
@@ -368,7 +376,7 @@ function LessonPlayer({
           type="button"
           onClick={() => setIndex((i) => Math.max(0, i - 1))}
           disabled={index === 0}
-          className="inline-flex items-center gap-2 border border-border px-4 py-2 font-mono text-xs tracking-widest uppercase disabled:opacity-30"
+          className={cn(secondaryCtaClass, 'disabled:opacity-30')}
         >
           <ArrowLeft className="size-4" /> Back
         </button>
