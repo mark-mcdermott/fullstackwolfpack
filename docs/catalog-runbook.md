@@ -44,6 +44,21 @@ Safe to re-run: existing rows are skipped, missing ones are added. It never un-a
 
 `--refresh-builtins` wipes every `source = 'builtin'` course first, then re-creates it from the current seed content. Use it when a course's *content* changed but its ids did not, and note that the wipe cascades to lessons, segments, questions, exercises **and any user progress recorded against them**. Owned AI-generated courses are untouched.
 
+> **Check before running it on production.** The cascade is silent, and "fixing a typo" and "deleting everyone's progress on the built-in courses" are the same command. As of 2026-08-13 production carried 86 built-in lessons with **0 progress rows and 0 quiz attempts** against them, so the several reseeds that day cost nothing — but that was luck, not design. The moment real learners work through these lessons, every content edit destroys their progress.
+>
+> The query to run first (adjust for what you care about):
+>
+> ```sql
+> select count(*) from user_lesson_progress p
+>   join lessons l on l.id = p.lesson_id
+>   join courses c on c.id = l.course_id
+>  where c.owner_user_id is null;
+> ```
+>
+> Review cards survive a refresh, but only by accident: `review_cards.item_id` is plain text rather than a foreign key, so nothing cascades to it. They keep working because seed ids are fixed — change a question id and they point at nothing.
+>
+> Making this safe is the subject of the open question in [`ROADMAP.md` → *Content source of truth*](ROADMAP.md).
+
 ## Parking topics
 
 The non-destructive way to pare the menu back. `topics.status` takes `active`, `coming_soon` or `archived`; archiving keeps every row — the topic, its built-in course, and every learner's progress — and only removes it from the two galleries.

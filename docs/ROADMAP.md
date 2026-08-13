@@ -82,6 +82,31 @@ _Status: `[x]` shipped · `[~]` partial/stubbed · `[ ]` not started._
 - `[ ]` **Per-env secrets** — `RP_ID` / `RP_ORIGIN` / `AUTH_SECRET` / `ENCRYPTION_KEY`. Production **refuses to start** on dev defaults (by design).
 - `[ ]` **Vercel** — link the project (`@vercel/analytics` only reports once deployed).
 
+### Content source of truth — files vs database *(open question, 2026-08-13)*
+
+Lesson content is authored as TypeScript, committed, and pushed into Postgres by `scripts/seed.ts`. The instinct that this is odd is worth taking seriously, but the diagnosis is not the obvious one.
+
+**The database is already the runtime store.** No runtime code reads `BUILTIN_COURSES` — the only readers are `scripts/seed.ts`, `db/generated-to-seed.ts`, and tests. Lessons are served from Postgres on every request. The committed files are an *authoring format*, not the store, so the hard half of a CMS already exists.
+
+**What blocks the database becoming authoritative is one flag.** `seed.ts --refresh-builtins` deletes every built-in course and reinserts it, so any edit made in the database is destroyed by the next content change. And because the delete cascades, it takes user progress with it: today that costs nothing (measured 0 progress rows on built-ins in production), but it becomes destructive the moment learners engage with these lessons.
+
+Two ways forward, and they are not the same size:
+
+1. **Keep files as the source of truth; make the seed upsert instead of delete-and-reinsert.** Removes the cascade entirely, keeps git as the review surface for content — which matters here, because lessons pass structural and vocabulary gates that a CMS textarea would not enforce. Small, and worth doing on its own merits regardless of what is decided about a CMS.
+2. **Make the database the source of truth; add an admin editing surface; files become a one-time import.** A real CMS. Worth it when someone who does not write TypeScript needs to edit lessons — which today is nobody.
+
+**Leaning toward (1) now and deferring (2).** The migration to a CMS gets easier over time rather than harder, so there is little cost to waiting and a real cost to building an editor nobody needs yet. What should *not* wait is the cascade: it is a live data-loss risk with a small fix.
+
+See [`catalog-runbook.md` → Seeding](catalog-runbook.md) for the operational side and the query to run before any production refresh.
+
+### Arcade ↔ app integration — score extraction *(spiked 2026-08-13, not started)*
+
+The arcade currently tells the rest of the product nothing about what happened inside a game. [`rom-score-spike.md`](rom-score-spike.md) prices the fix and the answer is better than expected: Tobu Tobu Girl's cartridge is `MBC1+RAM+BATTERY` with 8KB of save RAM, and Nostalgist exposes `saveSRAM()` as an 8KB Blob — so a high score can be read from the game's own save format rather than by scanning a 128MB heap for an address that moves between core versions. (There is no memory-map API: the module carries no `_retro_*` exports.)
+
+Unproven: the byte offset, which needs a real game-over and a diff of two dumps. Also note SRAM is client-side, so it can back personal XP but not a leaderboard.
+
+Cheaper first: per-title **playtime is already tracked**, so session length and return rate are available with no cartridge work at all.
+
 ### Loose ends
 - `[x]` **Real seed course content** (PR #18). A shared built-in "Git & GitHub" course (`ownerUserId = null`, fixed ids → idempotent seed) so new users can Start Learning immediately — no OpenAI key needed. Add more in `src/db/seed-content.ts`.
 - `[x]` **Real time-series charts** (PR #16). Live XP-over-time on Progress and accuracy + minutes trends on Stats, fed from `xp_events` / `quiz_attempts` / `daily_activity` via `getSeries` + the pure `core/series` bucketing. `src/components/charts.tsx` exports two tiny dependency-free primitives — `Sparkline` (SVG line) and `Bars` (CSS bars), each taking a `number[]`.
