@@ -315,7 +315,11 @@
     --accent: oklch(0.249 0.03 267);
     --accent-foreground: oklch(0.985 0 0);
     --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 4.5%);
+    /* 10%. The polish pass took this down to 4.5% on the theory that the
+       larger page/card step could carry separation alone; review walked it
+       back to 7% and now past it. With the page this dark, the hairline is
+       what gives a card its edge — it reads as definition, not clutter. */
+    --border: oklch(1 0 0 / 10%);
     --input: oklch(1 0 0 / 9%);
     --ring: oklch(0.556 0 0);
     --chart-1: oklch(0.87 0 0);
@@ -465,15 +469,15 @@
   --hero-glow-sub: 28% 42%;
   background-image:
     radial-gradient(
-      ellipse 60% 68% at var(--hero-glow-title),
+      ellipse 20% 138% at var(--hero-glow-title),
       oklch(0 0 0 / 0.5) 0%,
-      oklch(0 0 0 / 0.24) 42%,
-      transparent 72%
+      oklch(0 0 0 / 0.24) 52%,
+      transparent 82%
     ),
     radial-gradient(
-      ellipse 48% 44% at var(--hero-glow-sub),
+      ellipse 8% 94% at var(--hero-glow-sub),
       oklch(0 0 0 / 0.27) 0%,
-      transparent 72%
+      transparent 92%
     );
 }
 
