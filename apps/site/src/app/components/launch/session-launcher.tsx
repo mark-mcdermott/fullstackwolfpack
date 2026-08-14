@@ -254,17 +254,18 @@ function LauncherForm({
     <Panel
       id="start-session"
       brackets={false}
-      // Base gets the same 20px below the button as it has either side of it.
-      // START is the last row of the stack only at this width, so `pb-3` put a
-      // raised CTA 13px off the tile edge against 20px gutters — it read as
-      // sitting on the edge. From `sm` the button shares its line (and at md
-      // the row itself), so the tighter original is restored there.
+      // The same 20px below the button as it has either side of it, for as long
+      // as START is the last row of the stack — which is up to `md`, where it
+      // goes inline on the control row and that row's own slack takes over.
+      // `pb-3` below there put a raised CTA 13px off the tile edge against 20px
+      // gutters, and it read as sitting on the edge.
+      //
       // The landing offset for the hero's "Build your session" jump link. 96px
       // is headroom on a desktop viewport; on a phone it is most of what is left
       // above the tile, so the jump jettisoned the hero except for the button
       // you had just pressed, stranded half off the top. Base lands the tile
       // just under the edge instead.
-      className="flex scroll-mt-4 flex-col gap-5 rounded-2xl px-5 pt-5 pb-5 sm:scroll-mt-24 sm:px-5 sm:pt-6 sm:pb-3 light:bg-[#f8f5f2] light:shadow-[inset_0_0_0_2px_#fdfdfb,var(--tile-shadow)]"
+      className="flex scroll-mt-4 flex-col gap-5 rounded-2xl px-5 pt-5 pb-5 sm:scroll-mt-24 sm:px-5 sm:pt-6 md:pb-3 light:bg-[#f8f5f2] light:shadow-[inset_0_0_0_2px_#fdfdfb,var(--tile-shadow)]"
     >
       <div className="flex items-center justify-between gap-4">
         <SectionLabel className="text-sm">Configure your mission</SectionLabel>
