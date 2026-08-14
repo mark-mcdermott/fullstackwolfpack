@@ -8,6 +8,7 @@ import {
   type GitState,
   type TranscriptEntry,
 } from '@/core/git-sim'
+import { secondaryCtaClass } from '@fw/ui'
 import type { GitExerciseView } from '@/core/lesson-view'
 import { cn } from '@/lib/utils'
 import { LessonMarkdown } from './lesson-markdown'
