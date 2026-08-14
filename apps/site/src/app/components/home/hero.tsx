@@ -125,8 +125,22 @@ export function HomeHero() {
           <div>
             {/* No weight utility: 400 is the heading font's pinned axis, so the
                 headline just inherits it — no `font-variation-settings` escape
-                needed when the wanted weight is the pin itself. */}
-            <h1 className="font-heading text-3xl leading-[0.85] tracking-tight uppercase sm:text-4xl md:text-[80px]">
+                needed when the wanted weight is the pin itself.
+
+                One fluid ramp rather than 30 / 36 / 80 at base / sm / md. Those
+                steps cost the headline 62% of its size below md while the
+                subtitle under it only gave up 12%, so the hierarchy inverted:
+                at 390 the headline set 137px of ink against a 185px line of
+                subtitle, and the supporting copy was the widest thing in the
+                hero. Shrinking the subtitle could not have fixed that — it
+                would have had to reach ~8px to come in under the headline. The
+                headline was simply small, using 40% of its column where the md
+                size uses 52%.
+                10.4vw is that 52% expressed as a slope (80px at the 768 the cap
+                takes over, so nothing at or above md moves), and the 34px floor
+                keeps it off the very narrow end, where a pure ratio starts to
+                look chunky against a 272px column. */}
+            <h1 className="font-heading text-[clamp(34px,10.4vw,80px)] leading-[0.85] tracking-tight uppercase">
               {/* Dark grades each line top-to-bottom, sampled off the mock.
                   `bg-clip-text` over a transparent fill, so the flat token
                   colour still carries light. */}
