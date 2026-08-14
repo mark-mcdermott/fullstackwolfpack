@@ -295,7 +295,7 @@ function CaughtUp({ reviewed, guest }: { reviewed: number; guest: boolean }) {
               : 'Nothing due right now — answer some lesson questions to build your review queue.'}
         </p>
         <Link
-          to={guest ? '/skill' : '/app'}
+          to={guest ? '/javascript' : '/app'}
           className={cn(raisedCtaClass, raisedCtaCompactClass, 'cta-blaze mt-2')}
         >
           {guest ? 'Back to lessons' : 'Back to dashboard'}{' '}

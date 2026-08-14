@@ -54,6 +54,9 @@ function App() {
             another rename. */}
         <Route path="/javascript" element={<LearnBrowse />} />
         <Route path="/skill" element={<LearnBrowse />} />
+        <Route path="/javascript/:lessonId" element={<GuestLearn />} />
+        {/* Legacy: lessons lived here before the topic got its own path. Kept
+            so shared links keep working. */}
         <Route path="/skill/:lessonId" element={<GuestLearn />} />
         {/* Public on purpose: a term's page is where "read more" lands from a
             lesson a guest can already read, and it is a URL worth sharing. */}
@@ -95,7 +98,8 @@ function App() {
         </Route>
       </Route>
 
-      {/* `/learn` was renamed `/skill`. A redirect rather than an alias, so the
+      {/* `/learn` became `/skill`, then `/javascript`. A redirect rather than an
+          alias, so the
           rename leaves one canonical URL behind it — but old links, bookmarks
           and any shared lesson URL still land. Outside GuestLayout on purpose:
           nothing should paint on the way through. */}
@@ -113,7 +117,10 @@ function LegacySkillRedirect() {
   const { lessonId } = useParams()
   const { search } = useLocation()
   return (
-    <Navigate to={`/skill${lessonId ? `/${lessonId}` : ''}${search}`} replace />
+    <Navigate
+      to={`/javascript${lessonId ? `/${lessonId}` : ''}${search}`}
+      replace
+    />
   )
 }
 

@@ -11,11 +11,16 @@ export async function nextLessonPath(topicSlug: string): Promise<string> {
 }
 
 // Guest version: reads the public course outline and returns the guest player
-// path (/skill/:id). Guests have no per-user progress, so "next" is the first.
+// path (/javascript/:id). Guests have no per-user progress, so "next" is the
+// first.
+//
+// The id used to be missing from this template — it was computed, validated,
+// then dropped, so a guest starting a learn-first mission was sent to the
+// browse page instead of into the lesson.
 export async function guestNextLessonPath(topicSlug: string): Promise<string> {
   const outline = await api.public.course(topicSlug)
   if (!outline.nextLessonId) throw new Error('This course has no lessons yet.')
-  return `/skill/`
+  return `/javascript/${outline.nextLessonId}`
 }
 
 // Pick the single topic slug to *continue* — for a topic-agnostic entry point
