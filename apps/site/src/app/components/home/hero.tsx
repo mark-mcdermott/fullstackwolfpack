@@ -175,7 +175,13 @@ export function HomeHero() {
           className="pointer-events-none absolute inset-y-0 right-0 h-full object-cover object-[center_30%] dark:brightness-[0.82] dark:contrast-[0.94] [mask-image:linear-gradient(to_left,black_55%,transparent),linear-gradient(to_top,transparent,black_35%)] [mask-composite:intersect] lg:top-[5px] lg:bottom-auto lg:h-[75%]"
         />
         {/* Fade the portrait down to the challenge box (media layout only). */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-20% via-card/70 via-65% to-card/95 light:via-[#f7f4f3]/70 light:to-[#f7f4f3]/95" />
+        {/* Light keeps the card-coloured fade. Dark takes an even near-black band
+            instead: the quote used to sit on a blurred oval centred behind the
+            text, which darkened the left of the card and left the bottom-right
+            corner lighter than the bottom-left. A full-width horizontal ramp
+            settles the whole foot of the card at once, starting around the
+            portrait's chest. */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-20% via-card/70 via-65% to-card/95 light:via-[#f7f4f3]/70 light:to-[#f7f4f3]/95 dark:bg-[linear-gradient(to_bottom,transparent_44%,rgb(8_9_12/0.55)_66%,rgb(8_9_12/0.88)_84%,rgb(8_9_12/0.96)_100%)]" />
         {/* The bright inner rule. It rides above the portrait and its scrim —
             both are inset-0 siblings, so a ring on the panel itself would be
             painted straight over. */}
@@ -204,7 +210,7 @@ export function HomeHero() {
             <blockquote className="relative max-w-[75%]">
               <span
                 aria-hidden="true"
-                className="pointer-events-none absolute -inset-x-7 -inset-y-5 rounded-[50%] blur-2xl light:bg-[#f7f4f3] dark:bg-[#0a0a0a]"
+                className="pointer-events-none absolute -inset-x-7 -inset-y-5 rounded-[50%] blur-2xl light:bg-[#f7f4f3] dark:hidden"
               />
               <p className="relative font-mono text-[11px] leading-relaxed tracking-tight drop-shadow-none light:text-[#313241] dark:text-white dark:drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
                 &ldquo;Discipline is choosing between what you want now and what
