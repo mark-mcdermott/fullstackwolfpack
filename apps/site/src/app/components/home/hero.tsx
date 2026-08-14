@@ -162,7 +162,7 @@ export function HomeHero() {
           is light beside a light hero rather than a black slab. */}
       <Panel
         brackets={false}
-        className="relative z-10 flex flex-col overflow-hidden rounded-2xl p-0 light:border-[#dbd7d7] light:bg-[#f7f4f3] light:shadow-[var(--card-shadow)] max-lg:order-1 lg:col-start-2 lg:row-start-1 lg:mb-6"
+        className="relative z-10 flex flex-col overflow-hidden rounded-2xl p-0 light:border-[#dbd7d7] light:bg-[#f7f4f3] light:shadow-[var(--card-shadow)] max-lg:order-1 lg:col-start-2 lg:row-start-1 lg:mb-[6.5rem]"
       >
         {/* Base fill behind the portrait — it is a cutout on transparency, and
             in the lg column layout Akela shrinks to the right besides. Follows
