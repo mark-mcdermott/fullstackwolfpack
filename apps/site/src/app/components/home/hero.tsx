@@ -86,10 +86,19 @@ export function HomeHero() {
             51.5% the art walks back left and takes the wolf with it — he settles
             near 65% instead of 73%, and the left edge pulls in that much less.
             This is the band where the plate is widest with nothing overlaying
-            it, so it is the one that carries the most bare edge. */}
+            it, so it is the one that carries the most bare edge.
+
+            The second mask is the same fade applied to the top edge, which butts
+            against the page the way the sides used to. The plate starts exactly
+            where the header ends, so its first row sat against the page colour
+            as a hard rule the full width of the viewport — invisible behind the
+            header card, which is a ruled edge there anyway, and plainly a line
+            in the gutters either side of it, where the card is inset and the
+            plate is not. Short: enough to dissolve the join, not so much that
+            it lifts the skyline off the top of the band. */}
         <div
           aria-hidden="true"
-          className="absolute inset-y-0 left-[73%] h-full w-auto -translate-x-[51.5%] aspect-[var(--hero-aspect)] bg-[image:var(--hero-image)] bg-cover bg-center bg-no-repeat [mask-image:linear-gradient(to_right,transparent_0%,black_15%,black_85%,transparent_100%)] sm:-translate-x-[60%] lg:left-1/2 lg:-translate-x-1/2 dark:brightness-[0.94] dark:contrast-[1.0] dark:saturate-[0.76] dark:after:pointer-events-none dark:after:absolute dark:after:inset-0 dark:after:bg-[radial-gradient(50%_20%_at_50%_18%,color-mix(in_oklab,var(--background)_30%,transparent)_0%,color-mix(in_oklab,var(--background)_10%,transparent)_46%,transparent_78%)]"
+          className="absolute inset-y-0 left-[73%] h-full w-auto -translate-x-[51.5%] aspect-[var(--hero-aspect)] bg-[image:var(--hero-image)] bg-cover bg-center bg-no-repeat [mask-image:linear-gradient(to_right,transparent_0%,black_15%,black_85%,transparent_100%),linear-gradient(to_bottom,transparent_0,black_28px)] [mask-composite:intersect] sm:-translate-x-[60%] lg:left-1/2 lg:-translate-x-1/2 dark:brightness-[0.94] dark:contrast-[1.0] dark:saturate-[0.76] dark:after:pointer-events-none dark:after:absolute dark:after:inset-0 dark:after:bg-[radial-gradient(50%_20%_at_50%_18%,color-mix(in_oklab,var(--background)_30%,transparent)_0%,color-mix(in_oklab,var(--background)_10%,transparent)_46%,transparent_78%)]"
         />
 
         {/* Parked with XP_CHIPS above.

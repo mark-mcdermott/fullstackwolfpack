@@ -1,6 +1,7 @@
 // import { Signal } from 'lucide-react' // parked with LatencyReadout
 // import { LayoutDashboard } from 'lucide-react' // parked with the dashboard link
 // import { Link } from 'react-router' // parked with the dashboard link
+import { useState } from 'react'
 import { NavLink } from 'react-router'
 import { ThemeToggle, WolfMark } from '@fw/ui'
 import { formatClock } from '@/core/focus-session'
@@ -9,6 +10,7 @@ import { useDueReviewCount } from '@/hooks/use-due-reviews'
 import { useTimer } from '@/hooks/timer-context'
 import { useMissionExit } from '@/lib/mission-exit-store'
 import { cn } from '@/lib/utils'
+import { FwMobileMenu } from './fw-mobile-menu'
 
 // FW-01 header — a full-width bar with the wolf brand, the primary nav (label
 // only, active in red over a fixed-width underline), a latency readout, an API
@@ -89,6 +91,9 @@ export function FwHeader() {
   const { user } = useAuth()
   const dueReviews = useDueReviewCount()
   const nav = [...NAV, reviewItem(!!user, dueReviews)]
+  // The mobile menu's own state, held here because its scrim is: see the scrim
+  // below, and FwMobileMenu's header comment.
+  const [menuOpen, setMenuOpen] = useState(false)
   return (
     // Transparent so the page grain/glow (index.css `body::before`) runs behind
     // it unbroken; the layout wrapper supplies the base color.
@@ -101,10 +106,25 @@ export function FwHeader() {
     // bar stays transparent in dark (so the page glow reads through it), so
     // light also needs a real surface to occlude with.
     <header className="relative z-10 border-b border-border light:border-b-0">
+      {/* The page dimmed behind the open mobile menu. One token-driven wash
+          covers both themes — `--background` is white in light and near-black
+          in dark, so the veil goes the way the theme does.
+          It lives here, a level above the bar, for what it must *not* cover:
+          the brand and the menu button stay lit in the mock, and a `fixed
+          inset-0` element inside the bar row could not be kept under them. The
+          wrapper below takes `relative z-10` to sit over it; <main> has no
+          z-index of its own, so it stays under. */}
+      {menuOpen && (
+        <div
+          aria-hidden="true"
+          onClick={() => setMenuOpen(false)}
+          className="fixed inset-0 bg-background/65 sm:hidden"
+        />
+      )}
       {/* Light only: the same max-width and horizontal padding as <main>, so the
           card's edges land exactly on the tiles' edges below. Left bare in dark,
           where the bar is full-bleed and there is no card edge to align. */}
-      <div className="mx-auto w-full max-w-page light:px-5 light:pt-3 sm:light:px-7 sm:light:pt-4">
+      <div className="relative z-10 mx-auto w-full max-w-page light:px-5 light:pt-3 sm:light:px-7 sm:light:pt-4">
         {/* Brand + nav + toggle all refuse to shrink, so below the roomy step
             every gap and type size tightens instead — the row overflowed the
             viewport on 320–370px phones otherwise.
@@ -176,9 +196,13 @@ export function FwHeader() {
           </NavLink>
 
           {/* Primary nav */}
+          {/* Off the bar below `sm` and into FwMobileMenu instead. Four labels
+              at the compact step still measure ~250px, which on a 375px phone
+              leaves them shoulder to shoulder with the brand and each other —
+              the row fit, but only just, and it read as crammed. */}
           {/* The tighter gap rides the same 400px threshold as the wordmark: it
               is the last 8px that gets a 320px viewport under the line. */}
-          <nav className={cn('flex items-center gap-3 min-[400px]:gap-4', NAV_GAP)}>
+          <nav className={cn('hidden items-center gap-3 sm:flex min-[400px]:gap-4', NAV_GAP)}>
             {nav.map(({ to, label, end, minWidth, badge }) => (
               <NavLink
                 key={to}
@@ -296,9 +320,15 @@ export function FwHeader() {
                 Scoped to the trigger by its data attribute: a bare `[&_svg]`
                 is a descendant selector, so it also caught the icons in the
                 open menu — and at 0,1,1 it outranked their own `size-3.5`. */}
-                <ThemeToggle className="-mx-2 [&_[data-theme-trigger]_svg]:size-7" />
+                {/* Hidden below `sm` with the nav — the menu that replaces it
+                    there carries the same three options. */}
+                <ThemeToggle className="-mx-2 hidden sm:block [&_[data-theme-trigger]_svg]:size-7" />
               </>
             )}
+            {/* Outside the ternary: the nav is gone from the bar at this width
+                whether or not a mission is running, so the way back to it
+                cannot be either. */}
+            <FwMobileMenu items={nav} open={menuOpen} onOpenChange={setMenuOpen} />
             {/* Parked with the rest of the guest CTA work.
             {!user && (
               <Link

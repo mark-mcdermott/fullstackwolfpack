@@ -38,10 +38,15 @@ import { cn } from './utils'
 // copy's colour, and forcing `text-foreground` here quietly brightened every
 // uncoloured child (inline code chips most visibly), which reads as heavier
 // type rather than as elevation.
+// The fill and hairline on their own, without the elevation. For the pieces
+// that have to read as part of a floating surface without being one: its
+// pointer, and the trigger a panel hangs off while it is open.
+export const popoverEdgeClass = cn('border-border bg-card', 'dark:border-white/[0.18] dark:bg-[#22262f]')
+
 export const popoverSurfaceClass = cn(
-  'border border-border bg-card',
+  'border',
+  popoverEdgeClass,
   'light:shadow-[0_20px_50px_rgb(0_0_0/0.18),0_4px_12px_rgb(0_0_0/0.08)]',
-  'dark:border-white/[0.18] dark:bg-[#22262f]',
   'dark:shadow-[0_18px_40px_rgb(0_0_0/0.55),0_2px_8px_rgb(0_0_0/0.35),0_0_0_1px_rgb(255_255_255/0.08)]',
   'dark:before:pointer-events-none dark:before:absolute dark:before:inset-x-0 dark:before:top-0 dark:before:h-px',
   'dark:before:bg-gradient-to-r dark:before:from-transparent dark:before:via-white/25 dark:before:to-transparent',
