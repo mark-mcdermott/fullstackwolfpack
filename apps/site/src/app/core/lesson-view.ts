@@ -62,10 +62,17 @@ export const segmentKinds = [
 // just doesn't decide mastery.
 //
 // Stated as an exclusion so a new segment kind is scored by default.
-export const unscoredSegmentKinds: readonly string[] = ['predict']
+//
+// Typed as the kinds themselves rather than `string[]`, so a typo here is
+// caught and so the list can be handed straight to a query against the
+// `segment_type` column — as `string[]` it matched no `notInArray` overload.
+export type SegmentKind = (typeof segmentKinds)[number]
+export const unscoredSegmentKinds: readonly SegmentKind[] = ['predict']
 
+// Takes a bare string, because callers have one: a segment kind off the wire or
+// out of a row, not yet narrowed.
 export function isScoredSegment(kind: string): boolean {
-  return !unscoredSegmentKinds.includes(kind)
+  return !unscoredSegmentKinds.some((k) => k === kind)
 }
 
 // Repair a question prompt whose code fence was written inline.

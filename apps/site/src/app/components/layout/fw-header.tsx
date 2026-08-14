@@ -20,13 +20,19 @@ import { FwMobileMenu } from './fw-mobile-menu'
 // `minWidth` hides the tail of the nav on narrow viewports rather than letting
 // the items overflow — the brand and toggle refuse to shrink, so something has
 // to give below `md`.
-const NAV: {
+// Named rather than inline on NAV, because `reviewItem` below is appended to it
+// and has to widen to the same shape: inferred on its own it produced a union
+// whose second member has no `end`, and destructuring `end` off the row in the
+// map below was then an error.
+type BarNavItem = {
   to: string
   label: string
   end?: boolean
   minWidth?: string
   badge?: number
-}[] = [
+}
+
+const NAV: BarNavItem[] = [
   // "Mission" is the launcher at the root, not `/play` — `/play` is Arcade's.
   { to: '/', label: 'Mission', end: true },
   // Named for the one topic on the menu rather than the category, while that
@@ -66,7 +72,7 @@ const NAV: {
 // it fits, but the badge sits on the theme control. Slack runs (width - 742)/2
 // per side in light, so 820 buys 39px there and 68 in dark. Between 768 and 820
 // the bar is the three-item nav, same as below `md`.
-const reviewItem = (signedIn: boolean, due: number) => ({
+const reviewItem = (signedIn: boolean, due: number): BarNavItem => ({
   to: signedIn ? '/app/review' : '/review',
   label: 'Review',
   minWidth: 'hidden min-[820px]:flex',
