@@ -47,6 +47,12 @@ function App() {
         <Route path="/" element={<GuestHome />} />
         <Route path="/start" element={<GuestHome />} />
         <Route path="/play" element={<ArcadePage />} />
+        {/* The browse page answers to both. `/javascript` is what the nav
+            points at while JavaScript is the only topic; `/skill` stays so
+            existing links, the in-app back-links and any shared URLs keep
+            working — and so the name can go back to a category later without
+            another rename. */}
+        <Route path="/javascript" element={<LearnBrowse />} />
         <Route path="/skill" element={<LearnBrowse />} />
         <Route path="/skill/:lessonId" element={<GuestLearn />} />
         {/* Public on purpose: a term's page is where "read more" lands from a
