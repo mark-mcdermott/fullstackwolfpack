@@ -3,7 +3,7 @@ import { useLocation } from 'react-router'
 import { api } from '@/api-client'
 import { can } from '@/core/access'
 import { useAuth } from '@/hooks/auth-context'
-import { guestDueReviews } from '@/lib/guest-review'
+import { guestDueCount } from '@/lib/guest-review'
 
 // How many reviews are due right now, for the nav badge.
 //
@@ -33,7 +33,7 @@ export function useDueReviewCount(): number {
     }
 
     if (!user) {
-      const read = () => setCount(guestDueReviews().dueCount)
+      const read = () => setCount(guestDueCount())
       read()
       const id = setInterval(read, GUEST_POLL_MS)
       return () => clearInterval(id)

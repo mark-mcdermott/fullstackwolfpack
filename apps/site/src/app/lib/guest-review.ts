@@ -1,3 +1,4 @@
+import { api } from '@/api-client'
 import {
   type ReviewCard,
   type ReviewRating,
@@ -12,16 +13,19 @@ import type { DueReview, ReviewQueue } from '@/core/review-view'
 // guest-progress.ts, and built the same way: the SAME pure core/review scheduler
 // the server uses, so a guest's intervals match what they would get signed in.
 //
-// It needs no endpoint of its own. The scheduler is pure, so it runs here; and
-// the one thing that genuinely cannot happen on the client — checking the answer
-// without shipping the answer key — already has a public route in
-// `/api/me/public-grade`. So a guest review is the existing public grade plus a
-// local reschedule.
+// It needs no endpoint of its own for the *scheduling*. The scheduler is pure,
+// so it runs here; and checking an answer without shipping the answer key
+// already has a public route in `/api/me/public-grade`. So a guest review is
+// the existing public grade plus a local reschedule.
 //
-// The card carries its own prompt and options. The account queue re-reads those
-// from the database at review time, which a guest cannot do; but the guest has
-// already seen the question, so storing it when they answer costs nothing and
-// keeps the review self-contained.
+// What is stored is only the schedule. The question itself is fetched at review
+// time (`/api/me/public-reviews`), the same rows the account queue reads out of
+// the database — a guest simply asks by the ids it holds. It used to snapshot
+// the prompt and options at answer time to save the round trip, and that traded
+// one request for a copy that could never be corrected: a card seeded before a
+// question gained a field, or before its course was regenerated, kept showing
+// whatever was cached the day it was created. That is how review cards ended up
+// asking about a code block they could not show.
 //
 // Device-local and losable by design, exactly like guest progress — a queue of
 // cards coming due is the honest reason to make an account, rather than a wall
@@ -29,11 +33,10 @@ import type { DueReview, ReviewQueue } from '@/core/review-view'
 
 const KEY = 'fw-guest-review'
 
-type StoredCard = {
-  card: ReviewCard
-  prompt: string
-  options?: string[]
-}
+// Cards written before the store slimmed down also carry `prompt`/`options`.
+// Nothing reads them and they are dropped on the next write, so there is no
+// migration: an old card is a valid card that happens to be carrying luggage.
+type StoredCard = { card: ReviewCard }
 
 type GuestReviews = Record<string, StoredCard> // questionId → card
 
@@ -55,44 +58,72 @@ function write(r: GuestReviews): void {
   }
 }
 
+// The question ids due at `now`, soonest-first and capped the way the account
+// queue is.
+const DUE_LIMIT = 30
+
+function dueIds(all: GuestReviews, now: Date): string[] {
+  return dueQueue(
+    Object.entries(all).map(([questionId, stored]) => ({
+      questionId,
+      due: stored.card.due,
+    })),
+    now,
+  )
+    .slice(0, DUE_LIMIT)
+    .map((e) => e.questionId)
+}
+
 // Record a first answer as a review card. Mirrors the server's
 // `seedReviewCard`, including its onConflictDoNothing: the first encounter
 // creates the card and later answers to the same question in the lesson player
 // don't reset the schedule out from under it.
 export function seedGuestReviewCard(
   questionId: string,
-  prompt: string,
-  options: string[] | undefined,
   correct: boolean,
   now: Date = new Date(),
 ): void {
   const all = read()
   if (all[questionId]) return
   const { card } = schedule(newCard(now), ratingFromQuiz(correct), now)
-  all[questionId] = { card, prompt, options }
+  all[questionId] = { card }
   write(all)
+}
+
+// How many cards are due right now. Split out from the queue below because the
+// nav badge wants this on a timer and only needs the number — reading it must
+// stay a free, synchronous localStorage read.
+export function guestDueCount(now: Date = new Date()): number {
+  return dueIds(read(), now).length
 }
 
 // The guest's due queue, soonest-first — the same shape the account endpoint
 // returns, so one page renders both. `cardId` is the question id here: the
 // guest has no card rows, and it is what the public grade route needs anyway.
-export function guestDueReviews(now: Date = new Date()): ReviewQueue {
-  const all = read()
-  const entries = Object.entries(all).map(([questionId, stored]) => ({
-    questionId,
-    ...stored,
-  }))
-  const due = dueQueue(
-    entries.map((e) => ({ ...e, due: e.card.due })),
-    now,
-  )
-  const reviews: DueReview[] = due.map((e) => ({
-    cardId: e.questionId,
-    itemType: 'quiz_question' as const,
-    itemId: e.questionId,
-    prompt: e.prompt,
-    options: e.options,
-  }))
+//
+// A card whose question no longer exists (or was never built-in) is dropped
+// rather than rendered blank, matching the account queue.
+export async function guestReviewQueue(
+  now: Date = new Date(),
+): Promise<ReviewQueue> {
+  const ids = dueIds(read(), now)
+  const questions = await api.public.reviewQuestions(ids)
+  const byId = new Map(questions.map((q) => [q.id, q]))
+
+  const reviews: DueReview[] = ids.flatMap((id) => {
+    const q = byId.get(id)
+    if (!q) return []
+    return [
+      {
+        cardId: id,
+        itemType: 'quiz_question' as const,
+        itemId: id,
+        prompt: q.prompt,
+        options: q.options,
+        context: q.context,
+      },
+    ]
+  })
   return { reviews, dueCount: reviews.length }
 }
 
@@ -104,17 +135,11 @@ export function rescheduleGuestReview(
   now: Date = new Date(),
 ): { rating: ReviewRating; nextDueAt: string } {
   const all = read()
-  const stored = all[questionId]
   const rating = ratingFromQuiz(correct)
   // Answering something that was never seeded (a cleared store, a stale tab):
   // treat it as a first encounter rather than throwing.
-  const base = stored?.card ?? newCard(now)
-  const { card } = schedule(base, rating, now)
-  all[questionId] = {
-    card,
-    prompt: stored?.prompt ?? '',
-    options: stored?.options,
-  }
+  const { card } = schedule(all[questionId]?.card ?? newCard(now), rating, now)
+  all[questionId] = { card }
   write(all)
   return { rating, nextDueAt: card.due }
 }

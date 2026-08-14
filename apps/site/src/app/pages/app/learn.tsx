@@ -203,15 +203,9 @@ function LessonPlayer({
 
     // Guests get a review queue too, seeded here rather than server-side: the
     // account path does this inside submitAnswer, but a guest's answer never
-    // reaches a table. The prompt and options come from the lesson we already
-    // hold, so the stored card can render itself later without a lookup a guest
-    // has no route for.
-    if (guest) {
-      const q = lesson.segments
-        .flatMap((s) => s.questions)
-        .find((x) => x.id === fb.questionId)
-      if (q) seedGuestReviewCard(q.id, q.prompt, q.options, fb.correct)
-    }
+    // reaches a table. Only the schedule is stored — the review page looks the
+    // question itself up when it comes due.
+    if (guest) seedGuestReviewCard(fb.questionId, fb.correct)
   }
 
   async function finish() {

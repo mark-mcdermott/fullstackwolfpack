@@ -5,9 +5,22 @@ import {
   schedule,
   type ReviewCard,
 } from '../core/review'
-import type { DueReview, ReviewQueue, ReviewResult } from '../core/review-view'
+import type {
+  DueReview,
+  ReviewQuestion,
+  ReviewQueue,
+  ReviewResult,
+} from '../core/review-view'
+import { questionContext } from '../core/review-view'
 import { db } from '../db'
-import { quizQuestions, reviewCards, reviewLogs } from '../db/schema'
+import {
+  courses,
+  lessonSegments,
+  lessons,
+  quizQuestions,
+  reviewCards,
+  reviewLogs,
+} from '../db/schema'
 
 // Server-only persistence for the spaced-repetition system. Thin Drizzle that composes
 // the pure, unit-tested scheduler in core/review.ts. Mirrors server/learning.ts.
@@ -68,8 +81,55 @@ export async function seedReviewCard(
   }
 }
 
+// The segment body, which is stored as one jsonb blob rather than a column.
+// Same read as `getLessonView`'s.
+function segmentBody(content: Record<string, unknown> | null): string | undefined {
+  const markdown = content?.markdown
+  return typeof markdown === 'string' ? markdown : undefined
+}
+
+// Everything a review card needs to render, for a set of question ids. Both
+// queues read through here: the account one below, and the guest one over
+// `public-reviews` — a guest has no cards table, but the *questions* are the
+// same rows, so there is no reason for the two to hydrate differently.
+//
+// The chain to `courses` is joined unconditionally rather than only for
+// `builtInOnly`: every link is a non-null FK, so it costs an indexed lookup,
+// and one query shape is worth more than the join it saves.
+export async function getReviewQuestions(
+  questionIds: string[],
+  { builtInOnly = false }: { builtInOnly?: boolean } = {},
+): Promise<ReviewQuestion[]> {
+  if (questionIds.length === 0) return []
+  const rows = await db
+    .select({
+      id: quizQuestions.id,
+      prompt: quizQuestions.prompt,
+      options: quizQuestions.options,
+      segmentContent: lessonSegments.content,
+      // null ⇒ built-in. Anything else is a user's own generated course, which
+      // a guest must never be able to read.
+      owner: courses.ownerUserId,
+    })
+    .from(quizQuestions)
+    .innerJoin(lessonSegments, eq(quizQuestions.segmentId, lessonSegments.id))
+    .innerJoin(lessons, eq(lessons.id, lessonSegments.lessonId))
+    .innerJoin(courses, eq(courses.id, lessons.courseId))
+    .where(inArray(quizQuestions.id, questionIds))
+
+  return rows
+    .filter((r) => !builtInOnly || r.owner === null)
+    .map((r) => ({
+      id: r.id,
+      prompt: r.prompt,
+      options: r.options ?? undefined,
+      context: questionContext(segmentBody(r.segmentContent)),
+    }))
+}
+
 // The user's due reviews, soonest-first (capped). Quiz items are hydrated with their
-// prompt + options; the answer key is never included.
+// prompt + options + the context the prompt was written against; the answer key is
+// never included.
 export async function getDueReviews(
   userId: string,
   now: Date = new Date(),
@@ -88,16 +148,7 @@ export async function getDueReviews(
   const quizIds = rows
     .filter((r) => r.itemType === 'quiz_question')
     .map((r) => r.itemId)
-  const questions = quizIds.length
-    ? await db
-        .select({
-          id: quizQuestions.id,
-          prompt: quizQuestions.prompt,
-          options: quizQuestions.options,
-        })
-        .from(quizQuestions)
-        .where(inArray(quizQuestions.id, quizIds))
-    : []
+  const questions = await getReviewQuestions(quizIds)
   const byId = new Map(questions.map((q) => [q.id, q]))
 
   const reviews: DueReview[] = rows.flatMap((r) => {
@@ -110,7 +161,8 @@ export async function getDueReviews(
         itemType: r.itemType,
         itemId: r.itemId,
         prompt: q.prompt,
-        options: q.options ?? undefined,
+        options: q.options,
+        context: q.context,
       },
     ]
   })

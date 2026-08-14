@@ -94,7 +94,7 @@ import { tailorCourse } from '@/server/tailor'
 import { getPreferences, savePreferences } from '@/server/preferences'
 import { generateDiagnostic } from '@/server/diagnostic'
 import { runTutor } from '@/server/tutor'
-import { getDueReviews, gradeReview } from '@/server/review'
+import { getDueReviews, getReviewQuestions, gradeReview } from '@/server/review'
 import { json } from '../_lib/http'
 import { getSessionUserId } from '../_lib/session'
 import { parseBody } from '../_lib/validate'
@@ -106,6 +106,10 @@ import { devBecome } from '../_lib/dev-users'
 function action(req: Request): string {
   return new URL(req.url).pathname.split('/').filter(Boolean).pop() ?? ''
 }
+
+// The guest queue is capped at the same place the account one is, so a caller
+// cannot turn one request into an unbounded `IN (…)`.
+const PUBLIC_REVIEW_LIMIT = 30
 
 // The server-side admin boundary (client route guards are UX only).
 async function requireAdmin(userId: string): Promise<Response | null> {
@@ -135,6 +139,20 @@ export const GET: APIRoute = async ({ request: req }) => {
     }
     case 'public-leaderboard':
       return json(await getPublicLeaderboard())
+    // The guest review queue's questions. A guest schedules its cards in
+    // localStorage but holds only their ids, so this is where the queue gets
+    // what it renders — `builtInOnly` keeps it to the same content every other
+    // public read is limited to, since the ids are supplied by the caller.
+    case 'public-reviews': {
+      const ids = (new URL(req.url).searchParams.get('ids') ?? '')
+        .split(',')
+        .map((id) => id.trim())
+        .filter(Boolean)
+        .slice(0, PUBLIC_REVIEW_LIMIT)
+      return json({
+        questions: await getReviewQuestions(ids, { builtInOnly: true }),
+      })
+    }
   }
 
   const userId = await getSessionUserId(req)

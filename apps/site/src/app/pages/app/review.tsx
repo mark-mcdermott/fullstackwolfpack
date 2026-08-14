@@ -19,8 +19,8 @@ import type { DueReview, ReviewQueue, ReviewResult } from '@/core/review-view'
 import { useAuth } from '@/hooks/auth-context'
 import { useAsync } from '@/hooks/use-async'
 import {
-  guestDueReviews,
   guestNextDueAt,
+  guestReviewQueue,
   rescheduleGuestReview,
 } from '@/lib/guest-review'
 import { cn } from '@/lib/utils'
@@ -58,11 +58,9 @@ const gradeAsGuest: GradeReviewFn = async (cardId, selectedIndex) => {
 // dashboard) so it doesn't collide with the dashboard rebuild.
 export function ReviewPage({ guest = false }: { guest?: boolean }) {
   const { user } = useAuth()
-  // Guests read their queue out of localStorage, so there is nothing to await —
-  // but useAsync keeps one code path and costs a tick.
-  const state = useAsync(() =>
-    guest ? Promise.resolve(guestDueReviews()) : api.data.reviews(),
-  )
+  // Both sides await: a guest schedules locally but looks its questions up over
+  // the public route, so neither queue is a synchronous read.
+  const state = useAsync(() => (guest ? guestReviewQueue() : api.data.reviews()))
 
   if (!guest) {
     if (!user) return null
@@ -170,6 +168,15 @@ function ReviewCard({
 
   return (
     <Panel className="flex flex-col gap-4">
+      {/* The code the prompt was written against, which the lesson had above it
+          and this page has nothing else to supply. Muted and above the prompt,
+          the order it was read in — it is what the question is about, not part
+          of the asking. */}
+      {review.context && (
+        <LessonMarkdown className="gap-2 text-sm text-muted-foreground">
+          {review.context}
+        </LessonMarkdown>
+      )}
       <LessonMarkdown className="gap-2 text-sm font-medium [&_p]:text-foreground">
         {normalizeQuestionPrompt(review.prompt)}
       </LessonMarkdown>
