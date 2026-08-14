@@ -27,9 +27,10 @@ const NAV: {
 }[] = [
   // "Mission" is the launcher at the root, not `/play` — `/play` is Arcade's.
   { to: '/', label: 'Mission', end: true },
-  // Singular while there is one skill to browse; it becomes "Skills" when
-  // there is more than one.
-  { to: '/skill', label: 'Skill' },
+  // Named for the one topic on the menu rather than the category, while that
+  // is true. Goes back to "Skill(s)" pointing at /skill when there is more
+  // than one — /skill still serves the same browse page.
+  { to: '/javascript', label: 'JavaScript' },
   { to: '/play', label: 'Arcade' },
   // Parked. There is no guest community surface yet; this pointed at the real
   // page behind RequireAuth so a logged-out click funnelled to /login rather

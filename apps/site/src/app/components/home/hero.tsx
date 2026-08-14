@@ -141,7 +141,13 @@ export function HomeHero() {
             </div>
           </div>
 
-          <a href="#start-session" className={cn(raisedCtaClass, 'cta-ember group')}>
+          {/* Base only. Above `sm` the mission builder sits directly below the
+              fold and this jump link is redundant — the hero is left to the
+              headline and the art. */}
+          <a
+            href="#start-session"
+            className={cn(raisedCtaClass, 'cta-ember group sm:hidden')}
+          >
             Build your session
             {/* Red in dark, matching the mock — this is the only one of the
                 three CTAs whose arrow is not white. */}
@@ -156,7 +162,7 @@ export function HomeHero() {
           is light beside a light hero rather than a black slab. */}
       <Panel
         brackets={false}
-        className="relative z-10 flex flex-col overflow-hidden rounded-2xl p-0 light:border-[#dbd7d7] light:bg-[#f7f4f3] light:shadow-[var(--card-shadow)] max-lg:order-1 lg:col-start-2 lg:row-start-1 lg:mb-6"
+        className="relative z-10 flex flex-col overflow-hidden rounded-2xl p-0 light:border-[#dbd7d7] light:bg-[#f7f4f3] light:shadow-[var(--card-shadow)] max-lg:order-1 lg:col-start-2 lg:row-start-1 lg:mb-[6.5rem]"
       >
         {/* Base fill behind the portrait — it is a cutout on transparency, and
             in the lg column layout Akela shrinks to the right besides. Follows
@@ -172,7 +178,7 @@ export function HomeHero() {
         <img
           src="/images/akela.webp"
           alt="Akela, your AI mentor"
-          className="pointer-events-none absolute inset-y-0 right-0 h-full object-cover object-[center_30%] dark:brightness-[0.82] dark:contrast-[0.94] [mask-image:linear-gradient(to_left,black_55%,transparent),linear-gradient(to_top,transparent,black_35%)] [mask-composite:intersect] lg:top-[5px] lg:bottom-auto lg:h-[75%]"
+          className="pointer-events-none absolute inset-y-0 right-0 h-full object-cover object-[center_30%] dark:brightness-[0.82] dark:contrast-[0.94] [mask-image:linear-gradient(to_left,black_55%,transparent),linear-gradient(to_top,transparent,black_calc(35%_-_20px))] [mask-composite:intersect] lg:top-[5px] lg:bottom-auto lg:h-[75%]"
         />
         {/* Fade the portrait down to the challenge box (media layout only). */}
         {/* Light keeps the card-coloured fade. Dark takes an even near-black band

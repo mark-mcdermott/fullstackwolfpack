@@ -22,9 +22,9 @@ import { guestCompletedLessonIds, guestXp } from '@/lib/guest-progress'
 import { topicCoursePath } from '@/lib/open-course'
 import { cn } from '@/lib/utils'
 
-const lessonPath = (lessonId: string) => `/skill/${lessonId}`
+const lessonPath = (lessonId: string) => `/javascript/${lessonId}`
 
-// The learn hub (/skill): the featured built-in course up front — its real
+// The learn hub (/javascript, and /skill still): the featured built-in course up front — its real
 // outline, length and progress — with the other built-ins one click away.
 //
 // It renders for everyone. This used to bounce a signed-in visitor to
@@ -276,7 +276,7 @@ function MoreSkills({ topics }: { topics: PublicTopic[] }) {
         {topics.map((topic) => (
           <Link
             key={topic.slug}
-            to={`/skill?topic=${encodeURIComponent(topic.slug)}`}
+            to={`/javascript?topic=${encodeURIComponent(topic.slug)}`}
             className={cn(
               'group flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-colors hover:border-primary/60',
               cardLiftClass,

@@ -276,7 +276,7 @@ function LauncherForm({
       {/* The row gap only ever shows once this wraps. Between md and 1023 the
           button is the wrapped line and 24px reads as a hole above it — the same
           range that already takes it to half width, so the two go together. */}
-      <div className="flex flex-wrap items-start gap-x-4 gap-y-6 min-[430px]:max-md:grid min-[430px]:max-md:grid-cols-2 min-[430px]:max-md:items-start min-[430px]:max-md:gap-y-4 md:max-lg:flex-nowrap md:max-lg:gap-y-2 md:max-[1150px]:justify-center min-[1150px]:flex-nowrap min-[1150px]:justify-between">
+      <div className="flex flex-wrap items-start gap-x-4 gap-y-6 max-[430px]:gap-y-3 min-[430px]:max-md:grid min-[430px]:max-md:grid-cols-2 min-[430px]:max-md:items-start min-[430px]:max-md:gap-y-4 md:max-lg:flex-nowrap md:max-lg:gap-y-2 md:max-[1150px]:justify-center min-[1150px]:flex-nowrap min-[1150px]:justify-between">
         {/* game + skill — full-width stacked cards below md; fluid width sharing
             the md single line (title wraps as they narrow); fixed w-52 at
             >=1024. */}
@@ -458,7 +458,10 @@ function LauncherForm({
               // used to be `w-auto` centred in the leftover space (lg–1149) and
               // `w-fit` right-aligned under the XP histogram (>=1150); the
               // histogram is parked and START took its slot.
-              'w-full px-3 disabled:opacity-50 max-[430px]:w-auto md:max-lg:w-auto',
+              // Base takes the plain `w-full`: stacked on a phone the button is
+              // the last row of a single column, so sizing it to its text left it
+              // floating against a full-width stack above it.
+              'w-full px-3 disabled:opacity-50 md:max-lg:w-auto',
               // Glow + expand as the mission kicks off (the launcher then fades out).
               starting && 'scale-[1.04] shadow-[0_0_45px] shadow-primary/70',
             )}
