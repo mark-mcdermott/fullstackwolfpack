@@ -54,28 +54,48 @@ const NAV: {
 // (lib/guest-review), so it no longer dead-ends at /login — the reason the
 // Community item above is still parked.
 //
-// `lg`, not `md`, and that is measured rather than guessed. `md` is where the
-// bar goes roomy (72px cells, 36px gaps, plus the health readout and its
-// divider), so a fourth item there overflows the viewport by 32px at exactly
-// 768px — the horizontal-scroll bug this bar has already been fixed for once.
-// The parked Leaderboard item above sits at `lg` for the same reason.
+// 820, and like the `lg` it replaces that is measured rather than guessed. It
+// used to be `lg` because a fourth roomy item overflowed 768px by 32px with the
+// health readout and its divider on the bar too; those are `lg` now (see the
+// right-hand cluster below), so this is the two of them trading places rather
+// than a fourth item being squeezed in beside it.
+//
+// The threshold is 820 rather than `md` because it has to clear the *light*
+// bar, which is a card inset from the page edges and so has 56px less to give
+// than dark at the same width. At 768 that leaves 4px either side of the nav —
+// it fits, but the badge sits on the theme control. Slack runs (width - 742)/2
+// per side in light, so 820 buys 39px there and 68 in dark. Between 768 and 820
+// the bar is the three-item nav, same as below `md`.
 const reviewItem = (signedIn: boolean, due: number) => ({
   to: signedIn ? '/app/review' : '/review',
   label: 'Review',
-  minWidth: 'hidden lg:flex',
+  minWidth: 'hidden min-[820px]:flex',
   badge: due,
 })
 
 // The active underline is a fixed width — roughly the width of "ARCADE" — so it
 // reads as a consistent marker rather than shrink-wrapping each label. Every
 // item reserves it (transparent when inactive) to keep the row from reflowing.
-// Also the nav item's width, so the underline can't be the full 72px on phones
-// without the row overflowing — three fixed 72px cells plus the brand blow past
-// a 375px viewport.
-const UNDERLINE_WIDTH = 'w-11 md:w-[72px]'
+// It is centred on the label rather than being the item's own width, because
+// the items size to their labels — see the gap below.
+//
+// One size, no compact step. There used to be a 44px/16px/18px one for phones,
+// from when this nav ran at every width; below `sm` it is the mobile menu's
+// list now, so the only widths this renders at are ones with room for the real
+// thing. The compact step was in any case narrower than the labels it held —
+// a 44px cell under a ~76px "JAVASCRIPT" — so the overflow ate the gap and the
+// items ran together.
+const UNDERLINE_WIDTH = 'w-[72px]'
 
-// Item width is the underline's, so centre-to-centre spacing is 72 + gap.
-const NAV_GAP = 'md:gap-[36px]'
+// Between the labels, so every gap is the one you actually see.
+//
+// The items used to be fixed 72px cells, which spaces them evenly centre to
+// centre — but the labels run 58px ("Review") to 90px ("JavaScript") and
+// overhang their cells by the difference, so what the eye got was 31 / 34 /
+// 50px. Arcade and Review are the two shortest, so the hole between them was
+// half again the others. Even centres are only even spacing when the things
+// being centred are the same width.
+const NAV_GAP = 'gap-9'
 
 export function FwHeader() {
   // While a mission is on screen, clicking the brand leaves it (same as the
@@ -148,9 +168,17 @@ export function FwHeader() {
             'dark:bg-white/[0.022] dark:shadow-[inset_0_-1px_0_rgb(255_255_255/0.05)]',
           )}
         >
-          {/* Brand. `flex-1` on the two outer cells (basis 0, equal grow) is what
-              centres the nav in the bar; `justify-between` alone would let the
-              wider brand push it off-centre. */}
+          {/* Brand. The two outer cells are `flex-auto` — content-sized, then an
+              equal share of what is left — which centres the nav in the gap
+              between them. (`justify-between` alone would let the wider brand
+              push it off-centre.)
+              They were `flex-1`, basis 0, which makes the two cells equal
+              *widths* instead and so centres the nav in the bar. Those are the
+              same thing only while the brand and the right-hand cluster weigh
+              about the same, which stopped being true when the health readout
+              moved to `lg`: between md and lg the right side is one icon, and
+              the nav sat hard against the wordmark with the empty half of the
+              bar to its right. Equal gaps is what actually reads as centred. */}
           <NavLink
             to="/"
             onClick={(e) => {
@@ -159,7 +187,7 @@ export function FwHeader() {
                 missionExit()
               }
             }}
-            className="flex flex-1 shrink-0 items-center gap-2 md:gap-[14px]"
+            className="flex flex-auto shrink-0 items-center gap-2 md:gap-[14px]"
           >
             <WolfMark className="h-12 text-foreground md:h-[60px]" />
             {/* Two gotchas on the wordmark. The line-height has to ride on the
@@ -200,19 +228,16 @@ export function FwHeader() {
               at the compact step still measure ~250px, which on a 375px phone
               leaves them shoulder to shoulder with the brand and each other —
               the row fit, but only just, and it read as crammed. */}
-          {/* The tighter gap rides the same 400px threshold as the wordmark: it
-              is the last 8px that gets a 320px viewport under the line. */}
-          <nav className={cn('hidden items-center gap-3 sm:flex min-[400px]:gap-4', NAV_GAP)}>
+          <nav className={cn('hidden items-center sm:flex', NAV_GAP)}>
             {nav.map(({ to, label, end, minWidth, badge }) => (
               <NavLink
                 key={to}
                 to={to}
                 end={end}
                 className={cn(
-                  // Fixed width so centre-to-centre spacing is even regardless of
-                  // label length, and `relative` to hang the underline off.
+                  // Sized to its label, so the gap between items is the gap you
+                  // see. `relative` hangs the underline and the badge off it.
                   'group relative flex flex-col items-center',
-                  UNDERLINE_WIDTH,
                   minWidth ?? 'flex',
                 )}
               >
@@ -233,7 +258,7 @@ export function FwHeader() {
                         the underline carries the accent. */}
                     <span
                       className={cn(
-                        'font-heading text-lg tracking-wide uppercase transition-colors md:text-2xl',
+                        'font-heading text-2xl tracking-wide uppercase transition-colors',
                         isActive
                           ? 'text-foreground'
                           : 'text-muted-foreground group-hover:text-foreground',
@@ -243,6 +268,10 @@ export function FwHeader() {
                     </span>
                     {/* Out of flow, so only the label participates in the bar's
                         vertical centring — in flow it dragged the label upward.
+                        Centred on the label rather than spanning it: the item is
+                        the label's width now, and a `w-full` rule would shrink
+                        and stretch with each one instead of reading as the same
+                        marker moving along the bar.
                         Light keeps the flat accent bar. Dark lights it up: the
                         rule itself ramps from near-black at both ends to a hot
                         core, and `::after` lays a blurred ellipse over the
@@ -251,7 +280,8 @@ export function FwHeader() {
                         whole bar reads as a highlighter, not neon. */}
                     <span
                       className={cn(
-                        'absolute top-full left-0 mt-1 h-[3px] w-full transition-colors',
+                        'absolute top-full left-1/2 mt-1 h-[3px] -translate-x-1/2 transition-colors',
+                        UNDERLINE_WIDTH,
                         isActive ? 'bg-primary' : 'bg-transparent',
                         isActive &&
                           'dark:bg-[linear-gradient(to_right,#3d0101_0%,#8c0200_22%,#f50104_50%,#8c0200_78%,#3d0101_100%)]',
@@ -269,7 +299,7 @@ export function FwHeader() {
           </nav>
 
           {/* Latency readout + API health + light/dark toggle */}
-          <div className="flex flex-1 items-center justify-end gap-2 md:gap-[23px]">
+          <div className="flex flex-auto items-center justify-end gap-2 md:gap-[23px]">
             {/* <LatencyReadout /> */}
             {onMission && timer.step ? (
               <span className="flex items-center gap-2.5 font-mono text-[13px] text-foreground">
@@ -285,11 +315,14 @@ export function FwHeader() {
               </span>
             ) : (
               <>
-                {/* Back to one breakpoint for everyone now the dashboard link is
-                    parked. It was `user ? 'lg:flex' : 'md:flex'` only to buy that
-                    link room at md — restore the pair here and on the divider
-                    below if the link ever comes back. */}
-                <span className="hidden items-center gap-3.5 font-mono text-[13px] text-foreground md:flex">
+                {/* `lg`, so that md–lg spends the room on Review instead. Of the
+                    two this is the one worth dropping: it reports a condition
+                    that is almost always the same, while Review is the only way
+                    to a queue that is only ever waiting because you built it.
+                    (Was `md`; before that `user ? 'lg:flex' : 'md:flex'`, to buy
+                    the parked dashboard link room — restore that pair here and
+                    on the divider below if the link ever comes back.) */}
+                <span className="hidden items-center gap-3.5 font-mono text-[13px] text-foreground lg:flex">
                   <span className="size-2.5 rounded-full bg-green-500 dark:bg-green-500/65" />
                   Healthy
                 </span>
@@ -312,7 +345,7 @@ export function FwHeader() {
                 </Link>
               </Tooltip>
             )} */}
-                <span className="hidden h-[38px] w-px bg-border md:block" />
+                <span className="hidden h-[38px] w-px bg-border lg:block" />
             {/* The arbitrary variant sizes the icon, which ThemeToggle otherwise
                 fixes at `size-4`. `-mx-2` cancels the button's own padding for
                 layout — so it lines up as if it were just the glyph — while the
