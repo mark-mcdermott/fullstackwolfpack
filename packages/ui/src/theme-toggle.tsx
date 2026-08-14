@@ -1,6 +1,6 @@
 import { Monitor, Moon, Sun, SunMoon, type LucideIcon } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
-import { Tooltip, popoverSurfaceClass } from './ui-kit'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Tooltip, popoverEdgeClass, popoverSurfaceClass } from './ui-kit'
 import { cn } from './utils'
 
 // What the user picked, which is not the same as which theme is showing:
@@ -11,7 +11,7 @@ export type ThemeChoice = 'light' | 'dark' | 'system'
 // rendered as full-colour vendor art, so they ignored `currentColor` and could
 // not go red on selection, and their glyph widths disagreed enough that the
 // three labels never lined up. These inherit colour and all measure the same.
-const OPTIONS: { value: ThemeChoice; icon: LucideIcon; label: string }[] = [
+export const THEME_OPTIONS: { value: ThemeChoice; icon: LucideIcon; label: string }[] = [
   { value: 'light', icon: Sun, label: 'Light' },
   { value: 'dark', icon: Moon, label: 'Dark' },
   { value: 'system', icon: Monitor, label: 'System' },
@@ -39,6 +39,63 @@ function applyChoice(choice: ThemeChoice) {
   document.documentElement.classList.toggle('dark', dark)
 }
 
+// One module-level value rather than per-component state, because more than one
+// control offers these three options at once — the header shows the toggle from
+// `sm` up and the mobile menu below it, and both are mounted the whole time.
+// With local state the hidden one keeps whatever it was last told, so it comes
+// back checking the wrong option.
+//
+// It starts at the default rather than at what is stored: `ThemeToggle` is
+// server-rendered on the Astro pages (`client:load`), so reading storage during
+// render would hydrate against different markup. The real value is adopted in
+// the effect below, the same beat it always was.
+let sharedChoice: ThemeChoice = 'system'
+let adopted = false
+const subscribers = new Set<(choice: ThemeChoice) => void>()
+
+// The theme choice: what is stored, applied to <html>, and kept in step with the
+// OS while `system` is selected.
+export function useThemeChoice() {
+  const [choice, setLocalChoice] = useState<ThemeChoice>(sharedChoice)
+
+  useEffect(() => {
+    // The inline boot script has already applied the stored choice by the time
+    // we mount, so adopting it here must not re-apply it — that would flash
+    // `system` over a saved `light` whenever the OS is dark.
+    if (!adopted) {
+      adopted = true
+      sharedChoice = storedChoice()
+    }
+    setLocalChoice(sharedChoice)
+    subscribers.add(setLocalChoice)
+    return () => {
+      subscribers.delete(setLocalChoice)
+    }
+  }, [])
+
+  // Only while `system` is selected: follow the OS if it flips under us.
+  useEffect(() => {
+    if (choice !== 'system') return
+    const query = window.matchMedia(DARK_QUERY)
+    const onChange = () => applyChoice('system')
+    query.addEventListener('change', onChange)
+    return () => query.removeEventListener('change', onChange)
+  }, [choice])
+
+  const setChoice = useCallback((next: ThemeChoice) => {
+    applyChoice(next)
+    try {
+      localStorage.setItem(STORAGE_KEY, next)
+    } catch {
+      // ignore storage failures (private mode, etc.)
+    }
+    sharedChoice = next
+    for (const notify of subscribers) notify(next)
+  }, [])
+
+  return [choice, setChoice] as const
+}
+
 // The theme control: a static sun-and-moon button that opens a three-way menu.
 //
 // This is the component the light/dark rule carves out an exception for, and it
@@ -60,39 +117,11 @@ export function ThemeToggle({
   // to the bottom edge by `mt-auto`, so downward is off the end of the panel.
   side?: 'top' | 'bottom'
 }) {
-  const [choice, setChoice] = useState<ThemeChoice>('system')
+  const [choice, setChoice] = useThemeChoice()
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const itemsRef = useRef<(HTMLButtonElement | null)[]>([])
-  // The inline boot script has already applied the stored choice by the time we
-  // mount, so the first pass must not re-apply it — that would flash `system`
-  // over a saved `light` whenever the OS is dark.
-  const mounted = useRef(false)
-
-  useEffect(() => setChoice(storedChoice()), [])
-
-  useEffect(() => {
-    if (!mounted.current) {
-      mounted.current = true
-      return
-    }
-    applyChoice(choice)
-    try {
-      localStorage.setItem(STORAGE_KEY, choice)
-    } catch {
-      // ignore storage failures (private mode, etc.)
-    }
-  }, [choice])
-
-  // Only while `system` is selected: follow the OS if it flips under us.
-  useEffect(() => {
-    if (choice !== 'system') return
-    const query = window.matchMedia(DARK_QUERY)
-    const onChange = () => applyChoice('system')
-    query.addEventListener('change', onChange)
-    return () => query.removeEventListener('change', onChange)
-  }, [choice])
 
   useEffect(() => {
     if (!open) return
@@ -113,18 +142,18 @@ export function ThemeToggle({
   }, [open])
 
   useEffect(() => {
-    if (open) itemsRef.current[Math.max(0, OPTIONS.findIndex((o) => o.value === choice))]?.focus()
+    if (open) itemsRef.current[Math.max(0, THEME_OPTIONS.findIndex((o) => o.value === choice))]?.focus()
   }, [open, choice])
 
   function onItemKeyDown(event: React.KeyboardEvent, index: number) {
     if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return
     event.preventDefault()
     const next =
-      (index + (event.key === 'ArrowDown' ? 1 : OPTIONS.length - 1)) % OPTIONS.length
+      (index + (event.key === 'ArrowDown' ? 1 : THEME_OPTIONS.length - 1)) % THEME_OPTIONS.length
     itemsRef.current[next]?.focus()
   }
 
-  const current = OPTIONS.find((o) => o.value === choice) ?? OPTIONS[2]
+  const current = THEME_OPTIONS.find((o) => o.value === choice) ?? THEME_OPTIONS[2]
 
   return (
     <div ref={rootRef} className={cn('relative', className)}>
@@ -176,7 +205,7 @@ export function ThemeToggle({
           <p className="px-2 pt-1.5 pb-2 font-mono text-[9px] tracking-[0.2em] text-primary uppercase">
             // Theme
           </p>
-          {OPTIONS.map(({ value, icon: Icon, label }, index) => (
+          {THEME_OPTIONS.map(({ value, icon: Icon, label }, index) => (
             <button
               key={value}
               ref={(el) => {
@@ -223,8 +252,7 @@ export function ThemeToggle({
           aria-hidden="true"
           className={cn(
             'pointer-events-none absolute left-1/2 z-[51] size-2 -translate-x-1/2 rotate-45',
-            'bg-card dark:bg-[#22262f]',
-            'border-border dark:border-white/[0.18]',
+            popoverEdgeClass,
             side === 'bottom'
               ? 'top-full mt-1 border-t border-l'
               : 'bottom-full mb-1 border-r border-b',
