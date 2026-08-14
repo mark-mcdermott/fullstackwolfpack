@@ -178,7 +178,7 @@ export function HomeHero() {
         <img
           src="/images/akela.webp"
           alt="Akela, your AI mentor"
-          className="pointer-events-none absolute inset-y-0 right-0 h-full object-cover object-[center_30%] dark:brightness-[0.82] dark:contrast-[0.94] [mask-image:linear-gradient(to_left,black_55%,transparent),linear-gradient(to_top,transparent,black_35%)] [mask-composite:intersect] lg:top-[5px] lg:bottom-auto lg:h-[75%]"
+          className="pointer-events-none absolute inset-y-0 right-0 h-full object-cover object-[center_30%] dark:brightness-[0.82] dark:contrast-[0.94] [mask-image:linear-gradient(to_left,black_55%,transparent),linear-gradient(to_top,transparent,black_calc(35%_-_20px))] [mask-composite:intersect] lg:top-[5px] lg:bottom-auto lg:h-[75%]"
         />
         {/* Fade the portrait down to the challenge box (media layout only). */}
         {/* Light keeps the card-coloured fade. Dark takes an even near-black band
