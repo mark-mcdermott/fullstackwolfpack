@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   dueReviewSchema,
+  questionContext,
   reviewGradeRequestSchema,
   reviewQueueSchema,
   reviewResultSchema,
@@ -28,6 +29,35 @@ describe('dueReviewSchema — no answer keys', () => {
       correctIndex: 1,
     })
     expect('correctIndex' in r).toBe(false)
+  })
+})
+
+// The bug this rule exists for: a `predict` question is asked against the code
+// in its segment ("What does `console.log(tax)` do here?") and on the review
+// page there is no lesson around it, so the prompt pointed at nothing.
+describe('questionContext', () => {
+  it('carries a segment body holding the code the prompt is about', () => {
+    const body =
+      '```js\nfunction addTax(price) {\n  const tax = price * 0.2;\n}\n```\n\nThe call has finished.'
+    expect(questionContext(body)).toBe(body)
+  })
+
+  it('drops a body that is only a label', () => {
+    // What a `check` segment carries — its question quotes its own code, so the
+    // body would be noise on the card.
+    expect(questionContext('Reference model check.')).toBeUndefined()
+    expect(questionContext('Confirm the tool choices.')).toBeUndefined()
+  })
+
+  it('drops an empty, blank, or absent body', () => {
+    expect(questionContext('')).toBeUndefined()
+    expect(questionContext('   \n  ')).toBeUndefined()
+    expect(questionContext(null)).toBeUndefined()
+    expect(questionContext(undefined)).toBeUndefined()
+  })
+
+  it('trims, so the card does not open on blank lines', () => {
+    expect(questionContext('\n\n```js\nx\n```\n\n')).toBe('```js\nx\n```')
   })
 })
 

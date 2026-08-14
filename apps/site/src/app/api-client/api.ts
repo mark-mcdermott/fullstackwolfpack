@@ -89,8 +89,10 @@ import {
   type LessonView,
 } from '@/core/lesson-view'
 import {
+  reviewQuestionsSchema,
   reviewQueueSchema,
   reviewResultSchema,
+  type ReviewQuestion,
   type ReviewQueue,
   type ReviewResult,
 } from '@/core/review-view'
@@ -518,6 +520,16 @@ export function createApi({ http, passkeys }: Adapters) {
       return leaderboardViewSchema.parse(
         await http.request('/api/me/public-leaderboard'),
       )
+    },
+    // What the guest review queue renders. Its cards live in localStorage and
+    // carry only ids, so the questions are looked up here at review time.
+    async reviewQuestions(questionIds: string[]): Promise<ReviewQuestion[]> {
+      if (questionIds.length === 0) return []
+      return reviewQuestionsSchema.parse(
+        await http.request(
+          `/api/me/public-reviews?ids=${encodeURIComponent(questionIds.join(','))}`,
+        ),
+      ).questions
     },
   }
 
