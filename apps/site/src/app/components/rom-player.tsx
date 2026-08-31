@@ -8,7 +8,7 @@ import {
   Play,
   X,
 } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { ControlsReference } from '@/components/controls/controls-reference'
 import { TouchControls } from '@/components/controls/touch-controls'
@@ -16,8 +16,9 @@ import { FocusLessonOverlay } from '@/components/focus/focus-lesson-overlay'
 import { SessionTimerInline } from '@/components/focus/session-timer-inline'
 import { Panel, Pill, SectionLabel, raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
 import { useTimer } from '@/hooks/timer-context'
-import { bindsToRetroarchConfig, type RetroButton } from '@/core/controls'
+import { bindsToRetroarchConfig } from '@/core/controls'
 import { useCoarsePointer } from '@/hooks/use-coarse-pointer'
+import { useHeldPress } from '@/hooks/use-held-press'
 import { useFullscreen } from '@/hooks/use-fullscreen'
 import { coreForSystem, SYSTEM_META } from '@/core/roms'
 import { usePlaytimeTracker } from '@/hooks/use-playtime-tracker'
@@ -99,12 +100,7 @@ export function RomPlayer({
     }
   }, [learnPhase, timer.active])
 
-  const pressButton = useCallback((button: RetroButton) => {
-    sessionRef.current?.pressDown(button)
-  }, [])
-  const releaseButton = useCallback((button: RetroButton) => {
-    sessionRef.current?.pressUp(button)
-  }, [])
+  const press = useHeldPress(sessionRef)
 
   useEffect(() => {
     let cancelled = false
@@ -300,8 +296,8 @@ export function RomPlayer({
       {coarsePointer && status === 'playing' && !learnPhase && (
         <TouchControls
           system={rom.system}
-          onDown={pressButton}
-          onUp={releaseButton}
+          onDown={press.down}
+          onUp={press.up}
         />
       )}
 
