@@ -1,7 +1,7 @@
 import { Maximize, Minimize } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { TouchControls } from '@/components/controls/touch-controls'
-import { bindsToRetroarchConfig, type RetroButton } from '@/core/controls'
+import { bindsToRetroarchConfig } from '@/core/controls'
 import { formatClock } from '@/core/focus-session'
 import { coreForSystem } from '@/core/roms'
 import { launchRom, type EmulatorSession } from '@/lib/emulator'
@@ -12,6 +12,7 @@ import {
 } from '@/lib/rom-catalog'
 import { loadGamepadBinds, loadKeyboardBinds } from '@/lib/controls-store'
 import { useCoarsePointer } from '@/hooks/use-coarse-pointer'
+import { useHeldPress } from '@/hooks/use-held-press'
 import { useFullscreen } from '@/hooks/use-fullscreen'
 import { useTimer } from '@/hooks/timer-context'
 import { cn } from '@/lib/utils'
@@ -39,14 +40,7 @@ export function MissionGame({
   const fs = useFullscreen<HTMLDivElement>()
   const timer = useTimer()
 
-  const pressDown = useCallback(
-    (b: RetroButton) => sessionRef.current?.pressDown(b),
-    [],
-  )
-  const pressUp = useCallback(
-    (b: RetroButton) => sessionRef.current?.pressUp(b),
-    [],
-  )
+  const press = useHeldPress(sessionRef)
 
   useEffect(() => {
     let cancelled = false
@@ -183,7 +177,7 @@ export function MissionGame({
         )}
       </div>
       {coarse && status === 'playing' && !paused && (
-        <TouchControls system={rom.system} onDown={pressDown} onUp={pressUp} />
+        <TouchControls system={rom.system} onDown={press.down} onUp={press.up} />
       )}
     </div>
   )
