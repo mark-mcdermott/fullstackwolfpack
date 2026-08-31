@@ -136,11 +136,16 @@ export function HomeHero() {
                 would have had to reach ~8px to come in under the headline. The
                 headline was simply small, using 40% of its column where the md
                 size uses 52%.
-                10.4vw is that 52% expressed as a slope (80px at the 768 the cap
-                takes over, so nothing at or above md moves), and the 34px floor
-                keeps it off the very narrow end, where a pure ratio starts to
-                look chunky against a 272px column. */}
-            <h1 className="font-heading text-[clamp(34px,10.4vw,80px)] leading-[0.85] tracking-tight uppercase">
+                10.4vw is that 52% expressed as a slope, and 80px at the 768
+                where the cap takes over, so nothing at or above md moves.
+                The floor is 44px rather than the ratio's own 33, because the
+                subtitle stops shrinking before the headline does: 14px is the
+                bottom for body copy, so its longest line stays 185px wide while
+                a proportional headline keeps getting smaller, and below ~420
+                the supporting copy overtakes the headline again. 44 holds the
+                headline at 0.92 of that line all the way down to 320, where it
+                still only asks 74% of the column. */}
+            <h1 className="font-heading text-[clamp(44px,10.4vw,80px)] leading-[0.85] tracking-tight uppercase">
               {/* Dark grades each line top-to-bottom, sampled off the mock.
                   `bg-clip-text` over a transparent fill, so the flat token
                   colour still carries light. */}
