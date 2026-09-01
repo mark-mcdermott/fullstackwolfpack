@@ -12,6 +12,7 @@ import type {
   ReviewResult,
 } from '../core/review-view'
 import { questionContext } from '../core/review-view'
+import { afterResponse } from './after-response'
 import { db } from '../db'
 import {
   courses,
@@ -201,13 +202,20 @@ export async function gradeReview(
   const rating = ratingFromQuiz(correct)
   const { card, log } = schedule(toCard(row), rating, now)
 
-  await db.update(reviewCards).set(cardValues(card)).where(eq(reviewCards.id, cardId))
-  await db.insert(reviewLogs).values({
-    cardId,
-    rating: log.rating,
-    interval: log.interval,
-    efactor: log.efactor,
-  })
+  // Both writes are deferred: `schedule` is pure, so the next due date this response
+  // reports was already computed above, and nothing else the learner is about to do
+  // reads the card back. Awaiting them only made the verdict land later.
+  await afterResponse(
+    Promise.all([
+      db.update(reviewCards).set(cardValues(card)).where(eq(reviewCards.id, cardId)),
+      db.insert(reviewLogs).values({
+        cardId,
+        rating: log.rating,
+        interval: log.interval,
+        efactor: log.efactor,
+      }),
+    ]),
+  )
 
   return {
     cardId,

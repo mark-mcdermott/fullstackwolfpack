@@ -32,6 +32,7 @@ import {
   userLessonProgress,
   userTopics,
 } from '../db/schema'
+import { afterResponse } from './after-response'
 import { resolveActiveCourse } from './course-resolver'
 import { gradeAnswer } from './grader'
 import { grantXp, logActivityAndStreak } from './rewards'
@@ -257,6 +258,28 @@ async function seedReviewCardSafely(
   }
 }
 
+// The two writes an answer produces that nothing in the answer-or-completion path
+// reads back: the XP ledger (read by the dashboard and leaderboard) and the review
+// card (read by the review queue). Both are eventually-visible surfaces, so they run
+// concurrently and off the critical path instead of adding four serial round trips to
+// every graded question.
+async function deferRewards(
+  userId: string,
+  questionId: string,
+  correct: boolean,
+  xp: number,
+): Promise<void> {
+  await afterResponse(
+    Promise.all([
+      grantXp(userId, {
+        type: 'quiz', xp, refType: 'question', refId: questionId,
+        description: correct ? 'Correct answer' : 'Quiz attempt',
+      }),
+      seedReviewCardSafely(userId, questionId, correct),
+    ]),
+  )
+}
+
 async function gradeMcq(
   userId: string,
   questionId: string,
@@ -272,12 +295,10 @@ async function gradeMcq(
   }
 
   const { correct, xp } = gradeMcqAnswer(q.correctIndex, selectedIndex)
+  // Awaited, unlike the two below: completeLesson scores the lesson by reading these
+  // rows back, and the learner can hit Finish the moment the last question is graded.
   await db.insert(quizAttempts).values({ userId, questionId, selectedIndex, isCorrect: correct })
-  await grantXp(userId, {
-    type: 'quiz', xp, refType: 'question', refId: questionId,
-    description: correct ? 'Correct answer' : 'Quiz attempt',
-  })
-  await seedReviewCardSafely(userId, questionId, correct)
+  await deferRewards(userId, questionId, correct, xp)
 
   return {
     questionId, correct, correctIndex: q.correctIndex,
@@ -311,11 +332,7 @@ async function gradeShortAnswer(
   await db.insert(quizAttempts).values({
     userId, questionId, answerText, isCorrect: grade.correct, aiFeedback: grade.feedback,
   })
-  await grantXp(userId, {
-    type: 'quiz', xp, refType: 'question', refId: questionId,
-    description: grade.correct ? 'Correct answer' : 'Quiz attempt',
-  })
-  await seedReviewCardSafely(userId, questionId, grade.correct)
+  await deferRewards(userId, questionId, grade.correct, xp)
 
   return {
     questionId, correct: grade.correct, correctIndex: null,
@@ -407,13 +424,18 @@ export async function completeLesson(
   let xp = 0
   if (firstCompletion) {
     const lessonXp = xpForLesson(score)
-    await grantXp(userId, {
-      type: 'lesson_completed',
-      xp: lessonXp,
-      refType: 'lesson',
-      refId: lessonId,
-      description: 'Lesson completed',
-    })
+    // Deferred for the same reason as the quiz ledger. `logActivityAndStreak` is not:
+    // it decides whether today was a new day and returns the streak XP this response
+    // reports, so the learner is genuinely waiting on its answer.
+    await afterResponse(
+      grantXp(userId, {
+        type: 'lesson_completed',
+        xp: lessonXp,
+        refType: 'lesson',
+        refId: lessonId,
+        description: 'Lesson completed',
+      }),
+    )
     xp = lessonXp + (await logActivityAndStreak(userId, now, { lessonsCompleted: 1 }))
   }
 
