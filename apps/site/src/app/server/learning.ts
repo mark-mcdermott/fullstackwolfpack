@@ -78,12 +78,18 @@ export async function getLessonView(lessonId: string): Promise<LessonView | null
   const bySegment = new Map<string, QuestionView[]>()
   for (const q of qRows) {
     const list = bySegment.get(q.segmentId) ?? []
-    // Only the prompt + options reach the client — never correctIndex/expectedAnswer.
+    // MCQ ships its key so the player can paint the verdict without a round trip; the
+    // server still regrades every attempt (see core/lesson-view.ts). A short_answer
+    // ships neither its `expectedAnswer` nor its `explanation` — the explanation
+    // restates the reference answer, and a model reads that answer server-side.
+    const isMcq = q.type === 'mcq'
     list.push({
       id: q.id,
       type: q.type,
       prompt: q.prompt,
       options: q.options ?? undefined,
+      correctIndex: isMcq ? q.correctIndex : null,
+      explanation: isMcq ? (q.explanation ?? null) : null,
     })
     bySegment.set(q.segmentId, list)
   }

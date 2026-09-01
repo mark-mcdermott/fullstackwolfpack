@@ -1,15 +1,15 @@
 import { CheckCircle2, XCircle } from 'lucide-react'
 import { useState } from 'react'
 import type { AnswerFeedback, QuestionView } from '@/core/lesson-view'
-import { normalizeQuestionPrompt } from '@/core/lesson-view'
+import { localMcqFeedback, normalizeQuestionPrompt } from '@/core/lesson-view'
 import { cn } from '@/lib/utils'
 import { raisedCtaClass, raisedCtaCompactClass } from '@fw/ui'
 import { LessonMarkdown } from './lesson-markdown'
 
-// Grades one question: the client renders it, calls `onGrade` (which stands in for
-// POST /api/me/answer), and shows the feedback. The answer key only arrives back in
-// the feedback — it's never in the QuestionView. MCQ sends a `selectedIndex`;
-// short-answer sends `answerText` and gets an AI grade back (Phase 3).
+// Grades one question. An MCQ carries its own key, so the verdict is painted on click
+// and `onGrade` (POST /api/me/answer) runs behind it purely to record the attempt — the
+// server regrades and owns the durable numbers. A short_answer has no key to paint
+// from: it sends `answerText` and waits on the AI grade (Phase 3).
 export type GradeInput = { selectedIndex?: number; answerText?: string }
 export type GradeFn = (questionId: string, input: GradeInput) => Promise<AnswerFeedback>
 
@@ -113,6 +113,28 @@ function McqQuestion({
   async function choose(i: number) {
     if (answered || pending) return
     setChosen(i)
+
+    // The point of shipping the key: the verdict is a comparison of two integers we
+    // already hold, so there is nothing to wait for. Recording the attempt still goes
+    // to the server, just no longer in front of the learner.
+    const local = localMcqFeedback(question, i)
+    if (local) {
+      setFeedback(local)
+      onAnswered?.(local)
+      void onGrade(question.id, { selectedIndex: i })
+        // The server is authoritative, so its grade replaces the painted one. Both
+        // sides run the same pure `xpForQuiz` against the same key, so this is a
+        // no-op unless the question itself changed under the reader mid-lesson.
+        //
+        // `onAnswered` deliberately does not fire again: it is what accrues the
+        // lesson's XP total, and this question has already been counted.
+        .then(setFeedback)
+        // Swallowed on purpose. A dropped write must not retract a verdict the
+        // reader has already been shown and already moved on from.
+        .catch(() => {})
+      return
+    }
+
     setPending(true)
     try {
       const fb = await onGrade(question.id, { selectedIndex: i })
