@@ -5,6 +5,7 @@ import {
   completeRequestSchema,
   lessonCompletionSchema,
   lessonViewSchema,
+  localMcqFeedback,
   parseLessonView,
   questionViewSchema,
   segmentLabel,
@@ -12,6 +13,7 @@ import {
   normalizeQuestionPrompt,
   segmentKinds,
 } from './lesson-view'
+import { xpForQuiz } from './learning'
 
 const validLesson = {
   lessonId: 'l1',
@@ -62,18 +64,31 @@ describe('lessonViewSchema', () => {
   })
 })
 
-describe('questionViewSchema — no answer keys leak to the client', () => {
-  it('strips a correctIndex if one is (wrongly) present in the payload', () => {
+describe('questionViewSchema — which answer keys reach the client', () => {
+  // The MCQ key now ships on purpose (the player paints the verdict from it, and the
+  // server still regrades the attempt). `expectedAnswer` does not and must not: a
+  // model reads it server-side, so the client has no use for it but to leak it.
+  it('keeps a correctIndex and still strips expectedAnswer', () => {
     const parsed = questionViewSchema.parse({
       id: 'q1',
       type: 'mcq',
       prompt: 'pick one',
       options: ['a', 'b'],
-      correctIndex: 1, // must not survive into the client-facing object
+      correctIndex: 1,
       expectedAnswer: 'b',
     })
-    expect('correctIndex' in parsed).toBe(false)
+    expect(parsed.correctIndex).toBe(1)
     expect('expectedAnswer' in parsed).toBe(false)
+  })
+
+  it('parses a question with no key at all, so older payloads still load', () => {
+    const parsed = questionViewSchema.parse({
+      id: 'q1',
+      type: 'mcq',
+      prompt: 'pick one',
+      options: ['a', 'b'],
+    })
+    expect(parsed.correctIndex).toBeUndefined()
   })
 })
 
@@ -198,5 +213,51 @@ describe('normalizeQuestionPrompt', () => {
   it('leaves inline code spans untouched', () => {
     const p = 'Why does `let z` throw but `var z` not?'
     expect(normalizeQuestionPrompt(p)).toBe(p)
+  })
+})
+
+describe('localMcqFeedback', () => {
+  const mcq = {
+    id: 'q1',
+    type: 'mcq' as const,
+    prompt: 'Which is hoisted?',
+    options: ['let', 'var'],
+    correctIndex: 1,
+    explanation: '`var` declarations are hoisted.',
+  }
+
+  it('grades a correct pick without needing the server', () => {
+    expect(localMcqFeedback(mcq, 1)).toEqual({
+      questionId: 'q1',
+      correct: true,
+      correctIndex: 1,
+      explanation: '`var` declarations are hoisted.',
+      feedback: null,
+      score: null,
+      xp: xpForQuiz(true),
+    })
+  })
+
+  it('grades a wrong pick and still reveals the key', () => {
+    const fb = localMcqFeedback(mcq, 0)
+    expect(fb).toMatchObject({ correct: false, correctIndex: 1, xp: xpForQuiz(false) })
+  })
+
+  // The shape it returns is the same one the server sends back, so reconciling the
+  // server's reply over the painted one can never change what the reader sees.
+  it('returns something the answer-feedback contract accepts', () => {
+    expect(answerFeedbackSchema.safeParse(localMcqFeedback(mcq, 1)).success).toBe(true)
+  })
+
+  it('declines a short_answer — those have no key to grade against', () => {
+    const short = { id: 'q2', type: 'short_answer' as const, prompt: 'Explain hoisting.' }
+    expect(localMcqFeedback(short, 0)).toBeNull()
+  })
+
+  // A question served before the key shipped, or one deliberately withheld: the
+  // caller must fall back to the server rather than paint a guess.
+  it('declines an MCQ with no key', () => {
+    expect(localMcqFeedback({ ...mcq, correctIndex: null }, 1)).toBeNull()
+    expect(localMcqFeedback({ ...mcq, correctIndex: undefined }, 1)).toBeNull()
   })
 })

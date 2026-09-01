@@ -1,12 +1,31 @@
 import { z } from 'zod'
+import { ratingFromQuiz, schedule } from './review'
 
 // The review system's client data contract — pure zod, shared by the server functions
-// behind `/api/me/review` and the api-client. Like lesson-view, a due review carries
-// only the prompt + options; the answer key stays server-side and is revealed in the
-// grade result.
+// behind `/api/me/review` and the api-client.
+//
+// Like lesson-view, a due card ships its MCQ key so the page can paint the verdict on
+// click. It also ships the card's own scheduling state, because this page reports the
+// next due date beside the verdict — without it the reader would get "Correct" now and
+// "next review …" a round trip later. That state is the reader's own, the scheduler
+// that consumes it (`core/review.ts`) is pure and already runs client-side for guests,
+// and the server still reschedules from its own row on every grade.
 
 export const reviewItemKinds = ['quiz_question', 'concept', 'lesson'] as const
 export const reviewRatings = ['again', 'hard', 'good', 'easy'] as const
+
+// The scheduler state a `review_cards` row holds, on the wire. Mirrors `ReviewCard` in
+// core/review.ts — `schedule()` is handed one of these directly, so a drift between the
+// two fails to compile at that call site rather than silently at runtime.
+export const reviewCardSchema = z.object({
+  interval: z.number(),
+  repetitions: z.number(),
+  efactor: z.number(),
+  reps: z.number(),
+  lapses: z.number(),
+  due: z.string(),
+  lastReviewedAt: z.string().nullable(),
+})
 
 // One card due for review, ready to render.
 export const dueReviewSchema = z.object({
@@ -17,6 +36,12 @@ export const dueReviewSchema = z.object({
   options: z.array(z.string()).optional(), // MCQ choices for quiz_question items
   // The segment body the prompt was asked against — see `questionContext`.
   context: z.string().optional(),
+  // The key + the scheduling needed to grade and reschedule locally (see the note at
+  // the top). Optional so a queue served before this shipped still parses — the page
+  // falls back to the server when either is missing.
+  correctIndex: z.number().int().nullable().optional(),
+  explanation: z.string().nullable().optional(),
+  card: reviewCardSchema.optional(),
 })
 export type DueReview = z.infer<typeof dueReviewSchema>
 
@@ -29,6 +54,8 @@ export const reviewQuestionSchema = z.object({
   prompt: z.string(),
   options: z.array(z.string()).optional(),
   context: z.string().optional(),
+  correctIndex: z.number().int().nullable().optional(),
+  explanation: z.string().nullable().optional(),
 })
 export type ReviewQuestion = z.infer<typeof reviewQuestionSchema>
 
@@ -82,3 +109,27 @@ export const reviewResultSchema = z.object({
   nextDueAt: z.string(), // ISO timestamp
 })
 export type ReviewResult = z.infer<typeof reviewResultSchema>
+
+// Grade and reschedule a due card without touching the network — the instant-feedback
+// path, and the exact computation the server would have run.
+//
+// Returns null when the card arrived without a key or without its scheduling state, in
+// which case the caller must wait for the server rather than paint a guess.
+export function localReviewResult(
+  review: DueReview,
+  selectedIndex: number,
+  now: Date = new Date(),
+): ReviewResult | null {
+  if (review.correctIndex == null || !review.card) return null
+  const correct = selectedIndex === review.correctIndex
+  const rating = ratingFromQuiz(correct)
+  const { card } = schedule(review.card, rating, now)
+  return {
+    cardId: review.cardId,
+    correct,
+    correctIndex: review.correctIndex,
+    explanation: review.explanation ?? null,
+    rating,
+    nextDueAt: card.due,
+  }
+}

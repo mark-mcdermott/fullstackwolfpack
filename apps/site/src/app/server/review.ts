@@ -106,6 +106,8 @@ export async function getReviewQuestions(
       id: quizQuestions.id,
       prompt: quizQuestions.prompt,
       options: quizQuestions.options,
+      correctIndex: quizQuestions.correctIndex,
+      explanation: quizQuestions.explanation,
       segmentContent: lessonSegments.content,
       // null ⇒ built-in. Anything else is a user's own generated course, which
       // a guest must never be able to read.
@@ -123,6 +125,8 @@ export async function getReviewQuestions(
       id: r.id,
       prompt: r.prompt,
       options: r.options ?? undefined,
+      correctIndex: r.correctIndex,
+      explanation: r.explanation ?? null,
       context: questionContext(segmentBody(r.segmentContent)),
     }))
 }
@@ -134,12 +138,10 @@ export async function getDueReviews(
   userId: string,
   now: Date = new Date(),
 ): Promise<ReviewQueue> {
+  // The whole row, not just the three identifying columns: `toCard` turns it into the
+  // scheduling state the page needs to reschedule locally (see core/review-view.ts).
   const rows = await db
-    .select({
-      cardId: reviewCards.id,
-      itemType: reviewCards.itemType,
-      itemId: reviewCards.itemId,
-    })
+    .select()
     .from(reviewCards)
     .where(and(eq(reviewCards.userId, userId), lte(reviewCards.due, now)))
     .orderBy(asc(reviewCards.due))
@@ -157,12 +159,15 @@ export async function getDueReviews(
     if (!q) return [] // question was deleted — skip
     return [
       {
-        cardId: r.cardId,
+        cardId: r.id,
         itemType: r.itemType,
         itemId: r.itemId,
         prompt: q.prompt,
         options: q.options,
         context: q.context,
+        correctIndex: q.correctIndex,
+        explanation: q.explanation,
+        card: toCard(r),
       },
     ]
   })

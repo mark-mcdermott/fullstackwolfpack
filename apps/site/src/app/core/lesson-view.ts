@@ -1,16 +1,23 @@
 import { z } from 'zod'
 import { exerciseTestSchema } from './exercise'
 import { gitGoalSchema } from './git-sim'
+import { gradeMcqAnswer } from './learning'
 
 // The lesson-player's data contract — pure zod, shared by the server function that
 // will back `/api/me/lesson` (a `lesson` action on api/me/[action].ts) and the
 // api-client that parses it, so client and server can never disagree about a shape.
 // Mirrors the style of core/app-data.ts.
 //
-// Deliberately OMITS answer keys: a `QuestionView` carries the prompt and (for MCQ)
-// the options, but never `correctIndex` / `expectedAnswer` / `explanation`. The client
-// renders the question; the server grades it and returns an `AnswerFeedback`. That way
-// the answers can't be read out of the page source.
+// Answer keys are split by what grading a question actually costs. An MCQ key
+// (`correctIndex` + `explanation`) ships with the question so the player can paint the
+// verdict on click instead of waiting out a round trip. A short_answer's
+// `expectedAnswer` never ships: it is read by a model server-side, so there is nothing
+// the client could do with it except leak it.
+//
+// Shipping the MCQ key costs no integrity, because painting and scoring are separate
+// jobs. The attempt is still POSTed, and the server regrades from its own row to write
+// `quiz_attempts` / `users.xp`; the leaderboard ranks those numbers. A tampered client
+// fools its own screen and nothing else.
 
 // The first four are the original vocabulary, kept for content already stored
 // against them; the rest are the teaching roles new lessons are built from.
@@ -96,6 +103,10 @@ export const questionViewSchema = z.object({
   type: z.enum(questionKinds),
   prompt: z.string(),
   options: z.array(z.string()).optional(), // MCQ choices; absent for short_answer
+  // The MCQ answer key (see the note at the top). Optional rather than nullable-only
+  // so a question serialised before this shipped still parses.
+  correctIndex: z.number().int().nullable().optional(),
+  explanation: z.string().nullable().optional(),
 })
 export type QuestionView = z.infer<typeof questionViewSchema>
 
@@ -173,6 +184,29 @@ export const answerFeedbackSchema = z.object({
   xp: z.number().int(),
 })
 export type AnswerFeedback = z.infer<typeof answerFeedbackSchema>
+
+// Grade an MCQ from the key the question already carries — the instant-feedback path.
+// Returns null when there is no key to grade against (a short_answer, or an MCQ whose
+// key was withheld), which is the caller's signal to wait for the server instead.
+//
+// The `xp` here is the same pure `xpForQuiz` the server will apply, so reconciling the
+// server's reply over this one is a no-op in every normal case.
+export function localMcqFeedback(
+  question: QuestionView,
+  selectedIndex: number,
+): AnswerFeedback | null {
+  if (question.type !== 'mcq' || question.correctIndex == null) return null
+  const { correct, xp } = gradeMcqAnswer(question.correctIndex, selectedIndex)
+  return {
+    questionId: question.id,
+    correct,
+    correctIndex: question.correctIndex,
+    explanation: question.explanation ?? null,
+    feedback: null,
+    score: null,
+    xp,
+  }
+}
 
 export function parseLessonView(raw: unknown): LessonView {
   return lessonViewSchema.parse(raw)

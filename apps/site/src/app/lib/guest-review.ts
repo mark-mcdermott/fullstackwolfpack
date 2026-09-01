@@ -106,7 +106,8 @@ export function guestDueCount(now: Date = new Date()): number {
 export async function guestReviewQueue(
   now: Date = new Date(),
 ): Promise<ReviewQueue> {
-  const ids = dueIds(read(), now)
+  const stored = read()
+  const ids = dueIds(stored, now)
   const questions = await api.public.reviewQuestions(ids)
   const byId = new Map(questions.map((q) => [q.id, q]))
 
@@ -121,6 +122,11 @@ export async function guestReviewQueue(
         prompt: q.prompt,
         options: q.options,
         context: q.context,
+        // A guest's scheduling already lives here rather than in a table, so the
+        // queue carries it straight through and the page grades without a round trip.
+        correctIndex: q.correctIndex,
+        explanation: q.explanation,
+        card: stored[id]?.card,
       },
     ]
   })

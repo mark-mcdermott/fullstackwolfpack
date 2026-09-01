@@ -16,6 +16,7 @@ import {
 import { can } from '@/core/access'
 import { normalizeQuestionPrompt } from '@/core/lesson-view'
 import type { DueReview, ReviewQueue, ReviewResult } from '@/core/review-view'
+import { localReviewResult } from '@/core/review-view'
 import { useAuth } from '@/hooks/auth-context'
 import { useAsync } from '@/hooks/use-async'
 import {
@@ -156,6 +157,25 @@ function ReviewCard({
   async function choose(i: number) {
     if (answered || pending) return
     setChosen(i)
+
+    // A due card ships its key and its schedule, so the verdict *and* the next due
+    // date are both computable here — see core/review-view.ts. `grade` still runs
+    // behind it: on the account path it is what reschedules the row, and on the guest
+    // path what writes the new schedule to localStorage.
+    const local = localReviewResult(review, i)
+    if (local) {
+      setResult(local)
+      onGraded()
+      void grade(review.cardId, i)
+        // Both sides ran the same pure scheduler over the same card, so this only
+        // corrects a card that moved underneath the reader.
+        .then(setResult)
+        // Swallowed: a dropped reschedule must not retract a verdict already shown.
+        // The card stays due and simply comes back round.
+        .catch(() => {})
+      return
+    }
+
     setPending(true)
     try {
       const r = await grade(review.cardId, i)
