@@ -12,12 +12,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # 22 is what @astrojs/vercel targets for this project's functions.
-      # The version comes from packageManager in package.json, so CI and local
-      # development cannot drift apart.
+      # 24 is the newest runtime @astrojs/vercel 11 supports, so it is what
+      # this project's functions get. It was 22 under adapter 8.
       - uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: 24
           cache: 'npm'
 
       - name: Install dependencies
