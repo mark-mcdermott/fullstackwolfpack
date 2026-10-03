@@ -2,6 +2,7 @@
   "name": "fullstack-wolfpack",
   "private": true,
   "version": "0.0.0",
+  "packageManager": "npm@11.19.1",
   "type": "module",
   "workspaces": [
     "apps/*",
