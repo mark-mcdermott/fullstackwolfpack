@@ -30,6 +30,6 @@
     "cap:sync:prod": "npm run cap:sync:prod -w @fw/site"
   },
   "devDependencies": {
-    "concurrently": "^10.0.3"
+    "concurrently": "^10.0.5"
   }
 }
