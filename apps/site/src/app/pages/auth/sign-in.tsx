@@ -3,7 +3,7 @@ import {
   BarChart3,
   Crosshair,
   Gamepad2,
-  KeyRound,
+  Lock,
   Mail,
   Target,
   Trophy,
@@ -41,21 +41,26 @@ const WHY: WhyItem[] = [
 ]
 
 export function SignInPage() {
-  const { login, recover } = useAuth()
-  const [mode, setMode] = useState<'login' | 'recover'>('login')
+  const { signIn, requestPasswordReset } = useAuth()
+  const [mode, setMode] = useState<'signin' | 'forgot'>('signin')
   const [email, setEmail] = useState('')
-  const [token, setToken] = useState('')
+  const [password, setPassword] = useState('')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [sent, setSent] = useState(false)
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
     setPending(true)
     try {
-      if (mode === 'recover') await recover(email, token)
-      else await login(email)
-      // On success the auth context sets `user`; AuthChromeLayout redirects.
+      if (mode === 'forgot') {
+        await requestPasswordReset(email)
+        setSent(true)
+      } else {
+        await signIn(email, password)
+        // On success the auth context sets `user`; AuthChromeLayout redirects.
+      }
     } catch (err) {
       setError(authErrorMessage(err))
     } finally {
@@ -64,11 +69,11 @@ export function SignInPage() {
   }
 
   const submitLabel = pending
-    ? mode === 'recover'
-      ? 'Verifying…'
-      : 'Waiting for passkey…'
-    : mode === 'recover'
-      ? 'Verify code'
+    ? mode === 'forgot'
+      ? 'Sending…'
+      : 'Signing in…'
+    : mode === 'forgot'
+      ? 'Email me a reset link'
       : 'Sign in'
 
   return (
@@ -106,30 +111,24 @@ export function SignInPage() {
               id="email"
               icon={Mail}
               type="email"
-              autoComplete="username webauthn"
+              autoComplete="username"
               required
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
 
-            {/* Password — passkey auth has no password. Re-enable when password
-                login is supported.
-            <AuthField label="Password" id="password" icon={Lock} type="password"
-              autoComplete="current-password" placeholder="Enter your password" />
-            */}
-
-            {mode === 'recover' && (
+            {mode === 'signin' && (
               <AuthField
-                label="Authenticator code"
-                id="code"
-                icon={KeyRound}
-                inputMode="numeric"
-                autoComplete="one-time-code"
+                label="Password"
+                id="password"
+                icon={Lock}
+                type="password"
+                autoComplete="current-password"
                 required
-                placeholder="123456"
-                value={token}
-                onChange={(e) => setToken(e.target.value)}
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             )}
 
@@ -142,16 +141,25 @@ export function SignInPage() {
               <button
                 type="button"
                 onClick={() => {
-                  setMode(mode === 'recover' ? 'login' : 'recover')
+                  setMode(mode === 'forgot' ? 'signin' : 'forgot')
                   setError(null)
+                  setSent(false)
                 }}
                 className="ml-auto font-mono text-sm text-foreground underline decoration-[color:var(--primary)] decoration-dotted underline-offset-4 transition-colors hover:text-primary"
               >
-                {mode === 'recover'
-                  ? 'Back to sign in'
-                  : 'Lost your passkey?'}
+                {mode === 'forgot' ? 'Back to sign in' : 'Forgot password?'}
               </button>
             </div>
+
+            {sent && !error && (
+              <p
+                className="font-mono text-sm text-foreground"
+                role="status"
+              >
+                If an account uses that address, a reset link is on its way.
+                Check your inbox.
+              </p>
+            )}
 
             {error && (
               <p className="font-mono text-sm text-destructive" role="alert">
@@ -170,7 +178,7 @@ export function SignInPage() {
               <ArrowRight className="ml-auto h-5 w-5" strokeWidth={1.5} aria-hidden />
             </button>
 
-            {/* Social auth — passkey only, no OAuth providers wired.
+            {/* Social auth — no OAuth providers wired.
             <SocialAuth label="Or continue with" />
             */}
 

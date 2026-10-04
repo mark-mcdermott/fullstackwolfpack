@@ -1,11 +1,8 @@
-import type {
-  AuthenticationResponseJSON,
-  PublicKeyCredentialCreationOptionsJSON,
-  PublicKeyCredentialRequestOptionsJSON,
-  RegistrationResponseJSON,
-} from '@simplewebauthn/browser'
-
-// The two platform seams. A surface provides these; the API is built on top.
+// The platform seam. A surface provides this; the API is built on top.
+//
+// There used to be a second seam here, PasskeyClient, because a WebAuthn
+// ceremony has to run against a platform credential API that differs per
+// surface. Email and password is just HTTP, so one seam is enough.
 
 // Transport: how a surface reaches the backend. Web injects the session cookie
 // (credentials: 'include'); native/extension can inject an auth header from
@@ -14,18 +11,6 @@ export interface HttpClient {
   request<T>(path: string, init?: RequestInit): Promise<T>
 }
 
-// Passkey ceremonies: web wraps @simplewebauthn/browser; native wraps the
-// platform credential API (iOS Credential Manager, Android, etc.).
-export interface PasskeyClient {
-  create(
-    optionsJSON: PublicKeyCredentialCreationOptionsJSON,
-  ): Promise<RegistrationResponseJSON>
-  get(
-    optionsJSON: PublicKeyCredentialRequestOptionsJSON,
-  ): Promise<AuthenticationResponseJSON>
-}
-
 export interface Adapters {
   http: HttpClient
-  passkeys: PasskeyClient
 }

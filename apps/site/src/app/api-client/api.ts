@@ -1,9 +1,4 @@
-import type {
-  PublicKeyCredentialCreationOptionsJSON,
-  PublicKeyCredentialRequestOptionsJSON,
-} from '@simplewebauthn/browser'
 import {
-  authResultSchema,
   billingRedirectSchema,
   enrollResultSchema,
   focusSessionResultSchema,
@@ -15,7 +10,6 @@ import {
   setDifficultyResultSchema,
   tailorResultSchema,
   topicTracksSchema,
-  totpSetupSchema,
   userPreferencesSchema,
   type BillingRedirect,
   type EnrollResult,
@@ -28,7 +22,6 @@ import {
   type TailorMode,
   type TailorResult,
   type TopicTracks,
-  type TotpSetup,
   type UserPreferences,
 } from '@/core/schemas'
 import type { Difficulty } from '@/core/generation'
@@ -109,52 +102,51 @@ import type { Adapters } from './types'
 // Surface-agnostic API. Construct it once with a surface's adapters
 // (see ./index.ts for the web wiring). Responses are validated against the
 // shared core schemas, so a malformed payload throws instead of leaking through.
-export function createApi({ http, passkeys }: Adapters) {
+export function createApi({ http }: Adapters) {
+  // better-auth owns these endpoints (src/pages/api/auth/[...all].ts). They are
+  // called over the same http seam as everything else rather than through
+  // better-auth's client SDK, so every surface keeps one transport.
   const auth = {
-    async register(email: string, displayName: string): Promise<PublicUser> {
-      const optionsJSON =
-        await http.request<PublicKeyCredentialCreationOptionsJSON>(
-          '/api/auth/register/options',
-          { method: 'POST', body: JSON.stringify({ email, displayName }) },
-        )
-      const response = await passkeys.create(optionsJSON)
-      const { user } = authResultSchema.parse(
-        await http.request('/api/auth/register/verify', {
-          method: 'POST',
-          body: JSON.stringify({ email, response }),
-        }),
-      )
-      return user
+    async signUp(
+      email: string,
+      password: string,
+      displayName: string,
+    ): Promise<PublicUser | null> {
+      await http.request('/api/auth/sign-up/email', {
+        method: 'POST',
+        body: JSON.stringify({ email, password, name: displayName }),
+      })
+      // autoSignIn is on, so a session already exists. Read the user back from
+      // /api/auth/me, which joins the profile row better-auth does not know about.
+      return this.me()
     },
 
-    async login(email: string): Promise<PublicUser> {
-      const optionsJSON =
-        await http.request<PublicKeyCredentialRequestOptionsJSON>(
-          '/api/auth/login/options',
-          { method: 'POST', body: JSON.stringify({ email }) },
-        )
-      const response = await passkeys.get(optionsJSON)
-      const { user } = authResultSchema.parse(
-        await http.request('/api/auth/login/verify', {
-          method: 'POST',
-          body: JSON.stringify({ email, response }),
-        }),
-      )
-      return user
+    async signIn(email: string, password: string): Promise<PublicUser | null> {
+      await http.request('/api/auth/sign-in/email', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      })
+      return this.me()
     },
 
-    async recover(email: string, token: string): Promise<PublicUser> {
-      const { user } = authResultSchema.parse(
-        await http.request('/api/auth/totp/recover', {
-          method: 'POST',
-          body: JSON.stringify({ email, token }),
-        }),
-      )
-      return user
+    // Always resolves: whether an address has an account is not something the
+    // sign-in page should be able to probe.
+    async requestPasswordReset(email: string): Promise<void> {
+      await http.request('/api/auth/forget-password', {
+        method: 'POST',
+        body: JSON.stringify({ email, redirectTo: '/reset-password' }),
+      })
+    },
+
+    async resetPassword(token: string, newPassword: string): Promise<void> {
+      await http.request('/api/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({ token, newPassword }),
+      })
     },
 
     async logout(): Promise<void> {
-      await http.request('/api/auth/logout', { method: 'POST' })
+      await http.request('/api/auth/sign-out', { method: 'POST' })
     },
 
     async me(): Promise<PublicUser | null> {
@@ -163,23 +155,6 @@ export function createApi({ http, passkeys }: Adapters) {
       } catch {
         return null
       }
-    },
-  }
-
-  const totp = {
-    async setup(): Promise<TotpSetup> {
-      return totpSetupSchema.parse(
-        await http.request('/api/auth/totp/setup', { method: 'POST' }),
-      )
-    },
-    async enable(token: string): Promise<void> {
-      await http.request('/api/auth/totp/enable', {
-        method: 'POST',
-        body: JSON.stringify({ token }),
-      })
-    },
-    async disable(): Promise<void> {
-      await http.request('/api/auth/totp/disable', { method: 'POST' })
     },
   }
 
@@ -579,7 +554,6 @@ export function createApi({ http, passkeys }: Adapters) {
 
   return {
     auth,
-    totp,
     getProtected,
     data,
     integrations,

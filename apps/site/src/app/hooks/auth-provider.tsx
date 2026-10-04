@@ -15,9 +15,8 @@ import {
 import { clearGuestReviews, guestReviewEntries } from '@/lib/guest-review'
 import { AuthContext } from './auth-context'
 
-// Thin state shell over the shared api-client. All transport + WebAuthn
-// ceremony logic lives in the api-client behind adapters — this just holds
-// React state and re-renders.
+// Thin state shell over the shared api-client. All transport lives there behind
+// the http adapter — this just holds React state and re-renders.
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<PublicUser | null>(null)
   const [loading, setLoading] = useState(true)
@@ -50,25 +49,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const register = useCallback(
-    async (email: string, displayName: string) => {
-      setUser(await api.auth.register(email, displayName))
+  const signUp = useCallback(
+    async (email: string, password: string, displayName: string) => {
+      setUser(await api.auth.signUp(email, password, displayName))
       await migrateGuestProgress()
     },
     [migrateGuestProgress],
   )
 
-  const login = useCallback(
-    async (email: string) => {
-      setUser(await api.auth.login(email))
+  const signIn = useCallback(
+    async (email: string, password: string) => {
+      setUser(await api.auth.signIn(email, password))
       await migrateGuestProgress()
     },
     [migrateGuestProgress],
   )
 
-  const recover = useCallback(async (email: string, token: string) => {
-    setUser(await api.auth.recover(email, token))
+  const requestPasswordReset = useCallback(async (email: string) => {
+    await api.auth.requestPasswordReset(email)
   }, [])
+
+  const resetPassword = useCallback(
+    async (token: string, newPassword: string) => {
+      await api.auth.resetPassword(token, newPassword)
+    },
+    [],
+  )
 
   const logout = useCallback(async () => {
     await api.auth.logout()
@@ -76,8 +82,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value = useMemo(
-    () => ({ user, loading, register, login, recover, logout, refresh }),
-    [user, loading, register, login, recover, logout, refresh],
+    () => ({
+      user,
+      loading,
+      signUp,
+      signIn,
+      requestPasswordReset,
+      resetPassword,
+      logout,
+      refresh,
+    }),
+    [
+      user,
+      loading,
+      signUp,
+      signIn,
+      requestPasswordReset,
+      resetPassword,
+      logout,
+      refresh,
+    ],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

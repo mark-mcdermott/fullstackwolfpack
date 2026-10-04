@@ -26,6 +26,7 @@ import { GuestReview } from '@/pages/public/guest-review'
 import { LearnBrowse } from '@/pages/public/learn-browse'
 import { AdminUsersPage } from '@/pages/admin/users'
 import { SignInPage } from '@/pages/auth/sign-in'
+import { ResetPasswordPage } from '@/pages/auth/reset-password'
 import { SignUpPage } from '@/pages/auth/sign-up'
 import { NotFound } from '@/pages/not-found'
 
@@ -36,6 +37,7 @@ function App() {
       <Route element={<AuthChromeLayout />}>
         <Route path="/login" element={<SignInPage />} />
         <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
       </Route>
 
       {/* Public (guest) — the interactive core-loop launcher + try-before-signup

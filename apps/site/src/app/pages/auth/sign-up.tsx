@@ -3,6 +3,7 @@ import {
   BarChart3,
   Crosshair,
   Gamepad2,
+  Lock,
   Mail,
   Target,
   Trophy,
@@ -15,6 +16,7 @@ import { AuthCardShell } from '@/components/auth/auth-card-shell'
 import { AuthField } from '@/components/auth/auth-field'
 import { HeroWolf } from '@/components/auth/hero-wolf'
 import { WhyBox, type WhyItem } from '@/components/auth/why-box'
+import { passwordSchema } from '@/core/schemas'
 import { useAuth } from '@/hooks/auth-context'
 import { authErrorMessage } from '@/lib/auth-error'
 
@@ -41,20 +43,39 @@ const WHY: WhyItem[] = [
   },
 ]
 
+// Mirrors better-auth's minPasswordLength so the form can say so before a
+// round trip; the server rejects anything shorter regardless.
+const MIN_PASSWORD = 12
+
 export function SignUpPage() {
-  const { register } = useAuth()
+  const { signUp } = useAuth()
   // Prefill the name from a username a guest claimed (e.g. on the leaderboard).
   const [name, setName] = useState(() => getClaimedUsername())
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
+
+    // Caught here rather than server-side, so the mismatch is pointed out
+    // without a round trip that would also have created nothing.
+    if (password !== confirm) {
+      setError('Those passwords do not match.')
+      return
+    }
+    const check = passwordSchema.safeParse(password)
+    if (!check.success) {
+      setError(check.error.issues[0]?.message ?? 'Choose a longer password.')
+      return
+    }
+
     setPending(true)
     try {
-      await register(email, name)
+      await signUp(email, password, name)
       clearClaimedUsername()
       // On success the auth context sets `user`; AuthChromeLayout redirects.
     } catch (err) {
@@ -109,27 +130,47 @@ export function SignUpPage() {
                 id="email"
                 icon={Mail}
                 type="email"
-                autoComplete="username webauthn"
+                autoComplete="username"
                 required
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
 
-              {/* Username — not used by the passkey flow.
+              {/* Username — claimed separately in Settings, not at signup.
               <AuthField label="Username" id="username" icon={AtSign}
                 autoComplete="username" placeholder="Choose a username" />
               */}
 
-              {/* Password + confirm + strength meter + requirements — passkey
-                  auth has no password. Re-enable when password login is added.
-              <AuthField label="Password" id="password" icon={Lock} type="password"
-                autoComplete="new-password" placeholder="Create a password" />
-              <div>Password strength meter…</div>
-              <ul>At least 8 characters / One uppercase letter / One number…</ul>
-              <AuthField label="Confirm password" id="confirm" icon={Lock}
-                type="password" placeholder="Confirm your password" />
-              */}
+              <div className="flex flex-col gap-2">
+                <AuthField
+                  label="Password"
+                  id="password"
+                  icon={Lock}
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={MIN_PASSWORD}
+                  placeholder="Create a password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <p className="font-mono text-xs text-muted-foreground">
+                  At least {MIN_PASSWORD} characters.
+                </p>
+              </div>
+
+              <AuthField
+                label="Confirm password"
+                id="confirm"
+                icon={Lock}
+                type="password"
+                autoComplete="new-password"
+                required
+                placeholder="Confirm your password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+              />
             </div>
 
             {error && (
@@ -145,11 +186,11 @@ export function SignUpPage() {
             >
               <Crosshair className="h-6 w-6" strokeWidth={1.5} aria-hidden />
               <span className="h-6 w-px bg-white/40" />
-              {pending ? 'Waiting for passkey…' : 'Create account'}
+              {pending ? 'Creating account…' : 'Create account'}
               <ArrowRight className="ml-auto h-5 w-5" strokeWidth={1.5} aria-hidden />
             </button>
 
-            {/* Social auth — passkey only, no OAuth providers wired.
+            {/* Social auth — no OAuth providers wired.
             <SocialAuth label="Or sign up with" />
             */}
 

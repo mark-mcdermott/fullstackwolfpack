@@ -2,7 +2,8 @@ import type { LucideIcon } from 'lucide-react'
 import type { ComponentProps } from 'react'
 
 // Labelled form input with a leading FW-01 icon. Ported from apps/site
-// Field.astro (the password-toggle variant is unused — passkey flow only).
+// Field.astro. Takes every native input prop, so `type="password"`,
+// `minLength` and `autoComplete` are the caller's to set.
 type Props = {
   label: string
   id: string

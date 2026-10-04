@@ -21,7 +21,7 @@ const freeUser: PublicUser = {
   id: 'u1',
   email: 'a@b.com',
   displayName: 'A',
-  totpEnabled: false,
+  emailVerified: true,
   role: 'user',
   tier: 'free',
 }
