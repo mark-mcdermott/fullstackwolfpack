@@ -1,0 +1,9 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Install scripts are blocked by default; this is the allowlist, mirroring the
+# posture npm's allowScripts gave us. esbuild's postinstall fetches its
+# platform binary, so the build cannot run without it.
+onlyBuiltDependencies:
+  - esbuild
