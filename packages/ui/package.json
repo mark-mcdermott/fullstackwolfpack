@@ -15,6 +15,6 @@
   },
   "peerDependencies": {
     "lucide-react": "^1",
-    "react": "^19"
+    "react": "^19.3.0"
   }
 }
