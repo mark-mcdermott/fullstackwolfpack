@@ -13,18 +13,18 @@ Astro 5 with React 19 islands, Tailwind v4 + shadcn-ui, Drizzle ORM on Neon Post
 ## Quickstart
 
 ```bash
-npm install
+pnpm install
 cp apps/site/.env.example apps/site/.env   # then fill in DATABASE_URL + AUTH_SECRET
-npm run db:push                            # create the tables
-npm run db:seed                            # topics, achievements, levels, built-in courses
-npm run dev                                # http://localhost:4321
+pnpm db:push                               # create the tables
+pnpm db:seed                               # topics, achievements, levels, built-in courses
+pnpm dev                                   # http://localhost:4321
 ```
 
 Auth needs a real database to work end to end — create a [Neon](https://neon.tech) project and put its connection string in `DATABASE_URL`. Generate `AUTH_SECRET` and `ENCRYPTION_KEY` with `openssl rand -base64 32`; production refuses to boot on the dev defaults. Full variable list in [`apps/site/.env.example`](apps/site/.env.example).
 
 ## Layout
 
-An npm-workspaces monorepo with one deployable app.
+A pnpm-workspaces monorepo with one deployable app.
 
 ```
 apps/site/            @fw/site — the whole product (Astro + Vercel adapter)
@@ -43,16 +43,16 @@ Every root script delegates to `@fw/site`; there is no second app. `@/…` impor
 
 | | |
 |---|---|
-| `npm run dev` / `build` / `preview` | Astro dev server (`:4321`), production build, preview |
-| `npm test` / `test:watch` | Vitest — 485 colocated unit tests |
-| `npm run lint` | oxlint |
-| `npm run db:push` / `db:generate` / `db:migrate` / `db:studio` | Drizzle schema + studio |
-| `npm run db:seed` | seed the catalog (idempotent) |
-| `npm run db:park -- --list \| --keep <slug> \| --restore <slug>` | show/hide topics without deleting them |
-| `npm run db:reset-dev` | wipe the Dev Mode test users' data, keep the accounts |
-| `npm run gen:builtins [slug…]` | regenerate the built-in courses with an LLM |
-| `npm run tauri <cmd>` / `cap <cmd>` | desktop / mobile shells |
-| `npm run tauri:build:prod` / `cap:sync:prod` | the **shipping** native builds |
+| `pnpm dev` / `build` / `preview` | Astro dev server (`:4321`), production build, preview |
+| `pnpm test` / `test:watch` | Vitest — 485 colocated unit tests |
+| `pnpm lint` | oxlint |
+| `pnpm db:push` / `db:generate` / `db:migrate` / `db:studio` | Drizzle schema + studio |
+| `pnpm db:seed` | seed the catalog (idempotent) |
+| `pnpm db:park --list \| --keep <slug> \| --restore <slug>` | show/hide topics without deleting them |
+| `pnpm db:reset-dev` | wipe the Dev Mode test users' data, keep the accounts |
+| `pnpm gen:builtins [slug…]` | regenerate the built-in courses with an LLM |
+| `pnpm tauri <cmd>` / `cap <cmd>` | desktop / mobile shells |
+| `pnpm tauri:build:prod` / `cap:sync:prod` | the **shipping** native builds |
 
 ## Deploy
 

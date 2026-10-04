@@ -19,10 +19,10 @@
     "gen:builtins": "tsx --env-file=.env scripts/gen-builtins.ts",
     "lint": "oxlint",
     "tauri": "tauri",
-    "tauri:build:prod": "npm run tauri -- build --config src-tauri/tauri.prod.conf.json",
+    "tauri:build:prod": "pnpm run tauri -- build --config src-tauri/tauri.prod.conf.json",
     "cap": "cap",
-    "cap:sync": "npm run build && cap sync",
-    "cap:sync:prod": "CAP_SERVER_URL=\"${CAP_SERVER_URL:-https://fullstackwolfpack.com}\" npm run cap:sync"
+    "cap:sync": "pnpm run build && cap sync",
+    "cap:sync:prod": "CAP_SERVER_URL=\"${CAP_SERVER_URL:-https://fullstackwolfpack.com}\" pnpm run cap:sync"
   },
   "dependencies": {
     "@astrojs/react": "^7.0.0",
@@ -35,7 +35,7 @@
     "@fontsource-variable/geist": "^5.2.9",
     "@fontsource-variable/geist-mono": "^5.3.0",
     "@fontsource-variable/teko": "^5.3.0",
-    "@fw/ui": "*",
+    "@fw/ui": "workspace:*",
     "@lezer/highlight": "^1.2.3",
     "@neondatabase/serverless": "^1.1.0",
     "@simplewebauthn/browser": "^13.3.0",

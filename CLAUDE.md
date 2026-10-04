@@ -6,12 +6,19 @@ Config: Commit `conventional` · Automerge `off`
 
 Full cross-platform stack: Vite + React 19 + TS, Tailwind v4 + shadcn-ui, Drizzle ORM on Neon (edge Postgres), passkey/WebAuthn auth with TOTP fallback (no passwords), Zod validation, and Capacitor (mobile) + Tauri (desktop) shells.
 
-## Monorepo (npm workspaces)
+## Monorepo (pnpm workspaces)
+
+Workspace membership lives in `pnpm-workspace.yaml` (`apps/*` + `packages/*`), not
+in `package.json`. Two pnpm specifics worth knowing: internal deps use the
+workspace protocol (`"@fw/ui": "workspace:*"` — a bare `*` sends pnpm to the
+registry and 404s), and install scripts are blocked by default, so anything that
+needs one must be listed under `onlyBuiltDependencies` in `pnpm-workspace.yaml`
+(currently just `esbuild`, whose postinstall fetches its platform binary).
 
 **One Astro deployment now** (post `docs/astro-merge-plan.md` migration — the old two-app subdomain split is gone). `apps/site` is *the* app: static marketing/content/auth pages, the React app mounted as a `client:only` **applet**, and `/api/*` as Astro endpoints — all one origin, one Vercel project.
 
 - `apps/site/` — package `@fw/site`, the whole product. **Astro 5 + `@astrojs/react` + `@astrojs/vercel`.** Structure:
-  - `src/app/` — the **React SPA**, moved wholesale from the old `apps/web/src`. Its `@/…` imports resolve here via the `@`→`src/app` alias (astro.config + vitest.config + `src/app/tsconfig.json`). Mounted by `src/app/AppRoot.tsx` (the old `main.tsx` provider stack) as a `client:only="react"` island in `src/pages/[...slug].astro` (on-demand catch-all; static `.astro` pages win over it). Colocated unit tests run from here (`npm test -w @fw/site` → 483 tests).
+  - `src/app/` — the **React SPA**, moved wholesale from the old `apps/web/src`. Its `@/…` imports resolve here via the `@`→`src/app` alias (astro.config + vitest.config + `src/app/tsconfig.json`). Mounted by `src/app/AppRoot.tsx` (the old `main.tsx` provider stack) as a `client:only="react"` island in `src/pages/[...slug].astro` (on-demand catch-all; static `.astro` pages win over it). Colocated unit tests run from here (`pnpm --filter @fw/site test` → 483 tests).
   - `src/pages/api/**` — the API, ported from the old Vercel functions to Astro `APIRoute`s (`export const GET: APIRoute = async ({ request: req }) => …`, `prerender=false`). `_lib/` helpers stay relative + Astro-unrouted (underscore prefix). The `@astrojs/vercel` adapter bundles **every** route (API + applet) into **one** function (`_render.func`) — collapsing the old 12/12 Vercel Hobby function cap to ~1.
   - `src/pages/*.astro`, `src/layouts/Base.astro`, `src/components/*.astro` — the static marketing/content/blog surface + shared chrome (FW-01 look). `.env` + `.env.example` live here; astro.config loads `.env` into `process.env` for the endpoints under `astro dev`.
   - `ios/`, `android/`, `src-tauri/`, `capacitor.config.ts`, `native-shell/` — the **native shells** (Capacitor mobile, Tauri desktop), relocated here when `apps/web` was deleted. Neither bundles the app: passkeys are RP-origin-bound, so a webview on `capacitor://localhost` / `tauri://localhost` can never authenticate, and since the applet is `prerender=false` there is no `/app` in the static output to bundle. Both therefore point the whole webview at the apex — Capacitor via `server.url` (`CAP_SERVER_URL`), Tauri via the window `url` in `src-tauri/tauri.prod.conf.json` — and ship `native-shell/` (a ~1KB offline notice) instead of `dist/client`, keeping ~49MB of games/ROMs/imagery out of the binaries.
@@ -56,7 +63,7 @@ The one exception is `ThemeToggle`, which renders Sun vs Moon and swaps its `ari
 - `src/pages/auth/{sign-in,sign-up}.tsx` — the logged-out `/login` + `/signup` pages, styled to match the Astro site (FW-01 hero + bordered card + "why" strip) under `components/layout/auth-chrome-layout.tsx` (site header/footer + a forced-light token island). Passkey-only, so only the flow's fields are live (email; +name on sign-up; recover behind a "Lost your passkey?" toggle) — the rest are commented out. Shared bits: `components/auth/{hero-wolf,auth-field,why-box,auth-card-shell,brand-icons}.tsx`, `components/layout/{fw-header,fw-footer}.tsx`.
 - `src/components/` — `require-auth.tsx` (route guard), `dashboard.tsx` (protected view), `totp-card.tsx` (authenticator enrollment).
 - `src/components/ui/` — shadcn components (`base-nova` style, base-ui primitives).
-- `dev-api.ts` — Vite dev plugin that serves `api/` under `npm run dev` (Node↔Web adapter), so passkeys work locally without `vercel dev`.
+- `dev-api.ts` — Vite dev plugin that serves `api/` under `pnpm dev` (Node↔Web adapter), so passkeys work locally without `vercel dev`.
 - `drizzle.config.ts` — drizzle-kit config (reads `DATABASE_URL`).
 - `capacitor.config.ts` — Capacitor app config (`com.fullstackwolfpack.app`, webDir `dist`).
 - `src-tauri/` — Tauri desktop shell (Rust).
@@ -69,17 +76,17 @@ Routes are gated client-side by `RequireAuth` (UX) and server-side by the sessio
 
 ## Scripts
 
-- `npm run dev` / `build` / `preview` — Astro (`astro dev` on :4321 serves the pages, the applet **and** `src/pages/api/*` in one process; the old Vite dev-api plugin died with `apps/web`).
-- `npm test` / `test:watch` — Vitest over the colocated `src/app` tests.
-- `npm run db:push` / `db:generate` / `db:migrate` / `db:studio` — Drizzle.
-- `npm run db:seed` — seed the catalog (topics, achievements, levels, built-in courses). **Insert-only** and idempotent on fixed ids, so it never deletes and never overwrites: commenting a topic out of `SEED_TOPICS` only affects a *fresh* seed, and regenerated content does not reach an already-seeded database until you re-seed it. `--refresh-builtins` wipes built-in courses first (cascades to user progress on them).
-- `npm run db:park -- --list | --keep <slug> | --restore <slug>` — show/hide topics via `topics.status` without deleting anything; only the two galleries filter, by-slug lookups don't. The lever for an already-seeded DB, where commenting out `SEED_TOPICS` does nothing.
-- `npm run db:reset-dev` — wipe the Dev Mode test users' accumulated data, keeping the accounts.
-- `npm run gen:builtins [slug…]` — regenerate `seed-content.generated.ts` with an LLM (needs a provider key). **Re-seed each environment afterwards** — nothing propagates it, least of all a deploy.
-- Targeting prod: `apps/site/.env.prod` holds the prod `DATABASE_URL` but is never auto-loaded (the npm aliases hardcode `.env`), so run `npx tsx --env-file=.env.prod scripts/<name>.ts` from `apps/site`. Details + the ordering rules in [`docs/catalog-runbook.md`](docs/catalog-runbook.md).
-- `npm run tauri <cmd>` — Tauri CLI (e.g. `tauri dev`, `tauri build`).
-- `npm run cap <cmd>` — Capacitor CLI; `npm run cap:sync` builds `dist` then syncs the native shells.
-- `npm run cap:sync:prod` / `npm run tauri:build:prod` — the **shipping** native builds; both point the webview at `https://fullstackwolfpack.com` and bundle only `native-shell/`. Capacitor takes the origin from `CAP_SERVER_URL` (overridable); Tauri from `src-tauri/tauri.prod.conf.json`. Plain `tauri build` ships only the offline notice — use `tauri:build:prod`. `tauri dev` uses `devUrl` (localhost:4321) and works fully. See `apps/site/.env.example`.
+- `pnpm dev` / `build` / `preview` — Astro (`astro dev` on :4321 serves the pages, the applet **and** `src/pages/api/*` in one process; the old Vite dev-api plugin died with `apps/web`).
+- `pnpm test` / `test:watch` — Vitest over the colocated `src/app` tests.
+- `pnpm db:push` / `db:generate` / `db:migrate` / `db:studio` — Drizzle.
+- `pnpm db:seed` — seed the catalog (topics, achievements, levels, built-in courses). **Insert-only** and idempotent on fixed ids, so it never deletes and never overwrites: commenting a topic out of `SEED_TOPICS` only affects a *fresh* seed, and regenerated content does not reach an already-seeded database until you re-seed it. `--refresh-builtins` wipes built-in courses first (cascades to user progress on them).
+- `pnpm db:park --list | --keep <slug> | --restore <slug>` — show/hide topics via `topics.status` without deleting anything; only the two galleries filter, by-slug lookups don't. The lever for an already-seeded DB, where commenting out `SEED_TOPICS` does nothing.
+- `pnpm db:reset-dev` — wipe the Dev Mode test users' accumulated data, keeping the accounts.
+- `pnpm gen:builtins [slug…]` — regenerate `seed-content.generated.ts` with an LLM (needs a provider key). **Re-seed each environment afterwards** — nothing propagates it, least of all a deploy.
+- Targeting prod: `apps/site/.env.prod` holds the prod `DATABASE_URL` but is never auto-loaded (the pnpm aliases hardcode `.env`), so run `pnpm exec tsx --env-file=.env.prod scripts/<name>.ts` from `apps/site`. Details + the ordering rules in [`docs/catalog-runbook.md`](docs/catalog-runbook.md).
+- `pnpm tauri <cmd>` — Tauri CLI (e.g. `tauri dev`, `tauri build`).
+- `pnpm cap <cmd>` — Capacitor CLI; `pnpm cap:sync` builds `dist` then syncs the native shells.
+- `pnpm cap:sync:prod` / `pnpm tauri:build:prod` — the **shipping** native builds; both point the webview at `https://fullstackwolfpack.com` and bundle only `native-shell/`. Capacitor takes the origin from `CAP_SERVER_URL` (overridable); Tauri from `src-tauri/tauri.prod.conf.json`. Plain `tauri build` ships only the offline notice — use `tauri:build:prod`. `tauri dev` uses `devUrl` (localhost:4321) and works fully. See `apps/site/.env.example`.
 
 ## Setup TODO
 
@@ -87,11 +94,11 @@ Routes are gated client-side by `RequireAuth` (UX) and server-side by the sessio
 
 Pieces that need accounts or interactive/native steps — not done by the scaffold:
 
-- [ ] **Neon DB** — create a Neon project, `cp .env.example .env`, set `DATABASE_URL` (and the same in the Vercel project env). Then `npm run db:push` to create the tables. Auth needs a real DB to run end-to-end.
+- [ ] **Neon DB** — create a Neon project, `cp .env.example .env`, set `DATABASE_URL` (and the same in the Vercel project env). Then `pnpm db:push` to create the tables. Auth needs a real DB to run end-to-end.
 - [ ] **AUTH_SECRET** — set a strong `AUTH_SECRET` in `.env` (`openssl rand -base64 32`); dev falls back to an insecure default, production must not.
 - [x] **Auth flows + hardening** — passkey register/login, session cookies, a protected route (`RequireAuth` + `/api/protected`), TOTP enrollment/recovery, **encrypted TOTP secret at rest**, **env-driven `requireUserVerification`**, **rate-limited `login`/`recover`**, and a **fail-closed prod config guard** are all built. Remaining: set `RP_ID`/`RP_ORIGIN` (+ `AUTH_SECRET`/`ENCRYPTION_KEY`) in each deploy env — production refuses to start on dev defaults.
-- [x] **Capacitor native platforms** — `ios/` + `android/` are scaffolded (`apps/site/ios`, `apps/site/android`) and both verified to build (Android `assembleDebug`; iOS simulator). Capacitor 8 uses **Swift Package Manager** for iOS (no CocoaPods). Build locally with `npm run cap:sync` (builds `dist` first, then syncs both) + Xcode/Android Studio. iOS needs Xcode; Android needs `ANDROID_HOME=~/Library/Android/sdk` + a JDK on `JAVA_HOME` (Android Studio's bundled JBR at `/Applications/Android Studio.app/Contents/jbr/Contents/Home` works). Native build artifacts + copied web assets are git-ignored (nested `.gitignore`s regenerate `.../public` on sync). Remaining: set `CAP_SERVER_URL` to the prod origin at build time (so the webview origin matches the WebAuthn RP), then signing + store accounts.
-- [ ] **Tauri desktop** — `npm run tauri dev` (first run compiles Rust deps). Replace placeholder icons via `npm run tauri icon <path-to-1024px.png>`.
+- [x] **Capacitor native platforms** — `ios/` + `android/` are scaffolded (`apps/site/ios`, `apps/site/android`) and both verified to build (Android `assembleDebug`; iOS simulator). Capacitor 8 uses **Swift Package Manager** for iOS (no CocoaPods). Build locally with `pnpm cap:sync` (builds `dist` first, then syncs both) + Xcode/Android Studio. iOS needs Xcode; Android needs `ANDROID_HOME=~/Library/Android/sdk` + a JDK on `JAVA_HOME` (Android Studio's bundled JBR at `/Applications/Android Studio.app/Contents/jbr/Contents/Home` works). Native build artifacts + copied web assets are git-ignored (nested `.gitignore`s regenerate `.../public` on sync). Remaining: set `CAP_SERVER_URL` to the prod origin at build time (so the webview origin matches the WebAuthn RP), then signing + store accounts.
+- [ ] **Tauri desktop** — `pnpm tauri dev` (first run compiles Rust deps). Replace placeholder icons via `pnpm tauri icon <path-to-1024px.png>`.
 - [ ] **Vercel** — link the project; `@vercel/analytics` only reports once deployed on Vercel.
-- [ ] **Stripe billing** — the code is wired but dormant until keyed. Create a recurring $9/mo Product (→ `STRIPE_PRICE_ID`), set `STRIPE_SECRET_KEY`, and register a webhook at `https://<app-domain>/api/me/stripe-webhook` subscribed to `checkout.session.completed` + `customer.subscription.updated`/`.deleted` (→ `STRIPE_WEBHOOK_SECRET`). For local dev: `stripe listen --forward-to localhost:5173/api/me/stripe-webhook`. Entitlement flows Checkout → webhook → `users.tier` → `core/access.ts`. The `subscriptions` table (stub since scaffold) is now used — run `npm run db:push` if it isn't in your DB yet.
-- [ ] **Dev advisory** — `npm audit` shows a moderate esbuild dev-server advisory pulled in transitively by `drizzle-kit` (dev-only). `audit fix --force` would downgrade drizzle-kit ~13 minor versions; left as-is intentionally.
+- [ ] **Stripe billing** — the code is wired but dormant until keyed. Create a recurring $9/mo Product (→ `STRIPE_PRICE_ID`), set `STRIPE_SECRET_KEY`, and register a webhook at `https://<app-domain>/api/me/stripe-webhook` subscribed to `checkout.session.completed` + `customer.subscription.updated`/`.deleted` (→ `STRIPE_WEBHOOK_SECRET`). For local dev: `stripe listen --forward-to localhost:5173/api/me/stripe-webhook`. Entitlement flows Checkout → webhook → `users.tier` → `core/access.ts`. The `subscriptions` table (stub since scaffold) is now used — run `pnpm db:push` if it isn't in your DB yet.
+- [ ] **Dev advisory** — `pnpm audit` shows a moderate esbuild dev-server advisory pulled in transitively by `drizzle-kit` (dev-only). `audit fix --force` would downgrade drizzle-kit ~13 minor versions; left as-is intentionally.
