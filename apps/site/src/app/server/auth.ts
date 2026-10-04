@@ -58,8 +58,18 @@ function build() {
     },
 
     emailVerification: {
+      // better-auth swallows a throw here rather than failing the signup, which
+      // is the behaviour we want — but silently, so log it ourselves. Without
+      // this an unset RESEND_API_KEY looks exactly like a working signup.
       sendVerificationEmail: async ({ user, url }) => {
-        await sendEmail({ to: user.email, ...verifyEmail(url) })
+        try {
+          await sendEmail({ to: user.email, ...verifyEmail(url) })
+        } catch (err) {
+          console.error(
+            '[auth] could not send the verification email:',
+            err instanceof Error ? err.message : err,
+          )
+        }
       },
       sendOnSignUp: true,
       // Deliberately not required to sign in. Requiring it would mean an email
