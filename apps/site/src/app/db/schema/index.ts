@@ -1,3 +1,4 @@
+export * from './auth-schema'
 export * from './auth'
 export * from './settings'
 export * from './catalog'

@@ -1,15 +1,18 @@
 import { sql } from 'drizzle-orm'
 import {
-  bigint,
-  boolean,
   integer,
   pgEnum,
   pgTable,
   text,
   timestamp,
 } from 'drizzle-orm/pg-core'
+import { user } from './auth-schema'
 
-// ZENCATS auth: passkeys/WebAuthn primary, TOTP fallback. No passwords.
+// Auth is Better Auth's (see ./auth-schema.ts). This file owns the app's
+// domain model for a person: profile, access, and gamification totals.
+// `users.id` is the same id Better Auth minted, and `email`/`displayName`
+// mirror its `user.email`/`user.name` — kept in step by the databaseHooks in
+// src/app/server/auth.ts, because 60-odd call sites read displayName from here.
 
 export const userRole = pgEnum('user_role', ['user', 'admin'])
 export const userTier = pgEnum('user_tier', ['free', 'pro'])
@@ -20,9 +23,10 @@ export const subscriptionStatus = pgEnum('subscription_status', [
 ])
 
 export const users = pgTable('users', {
+  // Not defaulted: Better Auth mints the id and the profile row follows it.
   id: text('id')
     .primaryKey()
-    .default(sql`gen_random_uuid()`),
+    .references(() => user.id, { onDelete: 'cascade' }),
   email: text('email').notNull().unique(),
   displayName: text('display_name').notNull(),
   // Access control.
@@ -38,9 +42,6 @@ export const users = pgTable('users', {
   level: integer('level').notNull().default(1),
   currentStreak: integer('current_streak').notNull().default(0),
   bestStreak: integer('best_streak').notNull().default(0),
-  // TOTP fallback secret (encrypt at rest in production).
-  totpSecret: text('totp_secret'),
-  totpEnabled: boolean('totp_enabled').notNull().default(false),
   // Presence: bumped by the client heartbeat; drives "online" in Community.
   lastActiveAt: timestamp('last_active_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true })
@@ -65,42 +66,6 @@ export const subscriptions = pgTable('subscriptions', {
     .defaultNow(),
 })
 
-// One row per registered passkey/authenticator.
-export const credentials = pgTable('credentials', {
-  // credentialID, base64url-encoded
-  id: text('id').primaryKey(),
-  userId: text('user_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  // base64url-encoded COSE public key
-  publicKey: text('public_key').notNull(),
-  counter: bigint('counter', { mode: 'number' }).notNull().default(0),
-  // JSON array of AuthenticatorTransport values
-  transports: text('transports'),
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-})
-
-// Short-lived WebAuthn challenges, keyed by email (or session id).
-export const webauthnChallenges = pgTable('webauthn_challenges', {
-  key: text('key').primaryKey(),
-  challenge: text('challenge').notNull(),
-  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
-})
-
-// Fixed-window rate-limit counters for auth entry points (login, recover),
-// keyed by `${action}:${identifier}`. Shared across serverless instances.
-export const authRateLimits = pgTable('auth_rate_limits', {
-  key: text('key').primaryKey(),
-  count: integer('count').notNull().default(0),
-  windowStart: timestamp('window_start', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-})
-
 export type User = typeof users.$inferSelect
 export type NewUser = typeof users.$inferInsert
-export type Credential = typeof credentials.$inferSelect
-export type NewCredential = typeof credentials.$inferInsert
 export type Subscription = typeof subscriptions.$inferSelect

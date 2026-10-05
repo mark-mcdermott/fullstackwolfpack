@@ -1,8 +1,4 @@
-import {
-  startAuthentication,
-  startRegistration,
-} from '@simplewebauthn/browser'
-import type { Adapters, HttpClient, PasskeyClient } from './types'
+import type { Adapters, HttpClient } from './types'
 
 export class HttpError extends Error {
   readonly status: number
@@ -37,12 +33,7 @@ function webHttp(baseUrl = ''): HttpClient {
   }
 }
 
-const webPasskeys: PasskeyClient = {
-  create: (optionsJSON) => startRegistration({ optionsJSON }),
-  get: (optionsJSON) => startAuthentication({ optionsJSON }),
-}
-
 // The web surface's adapters. Capacitor/Tauri/extension provide their own.
 export function webAdapters(baseUrl = ''): Adapters {
-  return { http: webHttp(baseUrl), passkeys: webPasskeys }
+  return { http: webHttp(baseUrl) }
 }

@@ -1,10 +1,10 @@
 # Fullstack Wolfpack
 
-**Stack:** ZENCATS — **Z**od · **E**dge (Neon) · **N**ode · **C**apacitor · **A**uth (passkeys/TOTP) · **T**auri · **S**hadcn
+**Stack:** ZENCATS — **Z**od · **E**dge (Neon) · **N**ode · **C**apacitor · **A**uth (Better Auth, email+password) · **T**auri · **S**hadcn
 
 Config: Commit `conventional` · Automerge `off`
 
-Full cross-platform stack: Vite + React 19 + TS, Tailwind v4 + shadcn-ui, Drizzle ORM on Neon (edge Postgres), passkey/WebAuthn auth with TOTP fallback (no passwords), Zod validation, and Capacitor (mobile) + Tauri (desktop) shells.
+Full cross-platform stack: Vite + React 19 + TS, Tailwind v4 + shadcn-ui, Drizzle ORM on Neon (edge Postgres), Better Auth (email + password), Zod validation, and Capacitor (mobile) + Tauri (desktop) shells.
 
 ## Monorepo (pnpm workspaces)
 
@@ -21,12 +21,12 @@ needs one must be listed under `onlyBuiltDependencies` in `pnpm-workspace.yaml`
   - `src/app/` — the **React SPA**, moved wholesale from the old `apps/web/src`. Its `@/…` imports resolve here via the `@`→`src/app` alias (astro.config + vitest.config + `src/app/tsconfig.json`). Mounted by `src/app/AppRoot.tsx` (the old `main.tsx` provider stack) as a `client:only="react"` island in `src/pages/[...slug].astro` (on-demand catch-all; static `.astro` pages win over it). Colocated unit tests run from here (`pnpm --filter @fw/site test` → 483 tests).
   - `src/pages/api/**` — the API, ported from the old Vercel functions to Astro `APIRoute`s (`export const GET: APIRoute = async ({ request: req }) => …`, `prerender=false`). `_lib/` helpers stay relative + Astro-unrouted (underscore prefix). The `@astrojs/vercel` adapter bundles **every** route (API + applet) into **one** function (`_render.func`) — collapsing the old 12/12 Vercel Hobby function cap to ~1.
   - `src/pages/*.astro`, `src/layouts/Base.astro`, `src/components/*.astro` — the static marketing/content/blog surface + shared chrome (FW-01 look). `.env` + `.env.example` live here; astro.config loads `.env` into `process.env` for the endpoints under `astro dev`.
-  - `ios/`, `android/`, `src-tauri/`, `capacitor.config.ts`, `native-shell/` — the **native shells** (Capacitor mobile, Tauri desktop), relocated here when `apps/web` was deleted. Neither bundles the app: passkeys are RP-origin-bound, so a webview on `capacitor://localhost` / `tauri://localhost` can never authenticate, and since the applet is `prerender=false` there is no `/app` in the static output to bundle. Both therefore point the whole webview at the apex — Capacitor via `server.url` (`CAP_SERVER_URL`), Tauri via the window `url` in `src-tauri/tauri.prod.conf.json` — and ship `native-shell/` (a ~1KB offline notice) instead of `dist/client`, keeping ~49MB of games/ROMs/imagery out of the binaries.
+  - `ios/`, `android/`, `src-tauri/`, `capacitor.config.ts`, `native-shell/` — the **native shells** (Capacitor mobile, Tauri desktop), relocated here when `apps/web` was deleted. Neither bundles the app: the applet is `prerender=false`, so there is no `/app` in the static output to bundle. (Under the old passkey auth this was doubly forced, since a webview on `capacitor://localhost` / `tauri://localhost` could never satisfy WebAuthn's origin binding.) Both therefore point the whole webview at the apex — Capacitor via `server.url` (`CAP_SERVER_URL`), Tauri via the window `url` in `src-tauri/tauri.prod.conf.json` — and ship `native-shell/` (a ~1KB offline notice) instead of `dist/client`, keeping ~49MB of games/ROMs/imagery out of the binaries.
 - `apps/web/` — **deleted.** Its `src/`+`api/` became `apps/site/src/app` + `apps/site/src/pages/api`; its native shells moved to `apps/site`; its web-SPA configs (`vite.config.ts`, `dev-api.ts`, `index.html`, `vercel.json`, `middleware.ts`) died with the migration and are recoverable from git history.
 - `packages/ui/` — `@fw/ui`, the FW-01 design system (ui-kit / charts / wolf-sun / theme-toggle + `theme.css` tokens), registry-ready (`registry.json`). Consumed via the `@fw/ui` alias.
 - **Every** root script now delegates to `@fw/site` — `dev|build|test`, `db:*`/`gen:builtins` (`drizzle.config.ts` + `scripts/` live in `apps/site`), `lint`, and `tauri`/`cap`. There is no second workspace app.
 - **The "## Layout" paths below now live under `apps/site/src/app/`** (e.g. Layout's `src/core` = `apps/site/src/app/core`), and the `api/` it describes is `apps/site/src/pages/api/` (handlers now Astro `APIRoute`s, otherwise the same logic). `packages/core` extraction was superseded by folding into the single app; the `@/` alias makes it unnecessary.
-- **Deploy:** live on a single Vercel project (`fullstackwolfpack-astro`), Root Directory `apps/site`. Canonical origin is the apex `fullstackwolfpack.com`; `www` 308-redirects to it and `RP_ID`/`RP_ORIGIN` are the apex. The old `fullstackwolfpack` project (`app.` subdomain) is Git-disconnected and kept only as a rollback until native builds are re-pointed.
+- **Deploy:** live on a single Vercel project (`fullstackwolfpack-astro`), Root Directory `apps/site`. Canonical origin is the apex `fullstackwolfpack.com`; `www` 308-redirects to it and `SITE_ORIGIN` is the apex. The old `fullstackwolfpack` project (`app.` subdomain) has since been **deleted** — `fullstackwolfpack-astro` is the only project, so there is no rollback target any more.
 
 ## Theming
 
@@ -44,9 +44,8 @@ The one exception is `ThemeToggle`, which renders Sun vs Moon and swaps its `ari
 ## Layout
 
 - `api/` — serverless functions (Vercel-style; Web `Request`/`Response` handlers).
-  - `auth/register/{options,verify}.ts`, `auth/login/{options,verify}.ts` — the two WebAuthn ceremonies.
-  - `auth/totp/{setup,enable,disable,recover}.ts` — TOTP enrollment (authed) + recovery (unauthed).
-  - `auth/me.ts` (current session), `auth/logout.ts`.
+  - `auth/[...all].ts` — **every** Better Auth endpoint behind one catch-all (sign-up, sign-in, sign-out, password reset, email verification).
+  - `auth/me.ts` — the one named route beside it, which outranks the catch-all: the session user joined to their profile row (`role`, `tier`, `displayName`).
   - `protected.ts` — example session-gated endpoint (the real server-side boundary).
   - `me/[action].ts` — **one** dynamic function serving every `/api/me/*` route (Vercel Hobby caps at 12 Serverless Functions; each file is one). Dispatches on the last path segment + method; new routes fold in here, never as new files. GET: `summary`, `dashboard`, `topics`, `stats`, `progress`, `achievements` (badges derived from live stats via `core/achievements.ts` — no award table), `lesson` (`?id`), `course` (`?topic` → outline + next lesson), `adaptive` (`?topic` → recommended difficulty + per-lesson mastery/lock), `generation-eta` (avg course-gen duration → progress-bar ETA; from the `generation_timings` table, degrades to a default when unpopulated), `openai-key`, `anthropic-key`, `playtime` (cumulative per-title arcade playtime, from the `game_playtime` table). POST: `openai-key` / `anthropic-key` (write-only keys, encrypted at rest), `enroll` (→ generate an AI course), `answer` (grade a quiz question — MCQ or AI-graded `short_answer`), `complete` (finish a lesson → score/XP/streak), `playtime` (record a per-title play-time delta → incrementing upsert), `tutor` (Pro-gated grounded AI tutor), `checkout` / `billing-portal` (Stripe Checkout + Billing Portal → hosted redirect URL), and `stripe-webhook` — **unauthenticated + raw-body** (Stripe isn't a session user), verifies the signature and flips `users.tier` from the subscription status. Like `become`, the webhook runs before the session gate.
   - `_lib/` — `http.ts` (json helpers), `session.ts` (JWT cookie via jose), `user.ts` (public-user mapping), `validate.ts` (`parseBody` → 400 on bad input). Files prefixed `_` are not routed.
@@ -58,21 +57,52 @@ The one exception is `ThemeToggle`, which renders Sun vs Moon and swaps its `ari
 - **Education AI seams (Phase 3/4 + adaptive):** pure seams in `src/core/{grader,tutor,adaptive,exercise}.ts` (interfaces, prompt builders, math, code-exercise engine) with server impls in `src/server/{grader,tutor,adaptive}.ts` composing `server/llm.ts` (raw-`fetch` Anthropic/OpenAI transports) and `server/provider.ts` (per-user key → env fallback; Claude preferred). Code exercises run client-side via `src/workers/exercise-worker.ts` + `src/lib/run-exercise.ts` (CodeMirror 6 in `components/learn/{code-editor,code-exercise}.tsx`); the tutor UI is `components/learn/tutor-panel.tsx`.
 - `src/api-client/` — surface-agnostic client; `api.data.*` fetches the `/api/me/*` reads (incl. `lesson`/`course`) and drives the player (`answer`, `completeLesson`), `api.integrations.*` manages the OpenAI key, `api.courses.enroll` triggers generation (all validated against core schemas). `src/hooks/use-async.ts` drives page loading/error state; `src/components/layout/async-view.tsx` renders it.
 - `src/pages/` — logged-in app (`app/`) and admin (`admin/`) pages; the `app/` pages read live data via `api.data.*`. The app no longer hosts marketing pages — those live on the Astro site (`apps/site`); `/` redirects (signed-in → `/app`, signed-out → the site via `components/layout/root-redirect.tsx`), all marketing links point to `SITE_URL` (`src/consts.ts`), and sign-out returns to the site (`src/lib/use-sign-out.ts`). The lesson player is `app/learn.tsx` (route `/app/learn/:lessonId`); Topics/Dashboard/Sessions launch into it (`src/lib/open-course.ts` resolves a topic → its next lesson). Sessions is a real "continue learning" hub.
-- `src/lib/auth.ts` — WebAuthn relying-party config + TOTP helpers (server-side).
-- `src/hooks/auth-context.ts` + `auth-provider.tsx` — `AuthProvider` + `useAuth` (`user`/`register`/`login`/`recover`/`logout`/`refresh`).
-- `src/pages/auth/{sign-in,sign-up}.tsx` — the logged-out `/login` + `/signup` pages, styled to match the Astro site (FW-01 hero + bordered card + "why" strip) under `components/layout/auth-chrome-layout.tsx` (site header/footer + a forced-light token island). Passkey-only, so only the flow's fields are live (email; +name on sign-up; recover behind a "Lost your passkey?" toggle) — the rest are commented out. Shared bits: `components/auth/{hero-wolf,auth-field,why-box,auth-card-shell,brand-icons}.tsx`, `components/layout/{fw-header,fw-footer}.tsx`.
-- `src/components/` — `require-auth.tsx` (route guard), `dashboard.tsx` (protected view), `totp-card.tsx` (authenticator enrollment).
+- `src/server/auth.ts` — the Better Auth instance (`getAuth()`), built lazily, plus `getSessionUserId`. `src/server/email.ts` + `email-templates.ts` are the Resend transport behind password reset and address confirmation.
+- `src/hooks/auth-context.ts` + `auth-provider.tsx` — `AuthProvider` + `useAuth` (`user`/`signUp`/`signIn`/`requestPasswordReset`/`resetPassword`/`logout`/`refresh`).
+- `src/pages/auth/{sign-in,sign-up}.tsx` — the logged-out `/login` + `/signup` pages, styled to match the Astro site (FW-01 hero + bordered card + "why" strip) under `components/layout/auth-chrome-layout.tsx` (site header/footer + a forced-light token island). Email + password (+name on sign-up, confirm-password, and a "Forgot password?" toggle that emails a reset link); `/reset-password` is where that link lands. Username and OAuth fields stay commented out. Shared bits: `components/auth/{hero-wolf,auth-field,why-box,auth-card-shell,brand-icons}.tsx`, `components/layout/{fw-header,fw-footer}.tsx`.
+- `src/components/` — `require-auth.tsx` (route guard), `dashboard.tsx` (protected view).
 - `src/components/ui/` — shadcn components (`base-nova` style, base-ui primitives).
-- `dev-api.ts` — Vite dev plugin that serves `api/` under `pnpm dev` (Node↔Web adapter), so passkeys work locally without `vercel dev`.
 - `drizzle.config.ts` — drizzle-kit config (reads `DATABASE_URL`).
 - `capacitor.config.ts` — Capacitor app config (`com.fullstackwolfpack.app`, webDir `dist`).
 - `src-tauri/` — Tauri desktop shell (Rust).
 
 ## Auth flow
 
-Passkeys (WebAuthn) are primary; TOTP is the no-password fallback. Each ceremony is a two-step handshake: `options` mints a challenge (stored in `webauthn_challenges`, keyed by email), `verify` checks the signed response and issues a session JWT in an httpOnly cookie. `RP_ID` is the bare domain (`localhost` in dev), `RP_ORIGIN` the full origin. Login is email-first (usernameless/discoverable is a possible enhancement). `requireUserVerification` is env-driven — off in dev, on in production (override with `RP_REQUIRE_UV`). Auth **fails closed** in production (https `RP_ORIGIN`) if `RP_ID`/`AUTH_SECRET`/`ENCRYPTION_KEY` are still on dev defaults.
+**Better Auth, email + password** — the same shape as the other apps in `~/Dev`.
+It owns the four tables in `src/db/schema/auth-schema.ts` (`user`, `session`,
+`account`, `verification`); the app's own `users` table is the profile/domain
+row and is **not** Better Auth's. `users.id` references `user.id`, which keeps
+all 21 of the app's `user_id` foreign keys pointing where they already did, and
+`users.email`/`displayName` mirror `user.email`/`user.name` — the
+`databaseHooks` in `src/server/auth.ts` create the profile row after signup and
+keep those two columns in step, because ~60 call sites read `displayName` from
+`users`.
 
-Routes are gated client-side by `RequireAuth` (UX) and server-side by the session cookie (`getSessionUserId`) on each protected endpoint (the real boundary). TOTP: an authed user enrolls via `totp/setup` (QR) → `totp/enable` (confirm a code); if they later lose their passkey, `totp/recover` (email + code) mints a session. The TOTP secret is **encrypted at rest** (AES-256-GCM via `crypto.ts` `seal`/`open`). `login`/`recover` are **rate-limited** — a DB-backed fixed-window counter (`auth_rate_limits`, `src/server/rate-limit.ts`); over the limit returns `429` + `Retry-After` (login 10/15m, recover 5/15m).
+Every endpoint lives behind one catch-all, `src/pages/api/auth/[...all].ts`
+(`sign-up/email`, `sign-in/email`, `sign-out`, `forget-password`,
+`reset-password`, …). The one named route beside it is `auth/me.ts`, which
+outranks the catch-all and returns the session user joined to their profile row
+— Better Auth's own `get-session` knows nothing about `role` or `tier`.
+
+Sessions are **rows, not JWTs** (30 days, refreshed daily): deleting one
+actually ends the session, which the old stateless cookie could not do.
+`getAuth()` is built on first use, not at import — Astro evaluates module
+top-level code at build time, where `AUTH_SECRET` and `DATABASE_URL` do not
+exist. It still **fails closed**: production (an https `SITE_ORIGIN`) refuses to
+start on a missing or placeholder `AUTH_SECRET`.
+
+Routes are gated client-side by `RequireAuth` (UX) and server-side by
+`getSessionUserId` on each protected endpoint (the real boundary). Password
+reset and address confirmation send through Resend (`RESEND_API_KEY`); without
+a key those two flows **throw rather than silently no-op**, so a missing key is
+loud. `/reset-password` is where the emailed link lands. Rate limiting is now
+Better Auth's own rather than the hand-rolled `auth_rate_limits` counter.
+
+> Previously passkeys/WebAuthn with a TOTP fallback and no passwords. That is
+> gone as of the Better Auth migration — `@simplewebauthn/*`, `otplib`, `jose`,
+> the nine hand-rolled ceremony routes, the `credentials` /
+> `webauthn_challenges` / `auth_rate_limits` tables and `users.totp*` all went
+> with it, and are recoverable from git history.
 
 ## Scripts
 
@@ -96,8 +126,9 @@ Pieces that need accounts or interactive/native steps — not done by the scaffo
 
 - [ ] **Neon DB** — create a Neon project, `cp .env.example .env`, set `DATABASE_URL` (and the same in the Vercel project env). Then `pnpm db:push` to create the tables. Auth needs a real DB to run end-to-end.
 - [ ] **AUTH_SECRET** — set a strong `AUTH_SECRET` in `.env` (`openssl rand -base64 32`); dev falls back to an insecure default, production must not.
-- [x] **Auth flows + hardening** — passkey register/login, session cookies, a protected route (`RequireAuth` + `/api/protected`), TOTP enrollment/recovery, **encrypted TOTP secret at rest**, **env-driven `requireUserVerification`**, **rate-limited `login`/`recover`**, and a **fail-closed prod config guard** are all built. Remaining: set `RP_ID`/`RP_ORIGIN` (+ `AUTH_SECRET`/`ENCRYPTION_KEY`) in each deploy env — production refuses to start on dev defaults.
-- [x] **Capacitor native platforms** — `ios/` + `android/` are scaffolded (`apps/site/ios`, `apps/site/android`) and both verified to build (Android `assembleDebug`; iOS simulator). Capacitor 8 uses **Swift Package Manager** for iOS (no CocoaPods). Build locally with `pnpm cap:sync` (builds `dist` first, then syncs both) + Xcode/Android Studio. iOS needs Xcode; Android needs `ANDROID_HOME=~/Library/Android/sdk` + a JDK on `JAVA_HOME` (Android Studio's bundled JBR at `/Applications/Android Studio.app/Contents/jbr/Contents/Home` works). Native build artifacts + copied web assets are git-ignored (nested `.gitignore`s regenerate `.../public` on sync). Remaining: set `CAP_SERVER_URL` to the prod origin at build time (so the webview origin matches the WebAuthn RP), then signing + store accounts.
+- [x] **Auth flows + hardening** — Better Auth email+password sign-up/sign-in, DB-backed revocable sessions, a protected route (`RequireAuth` + `/api/protected`), password reset + address confirmation over Resend, and a **fail-closed prod config guard** are all built. Remaining: set `SITE_ORIGIN` (+ `AUTH_SECRET`/`ENCRYPTION_KEY`) in each deploy env — production refuses to start on a placeholder secret.
+- [ ] **Resend (transactional email)** — create an API key at resend.com and verify the **`mail.fullstackwolfpack.com`** sending subdomain (DKIM/SPF), then set `RESEND_API_KEY` (optionally `EMAIL_FROM`) locally and in the Vercel project. Keyed directly rather than through the Vercel Marketplace integration, which has no free tier ($20/mo minimum) — Resend's own free tier is 3k emails/month. **Until this is set, password reset and email confirmation throw**, so a forgotten password cannot be recovered.
+- [x] **Capacitor native platforms** — `ios/` + `android/` are scaffolded (`apps/site/ios`, `apps/site/android`) and both verified to build (Android `assembleDebug`; iOS simulator). Capacitor 8 uses **Swift Package Manager** for iOS (no CocoaPods). Build locally with `pnpm cap:sync` (builds `dist` first, then syncs both) + Xcode/Android Studio. iOS needs Xcode; Android needs `ANDROID_HOME=~/Library/Android/sdk` + a JDK on `JAVA_HOME` (Android Studio's bundled JBR at `/Applications/Android Studio.app/Contents/jbr/Contents/Home` works). Native build artifacts + copied web assets are git-ignored (nested `.gitignore`s regenerate `.../public` on sync). Remaining: set `CAP_SERVER_URL` to the prod origin at build time then signing + store accounts.
 - [ ] **Tauri desktop** — `pnpm tauri dev` (first run compiles Rust deps). Replace placeholder icons via `pnpm tauri icon <path-to-1024px.png>`.
 - [ ] **Vercel** — link the project; `@vercel/analytics` only reports once deployed on Vercel.
 - [ ] **Stripe billing** — the code is wired but dormant until keyed. Create a recurring $9/mo Product (→ `STRIPE_PRICE_ID`), set `STRIPE_SECRET_KEY`, and register a webhook at `https://<app-domain>/api/me/stripe-webhook` subscribed to `checkout.session.completed` + `customer.subscription.updated`/`.deleted` (→ `STRIPE_WEBHOOK_SECRET`). For local dev: `stripe listen --forward-to localhost:5173/api/me/stripe-webhook`. Entitlement flows Checkout → webhook → `users.tier` → `core/access.ts`. The `subscriptions` table (stub since scaffold) is now used — run `pnpm db:push` if it isn't in your DB yet.

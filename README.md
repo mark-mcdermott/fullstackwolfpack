@@ -6,9 +6,9 @@ Live at **[fullstackwolfpack.com](https://fullstackwolfpack.com)**.
 
 ## Stack
 
-**ZENCATS** — Zod · Edge (Neon) · Node · Capacitor · Auth (passkeys/TOTP) · Tauri · Shadcn
+**ZENCATS** — Zod · Edge (Neon) · Node · Capacitor · Auth (Better Auth) · Tauri · Shadcn
 
-Astro 5 with React 19 islands, Tailwind v4 + shadcn-ui, Drizzle ORM on Neon Postgres, and passkey/WebAuthn auth with TOTP as the no-password fallback. Capacitor (mobile) and Tauri (desktop) wrap the same origin rather than bundling the app — passkeys are RP-origin-bound, so a `capacitor://localhost` webview could never authenticate.
+Astro 5 with React 19 islands, Tailwind v4 + shadcn-ui, Drizzle ORM on Neon Postgres, and Better Auth for email + password sign-in with DB-backed sessions. Capacitor (mobile) and Tauri (desktop) wrap the same origin rather than bundling the app, since the applet route is `prerender=false` and so never lands in the static build.
 
 ## Quickstart
 
@@ -56,7 +56,7 @@ Every root script delegates to `@fw/site`; there is no second app. `@/…` impor
 
 ## Deploy
 
-One Vercel project, Root Directory `apps/site`. The Vercel adapter bundles every route — API and applet — into a single function. Canonical origin is the apex `fullstackwolfpack.com`; `www` 308-redirects to it, and `RP_ID` / `RP_ORIGIN` must be the apex or WebAuthn will reject.
+One Vercel project, Root Directory `apps/site`. The Vercel adapter bundles every route — API and applet — into a single function. Canonical origin is the apex `fullstackwolfpack.com`; `www` 308-redirects to it, and `SITE_ORIGIN` must be the apex or Better Auth will build email links and redirects against the wrong host.
 
 **The database is not part of a deploy.** Schema changes need `db:push` against production, and regenerated course content needs `db:seed` — neither happens automatically. See the runbook below.
 

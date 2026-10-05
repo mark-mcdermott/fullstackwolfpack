@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm'
 import { db } from '@/db'
 import { users } from '@/db/schema'
 import { json } from './_lib/http'
-import { getSessionUserId } from './_lib/session'
+import { getSessionUserId } from '@/server/auth'
 
 // The real security boundary: gated by the session cookie, not the client.
 // Client-side route guards are UX; this is what actually protects the data.

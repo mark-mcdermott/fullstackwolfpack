@@ -7,13 +7,16 @@ import { AuthContext, type AuthContextValue } from '@/hooks/auth-context'
 import { SignInPage } from './sign-in'
 import { SignUpPage } from './sign-up'
 
+const GOOD_PASSWORD = 'correct-horse-battery'
+
 function auth(overrides: Partial<AuthContextValue> = {}): AuthContextValue {
   return {
     user: null,
     loading: false,
-    register: vi.fn(async () => {}),
-    login: vi.fn(async () => {}),
-    recover: vi.fn(async () => {}),
+    signUp: vi.fn(async () => {}),
+    signIn: vi.fn(async () => {}),
+    requestPasswordReset: vi.fn(async () => {}),
+    resetPassword: vi.fn(async () => {}),
     logout: vi.fn(async () => {}),
     refresh: vi.fn(async () => {}),
     ...overrides,
@@ -30,51 +33,116 @@ function renderWith(ui: ReactNode, ctx = auth()) {
 }
 
 describe('SignInPage', () => {
-  it('shows only the email field — password is commented out', () => {
+  it('asks for an email and a password', () => {
     renderWith(<SignInPage />)
     expect(screen.getByLabelText('Email')).toBeInTheDocument()
-    expect(screen.queryByLabelText(/password/i)).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Password')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument()
   })
 
-  it('logs in with the entered email', async () => {
+  it('signs in with the entered credentials', async () => {
     const ctx = renderWith(<SignInPage />)
     await userEvent.type(screen.getByLabelText('Email'), 'ada@example.com')
+    await userEvent.type(screen.getByLabelText('Password'), GOOD_PASSWORD)
     await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
-    expect(ctx.login).toHaveBeenCalledWith('ada@example.com')
+    expect(ctx.signIn).toHaveBeenCalledWith('ada@example.com', GOOD_PASSWORD)
   })
 
-  it('recovery toggle reveals a code field and calls recover', async () => {
+  it('forgot-password hides the password field and requests a reset', async () => {
     const ctx = renderWith(<SignInPage />)
     await userEvent.click(
-      screen.getByRole('button', { name: /lost your passkey/i }),
+      screen.getByRole('button', { name: /forgot password/i }),
     )
+    expect(screen.queryByLabelText('Password')).not.toBeInTheDocument()
+
     await userEvent.type(screen.getByLabelText('Email'), 'ada@example.com')
-    await userEvent.type(
-      screen.getByLabelText(/authenticator code/i),
-      '123456',
+    await userEvent.click(
+      screen.getByRole('button', { name: /email me a reset link/i }),
     )
-    await userEvent.click(screen.getByRole('button', { name: /verify code/i }))
-    expect(ctx.recover).toHaveBeenCalledWith('ada@example.com', '123456')
+    expect(ctx.requestPasswordReset).toHaveBeenCalledWith('ada@example.com')
+  })
+
+  it('confirms a reset without revealing whether the account exists', async () => {
+    renderWith(<SignInPage />)
+    await userEvent.click(
+      screen.getByRole('button', { name: /forgot password/i }),
+    )
+    await userEvent.type(screen.getByLabelText('Email'), 'nobody@example.com')
+    await userEvent.click(
+      screen.getByRole('button', { name: /email me a reset link/i }),
+    )
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      /if an account uses that address/i,
+    )
   })
 })
 
 describe('SignUpPage', () => {
-  it('shows name + email only — username/password are commented out', () => {
+  it('asks for name, email, password and confirmation', () => {
     renderWith(<SignUpPage />)
     expect(screen.getByLabelText(/full name/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
-    expect(screen.queryByLabelText(/password/i)).not.toBeInTheDocument()
+    expect(screen.getByLabelText(/email address/i)).toBeInTheDocument()
+    expect(screen.getByLabelText('Password')).toBeInTheDocument()
+    expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument()
     expect(screen.queryByLabelText(/username/i)).not.toBeInTheDocument()
   })
 
-  it('registers with the email and full name', async () => {
+  it('signs up with the email, password and full name', async () => {
     const ctx = renderWith(<SignUpPage />)
     await userEvent.type(screen.getByLabelText(/full name/i), 'Ada Lovelace')
-    await userEvent.type(screen.getByLabelText(/email/i), 'ada@example.com')
+    await userEvent.type(
+      screen.getByLabelText(/email address/i),
+      'ada@example.com',
+    )
+    await userEvent.type(screen.getByLabelText('Password'), GOOD_PASSWORD)
+    await userEvent.type(
+      screen.getByLabelText(/confirm password/i),
+      GOOD_PASSWORD,
+    )
     await userEvent.click(
       screen.getByRole('button', { name: /create account/i }),
     )
-    expect(ctx.register).toHaveBeenCalledWith('ada@example.com', 'Ada Lovelace')
+    expect(ctx.signUp).toHaveBeenCalledWith(
+      'ada@example.com',
+      GOOD_PASSWORD,
+      'Ada Lovelace',
+    )
+  })
+
+  it('refuses mismatched passwords without calling signUp', async () => {
+    const ctx = renderWith(<SignUpPage />)
+    await userEvent.type(screen.getByLabelText(/full name/i), 'Ada Lovelace')
+    await userEvent.type(
+      screen.getByLabelText(/email address/i),
+      'ada@example.com',
+    )
+    await userEvent.type(screen.getByLabelText('Password'), GOOD_PASSWORD)
+    await userEvent.type(
+      screen.getByLabelText(/confirm password/i),
+      'something-else-entirely',
+    )
+    await userEvent.click(
+      screen.getByRole('button', { name: /create account/i }),
+    )
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      /do not match/i,
+    )
+    expect(ctx.signUp).not.toHaveBeenCalled()
+  })
+
+  it('refuses a password under the minimum without calling signUp', async () => {
+    const ctx = renderWith(<SignUpPage />)
+    await userEvent.type(screen.getByLabelText(/full name/i), 'Ada Lovelace')
+    await userEvent.type(
+      screen.getByLabelText(/email address/i),
+      'ada@example.com',
+    )
+    await userEvent.type(screen.getByLabelText('Password'), 'short')
+    await userEvent.type(screen.getByLabelText(/confirm password/i), 'short')
+    await userEvent.click(
+      screen.getByRole('button', { name: /create account/i }),
+    )
+    expect(await screen.findByRole('alert')).toHaveTextContent(/12 characters/i)
+    expect(ctx.signUp).not.toHaveBeenCalled()
   })
 })

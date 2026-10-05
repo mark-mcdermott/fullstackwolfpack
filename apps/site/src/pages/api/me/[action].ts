@@ -96,7 +96,7 @@ import { generateDiagnostic } from '@/server/diagnostic'
 import { runTutor } from '@/server/tutor'
 import { getDueReviews, getReviewQuestions, gradeReview } from '@/server/review'
 import { json } from '../_lib/http'
-import { getSessionUserId } from '../_lib/session'
+import { getSessionUserId } from '@/server/auth'
 import { parseBody } from '../_lib/validate'
 import { devBecome } from '../_lib/dev-users'
 

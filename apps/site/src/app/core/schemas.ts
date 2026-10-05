@@ -8,47 +8,43 @@ import { ROLES, TIERS } from './access'
 // Field-level vocabulary.
 export const emailSchema = z.string().email()
 export const displayNameSchema = z.string().min(1).max(80)
-export const totpTokenSchema = z.string().regex(/^\d{6}$/, 'Enter the 6-digit code')
+// Must stay >= better-auth's configured minPasswordLength (src/app/server/auth.ts),
+// which rejects anything shorter server-side regardless of what this allows.
+export const passwordSchema = z
+  .string()
+  .min(12, 'Use at least 12 characters')
+  .max(128)
 
 // The user every surface and the server agree on (never includes the secret).
 export const publicUserSchema = z.object({
   id: z.string(),
   email: emailSchema,
   displayName: displayNameSchema,
-  totpEnabled: z.boolean(),
+  emailVerified: z.boolean(),
   role: z.enum(ROLES),
   tier: z.enum(TIERS),
 })
 export type PublicUser = z.infer<typeof publicUserSchema>
 
-// Request DTOs — the server validates these on the way in. The WebAuthn
-// `response` is left as unknown here; @simplewebauthn validates its structure.
-export const registerOptionsRequest = z.object({
+// Request DTOs. These mirror better-auth's own endpoint bodies, so the field
+// names are its contract rather than ours — `name`, not `displayName`.
+export const signUpRequest = z.object({
   email: emailSchema,
-  displayName: displayNameSchema,
+  password: passwordSchema,
+  name: displayNameSchema,
 })
-export const loginOptionsRequest = z.object({ email: emailSchema })
-export const passkeyVerifyRequest = z.object({
+export const signInRequest = z.object({
   email: emailSchema,
-  response: z.unknown(),
+  password: z.string().min(1, 'Enter your password'),
 })
-export const recoverRequest = z.object({
-  email: emailSchema,
-  token: totpTokenSchema,
+export const forgotPasswordRequest = z.object({ email: emailSchema })
+export const resetPasswordRequest = z.object({
+  token: z.string().min(1),
+  newPassword: passwordSchema,
 })
-export const totpEnableRequest = z.object({ token: totpTokenSchema })
 
 // Response DTOs — the client parses these so a bad payload fails loudly.
-export const authResultSchema = z.object({
-  verified: z.boolean(),
-  user: publicUserSchema,
-})
-export type AuthResult = z.infer<typeof authResultSchema>
-
 export const meResultSchema = z.object({ user: publicUserSchema.nullable() })
-
-export const totpSetupSchema = z.object({ uri: z.string(), secret: z.string() })
-export type TotpSetup = z.infer<typeof totpSetupSchema>
 
 export const protectedResultSchema = z.object({ message: z.string() })
 

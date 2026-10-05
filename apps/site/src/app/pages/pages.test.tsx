@@ -107,7 +107,7 @@ const adminUser: PublicUser = {
   id: 'u1',
   email: 'mark@x.com',
   displayName: 'Mark',
-  totpEnabled: false,
+  emailVerified: true,
   role: 'admin',
   tier: 'pro',
 }
