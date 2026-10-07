@@ -7,3 +7,16 @@ packages:
 # platform binary, so the build cannot run without it.
 onlyBuiltDependencies:
   - esbuild
+
+# Transitive-only security fixes. Each key is scoped to the one parent that
+# pins the vulnerable range, so nothing else in the tree is touched.
+overrides:
+  # GHSA-9wv6-86v2-598j: @vercel/routing-utils pins path-to-regexp 6.1.0
+  # (ReDoS). It already ships 6.3.0 as path-to-regexp-updated; use that.
+  "@vercel/routing-utils>path-to-regexp": "6.3.0"
+  # GHSA-67mh-4wv8-2f99: drizzle-kit's deprecated @esbuild-kit loader pins
+  # esbuild ~0.18 (dev-server CORS). 0.25.12 is what drizzle-kit itself uses.
+  "@esbuild-kit/core-utils>esbuild": "^0.25.12"
+  # GHSA-w5hq-g745-h8pq: @capacitor/cli -> xcode pins uuid ^7 (buffer bounds).
+  # uuid 11 still ships the CommonJS build xcode requires.
+  "xcode>uuid": "^11.1.1"
