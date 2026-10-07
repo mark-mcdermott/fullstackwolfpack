@@ -20,3 +20,6 @@ overrides:
   # GHSA-w5hq-g745-h8pq: @capacitor/cli -> xcode pins uuid ^7 (buffer bounds).
   # uuid 11 still ships the CommonJS build xcode requires.
   "xcode>uuid": "^11.1.1"
+  # GHSA-pqg4-j6r4-53mv: concurrently pins shell-quote 1.9.0 (quote() command
+  # injection via a line terminator after a comment token).
+  "concurrently>shell-quote": "^1.11.0"
