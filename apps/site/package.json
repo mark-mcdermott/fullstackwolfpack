@@ -47,7 +47,7 @@
     "codemirror": "^6.0.2",
     "drizzle-orm": "^0.45.3",
     "lucide-react": "^1.51.0",
-    "nodemailer": "^10.0.16",
+    "nodemailer": "^10.1.4",
     "nostalgist": "^0.21.1",
     "qrcode.react": "^4.2.0",
     "react": "^19.3.0",
